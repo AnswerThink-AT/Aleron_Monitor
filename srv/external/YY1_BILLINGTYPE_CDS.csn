@@ -1,0 +1,48 @@
+{
+ "meta": {
+  "creator": "cds-dk 8.9.2"
+ },
+ "$version": "2.0",
+ "definitions": {
+  "YY1_BILLINGTYPE_CDS": {
+   "kind": "service",
+   "@cds.external": true,
+   "@m.IsDefaultEntityContainer": "true",
+   "@sap.message.scope.supported": "true",
+   "@sap.supported.formats": "atom json xlsx"
+  },
+  "YY1_BILLINGTYPE_CDS.YY1_BILLINGTYPE": {
+   "kind": "entity",
+   "@cds.external": true,
+   "@cds.persistence.skip": true,
+   "@sap.searchable": "true",
+   "@sap.content.version": "1",
+   "@sap.label": "Billing type",
+   "elements": {
+    "SAP_UUID": {
+     "key": true,
+     "type": "cds.UUID",
+     "@sap.label": "UUID",
+     "@sap.quickinfo": "16 Byte UUID in 16 Bytes (Raw Format)",
+     "notNull": true
+    },
+    "SO_order_Type": {
+     "type": "cds.String",
+     "length": 4,
+     "@sap.label": "SO order Type",
+     "@sap.quickinfo": "Sales order Type"
+    },
+    "Billing_type": {
+     "type": "cds.String",
+     "length": 4,
+     "@sap.label": "Billing type"
+    },
+    "StandardOrderType": {
+     "type": "cds.String",
+     "length": 20,
+     "@sap.label": "Standard Order Type"
+    }
+   }
+  }
+ }
+}

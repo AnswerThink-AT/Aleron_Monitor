@@ -1,0 +1,10 @@
+code,name,descr
+0,Created,Created
+1,Approved,Approved
+2,Settled,Settled
+3,Sales Order Updated,Sales Order Updated
+4,Purchase Order Updated,Purchase Order Updated
+5,Completed,Completed
+6,Cancelled,Cancelled
+7,Draft,Draft
+8,Settle Error, Settle Error

@@ -1,0 +1,89 @@
+
+###
+# Environment should be switched by commenting either BAS environment or Local VSCode environment. Make sure to comment the other environment.
+# Region for comment would be - Start to - End
+
+### BAS environment -- Start
+@s4_base_url=http://S4HC_MONITOR_BASIC_AUTH_CUST.dest
+@default_headers=Content-Type: application/json
+### BAS environment -- End
+
+# ### Local VSCode environment - Start
+# @s4_user={{$dotenv s4_user}}
+# @s4_pass={{$dotenv s4_pass}}
+# @s4_base_url=https://my420210-api.s4hana.cloud.sap
+# @basic_auth=Authorization: Basic {{s4_user}}:{{s4_pass}}
+# @default_headers=Content-Type: application/json\n{{basic_auth}}
+### Local VSCode environment - End
+
+# Service Variables
+@svc_url={{s4_base_url}}/sap/opu/odata/sap/API_BUSINESS_PARTNER
+
+### Metadata
+# @name metadata_call
+
+GET {{svc_url}}/$metadata
+{{default_headers}}
+X-CSRF-Token: Fetch
+
+###
+@csrf_token={{metadata_call.response.headers.X-CSRF-Token}}
+
+### Get Business Partner
+GET {{svc_url}}/A_CustSalesPartnerFunc
+?$format=json
+&$top=50
+# &$select=Customer,SalesOrganization,BPCustomerNumber,PartnerFunction
+# &$filter=SalesOrganization eq '1100' and PartnerFunction eq 'Z1' and BPCustomerNumber eq '10000' and Customer eq '10000'
+# &$filter=SalesOrganization eq '1200' and PartnerFunction eq 'BP' and BPCustomerNumber eq '300044' and Customer eq '10409'
+&$filter=SalesOrganization eq '1100' and PartnerFunction eq 'SP'
+{{default_headers}}
+
+### Get Business Partner > Get SalesOrganization, Division, DistributionChannel, Customer from SalesContract API (based on contractNo)
+GET {{svc_url}}/A_CustSalesPartnerFunc
+?$format=json
+# &$inlinecount=allpages
+# &$top=50
+&$select=Customer,SalesOrganization,BPCustomerNumber,PartnerFunction,AddressID
+&$filter=(SalesOrganization eq '1100' and Customer eq '15163' and BPCustomerNumber eq '301385')
+{{default_headers}}
+
+### Get Business Partner Address
+GET {{svc_url}}/A_BusinessPartnerAddress
+?$format=json
+&$top=40
+&$inlinecount=allpages
+{{default_headers}}
+
+### Get Business Partner Address
+GET {{svc_url}}/A_BusinessPartnerAddress
+?$format=json
+&$filter=BusinessPartner eq 'SDICA-CA'
+&$inlinecount=allpages
+{{default_headers}}
+
+### Get Customer
+
+Get {{svc_url}}/A_CustomerSalesArea
+?$format=json
+&$top=50
+&$expand=to_SalesAreaText
+&$inlinecount=allpages
+
+### Get Supplier Account Group
+
+Get {{svc_url}}/A_Supplier
+?$format=json
+&$top=50
+# &$select=SupplierAccountGroup,Supplier
+# &$filter=Supplier eq 'remit vendor'
+&$inlinecount=allpages
+
+### Get Business Partner > Get SalesOrganization, Division, DistributionChannel, Customer from SalesContract API (based on contractNo)
+GET {{svc_url}}/A_SalesPartnerFunc
+?$format=json
+&$inlinecount=allpages
+&$top=50
+# &$select=Customer,SalesOrganization,BPCustomerNumber,PartnerFunction,AddressID
+&$filter=(SalesOrganization eq '1100' and Customer eq '10364' and Division eq '01' and DistributionChannel eq '01') or (SalesOrganization eq '1200' and Customer eq '10362' and Division eq '01' and DistributionChannel eq '01')
+{{default_headers}}

@@ -1,0 +1,442 @@
+@svc = http://localhost:4004/odata/v4/monitor
+@default_headers=Content-Type: application/json
+
+### Files
+GET {{svc}}/$metadata
+
+### Files
+# @name Files_GET
+GET {{svc}}/Files
+?$filter=ID eq '1025'
+&$expand=to_SowScInvoice
+# ?$expand=to_Times
+
+
+### Files Drafts GET
+# @name Files_Drafts_GET
+GET {{svc}}/Files?$filter=(IsActiveEntity eq false)
+
+
+
+### Files Draft POST
+# @name Files_Draft_POST
+POST {{svc}}/Files
+Content-Type: application/json
+
+
+{
+  "name": "name-8945474",
+  "type": "csv",
+  "status": {
+    "code": 1
+  },
+  "interfaceType": {
+    "ID": "3"
+  },
+  "source": "LOCAL",
+  "recordsCount": 2,
+  "reprocessed": true,
+  "processMessage": "processMessage-8945474",
+  "processLevel": {
+    "code": "0"
+  }
+}
+
+
+### Result from POST request above
+@draftID = {{Files_Draft_POST.response.body.$.ID}}
+
+
+### Files Draft PATCH
+# @name Files_Draft_Patch
+PATCH {{svc}}/Files(ID={{draftID}},IsActiveEntity=false)
+Content-Type: application/json
+
+
+{
+  "HasActiveEntity": true
+}
+
+
+### Files Draft Prepare
+# @name Files_Draft_Prepare
+POST {{svc}}/Files(ID={{draftID}},IsActiveEntity=false)/MonitorService.draftPrepare
+Content-Type: application/json
+
+
+{}
+
+
+### Files Draft Activate
+# @name Files_Draft_Activate
+POST {{svc}}/Files(ID={{draftID}},IsActiveEntity=false)/MonitorService.draftActivate
+Content-Type: application/json
+
+
+{}
+
+
+### FileUpload
+# @name FileUpload_GET
+GET {{svc}}/FileUpload
+
+
+
+### FileUpload
+# @name FileUpload_POST
+POST {{svc}}/FileUpload
+Content-Type: application/json
+
+
+{
+  "fileName": "FileUpload-7713365",
+  "fileType": "fileType-7713365"
+}
+
+
+### FileUpload
+# @name FileUpload_PATCH
+PATCH {{svc}}/FileUpload/FileUpload-7713365
+Content-Type: application/json
+
+
+{
+  "fileName": "FileUpload-7713365",
+  "fileType": "fileType-7713365"
+}
+
+
+### FileUpload
+# @name FileUpload_DELETE
+DELETE {{svc}}/FileUpload/FileUpload-7713365
+Content-Type: application/json
+
+### Times
+# @name Times_GET
+GET {{svc}}/Times
+
+### Times
+# @name Times_DELETE
+DELETE {{svc}}/Times(ID=20473912-c6bb-4799-8e5f-0d34c9a08883,file=[object Object])
+Content-Type: application/json
+
+### FileStatus
+# @name FileStatus_GET
+GET {{svc}}/FileStatus
+
+### InterfaceTypes
+# @name InterfaceTypes_GET
+GET {{svc}}/InterfaceTypes
+
+
+### Processes
+# @name Processes_GET
+GET {{svc}}/Processes
+
+
+
+### Files EDIT
+PATCH {{svc}}/Files(ID=118,IsActiveEntity=true)
+Content-Type: application/json
+
+{
+  "status_code": 1
+}
+
+### Process File - Action call
+POST {{svc}}/processFile
+Content-Type: application/json
+
+{
+  "fileNumber":118,
+  "records":[]
+}
+
+### Update EmployeeHires
+PATCH {{svc}}/EmployeeHires(file_ID='118',ID='9ce00211-387f-4d6c-85b6-6623ac89aa04',IsActiveEntity=true)
+Content-Type: application/json
+
+{
+  "contractNo": "40000000"
+}
+
+### Get ProcessLogs
+GET {{svc}}/ProcessLogs
+
+### Add ProcessLogs
+POST {{svc}}/addLogs
+Content-Type: application/json
+
+{
+  "logs": [{
+    "record_ID": "9ce00211-387f-4d6c-85b6-6623ac89aa04",
+    "type_code": 5,
+    "message": "Message from HTTP file"
+  }, {
+    "record_ID": "9ce00211-387f-4d6c-85b6-6623ac89aa04",
+    "type_code": 5,
+    "message": "Message from HTTP file 2"
+  }]
+}
+
+###
+POST {{svc}}/updateRecords
+Content-Type: application/json
+
+{
+  "interfaceType": "3",
+  "records": [
+    {
+      "ID": "9ce00211-387f-4d6c-85b6-6623ac89aa04",
+      "file_ID": 118,
+      // any field as per entity 'EmployeeHires'
+    }
+  ]
+}
+
+### Validate File - Action call
+POST {{svc}}/validateFile
+Content-Type: application/json
+
+{}
+
+
+
+### Create Files - Active Entity
+POST {{svc}}/Files
+Content-Type: application/json
+
+{
+  "name": "File from CSV",
+  "type": "csv",
+  "status": {
+    "code": 4
+  },
+  "interfaceType": {
+    "ID": "3"
+  },
+  "source": "SFTP",
+  "recordsCount": 2,
+  "reprocessed": false,
+  "processMessage": "nothing",
+  "processLevel": {
+    "code": "0"
+  },
+  "times": [
+    {
+        "contractNo": "1",
+        "orderNo": "123"
+    },
+    {
+        "contractNo": "2",
+        "orderNo": "456"
+    }
+  ],
+  "IsActiveEntity": true
+}
+
+
+### Change Files - Active Entity
+PATCH {{svc}}/Files(ID=16,IsActiveEntity=true)
+Content-Type: application/json
+
+{
+  "name": "changed without draft",
+  "type": "csv",
+  "status": {
+    "code": 1
+  },
+  "interfaceType": {
+    "ID": "3"
+  },
+  "source": "SFTP",
+  "recordsCount": 2,
+  "reprocessed": false,
+  "processMessage": "nothing",
+  "processLevel": {
+    "code": "0"
+  }
+}
+
+
+### EmployeeHires
+POST {{svc}}/Files
+Content-Type: application/json
+
+<@ ./EmployeeHires.json
+
+
+###
+
+GET http://S4HC_MONITOR_BASIC_AUTH_CUST.dest/sap/opu/odata4/sap/api_salesorder/srvd_a2x/sap/salesorder/0001/SalesOrder
+
+
+###
+
+GET http://S4HC_MONITOR_BASIC_AUTH_CUST.dest/sap/opu/odata/sap/YY1_SALESVCDATA_2_CDS/$metadata
+
+###
+
+GET {{svc}}/EmployeeHires
+?$filter=valid eq 'true' and processLevel_code eq '1'
+
+
+
+### Employee Hire T flow
+
+### Create File with EmployeeHires
+# @name create_employeehire_call
+POST {{svc}}/Files
+{{default_headers}}
+
+# <@ ./payloads/EmployeeHires_Create_WithProject.json
+# <@ ./payloads/EmployeeHires_Create_Invalid.json
+<@ ./payloads/EmployeeHires_Create.json
+
+
+###
+@createdFileID={{create_employeehire_call.response.body.ID}}
+@firstRecordID={{create_employeehire_call.response.body.to_EmployeeHires[0].ID}}
+# @createdFileID=218
+# @firstRecordID="d9af7eaf-7b3a-4bfa-a61b-9b6976531bc1"
+
+
+### Reset file to initial state
+# PATCH {{svc}}/Files(ID={{createdFileID}},IsActiveEntity=true)
+PATCH {{svc}}/Files(ID={{createdFileID}},IsActiveEntity=true)
+{{default_headers}}
+
+{
+  "status_code": 1
+}
+
+### Process File - Action call
+POST {{svc}}/processFile
+{{default_headers}}
+
+{
+  "fileNumber": "{{createdFileID}}",
+  "records":[
+  ],
+  "from": "-1"
+}
+
+### Process Records - Action call
+POST {{svc}}/processFile
+{{default_headers}}
+
+{
+  "fileNumber": "{{createdFileID}}",
+  "records":[
+    "{{firstRecordID}}"
+  ],
+  "from": "2"
+}
+
+
+### validate
+
+POST {{svc}}/validateFile
+Content-Type: application/json
+
+{
+  "fileNumber": "{{createdFileID}}",
+  "records": [
+    "{{firstRecordID}}"
+  ]
+}
+
+### Update EmployeeHires - Intergration Step
+POST {{svc}}/updateRecords
+{{default_headers}}
+
+{
+  "interfaceType": "T",
+  "records" : [
+    {
+      "ID": "{{firstRecordID}}",
+      "file_ID": "{{createdFileID}}",
+      "valid": true,
+      "processLevel_code": "2",
+      "personnelNoSAP": "10000103"
+    }
+  ]
+}
+
+
+###
+
+
+### Files > EmployeeHires
+GET {{svc}}/Files
+?$filter=ID eq '{{createdFileID}}'
+&$expand=to_EmployeeHires($select=contractNo,processLevel_code,projectNumberSAP,valid,personnelNoSAP,salesDocumentNoSAP,salesItemNoSAP)
+
+###
+
+GET {{svc}}/ProcessLogs
+?$select=ID,IsActiveEntity,message
+&$filter=record_ID eq '{{firstRecordID}}'
+&$skip=0
+&$top=100
+
+###
+
+GET {{svc}}/ProcessLogs
+?$select=ID
+&$filter=record_ID eq '3ed75c7e-0c2b-41d9-8208-27baee84604e'
+
+###
+DELETE  {{svc}}/ProcessLogs(ID='34739e42-8849-49f7-9464-81d58ceec8ec', IsActiveEntity= true)
+###
+POST {{svc}}/testFunction
+
+###
+POST {{svc}}/testFunction
+
+
+###
+
+### Process File - Action call
+POST {{svc}}/processFile
+{{default_headers}}
+
+{
+  "fileNumber": "292",
+  "records":[
+    "073c4055-30fd-4e0c-acab-bd1fa99ded4d"
+  ],
+  "from": "3"
+}
+
+
+###
+
+POST {{svc}}/updateRecords
+{{default_headers}}
+
+{
+  "interfaceType": "1",
+  "records": [
+    {
+      "ID": "30f1c505-305c-4a33-b554-d5ff4f27315c",
+      "file_ID": 412,
+      "valid": true,
+      "processLevel_code": 2,
+      "personnelNoSAP": "50006826"
+    }
+  ]
+}
+
+### Update ProcessLogs (Always removes existing logs first, then inserts new ones)
+POST {{svc}}/updateLogs
+Content-Type: application/json
+
+{
+  "logs": [{
+    "record_ID": "05c60b6f-04e1-451c-b5d6-482be89f1f9e",
+    "type_code": 1,
+    "message": "Log Message after removing existing logs"
+  }],
+  "record_ID": "05c60b6f-04e1-451c-b5d6-482be89f1f9e"
+}

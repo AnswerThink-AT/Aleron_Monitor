@@ -1,0 +1,36 @@
+<core:FragmentDefinition
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core">
+
+  <Dialog
+    id="countrySelectDialog"
+    title="Select Country / Currency"
+    draggable="true"
+    stretchOnPhone="true"
+    contentHeight="360px"        
+    contentWidth ="300px">       
+
+    <VBox id="_IDGenVBox6" class="sapUiSmallMargin">
+      <SearchField
+        id="countryDialogSearch"
+        placeholder="Search countries…"
+        liveChange=".onCountrySearch"
+        search    =".onCountrySearch" />
+
+      <List
+        id="countryDialogList"
+        mode="SingleSelectMaster"
+        selectionChange=".onCountrySelect"
+        items="{ccMap>/}">
+        <StandardListItem id="_IDGenStandardListItem"
+          title="Country: {ccMap>Country}"
+          description="Currency: {ccMap>Currency}"
+          type="Active" />
+      </List>
+    </VBox>
+
+    <endButton>
+      <Button id="_IDGenButton8" text="Cancel" press=".onCountryDialogCancel"/>
+    </endButton>
+  </Dialog>
+</core:FragmentDefinition>

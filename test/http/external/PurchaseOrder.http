@@ -1,0 +1,67 @@
+###
+# Environment should be switched by commenting either BAS environment or Local VSCode environment. Make sure to comment the other environment.
+# Region for comment would be - Start to - End
+
+### BAS environment -- Start
+@s4_base_url=http://S4HC_MONITOR_BASIC_AUTH_CUST.dest
+@default_headers=Content-Type: application/json
+@Accept=Accept: application/json
+
+
+@svc_url_v4={{s4_base_url}}/sap/opu/odata4/sap/api_purchaseorder_2/srvd_a2x/sap/purchaseorder/0001
+@svc=http://localhost:4004/odata/v4/monitor
+
+# @name metadata_call
+
+GET {{svc_url_v4}}/$metadata
+{{default_headers}}
+X-CSRF-Token: Fetch
+
+###
+@csrf_token={{metadata_call.response.headers.X-CSRF-Token}}
+
+### Get PO
+GET {{svc_url_v4}}/PurchaseOrder
+?$format=json
+&$filter=PurchaseOrder eq '4500003802'
+&$expand=_PurchaseOrderPartner,_PurchaseOrderItem
+&$top=10
+{{default_headers}}
+{{Accept}}
+
+# ('4500000096')/_PurchaseOrderItem?$filter=PurchaseOrderItem eq
+
+### Get PO
+GET {{svc_url_v4}}/PurchaseOrderItem
+?$format=json
+&$filter=PurchaseOrder eq '4500000096'
+&$expand=_DeliveryAddress
+&$top=10
+{{default_headers}}
+{{Accept}}
+
+### Update call
+PATCH {{svc_url_v4}}/PurchaseOrderItem(4500000096)
+Content-Type: application/json
+X-CSRF-Token: {{csrf_token}}
+If-Match: *
+
+{   
+    "YY1_WNWorkOrder_PDI" : "2700000010"       
+}
+
+### Create PO
+# @name create_po_call
+POST {{svc_url_v4}}/PurchaseOrder
+X-CSRF-Token: {{csrf_token}}
+{{default_headers}}
+
+<@ ./payloads/PO.json
+
+### Create PO_FInal
+# @name create_po_call
+POST {{svc_url_v4}}/PurchaseOrder
+X-CSRF-Token: {{csrf_token}}
+{{default_headers}}
+
+<@ ./payloads/PO_Final.json

@@ -1,0 +1,51 @@
+{
+    "SalesOrderType": "OR",
+    "DistributionChannel": "IC",
+    "SoldToParty": "10302",
+    "PurchaseOrderByShipToParty": "100",
+    "SDDocumentReason": "",
+    "PricingDate": "/Date(1745446054450)/",
+    "IncotermsClassification": "DAP",
+    "IncotermsLocation1": "1",
+    "CustomerPaymentTerms": "NT65",
+    "YY1_CustomSalesOrder_SDH": "ZWCP",
+    "AdditionalCustomerGroup1": "ZBN",
+    "AdditionalCustomerGroup2": "ZWN",
+    "AdditionalCustomerGroup3": "",
+    "ReferenceSDDocumentCategory": "G",
+    "to_Item": [
+        {
+            "SalesOrderItemCategory": "TADN",
+            "Material": "100000255",
+            "RequestedQuantity": "1",
+            "RequestedQuantityUnit": "LAB",
+            "RequestedQuantitySAPUnit": "LAB",
+            "RequestedQuantityISOUnit": "_01",
+            "TransactionCurrency": "USD",
+            "YY1_EEGroup_SD_SDI": "7",
+            "YY1_StrTimeMarkup_SD_SDI": "13.06",
+            "YY1_OverTimeMarkup_SD_SDI": "13.07",
+            "YY1_DoubTimeMarkup_SD_SDI": "13.07",
+            "ReferenceSDDocument": "40000040",
+            "ReferenceSDDocumentItem": "10",
+            "WBSElement": "4400000026",
+            "to_ScheduleLine": [
+                {
+                    "RequestedDeliveryDate": "/Date(1745446054451)/",
+                    "ScheduleLineOrderQuantity": "1",
+                    "OrderQuantityISOUnit": "_01"
+                }
+            ]
+        }
+    ],
+    "to_Partner": [
+        {
+            "PartnerFunction": "AG",
+            "Customer": "10302"
+        },
+        {
+            "PartnerFunction": "RE",
+            "Customer": "300145"
+        }
+    ]
+}

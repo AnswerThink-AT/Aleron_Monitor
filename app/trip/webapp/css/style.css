@@ -1,0 +1,18 @@
+span[id*="__button1-internalBtn-img"] {
+    display: none !important;
+  }
+  span[data-sap-ui-icon-content=""] {
+    display: none !important;
+  }
+.sapMMenuBtn .sapMBtnInner::after {
+    display: none !important;
+}
+
+[id*="Approve"] .sapMBtnInner {
+  background-color: #4CAF50 !important;
+  border-color: #4CAF50 !important;
+}
+
+[id*="Approve"] .sapMBtnContent {
+  color: white !important;
+}

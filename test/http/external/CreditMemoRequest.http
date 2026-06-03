@@ -1,0 +1,28 @@
+###
+# Environment should be switched by commenting either BAS environment or Local VSCode environment. Make sure to comment the other environment.
+# Region for comment would be - Start to - End
+
+### BAS environment -- Start
+@s4_base_url=http://S4HC_MONITOR_BASIC_AUTH_CUST.dest
+@default_headers=Content-Type: application/json
+@Accept=Accept: application/json
+
+@svc_url_v2={{s4_base_url}}/sap/opu/odata/sap/API_CREDIT_MEMO_REQUEST_SRV
+@svc=http://localhost:4004/odata/v4/monitor
+
+# @name metadata_call
+
+GET {{svc_url_v2}}/$metadata
+{{default_headers}}
+X-CSRF-Token: Fetch
+
+###
+@csrf_token={{metadata_call.response.headers.X-CSRF-Token}}
+
+### Create Credit Memo Request
+# @name create_credit_memo_request_call
+POST {{svc_url_v2}}/A_CreditMemoRequest
+X-CSRF-Token: {{csrf_token}}
+{{default_headers}}
+
+<@ ./payloads/CreditMemoRequest.json 

@@ -1,0 +1,10 @@
+code,locale,name,descr
+0,en,Created,Created
+1,en,Approved,Approved
+2,en,Settled,Settled
+3,en,Sales Order Updated,Sales Order Updated
+4,en,Purchase Order Updated,Purchase Order Updated
+5,en,Completed,Completed
+6,en,Cancelled,Cancelled
+7,en,Draft,Draft
+8,en,Settle Error, Settle Error

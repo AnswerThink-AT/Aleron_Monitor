@@ -1,0 +1,27 @@
+ID,tableName,tableDescr
+a43675ee-79af-44eb-826d-9c9555291c4a,IFT,001 Interface Type Configuration
+b526ce31-5a9e-4916-9961-20bb1743c89b,IFS,002 Interface Steps Configuration
+cc922c41-2cf3-4285-9f91-50ab0b191b6c,FV,003 Filed Validation Configuration
+d17e998b-b573-4a0e-9f18-728a083d6f7d,PL,004 Processes Configuration
+e2e3a60b-ea32-4d8c-8aff-048864dddace,CSO,005 Customer SO Mapping Configuration
+fe184c3b-92c4-4bda-a6cf-aec221d7110f,SI,006 Skip Interface Configuration
+fe184c3b-92c4-4bda-a6cf-aec221d7111f,PO,007 Labor PO and Expense PO Configuration
+fe184c3b-92c4-4bda-a6cf-aec221d7112f,PT,008 Payment Term Configuration
+fe184c3b-92c4-4bda-a6cf-aec221d71130,VVR,009 Vendor and Vendor Remit Configuration
+fe184c3b-92c4-4bda-a6cf-aec221d71131,CEPC,010 Customer EDI Partner Config Configuration
+fe184c3b-92c4-4bda-a6cf-aec221d71132,ESDFES,011 EDI SHIFT Diff. for Emp SubGroup Configuration
+fe184c3b-92c4-4bda-a6cf-aec221d71133,ESDFC,012 EDI SHIFT Diff. for Canada Configuration
+fe184c3b-92c4-4bda-a6cf-aec221d71134,PTJC,013 Province - Tax Jurisdiction Code Configuration
+fe184c3b-92c4-4bda-a6cf-aec221d71135,CTJC,014 City - Tax Jurisdiction Code Configuration
+fe184c3b-92c4-4bda-a6cf-aec221d71136,COTJC,015 County - Tax Jurisdiction Code Configuration
+fe184c3b-92c4-4bda-a6cf-aec221d71137,DEPF,016 FG - Default Emp for Z3 (PF) Configuration
+fe184c3b-92c4-4bda-a6cf-aec221d71138,SCAM,017 FG - SiteCode-Address Mapping Configuration
+fe184c3b-92c4-4bda-a6cf-aec221d71139,BU,018 FG - Business Unit Configuration
+fe184c3b-92c4-4bda-a6cf-aec221d71140,CC,019 FG - Cost Center Configuration
+fe184c3b-92c4-4bda-a6cf-aec221d71141,PTFPO,020 Payment Terms for Customer by PO BOX(Travel Exp) Configuration
+fe184c3b-92c4-4bda-a6cf-aec221d71142,PTM,021 Payment Terms Mapping(Travel Feed) Configuration
+fe184c3b-92c4-4bda-a6cf-aec221d71143,CFVC,022 Customer Specific Characteristics lookup Configuration
+fe184c3b-92c4-4bda-a6cf-aec221d71144,SUOM,023 SCON - Unit of measure Configuration
+fe184c3b-92c4-4bda-a6cf-aec221d71145,DSCT,024 Derive Sales Condition Type Configuration
+fe184c3b-92c4-4bda-a6cf-aec221d71146,CSCL,025 Customer Specific Characteristics lookup
+fe184c3b-92c4-4bda-a6cf-aec221d71147,CUD,026 Characteristic Usage

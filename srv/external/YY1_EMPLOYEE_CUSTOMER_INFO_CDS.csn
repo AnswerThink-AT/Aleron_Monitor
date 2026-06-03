@@ -1,0 +1,349 @@
+{
+ "meta": {
+  "creator": "cds-dk 8.9.2"
+ },
+ "$version": "2.0",
+ "definitions": {
+  "YY1_EMPLOYEE_CUSTOMER_INFO_CDS": {
+   "kind": "service",
+   "@cds.external": true,
+   "@m.IsDefaultEntityContainer": "true",
+   "@sap.message.scope.supported": "true",
+   "@sap.supported.formats": "atom json xlsx"
+  },
+  "YY1_EMPLOYEE_CUSTOMER_INFO_CDS.YY1_EMPLOYEE_CUSTOMER_INFO": {
+   "kind": "entity",
+   "@cds.external": true,
+   "@cds.persistence.skip": true,
+   "@sap.searchable": "true",
+   "@sap.content.version": "1",
+   "@sap.label": "EMPLOYEE_CUSTOMER_INFO",
+   "elements": {
+    "SAP_UUID": {
+     "key": true,
+     "type": "cds.UUID",
+     "@sap.label": "UUID",
+     "@sap.quickinfo": "16 Byte UUID in 16 Bytes (Raw Format)",
+     "notNull": true
+    },
+    "WORKER_ID": {
+     "type": "cds.String",
+     "length": 15,
+     "@sap.label": "Employee Number",
+     "@sap.quickinfo": "Text of length 15"
+    },
+    "Name": {
+     "type": "cds.String",
+     "length": 50,
+     "@sap.label": "Last Name",
+     "@sap.quickinfo": "Employee Name"
+    },
+    "FirstName": {
+     "type": "cds.String",
+     "length": 40,
+     "@sap.label": "First Name"
+    },
+    "MiddleName": {
+     "type": "cds.String",
+     "length": 40,
+     "@sap.label": "Middle Name"
+    },
+    "WorkScheduleRule": {
+     "type": "cds.String",
+     "length": 20,
+     "@sap.label": "Work Schedule Rule"
+    },
+    "WorkScheduleType": {
+     "type": "cds.String",
+     "length": 20,
+     "@sap.label": "Work Schedule Type"
+    },
+    "EmployeePersonnelArea": {
+     "type": "cds.String",
+     "length": 4,
+     "@sap.label": "Employee Personnel Area"
+    },
+    "EmploymentType": {
+     "type": "cds.String",
+     "length": 10,
+     "@sap.label": "Employment Type"
+    },
+    "SSN": {
+     "type": "cds.String",
+     "length": 15,
+     "@sap.label": "Social Security Number"
+    },
+    "EMP_GRP": {
+     "type": "cds.String",
+     "length": 1,
+     "@sap.label": "Employee Group"
+    },
+    "EMP_SUBGRP": {
+     "type": "cds.String",
+     "length": 2,
+     "@sap.label": "Employee Subgroup"
+    },
+    "START_DATE": {
+     "type": "cds.Date",
+     "@sap.display.format": "Date",
+     "@sap.label": "Start Date"
+    },
+    "END_DATE": {
+     "type": "cds.Date",
+     "@sap.display.format": "Date",
+     "@sap.label": "End Date"
+    },
+    "CONTRAT_SAP": {
+     "type": "cds.String",
+     "length": 15,
+     "@sap.label": "Contract Number"
+    },
+    "SALES_ORD_SAP": {
+     "type": "cds.String",
+     "length": 15,
+     "@sap.label": "Sales Order Number"
+    },
+    "PROJECT_ID": {
+     "type": "cds.String",
+     "length": 15,
+     "@sap.label": "Project ID"
+    },
+    "PROJECT_NAME": {
+     "type": "cds.String",
+     "length": 30,
+     "@sap.label": "Project Name"
+    },
+    "CUSTOMER_ID": {
+     "type": "cds.String",
+     "length": 10,
+     "@sap.label": "Customer Number"
+    },
+    "SS_ORDER": {
+     "type": "cds.String",
+     "length": 10,
+     "@sap.label": "SS Sales Document"
+    },
+    "WN_ORDER": {
+     "type": "cds.String",
+     "length": 10,
+     "@sap.label": "WN Sales Document"
+    },
+    "POSITION_ID": {
+     "type": "cds.Decimal",
+     "precision": 8,
+     "scale": 0,
+     "@sap.label": "Position"
+    },
+    "JOB_ID": {
+     "type": "cds.Decimal",
+     "precision": 8,
+     "scale": 0,
+     "@sap.label": "Job"
+    },
+    "ZPAYROLL": {
+     "type": "cds.String",
+     "length": 10,
+     "@sap.label": "Payroll or Recruited"
+    },
+    "RECRID": {
+     "type": "cds.Decimal",
+     "precision": 8,
+     "scale": 0,
+     "@sap.label": "Recruiter ID"
+    },
+    "ZTIME_IND": {
+     "type": "cds.String",
+     "length": 3,
+     "@sap.label": "Work Nexus Time Indicator"
+    },
+    "ZHIRE_ACTION": {
+     "type": "cds.String",
+     "length": 3,
+     "@sap.label": "Cust Hire Act"
+    },
+    "ACTION_TYPE": {
+     "type": "cds.String",
+     "length": 2,
+     "@sap.label": "Custom Actions for inf. 9001"
+    },
+    "T_REASON": {
+     "type": "cds.String",
+     "length": 2,
+     "@sap.label": "Termination Reason"
+    },
+    "ZHRREPT": {
+     "type": "cds.String",
+     "length": 3,
+     "@sap.label": "HR Report"
+    },
+    "CreatedOn": {
+     "type": "cds.Date",
+     "@sap.display.format": "Date",
+     "@sap.label": "Created On"
+    }
+   }
+  },
+  "YY1_EMPLOYEE_CUSTOMER_INFO_CDS.YY1_EMPLOYEE_CUSTOMER_INFOSap_upsert": {
+   "kind": "action",
+   "@cds.external": true,
+   "params": {
+    "WORKER_ID": {
+     "type": "cds.String",
+     "length": 15,
+     "@sap.label": "Text of length 15"
+    },
+    "Name": {
+     "type": "cds.String",
+     "length": 50,
+     "@sap.label": "Text of length 50"
+    },
+    "FirstName": {
+     "type": "cds.String",
+     "length": 40,
+     "@sap.label": "Text of length 40"
+    },
+    "MiddleName": {
+     "type": "cds.String",
+     "length": 40,
+     "@sap.label": "Text of length 40"
+    },
+    "WorkScheduleRule": {
+     "type": "cds.String",
+     "length": 20,
+     "@sap.label": "Text of length 20"
+    },
+    "WorkScheduleType": {
+     "type": "cds.String",
+     "length": 20,
+     "@sap.label": "Text of length 20"
+    },
+    "EmployeePersonnelArea": {
+     "type": "cds.String",
+     "length": 4,
+     "@sap.label": "Text of length 4"
+    },
+    "EmploymentType": {
+     "type": "cds.String",
+     "length": 10,
+     "@sap.label": "Text of length 10"
+    },
+    "SSN": {
+     "type": "cds.String",
+     "length": 15,
+     "@sap.label": "Text of length 15"
+    },
+    "EMP_GRP": {
+     "type": "cds.String",
+     "length": 1,
+     "@sap.label": "Text of length 1"
+    },
+    "EMP_SUBGRP": {
+     "type": "cds.String",
+     "length": 2,
+     "@sap.label": "Text of length 2"
+    },
+    "START_DATE": {
+     "type": "cds.Date",
+     "@sap.label": "Start Date",
+     "@sap.display.format": "Date"
+    },
+    "END_DATE": {
+     "type": "cds.Date",
+     "@sap.label": "End Date",
+     "@sap.display.format": "Date"
+    },
+    "CONTRAT_SAP": {
+     "type": "cds.String",
+     "length": 15,
+     "@sap.label": "Text of length 15"
+    },
+    "SALES_ORD_SAP": {
+     "type": "cds.String",
+     "length": 15,
+     "@sap.label": "Text of length 15"
+    },
+    "PROJECT_ID": {
+     "type": "cds.String",
+     "length": 15,
+     "@sap.label": "Text of length 15"
+    },
+    "PROJECT_NAME": {
+     "type": "cds.String",
+     "length": 30,
+     "@sap.label": "Text of length 30"
+    },
+    "CUSTOMER_ID": {
+     "type": "cds.String",
+     "length": 10,
+     "@sap.label": "Text of length 10"
+    },
+    "SS_ORDER": {
+     "type": "cds.String",
+     "length": 10,
+     "@sap.label": "Text of length 10"
+    },
+    "WN_ORDER": {
+     "type": "cds.String",
+     "length": 10,
+     "@sap.label": "Text of length 10"
+    },
+    "POSITION_ID": {
+     "type": "cds.Decimal",
+     "precision": 8,
+     "scale": 0,
+     "@sap.label": "Position"
+    },
+    "JOB_ID": {
+     "type": "cds.Decimal",
+     "precision": 8,
+     "scale": 0,
+     "@sap.label": "Job"
+    },
+    "ZPAYROLL": {
+     "type": "cds.String",
+     "length": 10,
+     "@sap.label": "Text of length 10"
+    },
+    "RECRID": {
+     "type": "cds.Decimal",
+     "precision": 8,
+     "scale": 0,
+     "@sap.label": "Recruiter ID"
+    },
+    "ZTIME_IND": {
+     "type": "cds.String",
+     "length": 3,
+     "@sap.label": "Text of length 3"
+    },
+    "ZHIRE_ACTION": {
+     "type": "cds.String",
+     "length": 3,
+     "@sap.label": "Text of length 3"
+    },
+    "ACTION_TYPE": {
+     "type": "cds.String",
+     "length": 2,
+     "@sap.label": "Text of length 2"
+    },
+    "T_REASON": {
+     "type": "cds.String",
+     "length": 2,
+     "@sap.label": "Text of length 2"
+    },
+    "ZHRREPT": {
+     "type": "cds.String",
+     "length": 3,
+     "@sap.label": "Text of length 3"
+    },
+    "CreatedOn": {
+     "type": "cds.Date",
+     "@sap.label": "Created On",
+     "@sap.display.format": "Date"
+    }
+   },
+   "returns": {
+    "type": "YY1_EMPLOYEE_CUSTOMER_INFO_CDS.YY1_EMPLOYEE_CUSTOMER_INFO"
+   }
+  }
+ }
+}

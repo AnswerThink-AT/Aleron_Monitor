@@ -1,0 +1,13 @@
+code,locale,name,descr
+1,en,New,New
+1,de,Neu,Neu
+4,en,Error,Error
+4,de,Fehler,Fehler
+2,en,In Process,In Process
+2,de,In Bearbeitung,In Bearbeitung
+3,en,Completed,Completed
+3,de,Vollendet,Vollendet
+5,en,Manually Rejected,Manually Rejected
+5,de,Manuell abgelehnt,Manuell abgelehnt
+6,en,Partially Processed,Partially Processed
+6,de,Teilweise verarbeitet,Teilweise verarbeitet

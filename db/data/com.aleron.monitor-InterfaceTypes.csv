@@ -1,0 +1,18 @@
+ID,name,descr,mappedEntity,filePrefix,createdAt,createdBy,modifiedAt,modifiedBy,config_ID,config_tableName
+1,1:MS WorkOrders,MS WorkOrders,WN2SAP WO,WN2SAP_WO_,2005-02-25T00:00:00.000Z,bavarvap@qubittron.com,2005-02-25T00:00:00.000Z,bavarvap@qubittron.com,a43675ee-79af-44eb-826d-9c9555291c4a,IFT
+3,3:Times,Times,WN2SAP TIME,WN2SAP_TIM_,2005-02-25T00:00:00.000Z,nellorer@qubittron.com,2005-02-25T00:00:00.000Z,nellorer@qubittron.com,a43675ee-79af-44eb-826d-9c9555291c4a,IFT
+C,C:Staff Times,Staff Times,WN2SAP TIME,WN2SAP_TIM_,2005-02-25T00:00:00.000Z,nellorer@qubittron.com,2005-02-25T00:00:00.000Z,nellorer@qubittron.com,a43675ee-79af-44eb-826d-9c9555291c4a,IFT
+M,M:FG WorkOrders,FG WorkOrders,FG2SAP WO,FG2SAP_WO_,2005-02-25T00:00:00.000Z,routk@qubittron.com,2005-02-25T00:00:00.000Z,routk@qubittron.com,a43675ee-79af-44eb-826d-9c9555291c4a,IFT
+S,S:VMS WorkOrders,VMS WorkOrders,VNDLY2SAP WO,VNDLY2SAP_WO_,2005-02-25T00:00:00.000Z,mudrakolas@qubittron.com,2005-02-25T00:00:00.000Z,mudrakolas@qubittron.com,a43675ee-79af-44eb-826d-9c9555291c4a,IFT
+T,T:SS Employee Records,SS Employee Records,SS2SF EMP,SS2SAP_EEREC_,2005-02-25T00:00:00.000Z,mudrakolas@qubittron.com,2005-02-25T00:00:00.000Z,mudrakolas@qubittron.com,a43675ee-79af-44eb-826d-9c9555291c4a,IFT
+U,U:SS Staff Hire,SS Staff Hire,SS2SF STAFF,SS2SAP_STAFF_,2005-02-25T00:00:00.000Z,mudrakolas@qubittron.com,2005-02-25T00:00:00.000Z,mudrakolas@qubittron.com,a43675ee-79af-44eb-826d-9c9555291c4a,IFT
+4,4:Employee Termination,Employee Termination,Employee Termination,WN2SAP_TRM_,2005-02-25T00:00:00.000Z,mudrakolas@qubittron.com,2005-02-25T00:00:00.000Z,mudrakolas@qubittron.com,a43675ee-79af-44eb-826d-9c9555291c4a,IFT
+D,D:Credit-Rebill,ECredit-Rebill,Credit-Rebill,WN2SAP_REBILL,2005-02-25T00:00:00.000Z,mudrakolas@qubittron.com,2005-02-25T00:00:00.000Z,mudrakolas@qubittron.com,a43675ee-79af-44eb-826d-9c9555291c4a,IFT
+O,O:Other Billable,Other Billable,Other Billable,WN2SAP_OTHER_BIL_,2005-02-25T00:00:00.000Z,mudrakolas@qubittron.com,2005-02-25T00:00:00.000Z,mudrakolas@qubittron.com,a43675ee-79af-44eb-826d-9c9555291c4a,IFT
+G,G:Bonus,Bonus,Bonus,WN2SAP_BONUS_,2005-02-25T00:00:00.000Z,mudrakolas@qubittron.com,2005-02-25T00:00:00.000Z,mudrakolas@qubittron.com,a43675ee-79af-44eb-826d-9c9555291c4a,IFT
+E,E:SowScWo,SowScWo,SowScWo,WN2SAP_BONUS_,2005-02-25T00:00:00.000Z,mudrakolas@qubittron.com,2005-02-25T00:00:00.000Z,mudrakolas@qubittron.com,a43675ee-79af-44eb-826d-9c9555291c4a,IFT
+F,F:SowScInvoice,SowScInvoice,SowScInvoice,WN2SAP_BONUS_,2005-02-25T00:00:00.000Z,mudrakolas@qubittron.com,2005-02-25T00:00:00.000Z,mudrakolas@qubittron.com,a43675ee-79af-44eb-826d-9c9555291c4a,IFT
+Q,Q:FG Credit-Rebill,FG Credit-Rebill,FG Credit-Rebill,WN2SAP_BONUS_,2005-02-25T00:00:00.000Z,mudrakolas@qubittron.com,2005-02-25T00:00:00.000Z,mudrakolas@qubittron.com,a43675ee-79af-44eb-826d-9c9555291c4a,IFT
+N,N:FG TIME INVOICE,FG TIME INVOICE,FG TIME INVOICE,FG2SAP_INV_,2005-02-25T00:00:00.000Z,routk@qubittron.com,2005-02-25T00:00:00.000Z,routk@qubittron.com,a43675ee-79af-44eb-826d-9c9555291c4a,IFT
+2,2:Travel,Travel,Travel,WN2SAP_TRAVEL_,2005-02-25T00:00:00.000Z,mudrakolas@qubittron.com,2005-02-25T00:00:00.000Z,mudrakolas@qubittron.com,a43675ee-79af-44eb-826d-9c9555291c4a,IFT
+A,A:Drug Background Check,Drug Background Check,Drug Background Check,WN2SAP_DRUG_,2005-02-25T00:00:00.000Z,mudrakolas@qubittron.com,2005-02-25T00:00:00.000Z,mudrakolas@qubittron.com,a43675ee-79af-44eb-826d-9c9555291c4a,IFT

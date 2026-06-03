@@ -1,0 +1,61 @@
+.customMessageBox {
+    padding: 0.5rem;
+    border: 1px solid #d3d3d3;
+    border-radius: 5px;
+    margin-bottom: 0.5rem;
+    background-color: #f9f9f9;
+}
+
+.customMessageBox .sapMText {
+    line-height: 1.5;
+}
+span[id*="__button1-internalBtn-img"] {
+    display: none !important;
+  }
+  span[data-sap-ui-icon-content=""] {
+    display: none !important;
+  }
+.sapMMenuBtn .sapMBtnInner::after {
+    display: none !important;
+}
+
+#monitor\:\:FilesObjectPage--fe\:\:CustomAction\:\:miRefreshFile-inner::before {
+  font-family: 'SAP-icons';
+  content: '\e010';
+  font-size: 1rem;
+  color: inherit; 
+  display: inline-flex;         
+  align-items: center;           
+  justify-content: center;       
+  width: 100%;                  
+  height: 100%;
+  border-radius: 0.5rem;
+  cursor: pointer; 
+  transition: background-color 0.2s;                 
+}
+
+[id*="CustomAction::miRefresh-inner"]::before {
+    font-family: 'SAP-icons' !important;
+    content: '\e010' !important;
+    font-size: 1rem !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 100% !important;
+    height: 100% !important;
+    border-radius: 0.5rem !important;
+    cursor: pointer !important;
+    transition: background-color 0.2s !important;
+    color: inherit !important;
+    background-color: transparent !important;
+}
+
+.sapUiTableSelModeMultiToggle .sapUiTableRowSelectionCell,
+.sapUiTableSelModeMultiToggle .sapUiTableColSelCell {
+  min-width: 2.5rem !important;
+  width: 2.5rem !important;
+}
+.sapUiSizeCondensed .sapUiTableCell {
+  padding-left: 0.5rem !important;
+  padding-right: 0.5rem !important;
+}

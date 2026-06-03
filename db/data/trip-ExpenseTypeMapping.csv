@@ -1,0 +1,62 @@
+Language,TripProvision,ExpenseType,Description,GLAccount
+E,07,AIR,Flight,510220
+E,07,BRFT,Breakfast,510245
+E,07,DINN,Dinner,510245
+E,07,ENT,Entertainment,510250
+E,07,GAS,Gasoline,510230
+E,07,HTL,Hotel,510235
+E,07,LAUN,Laundry,510240
+E,07,LNCH,Lunch,510245
+E,07,MISC,Other,510240
+E,07,PARK,Parking Tolls,510230
+E,07,POST,Postage Shipping,510240
+E,07,PRIV,Pay Back Private Share,113590
+E,07,RCAR,Car Rental,510225
+E,07,RGAS,Gasoline For Rental Car,510230
+E,07,SACA,Accommodation - Actuals,510235
+E,07,SACR,Accommodation - ER Paid,510235
+E,07,SATE,Air Tickets - EE Paid,510220
+E,07,SCAR,Car Rental,510225
+E,07,SCOM,Communication Expenses,510240
+E,07,SENT,Entertainment Expenses,510250
+E,07,SGAS,Gasoline For Rental Car,510230
+E,07,SMLA,Meals - Actuals,510245
+E,07,SPAR,Parking Expenses,510230
+E,07,SSTY,Stationery Expenses,510240
+E,07,STAX,Taxi Expenses,510230
+E,07,STOL,Toll Charges,510230
+E,07,TAXI,Taxi Bus,510230
+E,07,TELE,Telephone Fax,510240
+E,07,TIP,Tip,510240
+E,07,TRN,Rail,510225
+E,07,ZACP,Accommodation - WorkNexus,510235
+E,07,ZCAR,Car Rental - Contract,510225
+E,07,ZFAK,Mileage Expenses - WorkNexus,510215
+E,07,ZMLP,Meals - WorkNexus,510245
+E,07,ZZBO,Bill Only Expense - Work Nexus,95000
+E,10,RCAR,Car Rental,510225
+E,10,SACA,Accommodations - Staff,510235
+E,10,SACR,Accommodations - Staff ER Paid,510235
+E,10,SATE,Air Tickets - EE Paid,510220
+E,10,SCAR,Car Rental,510225
+E,10,SCOM,Communication/Other,510240
+E,10,SENT,Entertainment Staff,510250
+E,10,SGAS,Gas Expense,510230
+E,10,SMLA,Meals - Staff,510245
+E,10,SPAR,Parking,510230
+E,10,SSTY,Stationery Expense,510240
+E,10,STAX,Taxi,510230
+E,10,STOL,Tolls,510230
+E,10,ZACP,Accommodations - Contract,510235
+E,10,ZAIR,Airfare - Contract,510220
+E,10,ZCAR,Car Rental - Contract,510225
+E,10,ZCOM,Comm/Other - Contract,510240
+E,10,ZFAK,Mileage Expenses - WorkNexus,510215
+E,10,ZGAS,Gas Expenses - Contract,510225
+E,10,ZMEL,Meals - Contract,510245
+E,10,ZMLP,Meals - WorkNexus,510245
+E,10,ZPAR,Parking - Contract,510230
+E,10,ZSTA,Stationery Expenses,510240
+E,10,ZTAX,Taxi - Contract,510225
+E,10,ZTOL,Tolls - Contract,510230
+E,10,ZZBO,Bill Only Expense - Work Nexus,95000

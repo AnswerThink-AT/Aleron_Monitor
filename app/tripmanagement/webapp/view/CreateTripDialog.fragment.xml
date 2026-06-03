@@ -1,0 +1,51 @@
+<core:FragmentDefinition xmlns="sap.m" xmlns:core="sap.ui.core">
+  <Dialog
+      id="createTripDialog"
+      title="Create New Trip"
+      stretchOnPhone="true">
+
+    <content>
+      <VBox id="_IDGenVBox" class="sapUiSmallMargin">
+
+        <Label id="_IDGenLabel1" text="Personnel" labelFor="inpPersonnel" required="true"/>
+        <!-- Inline suggestions -->
+        <Input
+          id="inpPersonnel"
+          showSuggestion="true"
+          suggestionItems="{ path: 'suggest>/items' }"
+          suggestionItemSelected=".onPersonnelSelect"
+          suggestionRows="10"
+          placeholder="e.g. 199090">
+          <core:ListItem
+            id="_IDGenListItem"
+            key="{suggest>PersonExternalID}"
+            text="{suggest>PersonFullName}"
+            additionalText="{suggest>UserName} | {suggest>EmailAddress}" />
+        </Input>
+
+        <Label id="_IDGenLabel2" text="Start of Trip" labelFor="dpStart" required="true"/>
+        <!-- When start changes, we enable & lock End >= Start -->
+        <DatePicker
+          id="dpStart"
+          displayFormat="MM/dd/yyyy"
+          change=".onStartDateChange" />
+
+        <Label id="_IDGenLabel3" text="End of Trip" labelFor="dpEnd" required="true"/>
+        <!-- End is disabled until Start picked; guard in change handler -->
+        <DatePicker
+          id="dpEnd"
+          displayFormat="MM/dd/yyyy"
+          enabled="false"
+          change=".onEndDateChange" />
+
+      </VBox>
+    </content>
+
+    <beginButton>
+      <Button id="_IDGenButton9" text="Submit" type="Emphasized" press=".onCreateSubmit"/>
+    </beginButton>
+    <endButton>
+      <Button id="_IDGenButton21" text="Cancel" press=".onCreateCancel"/>
+    </endButton>
+  </Dialog>
+</core:FragmentDefinition>

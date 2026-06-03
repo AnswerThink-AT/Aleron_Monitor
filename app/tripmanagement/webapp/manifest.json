@@ -1,0 +1,154 @@
+{
+  "_version": "1.65.0",
+  "sap.app": {
+    "id": "tripmanagement",
+    "type": "application",
+    "i18n": "i18n/i18n.properties",
+    "applicationVersion": {
+      "version": "0.0.1"
+    },
+    "title": "{{appTitle}}",
+    "description": "{{appDescription}}",
+    "resources": "resources.json",
+    "sourceTemplate": {
+      "id": "@sap/generator-fiori:basic",
+      "version": "1.18.3",
+      "toolsId": "a43933e2-90ed-4bb8-b5a7-3cf5d5fd1509"
+    },
+    "dataSources": {
+      "mainService": {
+        "uri": "/odata/v4/trip/",
+        "type": "OData",
+        "settings": {
+          "annotations": [],
+          "odataVersion": "4.0",
+          "cache": "false"
+        }
+      }
+    },
+    "crossNavigation": {
+      "inbounds": {
+        "ztrip-create": {
+          "semanticObject": "ztrip",
+          "action": "create",
+          "title": "{{ztrip-create.flpTitle}}",
+          "subTitle": "{{ztrip-create.flpSubtitle}}",
+          "signature": {
+            "parameters": {},
+            "additionalParameters": "allowed"
+          }
+        }
+      }
+    }
+  },
+
+  "sap.ui": {
+    "technology": "UI5",
+    "icons": {
+      "icon": "",
+      "favIcon": "",
+      "phone": "",
+      "phone@2": "",
+      "tablet": "",
+      "tablet@2": ""
+    },
+    "deviceTypes": {
+      "desktop": true,
+      "tablet": true,
+      "phone": true
+    }
+  },
+
+  "sap.ui5": {
+    "flexEnabled": true,
+    "dependencies": {
+      "minUI5Version": "1.138.1",
+      "libs": {
+        "sap.m": {},
+        "sap.f": {},
+        "sap.ui.comp": {},
+        "sap.ui.core": {}
+      }
+    },
+    "contentDensities": {
+      "compact": true,
+      "cozy": true
+    },
+    "models": {
+      "i18n": {
+        "type": "sap.ui.model.resource.ResourceModel",
+        "settings": {
+          "bundleName": "tripmanagement.i18n.i18n"
+        }
+      },
+      "": {
+        "dataSource": "mainService",
+        "preload": true,
+        "settings": {
+          "operationMode": "Server",
+          "autoExpandSelect": true,
+          "earlyRequests": true
+        }
+      }
+    },
+    "resources": {
+      "css": [
+        {
+          "uri": "css/style.css"
+        }
+      ]
+    },
+    "routing": {
+      "config": {
+        "routerClass": "sap.m.routing.Router",
+        "controlId": "app",
+        "controlAggregation": "pages",
+        "transition": "slide",
+        "type": "XML",
+        "viewType": "XML",
+        "viewPath": "tripmanagement.view",
+        "async": true
+      },
+      "routes": [
+        {
+          "name": "list",
+          "pattern": "",
+          "target": "list"
+        },
+        {
+          "name": "object",
+          "pattern": "object/{mode}/{Personnel}/{StartOfTrip}/{EndOfTrip}",
+          "target": "object"
+        },
+        {
+          "name": "tripObject",
+          "pattern": "Trip/{TripNumber}/{Personnel}",
+          "target": "object"
+        }
+      ],
+      "targets": {
+        "list": {
+          "id": "trip",
+          "viewName": "trip",
+          "viewLevel": 1
+        },
+        "object": {
+          "id": "object",
+          "viewName": "Object",
+          "viewLevel": 2
+        }
+      }
+    },
+    "rootView": {
+      "viewName": "tripmanagement.view.App",
+      "type": "XML",
+      "id": "app",
+      "async": true
+    }
+  },
+
+  "sap.cloud": {
+    "public": true,
+    "service": "monitor"
+  }
+}

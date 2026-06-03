@@ -1,0 +1,300 @@
+<mvc:View controllerName="tripmanagement.controller.Object" xmlns:mvc="sap.ui.core.mvc" xmlns:uxap="sap.uxap" xmlns:m="sap.m" xmlns:forms="sap.ui.layout.form" xmlns:core="sap.ui.core" height="100%">
+	<m:Page id="tripPage" enableScrolling="false" showFooter="{= ${trip>/Mode} !== 'display'}">
+		<m:content>
+			<uxap:ObjectPageLayout id="objectPage">
+				<!-- HEADER TITLE -->
+				<!-- 1) HEADER TITLE -->
+				<uxap:headerTitle>
+					<uxap:ObjectPageDynamicHeaderTitle id="_hdr">
+						<!-- expanded heading -->
+						<uxap:expandedHeading>
+							<m:Title id="_IDGenTitle" text="Trip Number: {trip>/TripNumber}"/>
+						</uxap:expandedHeading>
+						<!-- snapped (condensed) title -->
+						<uxap:snappedHeading>
+							<m:HBox id="_IDGenHBox1" alignItems="Center" class="sapUiSmallMargin">
+								<m:Title id="_IDGenTitle1" text="{trip>/TripNumber}" level="H2" class="sapUiTinyMarginEnd"/>
+								<m:Label id="_IDGenLabel" text="{trip>/POReference}" class="sapUiTinyMarginBegin"/>
+							</m:HBox>
+						</uxap:snappedHeading>
+						<!-- mobile snapped -->
+						<uxap:snappedTitleOnMobile>
+							<m:Title id="_IDGenTitle3" text="{trip>/TripNumber}"/>
+						</uxap:snappedTitleOnMobile>
+						<!-- header actions -->
+						<uxap:actions>
+							<m:Button id="_IDGenButton10" text="Edit" type="Emphasized" visible="{= ${trip>/Mode} === 'display'}" press=".onEdit"/>
+							<m:Button id="_IDGenButton11" text="Approve" visible="{= ${trip>/Mode} === 'display'}" press=".onApprove"/>
+						</uxap:actions>
+					</uxap:ObjectPageDynamicHeaderTitle>
+				</uxap:headerTitle>
+				<!-- 2) HEADER CONTENT -->
+				<uxap:headerContent>
+					<m:FlexBox id="_IDGenFlexBox" wrap="NoWrap" fitContainer="true" justifyContent="SpaceBetween" class="sapUiSmallMargin">
+						<!-- 1) Stacked fields with tighter spacing -->
+						<m:VBox id="_IDGenVBox1" class="sapUiTinyMarginEnd">
+							<m:Label id="_IDGenLabel4" text="Personnel Number"/>
+							<m:Text id="_IDGenText17" text="{trip>/Personnel}" class="sapUiTinyMarginBottom"/>
+							<m:Label id="_IDGenLabel5" text="Start of Trip"/>
+							<m:Text id="_IDGenText32" text="{trip>/StartOfTrip}" class="sapUiTinyMarginBottom"/>
+							<m:Label id="_IDGenLabel6" text="End of Trip"/>
+							<m:Text id="_IDGenText33" text="{trip>/EndOfTrip}"/>
+						</m:VBox>
+						<!-- 2) Total Net Amount -->
+						<m:VBox id="_IDGenVBox2" class="sapUiTinyMarginEnd sapUiTinyMarginBottom" alignItems="Center">
+							<m:Title id="_IDGenTitle4" text="Total Net Amount" class="sapUiTinyMarginBottom"/>
+							<m:NumericContent id="_IDGenNumericContent" value="{= ${trip>/TotalNetAmount} ? ${trip>/TotalNetAmount} : '0.00'}" icon="sap-icon://money-bills" size="L"/>
+						</m:VBox>
+						<!-- 3) Destination with flight icon -->
+						<m:VBox id="_IDGenVBox4" class="sapUiTinyMarginEnd sapUiTinyMarginBottom" alignItems="Center">
+							<m:Title id="_IDGenTitle6" text="Destination" class="sapUiTinyMarginBottom"/>
+							<!-- flight icon, same size as NumericContent icon -->
+							<core:Icon id="_IDGenIcon1" src="sap-icon://flight" size="2rem" class="sapUiTinyMarginBottom"/>
+							<!-- city name styled as a large object number -->
+							<m:Text id="_IDGenText34" text="{trip>/Header/Destination}" class="sapMObjectNumberLarge"/>
+						</m:VBox>
+						<!-- 3) Status -->
+						<m:VBox id="_IDGenVBox3" alignItems="Center">
+							<m:Title id="_IDGenTitle5" text="Status" class="sapUiTinyMarginBottom"/>
+							<m:ObjectStatus id="_IDGenObjectStatus1" text="{trip>/StatusText}" state="{trip>/StatusState}" class="sapMObjectStatusLarge"/>
+						</m:VBox>
+					</m:FlexBox>
+				</uxap:headerContent>
+				<!-- SECTIONS -->
+				<uxap:sections>
+					<!-- 1) General Information -->
+					<uxap:ObjectPageSection id="_IDGenObjectPageSection" title="General Information">
+						<uxap:subSections>
+							<uxap:ObjectPageSubSection id="_IDGenObjectPageSubSection1">
+								<uxap:blocks>
+									<forms:SimpleForm id="_IDGenSimpleForm" class="sapUxAPObjectPageSubSectionAlignContent" layout="ColumnLayout" columnsM="2" columnsL="3" columnsXL="4">
+										<!-- Project -->
+										<m:Label id="_IDGenLabel11" text="Project"/>
+										<m:MultiInput id="miProject" width="100%" placeholder="Type to search projects…" showSuggestion="true" suggestionItems="{
+      path: '/EnterpriseProjectCache'
+      
+    }" editable="{= ${trip>/Mode} !== 'display'}" valueHelpRequest=".onProjectValueHelp" liveChange=".onProjectSuggest" maxTokens="1">
+											<core:Item id="_IDGenItem9" key="{PROJECT}" text="{PROJECT} — {PROJECTDESCRIPTION}"/>
+										</m:MultiInput>
+										<!-- Country/Region -->
+										<m:Label id="_IDGenLabel8" text="Country/Region"/>
+										<m:MultiInput id="miCountry" width="100%" placeholder="Select country…" showSuggestion="true" suggestionItems="{ path: '/CountryList' }" editable="{= ${trip>/Mode} !== 'display'}" showValueHelp="{= ${trip>/Mode} !== 'display'}" valueHelpRequest=".onCountryValueHelp">
+											<core:Item id="_IDGenItem6" key="{CountryCode}" text="{CountryName}"/>
+										</m:MultiInput>
+										<!-- Reason For Trip -->
+										<m:Label id="_IDGenLabel9" text="Reason For Trip"/>
+										<m:Input id="_IDGenInput5" value="{trip>/Header/ReasonForTrip}" editable="{= ${trip>/Mode} !== 'display'}" maxLength="25" liveChange=".onLiveChange" valueState="{trip>/_validations/ReasonForTrip/state}" valueStateText="{trip>/_validations/ReasonForTrip/text}"/>
+										<!-- Comments -->
+										<m:Label id="_IDGenLabel10" text="Comments"/>
+										<m:Input id="_IDGenInput6" value="{trip>/Header/Comments}" editable="{= ${trip>/Mode} !== 'display'}" maxLength="100" liveChange=".onLiveChange" valueState="{trip>/_validations/Comments/state}" valueStateText="{trip>/_validations/Comments/text}"/>
+										<!-- Currency -->
+										<m:Label id="_IDGenLabel14" text="Currency"/>
+										<m:MultiInput id="miCurrency" width="100%" placeholder="Select currency…" showSuggestion="true" suggestionItems="{ path: '/CurrencyList' }" editable="{= ${trip>/Mode} !== 'display'}" showValueHelp="{= ${trip>/Mode} !== 'display'}" valueHelpRequest=".onCurrencyValueHelp">
+											<core:Item id="_IDGenItem7" key="{CurrencyCode}" text="{CurrencyName}"/>
+										</m:MultiInput>
+										<!-- Region -->
+										<m:Label id="_IDGenLabel12" text="Region"/>
+										<m:Input id="_IDGenInput8" value="{trip>/Header/Region}" editable="{= ${trip>/Mode} !== 'display'}" maxLength="2" liveChange=".onLiveChange" valueState="{trip>/_validations/Region/state}" valueStateText="{trip>/_validations/Region/text}"/>
+										<!-- Destination -->
+										<m:Label id="_IDGenLabel20" text="Destination"/>
+										<m:MultiInput id="miDestination" width="100%" placeholder="Select destination…" showSuggestion="true" suggestionItems="{ path: '/CountryList' }" editable="{= ${trip>/Mode} !== 'display'}" showValueHelp="{= ${trip>/Mode} !== 'display'}" valueHelpRequest=".onDestinationValueHelp">
+											<core:Item id="_IDGenItem5" key="{CountryCode}" text="{CountryName}"/>
+										</m:MultiInput>
+										<!-- TripSettlement -->
+										<!-- <m:Label id="_IDGenLabel15" text="TripSettlement"/>
+										<m:Input id="_IDGenInput11" value="{trip>/Header/TripSettlement}" editable="{= ${trip>/Mode} !== 'display'}" liveChange=".onLiveChange" valueState="{trip>/_validations/TripSettlement/state}" valueStateText="{trip>/_validations/TripSettlement/text}"/> -->
+									</forms:SimpleForm>
+								</uxap:blocks>
+							</uxap:ObjectPageSubSection>
+						</uxap:subSections>
+					</uxap:ObjectPageSection>
+					<!-- 2) Expense Receipts -->
+					<uxap:ObjectPageSection id="_IDGenObjectPageSection1" title="Expense Receipts">
+						<uxap:subSections>
+							<uxap:ObjectPageSubSection id="_IDGenObjectPageSubSection2">
+								<uxap:blocks>
+									<m:Table id="expenseTable" items="{ path: 'trip>/ExpenseReceipts' }" class="sapUxAPObjectPageSubSectionAlignContent" mode="MultiSelect">
+										<m:headerToolbar>
+											<m:OverflowToolbar id="_IDGenOverflowToolbar1">
+												<m:Title id="_IDGenTitle2" text="Expense Receipts" level="H2"/>
+												<m:ToolbarSpacer id="_IDGenToolbarSpacer1"/>
+												<m:SearchField id="_IDGenSearchField" width="15rem" placeholder="Search" search=".onExpenseSearch"/>
+												<m:Button id="_IDGenButton12" icon="sap-icon://add" tooltip="Add" enabled="{= ${trip>/Mode} !== 'display'}" press=".onAddExpense"/>
+												<!-- <m:Button id="_IDGenButton15" icon="sap-icon://edit" tooltip="Edit" enabled="{= ${trip>/Mode} !== 'display'}" press=".onEditExpense"/> -->
+												<m:Button id="_IDGenButton16" icon="sap-icon://delete" tooltip="Delete" enabled="{= ${trip>/Mode} !== 'display'}" press=".onDeleteExpense"/>
+												<m:Button id="_IDGenButton17" icon="sap-icon://duplicate" tooltip="Duplicate" enabled="{= ${trip>/Mode} !== 'display'}" press=".onDuplicateExpense"/>
+												<m:Button id="_IDGenButton18" icon="sap-icon://action-settings" tooltip="Settings" enabled="{= ${trip>/Mode} !== 'display'}" press=".onSettingsExpense"/>
+												<!-- <m:Button id="_IDGenButton19" icon="sap-icon://sort" tooltip="Sort" enabled="{= ${trip>/Mode} !== 'display'}" press=".onSortExpense"/>
+												<m:Button id="_IDGenButton20" icon="sap-icon://filter" tooltip="Filter" enabled="{= ${trip>/Mode} !== 'display'}" press=".onFilterExpense"/> -->
+											</m:OverflowToolbar>
+										</m:headerToolbar>
+										<m:columns>
+											<m:Column id="_IDGenColumn6">
+												<m:Text id="_IDGenText21" text="Expense Receipt No"/>
+											</m:Column>
+											<m:Column id="_IDGenColumn7">
+												<m:Text id="_IDGenText22" text="Trip Expense Type"/>
+											</m:Column>
+											<m:Column id="_IDGenColumn8" hAlign="End">
+												<m:Text id="_IDGenText23" text="Amount"/>
+											</m:Column>
+											<m:Column id="_IDGenColumn9">
+												<m:Text id="_IDGenText24" text="Currency"/>
+											</m:Column>
+											<m:Column id="_IDGenColumn10">
+												<m:Text id="_IDGenText25" text="From"/>
+											</m:Column>
+											<m:Column id="_IDGenColumn11">
+												<m:Text id="_IDGenText26" text="To"/>
+											</m:Column>
+											<!-- <m:Column id="_IDGenColumn12">
+												<m:Text id="_IDGenText27" text="Receipt Document No"/>
+											</m:Column>
+											<m:Column id="_IDGenColumn13">
+												<m:Text id="_IDGenText28" text="URL Link"/>
+											</m:Column> -->
+											<m:Column id="_IDGenColumn19">
+												<m:Label id="_IDGenLabel7" text="GL Account"/>
+											</m:Column>
+										</m:columns>
+										<m:items>
+											<m:ColumnListItem id="_IDGenColumnListItem1">
+												<!-- ExpenseReceiptNumber -->
+												<m:Input id="_IDGenInput16" value="{trip>ExpenseReceiptNumber}" editable="false" maxLength="12" liveChange=".onLiveChange" valueState="{trip>/_validations/ExpenseReceiptNumber/state}" valueStateText="{trip>/_validations/ExpenseReceiptNumber/text}"/>
+												<!-- TripExpenseType -->
+												<!-- NEW -->
+												<m:Select id="selTripExpenseType" selectedKey="{trip>TripExpenseType}" enabled="{= ${trip>/Mode} !== 'display'}" change=".onTripExpenseTypeChange" items="{
+    path            : 'expenseTypes>/', 
+    templateShareable: false
+  }">
+													<core:Item id="_IDGenItem8" key="{expenseTypes>ExpenseType}" text="{expenseTypes>ExpenseType} – {expenseTypes>Description}"/>
+												</m:Select>
+												<!-- Amount -->
+												<m:Input id="_IDGenInput18" value="{trip>Amount}" editable="{= ${trip>/Mode} !== 'display'}" liveChange=".onLiveChange" valueState="{trip>/_validations/Amount/state}" valueStateText="{trip>/_validations/Amount/text}"/>
+												<!-- Currency -->
+												<m:Input id="_IDGenInput19" value="{trip>Currency}" editable="false" maxLength="3" liveChange=".onLiveChange" valueState="{trip>/_validations/Currency/state}" valueStateText="{trip>/_validations/Currency/text}"/>
+												<!-- From -->
+												<m:Input id="_IDGenInput20" value="{trip>From}" editable="{= ${trip>/Mode} !== 'display'}" maxLength="20" liveChange=".onLiveChange" valueState="{trip>/_validations/From/state}" valueStateText="{trip>/_validations/From/text}"/>
+												<!-- To -->
+												<m:Input id="_IDGenInput21" value="{trip>To}" editable="{= ${trip>/Mode} !== 'display'}" maxLength="20" liveChange=".onLiveChange" valueState="{trip>/_validations/To/state}" valueStateText="{trip>/_validations/To/text}"/>
+												<!-- ReceiptsDocumentNumber -->
+												<!-- <m:Input id="_IDGenInput22" value="{trip>ReceiptsDocumentNumber}" editable="false" liveChange=".onLiveChange" valueState="{trip>/_validations/ReceiptsDocumentNumber/state}" valueStateText="{trip>/_validations/ReceiptsDocumentNumber/text}"/> -->
+												<!-- UrlLink -->
+												<!-- <m:Input id="_IDGenInput53" value="{trip>UrlLink}" editable="{= ${trip>/Mode} !== 'display'}" maxLength="120" liveChange=".onLiveChange" valueState="{trip>/_validations/UrlLink/state}" valueStateText="{trip>/_validations/UrlLink/text}"/> -->
+												<m:Input id="_IDGenInput2" value="{trip>GLAccount}" editable="{= ${trip>/Mode} !== 'display'}" maxLength="8"/>
+											</m:ColumnListItem>
+										</m:items>
+									</m:Table>
+								</uxap:blocks>
+							</uxap:ObjectPageSubSection>
+						</uxap:subSections>
+					</uxap:ObjectPageSection>
+					<!-- 3) Customer Reference Fields -->
+					<uxap:ObjectPageSection id="_IDGenObjectPageSection2" title="Customer Reference Fields">
+						<uxap:subSections>
+							<uxap:ObjectPageSubSection id="_IDGenObjectPageSubSection3">
+								<uxap:blocks>
+									<forms:SimpleForm id="_IDGenSimpleForm1" class="sapUxAPObjectPageSubSectionAlignContent" layout="ColumnLayout" columnsM="2" columnsL="3" columnsXL="4">
+										<!-- Row 1 -->
+										<m:Label id="_IDGenLabel21" text="SAP Sales Order Number"/>
+										<m:Input id="_IDGenInput1" value="{trip>/Header/SAPSalesOrderNumber}" editable="{= ${trip>/Mode} === 'create'}" maxLength="10" liveChange=".onLiveChange" valueState="{trip>/_validations/SAPSalesOrderNumber/state}" valueStateText="{trip>/_validations/SAPSalesOrderNumber/text}"/>
+										<m:Label id="_IDGenLabel22" text="Customer Company Code"/>
+										<m:Input id="_IDGenInput23" value="{trip>/Header/CustomerCompanyCode}" editable="{= ${trip>/Mode} === 'create'}" maxLength="30" liveChange=".onLiveChange" valueState="{trip>/_validations/CustomerCompanyCode/state}" valueStateText="{trip>/_validations/CustomerCompanyCode/text}"/>
+										<m:Label id="_IDGenLabel23" text="SG Vendor Number"/>
+										<m:Input id="_IDGenInput24" value="{trip>/Header/SGVendorNumber}" editable="{= ${trip>/Mode} === 'create'}" maxLength="30" liveChange=".onLiveChange" valueState="{trip>/_validations/SGVendorNumber/state}" valueStateText="{trip>/_validations/SGVendorNumber/text}"/>
+										<m:Label id="_IDGenLabel24" text="Customer Employee Number"/>
+										<m:Input id="_IDGenInput25" value="{trip>/Header/CustomerEmployeeNumber}" editable="{= ${trip>/Mode} === 'create'}" maxLength="30" liveChange=".onLiveChange" valueState="{trip>/_validations/CustomerEmployeeNumber/state}" valueStateText="{trip>/_validations/CustomerEmployeeNumber/text}"/>
+										<!-- Row 2 -->
+										<m:Label id="_IDGenLabel25" text="Purchase Agreement"/>
+										<m:Input id="_IDGenInput26" value="{trip>/Header/PurchaseAgreement}" editable="{= ${trip>/Mode} === 'create'}" maxLength="30" liveChange=".onLiveChange" valueState="{trip>/_validations/PurchaseAgreement/state}" valueStateText="{trip>/_validations/PurchaseAgreement/text}"/>
+										<m:Label id="_IDGenLabel26" text="Customer Cost Center"/>
+										<m:Input id="_IDGenInput27" value="{trip>/Header/CustomerCostCenter}" editable="{= ${trip>/Mode} === 'create'}" maxLength="30" liveChange=".onLiveChange" valueState="{trip>/_validations/CustomerCostCenter/state}" valueStateText="{trip>/_validations/CustomerCostCenter/text}"/>
+										<m:Label id="_IDGenLabel27" text="SAP Sales Order Item Number"/>
+										<m:Input id="_IDGenInput28" value="{trip>/Header/SAPSalesOrderItemNumber}" editable="{= ${trip>/Mode} === 'create'}" maxLength="10" liveChange=".onLiveChange" valueState="{trip>/_validations/SAPSalesOrderItemNumber/state}" valueStateText="{trip>/_validations/SAPSalesOrderItemNumber/text}"/>
+										<m:Label id="_IDGenLabel28" text="Customer Department Number"/>
+										<m:Input id="_IDGenInput29" value="{trip>/Header/CustomerDepartmentNumber}" editable="{= ${trip>/Mode} === 'create'}" maxLength="30" liveChange=".onLiveChange" valueState="{trip>/_validations/CustomerDepartmentNumber/state}" valueStateText="{trip>/_validations/CustomerDepartmentNumber/text}"/>
+										<!-- Row 3 -->
+										<m:Label id="_IDGenLabel29" text="Customer Org Code"/>
+										<m:Input id="_IDGenInput30" value="{trip>/Header/CustomerOrgCode}" editable="{= ${trip>/Mode} === 'create'}" maxLength="30" liveChange=".onLiveChange" valueState="{trip>/_validations/CustomerOrgCode/state}" valueStateText="{trip>/_validations/CustomerOrgCode/text}"/>
+										<m:Label id="_IDGenLabel30" text="Customer Agreement Name"/>
+										<m:Input id="_IDGenInput31" value="{trip>/Header/CustomerAgreementName}" editable="{= ${trip>/Mode} === 'create'}" maxLength="30" liveChange=".onLiveChange" valueState="{trip>/_validations/CustomerAgreementName/state}" valueStateText="{trip>/_validations/CustomerAgreementName/text}"/>
+										<m:Label id="_IDGenLabel31" text="BB#"/>
+										<m:Input id="_IDGenInput32" value="{trip>/Header/BBNumber}" editable="{= ${trip>/Mode} === 'create'}" maxLength="30" liveChange=".onLiveChange" valueState="{trip>/_validations/BBNumber/state}" valueStateText="{trip>/_validations/BBNumber/text}"/>
+										<m:Label id="_IDGenLabel32" text="Cust PO Line Item Number"/>
+										<m:Input id="_IDGenInput33" value="{trip>/Header/CustPOLineItemNumber}" editable="{= ${trip>/Mode} === 'create'}" maxLength="30" liveChange=".onLiveChange" valueState="{trip>/_validations/CustPOLineItemNumber/state}" valueStateText="{trip>/_validations/CustPOLineItemNumber/text}"/>
+										<!-- Row 4 -->
+										<m:Label id="_IDGenLabel33" text="Customer Week Ending"/>
+										<m:DatePicker id="_IDGenDatePicker34" value="{trip>/Header/CustomerWeekEnding}" editable="{= ${trip>/Mode} === 'create'}" valueFormat="yyyy-MM-dd" displayFormat="long" change=".onLiveChange" valueState="{trip>/_validations/CustomerWeekEnding/state}" valueStateText="{trip>/_validations/CustomerWeekEnding/text}"/>
+										<m:Label id="_IDGenLabel34" text="Customer RUI"/>
+										<m:Input id="_IDGenInput35" value="{trip>/Header/CustomerRUI}" editable="{= ${trip>/Mode} === 'create'}" maxLength="30" liveChange=".onLiveChange" valueState="{trip>/_validations/CustomerRUI/state}" valueStateText="{trip>/_validations/CustomerRUI/text}"/>
+										<m:Label id="_IDGenLabel35" text="Customer Legal Entity"/>
+										<m:Input id="_IDGenInput36" value="{trip>/Header/CustomerLegalEntity}" editable="{= ${trip>/Mode} === 'create'}" maxLength="30" liveChange=".onLiveChange" valueState="{trip>/_validations/CustomerLegalEntity/state}" valueStateText="{trip>/_validations/CustomerLegalEntity/text}"/>
+										<m:Label id="_IDGenLabel36" text="TASK #"/>
+										<m:Input id="_IDGenInput37" value="{trip>/Header/TaskNumber}" editable="{= ${trip>/Mode} === 'create'}" maxLength="30" liveChange=".onLiveChange" valueState="{trip>/_validations/TaskNumber/state}" valueStateText="{trip>/_validations/TaskNumber/text}"/>
+										<!-- Row 5 -->
+										<m:Label id="_IDGenLabel37" text="Customer Background Check Date"/>
+										<m:DatePicker id="_IDGenDatePicker38" value="{trip>/Header/CustomerBackgroundCheckDate}" editable="{= ${trip>/Mode} === 'create'}" valueFormat="yyyy-MM-dd" displayFormat="long" change=".onLiveChange" valueState="{trip>/_validations/CustomerBackgroundCheckDate/state}" valueStateText="{trip>/_validations/CustomerBackgroundCheckDate/text}"/>
+										<m:Label id="_IDGenLabel38" text="Customer Business Unit"/>
+										<m:Input id="_IDGenInput39" value="{trip>/Header/CustomerBusinessUnit}" editable="{= ${trip>/Mode} === 'create'}" maxLength="30" liveChange=".onLiveChange" valueState="{trip>/_validations/CustomerBusinessUnit/state}" valueStateText="{trip>/_validations/CustomerBusinessUnit/text}"/>
+										<m:Label id="_IDGenLabel39" text="Customer Account Number"/>
+										<m:Input id="_IDGenInput40" value="{trip>/Header/CustomerAccountNumber}" editable="{= ${trip>/Mode} === 'create'}" maxLength="30" liveChange=".onLiveChange" valueState="{trip>/_validations/CustomerAccountNumber/state}" valueStateText="{trip>/_validations/CustomerAccountNumber/text}"/>
+										<m:Label id="_IDGenLabel40" text="Customer Oracle Number"/>
+										<m:Input id="_IDGenInput41" value="{trip>/Header/CustomerOracleNumber}" editable="{= ${trip>/Mode} === 'create'}" maxLength="30" liveChange=".onLiveChange" valueState="{trip>/_validations/CustomerOracleNumber/state}" valueStateText="{trip>/_validations/CustomerOracleNumber/text}"/>
+										<!-- Row 6 -->
+										<m:Label id="_IDGenLabel41" text="FEPS Code"/>
+										<m:Input id="_IDGenInput42" value="{trip>/Header/FEPSCode}" editable="{= ${trip>/Mode} === 'create'}" maxLength="30" liveChange=".onLiveChange" valueState="{trip>/_validations/FEPSCode/state}" valueStateText="{trip>/_validations/FEPSCode/text}"/>
+										<m:Label id="_IDGenLabel42" text="Customer Division Unit Number"/>
+										<m:Input id="_IDGenInput43" value="{trip>/Header/CustomerDivisionUnitNumber}" editable="{= ${trip>/Mode} === 'create'}" maxLength="30" liveChange=".onLiveChange" valueState="{trip>/_validations/CustomerDivisionUnitNumber/state}" valueStateText="{trip>/_validations/CustomerDivisionUnitNumber/text}"/>
+										<m:Label id="_IDGenLabel43" text="Customer Charge Number"/>
+										<m:Input id="_IDGenInput44" value="{trip>/Header/CustomerChargeNumber}" editable="{= ${trip>/Mode} === 'create'}" maxLength="30" liveChange=".onLiveChange" valueState="{trip>/_validations/CustomerChargeNumber/state}" valueStateText="{trip>/_validations/CustomerChargeNumber/text}"/>
+										<m:Label id="_IDGenLabel44" text="Customer Budget Center"/>
+										<m:Input id="_IDGenInput45" value="{trip>/Header/CustomerBudgetCenter}" editable="{= ${trip>/Mode} === 'create'}" maxLength="30" liveChange=".onLiveChange" valueState="{trip>/_validations/CustomerBudgetCenter/state}" valueStateText="{trip>/_validations/CustomerBudgetCenter/text}"/>
+										<!-- Row 7 -->
+										<m:Label id="_IDGenLabel45" text="Customer Unit Store Number"/>
+										<m:Input id="_IDGenInput46" value="{trip>/Header/CustomerUnitStoreNumber}" editable="{= ${trip>/Mode} === 'create'}" maxLength="30" liveChange=".onLiveChange" valueState="{trip>/_validations/CustomerUnitStoreNumber/state}" valueStateText="{trip>/_validations/CustomerUnitStoreNumber/text}"/>
+										<m:Label id="_IDGenLabel46" text="Customer Position"/>
+										<m:Input id="_IDGenInput47" value="{trip>/Header/CustomerPosition}" editable="{= ${trip>/Mode} === 'create'}" maxLength="30" liveChange=".onLiveChange" valueState="{trip>/_validations/CustomerPosition/state}" valueStateText="{trip>/_validations/CustomerPosition/text}"/>
+										<m:Label id="_IDGenLabel47" text="Customer Position Code/Job ID"/>
+										<m:Input id="_IDGenInput48" value="{trip>/Header/CustomerPositionCodeJobID}" editable="{= ${trip>/Mode} === 'create'}" maxLength="30" liveChange=".onLiveChange" valueState="{trip>/_validations/CustomerPositionCodeJobID/state}" valueStateText="{trip>/_validations/CustomerPositionCodeJobID/text}"/>
+										<m:Label id="_IDGenLabel48" text="Project Number"/>
+										<m:Input id="_IDGenInput49" value="{trip>/Header/ProjectNumber}" editable="{= ${trip>/Mode} === 'create'}" maxLength="30" liveChange=".onLiveChange" valueState="{trip>/_validations/ProjectNumber/state}" valueStateText="{trip>/_validations/ProjectNumber/text}"/>
+										<!-- Row 8 -->
+										<m:Label id="_IDGenLabel49" text="Customer Contract Number"/>
+										<m:Input id="_IDGenInput50" value="{trip>/Header/CustomerContractNumber}" editable="{= ${trip>/Mode} === 'create'}" maxLength="30" liveChange=".onLiveChange" valueState="{trip>/_validations/CustomerContractNumber/state}" valueStateText="{trip>/_validations/CustomerContractNumber/text}"/>
+										<m:Label id="_IDGenLabel50" text="Service Date - FOR SDI IBM"/>
+										<m:DatePicker id="_IDGenDatePicker51" value="{trip>/Header/ServiceDateForSdiIbm}" editable="{= ${trip>/Mode} === 'create'}" valueFormat="yyyy-MM-dd" displayFormat="long" change=".onLiveChange" valueState="{trip>/_validations/ServiceDateForSdiIbm/state}" valueStateText="{trip>/_validations/ServiceDateForSdiIbm/text}"/>
+										<m:Label id="_IDGenLabel51" text="Customer G/L Code"/>
+										<m:Input id="_IDGenInput52" value="{trip>/Header/CustomerGLCode}" editable="{= ${trip>/Mode} === 'create'}" maxLength="30" liveChange=".onLiveChange" valueState="{trip>/_validations/CustomerGLCode/state}" valueStateText="{trip>/_validations/CustomerGLCode/text}"/>
+										<!-- TripType -->
+										<m:Label id="_IDGenLabel16" text="TripType"/>
+										<m:Input id="_IDGenInput12" value="{trip>/Header/TripType}" editable="{= ${trip>/Mode} === 'create'}" maxLength="2" liveChange=".onLiveChange" valueState="{trip>/_validations/TripType/state}" valueStateText="{trip>/_validations/TripType/text}"/>
+										<!-- WnWorkOrder -->
+										<m:Label id="_IDGenLabel17" text="WnWorkOrder"/>
+										<m:Input id="_IDGenInput13" value="{trip>/Header/WnWorkOrder}" editable="{= ${trip>/Mode} === 'create'}" maxLength="30" liveChange=".onLiveChange" valueState="{trip>/_validations/WnWorkOrder/state}" valueStateText="{trip>/_validations/WnWorkOrder/text}"/>
+										<!-- WnInvoiceNo -->
+										<m:Label id="_IDGenLabel18" text="WnInvoiceNo"/>
+										<m:Input id="_IDGenInput14" value="{trip>/Header/WnInvoiceNo}" editable="{= ${trip>/Mode} === 'create'}" maxLength="15" liveChange=".onLiveChange" valueState="{trip>/_validations/WnInvoiceNo/state}" valueStateText="{trip>/_validations/WnInvoiceNo/text}"/>
+										<!-- ContractNo -->
+										<m:Label id="_IDGenLabel13" text="ContractNo"/>
+										<m:Input id="_IDGenInput9" value="{trip>/Header/ContractNo}" editable="{= ${trip>/Mode} === 'create'}" maxLength="10" liveChange=".onLiveChange" valueState="{trip>/_validations/ContractNo/state}" valueStateText="{trip>/_validations/ContractNo/text}"/>
+										<!-- WoType -->
+										<m:Label id="_IDGenLabel19" text="WoType"/>
+										<m:Input id="_IDGenInput15" value="{trip>/Header/WoType}" editable="{= ${trip>/Mode} === 'create'}" maxLength="2" liveChange=".onLiveChange" valueState="{trip>/_validations/WoType/state}" valueStateText="{trip>/_validations/WoType/text}"/>
+									</forms:SimpleForm>
+								</uxap:blocks>
+							</uxap:ObjectPageSubSection>
+						</uxap:subSections>
+					</uxap:ObjectPageSection>
+				</uxap:sections>
+			</uxap:ObjectPageLayout>
+		</m:content>
+		<!-- Footer with Save / Discard Draft -->
+		<m:footer>
+			<m:Toolbar id="_IDGenToolbar1">
+				<m:ToolbarSpacer id="_IDGenToolbarSpacer2"/>
+				<m:Button id="_IDGenButton13" text="Save" type="Emphasized" visible="{= ${trip>/Mode} !== 'display'}" press=".onSave"/>
+				<m:Button id="_IDGenButton14" text="Discard Draft" visible="{= ${trip>/Mode} !== 'display'}" press=".onDiscardDraft"/>
+			</m:Toolbar>
+		</m:footer>
+	</m:Page>
+</mvc:View>

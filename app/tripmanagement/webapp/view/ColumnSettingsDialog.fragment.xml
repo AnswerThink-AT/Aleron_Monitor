@@ -1,0 +1,61 @@
+<core:FragmentDefinition
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core"
+    xmlns:dnd="sap.ui.core.dnd">
+
+  <Dialog
+      id="colDialog"
+      title="View Settings"
+      stretchOnPhone="true">
+
+    <content>
+      <VBox id="_IDGenVBox9" class="sapUiSmallMargin">
+
+        <!-- Select All -->
+        <CheckBox id="cbSelectAll"
+                  text="Select All"
+                  select=".onSelectAllColumns"
+                  class="sapUiSmallMarginBottom"/>
+        <Text
+          id="txtSelectedCount"
+          text="Columns (0/0)"
+          class="sapUiTinyMarginBottom"/>
+        <!-- Column list with drag & drop -->
+        <List
+            id="colList"
+            items="{cols>/}"
+            mode="None"
+            includeItemInSelection="false"
+            showSeparators="All">
+
+          <CustomListItem id="_IDGenCustomListItem">
+            <HBox id="_IDGenHBox" alignItems="Center" width="100%">
+              <core:Icon id="_IDGenIcon" src="sap-icon://drag-drop" class="sapUiTinyMarginEnd"/>
+              <CheckBox id="_IDGenCheckBox"
+                        selected="{path: 'cols>visible', formatter: '.formatVisible'}"
+                        select=".onColumnToggle"/>
+              <Text id="_IDGenText" text="{cols>label}" class="sapUiSmallMarginBegin"/>
+            </HBox>
+          </CustomListItem>
+
+          <dragDropConfig>
+            <dnd:DragDropInfo id="_IDGenDragDropInfo"
+                sourceAggregation="items"
+                targetAggregation="items"
+                dropPosition="Between"
+                dropLayout="Vertical"
+                drop=".onColumnReorder"/>
+          </dragDropConfig>
+
+        </List>
+
+      </VBox>
+    </content>
+
+    <buttons>
+      <Button id="_IDGenButton7" text="OK" type="Emphasized" press=".onColumnsConfirm"/>
+      <Button id="_IDGenButton19" text="Reset" press=".onColumnsReset"/>
+      <Button id="_IDGenButton20" text="Cancel" press=".onColumnsCancel"/>
+    </buttons>
+  </Dialog>
+</core:FragmentDefinition>

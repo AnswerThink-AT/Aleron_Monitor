@@ -1,0 +1,34 @@
+{
+    "SalesOrder": "2700004007",
+    "SalesOrderItem": "100",
+    "SalesOrderItemCategory": "TAD",
+    "Material": "100000563",
+    "RequestedQuantity": "1",
+    "OrderQuantityUnit": "LAB",
+    "ProductionPlant": "1200",
+    "SalesOrderItemText": "BONUS",
+    "WBSElement": "4400000299",
+    "PurchaseOrderByCustomer": "",
+    "PricingDate": "/Date(1751904100670)/",
+    "YY1_PurchasingDoc_SD_SDI": "4500003802",
+    "YY1_WeekEnd_SD_SDI": "/Date(1738454400000)/",
+    "YY1_CustomBillingType_SDI": "ZLAB",
+    "YY1_WNWorkOrder_SD_SDI": "OCO08844",
+    "YY1_WNInvoice_SD_SDI": "OCO0881255",
+    "to_ScheduleLine": [
+      {
+        "SalesOrderItem": "50",
+        "RequestedDeliveryDate": "/Date(1751904103015)/",
+        "ScheduleLineOrderQuantity": "1",
+        "OrderQuantityISOUnit": "_01"
+      }
+    ],
+    "to_PricingElement": {
+      "results": [
+        {
+          "ConditionType": "ZPAY",
+          "ConditionRateValue": "203.44"
+        }
+      ]
+    }
+  }

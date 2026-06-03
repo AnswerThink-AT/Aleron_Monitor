@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="1.0" 
+  xmlns:edmx="http://schemas.microsoft.com/ado/2007/06/edmx" 
+  xmlns:m="http://schemas.microsoft.com/ado/2007/08/dataservices/metadata" 
+  xmlns:sap="http://www.sap.com/Protocols/SAPData">
+  <edmx:Reference Uri="https://my420210-api.s4hana.cloud.sap/sap/opu/odata/iwfnd/catalogservice;v=2/Vocabularies(TechnicalName='%2FIWBEP%2FVOC_AGGREGATION',Version='0001',SAP__Origin='')/$value" 
+    xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+    <edmx:Include Namespace="Org.OData.Aggregation.V1" Alias="Aggregation"/>
+  </edmx:Reference>
+  <edmx:Reference Uri="https://my420210-api.s4hana.cloud.sap/sap/opu/odata/iwfnd/catalogservice;v=2/Vocabularies(TechnicalName='%2FIWBEP%2FVOC_ANALYTICS',Version='0001',SAP__Origin='')/$value" 
+    xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+    <edmx:Include Namespace="com.sap.vocabularies.Analytics.v1" Alias="Analytics"/>
+  </edmx:Reference>
+  <edmx:Reference Uri="https://my420210-api.s4hana.cloud.sap/sap/opu/odata/iwfnd/catalogservice;v=2/Vocabularies(TechnicalName='%2FIWBEP%2FVOC_CAPABILITIES',Version='0001',SAP__Origin='')/$value" 
+    xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+    <edmx:Include Namespace="Org.OData.Capabilities.V1" Alias="Capabilities"/>
+  </edmx:Reference>
+  <edmx:Reference Uri="https://my420210-api.s4hana.cloud.sap/sap/opu/odata/iwfnd/catalogservice;v=2/Vocabularies(TechnicalName='%2FIWBEP%2FVOC_CODELIST',Version='0001',SAP__Origin='')/$value" 
+    xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+    <edmx:Include Namespace="com.sap.vocabularies.CodeList.v1" Alias="SAP__CodeList"/>
+  </edmx:Reference>
+  <edmx:Reference Uri="https://my420210-api.s4hana.cloud.sap/sap/opu/odata/iwfnd/catalogservice;v=2/Vocabularies(TechnicalName='%2FIWBEP%2FVOC_COMMON',Version='0001',SAP__Origin='')/$value" 
+    xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+    <edmx:Include Namespace="com.sap.vocabularies.Common.v1" Alias="Common"/>
+  </edmx:Reference>
+  <edmx:Reference Uri="https://my420210-api.s4hana.cloud.sap/sap/opu/odata/iwfnd/catalogservice;v=2/Vocabularies(TechnicalName='%2FIWBEP%2FVOC_COMMUNICATION',Version='0001',SAP__Origin='')/$value" 
+    xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+    <edmx:Include Namespace="com.sap.vocabularies.Communication.v1" Alias="Communication"/>
+  </edmx:Reference>
+  <edmx:Reference Uri="https://my420210-api.s4hana.cloud.sap/sap/opu/odata/iwfnd/catalogservice;v=2/Vocabularies(TechnicalName='%2FIWBEP%2FVOC_MEASURES',Version='0001',SAP__Origin='')/$value" 
+    xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+    <edmx:Include Namespace="Org.OData.Measures.V1" Alias="Measures"/>
+  </edmx:Reference>
+  <edmx:Reference Uri="https://my420210-api.s4hana.cloud.sap/sap/opu/odata/iwfnd/catalogservice;v=2/Vocabularies(TechnicalName='%2FIWBEP%2FVOC_ODM',Version='0001',SAP__Origin='')/$value" 
+    xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+    <edmx:Include Namespace="com.sap.vocabularies.ODM.v1" Alias="SAP__ODM"/>
+  </edmx:Reference>
+  <edmx:Reference Uri="https://my420210-api.s4hana.cloud.sap/sap/opu/odata/iwfnd/catalogservice;v=2/Vocabularies(TechnicalName='%2FIWBEP%2FVOC_PERSONALDATA',Version='0001',SAP__Origin='')/$value" 
+    xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+    <edmx:Include Namespace="com.sap.vocabularies.PersonalData.v1" Alias="PersonalData"/>
+  </edmx:Reference>
+  <edmx:Reference Uri="https://my420210-api.s4hana.cloud.sap/sap/opu/odata/iwfnd/catalogservice;v=2/Vocabularies(TechnicalName='%2FIWBEP%2FVOC_UI',Version='0001',SAP__Origin='')/$value" 
+    xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+    <edmx:Include Namespace="com.sap.vocabularies.UI.v1" Alias="UI"/>
+  </edmx:Reference>
+  <edmx:Reference Uri="https://my420210-api.s4hana.cloud.sap/sap/opu/odata/iwfnd/catalogservice;v=2/Vocabularies(TechnicalName='%2FIWBEP%2FVOC_VALIDATION',Version='0001',SAP__Origin='')/$value" 
+    xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+    <edmx:Include Namespace="Org.OData.Validation.V1" Alias="Validation"/>
+  </edmx:Reference>
+  <edmx:DataServices m:DataServiceVersion="2.0">
+    <Schema Namespace="YY1_SALESVCDATA_2_CDS" xml:lang="en" sap:schema-version="1" 
+      xmlns="http://schemas.microsoft.com/ado/2008/09/edm">
+      <EntityType Name="YY1_SALESVCDATA_2Type" sap:label="SalesVCData_2" sap:content-version="1">
+        <Key>
+          <PropertyRef Name="SAP_UUID"/>
+        </Key>
+        <Property Name="SAP_UUID" Type="Edm.Guid" Nullable="false" sap:label="UUID" sap:quickinfo="16 Byte UUID in 16 Bytes (Raw Format)"/>
+        <Property Name="Sales_Order_Number" Type="Edm.Decimal" Precision="10" Scale="0" sap:label="Sales Order Number"/>
+        <Property Name="Sales_Order_Item_Num" Type="Edm.Decimal" Precision="4" Scale="0" sap:label="Sales Order Item Num"/>
+        <Property Name="Billing_Document_Number" Type="Edm.Decimal" Precision="10" Scale="0" sap:label="Billing  Document Number"/>
+        <Property Name="Billing_Document_Item_Number" Type="Edm.Decimal" Precision="4" Scale="0" sap:label="Billing Document Item Number"/>
+        <Property Name="YY131_DC" Type="Edm.String" MaxLength="2" sap:label="Distribution Channel"/>
+        <Property Name="YY132_HW_PAY_VENDOR" Type="Edm.Decimal" Precision="15" Scale="0" sap:label="H&amp;W Vendor Pay Rate"/>
+        <Property Name="YY133_HW_TOTAL_VENDOR" Type="Edm.Decimal" Precision="15" Scale="0" sap:label="H&amp;W Total Pay Vendor"/>
+        <Property Name="YY134_DAILY_PAY_VENDOR" Type="Edm.Decimal" Precision="15" Scale="0" sap:label="Daily Vendor Pay Amount"/>
+        <Property Name="YY135_DAILY_TOTAL_VENDOR" Type="Edm.Decimal" Precision="15" Scale="0" sap:label="Daily Total Pay Vendor"/>
+        <Property Name="YY136_HOLIDAY_PAY_VENDOR" Type="Edm.Decimal" Precision="15" Scale="0" sap:label="Holiday Vendor Pay Rate"/>
+        <Property Name="YY137_HOLIDAY_TOTAL_VENDOR" Type="Edm.Decimal" Precision="15" Scale="0" sap:label="Holiday Total Pay Vendor"/>
+        <Property Name="YY138_ONCALL_PAY_VENDOR" Type="Edm.Decimal" Precision="15" Scale="0" sap:label="Oncall Vendor Pay Rate"/>
+        <Property Name="YY139_ONCALL_TOTAL_VENDOR" Type="Edm.Decimal" Precision="15" Scale="0" sap:label="Oncall Total Pay Vendor"/>
+        <Property Name="YY140_VACATION_PAY_VENDOR" Type="Edm.Decimal" Precision="15" Scale="0" sap:label="Vacation Vendor Pay Rate"/>
+        <Property Name="YY141_VACATION_TOTAL_VENDOR" Type="Edm.Decimal" Precision="15" Scale="0" sap:label="Vacation Total Pay Vendor"/>
+        <Property Name="YY142_SALARY_PAY_VENDOR" Type="Edm.Decimal" Precision="15" Scale="0" sap:label="Salary Vendor Pay Amount"/>
+        <Property Name="YY143_DIRECT_PLACEMENT" Type="Edm.Decimal" Precision="15" Scale="0" sap:label="Direct Placement Fee"/>
+        <Property Name="YY144_WEEKLY_CLOCK_FEE" Type="Edm.Decimal" Precision="15" Scale="0" sap:label="Weekly Clock Fee"/>
+        <Property Name="YY145_PER_DIEM_DAYS" Type="Edm.Decimal" Precision="15" Scale="0" sap:label="Per Diem Days"/>
+        <Property Name="YY146_PER_DIEM_TAX_PRICE" Type="Edm.Decimal" Precision="15" Scale="0" sap:label="Per Diem Tax  Price Per Day"/>
+        <Property Name="YY147_PER_DIEM_NOTAX_PRICE" Type="Edm.Decimal" Precision="15" Scale="0" sap:label="Per Diem No Tax  Price Per Day"/>
+        <Property Name="YY148_PER_DIEM_TAX" Type="Edm.Decimal" Precision="15" Scale="0" sap:label="Per Diem Taxable Total"/>
+        <Property Name="YY149_PER_DIEM_NO_TAX" Type="Edm.Decimal" Precision="15" Scale="0" sap:label="Per Diem No Tax Total"/>
+        <Property Name="YY150_DAILY_PAY_DAYS" Type="Edm.Decimal" Precision="10" Scale="2" sap:label="Daily Pay Days"/>
+        <Property Name="YY151_DAILY_PRICE" Type="Edm.Decimal" Precision="15" Scale="0" sap:label="Daily Pay Rate Per Day"/>
+        <Property Name="YY152_DAILY_TOTAL_RATE" Type="Edm.Decimal" Precision="15" Scale="0" sap:label="Daily"/>
+        <Property Name="YY153_SICK_DAYS" Type="Edm.Decimal" Precision="15" Scale="0" sap:label="Sick Days"/>
+        <Property Name="YY154_SICK_DAYS_PRICE" Type="Edm.Decimal" Precision="15" Scale="0" sap:label="Sick Days Price"/>
+        <Property Name="YY155_SICK_TOTAL_DAYS_PRICE" Type="Edm.Decimal" Precision="15" Scale="0" sap:label="Sick Days Total Price"/>
+        <Property Name="YY156_SICK_HOURS" Type="Edm.Decimal" Precision="15" Scale="0" sap:label="Sick Hours"/>
+        <Property Name="YY157_SICK_HRS_PRICE" Type="Edm.Decimal" Precision="10" Scale="2" sap:label="Sick Hours Price"/>
+        <Property Name="YY158_SICK_TOTAL_HRS_PRICE" Type="Edm.Decimal" Precision="15" Scale="0" sap:label="Sick Hours Total Price"/>
+        <Property Name="YY159_MISC" Type="Edm.Decimal" Precision="15" Scale="0" sap:label="Miscellaneous Amount"/>
+        <Property Name="YY160_BEREAV_DAYS" Type="Edm.Decimal" Precision="15" Scale="0" sap:label="Bereavement Days"/>
+        <Property Name="YY161_BEREAV_HRS" Type="Edm.Decimal" Precision="15" Scale="0" sap:label="Bereavement Hours"/>
+        <Property Name="YY162_BEREAV_HRS_RATE" Type="Edm.Decimal" Precision="15" Scale="0" sap:label="Bereavement Hourly Rate"/>
+        <Property Name="YY163_BEREAV_DAYS_RATE" Type="Edm.Decimal" Precision="15" Scale="0" sap:label="Bereavement Daily Rate"/>
+        <Property Name="YY164_BEREAV_TOTAL_HRS_RATE" Type="Edm.Decimal" Precision="15" Scale="0" sap:label="Bereavement Hours Total Price"/>
+        <Property Name="YY165_BEREAV_TOTAL_DAYS_RATE" Type="Edm.Decimal" Precision="15" Scale="0" sap:label="Bereavement Day Total Price"/>
+        <Property Name="YY166_BONUS_PRICE" Type="Edm.Decimal" Precision="15" Scale="0" sap:label="Bonus"/>
+        <Property Name="YY167_BONUS_PAY_RATE" Type="Edm.Decimal" Precision="15" Scale="0" sap:label="Bonus Vendor Pay Amount"/>
+        <Property Name="YY168_COMMISSION_PRICE" Type="Edm.Decimal" Precision="15" Scale="0" sap:label="Commission"/>
+        <Property Name="YY169_HOL_DAYS" Type="Edm.Decimal" Precision="15" Scale="0" sap:label="Holiday Days"/>
+        <Property Name="YY170_HOL_HRS" Type="Edm.Decimal" Precision="15" Scale="0" sap:label="Holiday Hours"/>
+        <Property Name="YY171_HOL_HRS_PRICE" Type="Edm.Decimal" Precision="15" Scale="0" sap:label="Holiday Hourly Rate"/>
+        <Property Name="YY172_HOL_DAYS_PRICE" Type="Edm.Decimal" Precision="15" Scale="0" sap:label="Holiday Daily Rate"/>
+        <Property Name="YY173_HOL_TOTAL_HRS_PRICE" Type="Edm.Decimal" Precision="15" Scale="0" sap:label="Holiday Hourly Total Price"/>
+        <Property Name="YY174_HOL_TOTAL_DAYS_PRICE" Type="Edm.Decimal" Precision="15" Scale="0" sap:label="Holiday Daily Total Price"/>
+        <Property Name="YY175_HOLIDAY_DATE" Type="Edm.DateTime" Precision="0" sap:display-format="Date" sap:label="Holiday Date"/>
+        <Property Name="YY176_HW_HRS" Type="Edm.Decimal" Precision="15" Scale="0" sap:label="H&amp;W Hours"/>
+        <Property Name="YY177_HW_HRS_PRICE" Type="Edm.Decimal" Precision="15" Scale="0" sap:label="H&amp;W Rate"/>
+        <Property Name="YY178_HW_TOTAL_PRICE" Type="Edm.Decimal" Precision="15" Scale="0" sap:label="HW"/>
+        <Property Name="YY179_JURY_DAYS" Type="Edm.Decimal" Precision="15" Scale="0" sap:label="Jury Duty Days"/>
+        <Property Name="YY180_JURY_HRS" Type="Edm.Decimal" Precision="15" Scale="0" sap:label="Jury Duty Hours"/>
+        <Property Name="YY181_JURY_HRS_PRICE" Type="Edm.Decimal" Precision="15" Scale="0" sap:label="Jury Duty HRs Rate"/>
+        <Property Name="YY182_JURY_DAYS_PRICE" Type="Edm.Decimal" Precision="15" Scale="0" sap:label="Jury Duty Daily Rate"/>
+        <Property Name="YY183_JURY_TOTAL_HRS_PRICE" Type="Edm.Decimal" Precision="15" Scale="0" sap:label="Jury Duty Total HRs"/>
+        <Property Name="YY184_JURY_TOTAL_DAYS_PRICE" Type="Edm.Decimal" Precision="15" Scale="0" sap:label="Jury Duty Total Days"/>
+        <Property Name="YY185_LONGEVITY_DAYS" Type="Edm.Decimal" Precision="15" Scale="0" sap:label="Longevity Days"/>
+        <Property Name="YY186_LONGEVITY_HRS" Type="Edm.Decimal" Precision="15" Scale="0" sap:label="Longevity Hours"/>
+        <Property Name="YY187_LONGEVITY_HRS_PRICE" Type="Edm.Decimal" Precision="15" Scale="0" sap:label="Longevity Hours Price"/>
+        <Property Name="YY188_LONGEVITY_DAYS_PRICE" Type="Edm.Decimal" Precision="15" Scale="0" sap:label="Longevity Days Price"/>
+        <Property Name="YY189_LONGEVITY_TOTAL_HRS_PR" Type="Edm.Decimal" Precision="15" Scale="0" sap:label="Longevity Total HRs Price"/>
+        <Property Name="YY190_LONGEVITY_TOTAL_DAYS_P" Type="Edm.Decimal" Precision="15" Scale="0" sap:label="Longevity Total Days Price"/>
+        <Property Name="YY191_ONCALL_DAYS" Type="Edm.Decimal" Precision="15" Scale="0" sap:label="Oncall Days"/>
+        <Property Name="YY192_ONCALL_HRS" Type="Edm.Decimal" Precision="15" Scale="0" sap:label="Oncall Hours"/>
+        <Property Name="YY193_ONCALL_HRS_PRICE" Type="Edm.Decimal" Precision="15" Scale="0" sap:label="Oncall Hours Price"/>
+        <Property Name="YY194_ONCALL_DAYS_PRICE" Type="Edm.Decimal" Precision="15" Scale="0" sap:label="Oncall Days Price"/>
+        <Property Name="YY195_ONCALL_TOTAL_HRS_PRICE" Type="Edm.Decimal" Precision="15" Scale="0" sap:label="Oncall Total HRs Price"/>
+        <Property Name="YY196_ONCALL_TOTAL_DAYS_PRIC" Type="Edm.Decimal" Precision="15" Scale="0" sap:label="Oncall Total Days Price"/>
+        <Property Name="YY197_RETRO_DAYS" Type="Edm.Decimal" Precision="15" Scale="0" sap:label="Retro Days"/>
+        <Property Name="YY198_RETRO_HRS" Type="Edm.Decimal" Precision="15" Scale="0" sap:label="Retro Hours"/>
+        <Property Name="YY199_RETRO_DAYS_PRICE" Type="Edm.Decimal" Precision="15" Scale="0" sap:label="Retro Days Price"/>
+        <Property Name="YY200_RETRO_HRS_PRICE" Type="Edm.Decimal" Precision="15" Scale="0" sap:label="Retro Hours Price"/>
+        <Property Name="YY201_RETRO_TOTAL_HRS_PRICE" Type="Edm.Decimal" Precision="15" Scale="0" sap:label="Retro Total HRs Price"/>
+        <Property Name="YY202_RETRO_TOTAL_DAYS_PRICE" Type="Edm.Decimal" Precision="15" Scale="0" sap:label="Retro Total Days Price"/>
+        <Property Name="YY203_SALARY" Type="Edm.Decimal" Precision="15" Scale="0" sap:label="Salary"/>
+        <Property Name="YY204_SEV_PAY_DAYS" Type="Edm.Decimal" Precision="15" Scale="0" sap:label="Severance Pay Days"/>
+        <Property Name="YY205_SEV_PAY_HRS" Type="Edm.Decimal" Precision="15" Scale="0" sap:label="Severance Pay Hours"/>
+        <Property Name="YY206_SEV_PAY_HRS_PRICE" Type="Edm.Decimal" Precision="15" Scale="0" sap:label="Severance Pay HRs Price"/>
+        <Property Name="YY207_SEV_PAY_DAYS_PRICE" Type="Edm.Decimal" Precision="15" Scale="0" sap:label="Severance Pay Days Price"/>
+        <Property Name="YY208_SEV_PAY_TOTAL_HRS_PRIC" Type="Edm.Decimal" Precision="15" Scale="0" sap:label="Severance Pay Total HRs Price"/>
+        <Property Name="YY209_SEV_PAY_TOTAL_DAYS_PRI" Type="Edm.Decimal" Precision="15" Scale="0" sap:label="Severance Pay Total Days Price"/>
+        <Property Name="YY210_VAC_BILL_DAYS" Type="Edm.Decimal" Precision="15" Scale="0" sap:label="Vacation Billable Days"/>
+        <Property Name="YY211_VAC_BILL_HRS" Type="Edm.Decimal" Precision="15" Scale="0" sap:label="Vacation Billable Hours"/>
+        <Property Name="YY212_VAC_BILL_HRS_PRICE" Type="Edm.Decimal" Precision="15" Scale="0" sap:label="Vacation Billable Hrs Price"/>
+        <Property Name="YY213_VAC_BILL_DAYS_PRICE" Type="Edm.Decimal" Precision="15" Scale="0" sap:label="Vacation  Billable Days Price"/>
+        <Property Name="YY214_VAC_BILL_TOTAL_HRS_PRI" Type="Edm.Decimal" Precision="15" Scale="0" sap:label="Vac. Billable Tot Hrs Price"/>
+        <Property Name="YY215_VAC_BILL_TOTAL_DAYS_PR" Type="Edm.Decimal" Precision="15" Scale="0" sap:label="Vac Billable Tot Days Price"/>
+        <Property Name="YY216_CUST_BUSINESS_UNIT" Type="Edm.String" MaxLength="30" sap:label="Customer Business Unit" sap:quickinfo="Text of length 30"/>
+        <Property Name="YY217_CUST_CHARGE_NUMBER" Type="Edm.String" MaxLength="30" sap:label="Customer Charge Number" sap:quickinfo="Text of length 30"/>
+        <Property Name="YY218_CUST_PROJECT_NUMBER" Type="Edm.String" MaxLength="30" sap:label="Project Number" sap:quickinfo="Text of length 30"/>
+        <Property Name="YY219_CUST_COST_CENTER" Type="Edm.String" MaxLength="30" sap:label="Customer Cost Center Old" sap:quickinfo="Text of length 30"/>
+        <Property Name="YY220_CUST_COMPANY_CODE" Type="Edm.String" MaxLength="30" sap:label="Customer Company Code" sap:quickinfo="Text of length 30"/>
+        <Property Name="YY221_CUST_DEPT_NUMBER" Type="Edm.String" MaxLength="30" sap:label="Customer Department Number" sap:quickinfo="Text of length 30"/>
+        <Property Name="YY222_CUST_DOTS_NUMBER" Type="Edm.String" MaxLength="30" sap:label="Customer DOTS Number" sap:quickinfo="Text of length 30"/>
+        <Property Name="YY223_CUST_RUI" Type="Edm.String" MaxLength="30" sap:label="Customer RUI" sap:quickinfo="Text of length 30"/>
+        <Property Name="YY224_CUST_ACCT_NUMBER" Type="Edm.String" MaxLength="30" sap:label="Customer Account Number" sap:quickinfo="Text of length 30"/>
+        <Property Name="YY225_CUST_BUDGET_CENTER" Type="Edm.String" MaxLength="30" sap:label="Customer Budget Center" sap:quickinfo="Text of length 30"/>
+        <Property Name="YY226_CUST_CON_NUMBER" Type="Edm.String" MaxLength="30" sap:label="Customer Contract Number" sap:quickinfo="Text of length 30"/>
+        <Property Name="YY227_CUST_VENDOR_NUMBER" Type="Edm.String" MaxLength="30" sap:label="SG Vendor Number" sap:quickinfo="Text of length 30"/>
+        <Property Name="YY228_CUST_ORG_CODE" Type="Edm.String" MaxLength="30" sap:label="Customer Org Code" sap:quickinfo="Text of length 30"/>
+        <Property Name="YY229_CUST_LEGAL_ENTITY" Type="Edm.String" MaxLength="30" sap:label="Customer Legal Entity" sap:quickinfo="Text of length 30"/>
+        <Property Name="YY230_CUST_ORACLE_NUMBER" Type="Edm.String" MaxLength="30" sap:label="Customer Oracle Number" sap:quickinfo="Text of length 30"/>
+        <Property Name="YY231_CUST_UNIT_STORE_NUMBER" Type="Edm.String" MaxLength="30" sap:label="Customer Unit Store Number" sap:quickinfo="Text of length 30"/>
+        <Property Name="YY232_CUST_SVC_DATE" Type="Edm.DateTime" Precision="0" sap:display-format="Date" sap:label="Service Date - FOR SDI IBM"/>
+        <Property Name="YY233_CUST_EMPLOYEE_NUMBER" Type="Edm.String" MaxLength="30" sap:label="Customer Employee Number" sap:quickinfo="Text of length 30"/>
+        <Property Name="YY234_CUST_AGREE_NUMBER" Type="Edm.String" MaxLength="30" sap:label="Customer Agreement Name" sap:quickinfo="Text of length 30"/>
+        <Property Name="YY235_CUST_TASK15" Type="Edm.String" MaxLength="30" sap:label="TASK #" sap:quickinfo="Text of length 30"/>
+        <Property Name="YY236_CUST_FEPS_CODE" Type="Edm.String" MaxLength="30" sap:label="FEPS Code" sap:quickinfo="Text of length 30"/>
+        <Property Name="YY237_CUST_POSITION" Type="Edm.String" MaxLength="30" sap:label="Customer Position" sap:quickinfo="Text of length 30"/>
+        <Property Name="YY238_CUST_GL_CODE" Type="Edm.String" MaxLength="30" sap:label="Customer G/L Code" sap:quickinfo="Text of length 30"/>
+        <Property Name="YY239_CUST_PURCHASE_AGREE" Type="Edm.String" MaxLength="30" sap:label="Purchase Agreement" sap:quickinfo="Text of length 30"/>
+        <Property Name="YY240_CUST_BB_NUMBER" Type="Edm.String" MaxLength="30" sap:label="BB#" sap:quickinfo="Text of length 30"/>
+        <Property Name="YY241_CUST_BGRD_CHECK_DATE" Type="Edm.DateTime" Precision="0" sap:display-format="Date" sap:label="Customer Background Check Date"/>
+        <Property Name="YY242_CUST_DIV_UNIT_NUMBER" Type="Edm.String" MaxLength="30" sap:label="Customer Division Unit Number" sap:quickinfo="Text of length 30"/>
+        <Property Name="YY243_CUST_POSITION_CODE" Type="Edm.String" MaxLength="30" sap:label="Customer Position Code/Job ID" sap:quickinfo="Text of length 30"/>
+        <Property Name="YY244_ITEM_CATEGORY" Type="Edm.String" MaxLength="4" sap:label="Sales document item category" sap:quickinfo="Text of length 4"/>
+        <Property Name="YY245_ZSD_WN_INVOICE_VBAP" Type="Edm.String" MaxLength="30" sap:label="Custom WN Invoice" sap:quickinfo="Text of length 30"/>
+        <Property Name="YY246_ZSD_WN_INVOICE_VCSD" Type="Edm.String" MaxLength="30" sap:label="WN Invoice Number" sap:quickinfo="Text of length 30"/>
+        <Property Name="YY247_ZSD_WN_WORK_ORDER_VCSD" Type="Edm.String" MaxLength="10" sap:label="WN Work Order Number" sap:quickinfo="Text of length 10"/>
+        <Property Name="YY248_ZSD_WN_WORK_ORDER_VBAP" Type="Edm.String" MaxLength="10" sap:label="Sales and Distribution Document" sap:quickinfo="Text of length 10"/>
+        <Property Name="YY249_CUST_COST_CENTER2_VBAP" Type="Edm.String" MaxLength="30" sap:label="Cost Center VBAP" sap:quickinfo="Text of length 30"/>
+        <Property Name="Field124" Type="Edm.String" MaxLength="20" sap:label="Text of length 20"/>
+        <Property Name="Field125" Type="Edm.String" MaxLength="20" sap:label="Text of length 20"/>
+        <Property Name="Field126" Type="Edm.String" MaxLength="20" sap:label="Text of length 20"/>
+        <Property Name="Field127" Type="Edm.String" MaxLength="20" sap:label="Text of length 20"/>
+        <Property Name="Field128" Type="Edm.String" MaxLength="20" sap:label="Text of length 20"/>
+        <Property Name="Field129" Type="Edm.String" MaxLength="20" sap:label="Text of length 20"/>
+      </EntityType>
+      <EntityContainer Name="YY1_SALESVCDATA_2_CDS_Entities" m:IsDefaultEntityContainer="true" sap:message-scope-supported="true" sap:supported-formats="atom json xlsx">
+        <EntitySet Name="YY1_SALESVCDATA_2" EntityType="YY1_SALESVCDATA_2_CDS.YY1_SALESVCDATA_2Type" sap:searchable="true" sap:content-version="1"/>
+      </EntityContainer>
+      <Annotation Term="Core.SchemaVersion" String="1.0.0" 
+        xmlns="http://docs.oasis-open.org/odata/ns/edm"/>
+        <Annotations Target="YY1_SALESVCDATA_2_CDS.YY1_SALESVCDATA_2_CDS_Entities" 
+          xmlns="http://docs.oasis-open.org/odata/ns/edm">
+          <Annotation Term="Common.ApplyMultiUnitBehaviorForSortingAndFiltering" Bool="true"/>
+        </Annotations>
+        <Annotations Target="YY1_SALESVCDATA_2_CDS.YY1_SALESVCDATA_2_CDS_Entities" 
+          xmlns="http://docs.oasis-open.org/odata/ns/edm"/>
+          <atom:link rel="self" href="https://my420210-api.s4hana.cloud.sap/sap/opu/odata/sap/YY1_SALESVCDATA_2_CDS/$metadata" 
+            xmlns:atom="http://www.w3.org/2005/Atom"/>
+            <atom:link rel="latest-version" href="https://my420210-api.s4hana.cloud.sap/sap/opu/odata/sap/YY1_SALESVCDATA_2_CDS/$metadata" 
+              xmlns:atom="http://www.w3.org/2005/Atom"/>
+            </Schema>
+          </edmx:DataServices>
+        </edmx:Edmx>

@@ -1,0 +1,61 @@
+country_code,region,taxJurisdiction,province,createdAt,createdBy,modifiedAt,modifiedBy,config_ID,config_tableName
+CA,AB,CAAB,Alberta,,,,,fe184c3b-92c4-4bda-a6cf-aec221d71134,PTJC
+CA,BC,CABC,British Columbia,,,,,fe184c3b-92c4-4bda-a6cf-aec221d71134,PTJC
+CA,MB,CAMB,Manitoba,,,,,fe184c3b-92c4-4bda-a6cf-aec221d71134,PTJC
+CA,NB,CAMB,New Brunswick,,,,,fe184c3b-92c4-4bda-a6cf-aec221d71134,PTJC
+CA,NL,CANL,Newfoundland and Lab,,,,,fe184c3b-92c4-4bda-a6cf-aec221d71134,PTJC
+CA,NS,CANS,Nova Scotia,,,,,fe184c3b-92c4-4bda-a6cf-aec221d71134,PTJC
+CA,NT,CANT,Northwest Territorie,,,,,fe184c3b-92c4-4bda-a6cf-aec221d71134,PTJC
+CA,NU,CANU,Nunavut,,,,,fe184c3b-92c4-4bda-a6cf-aec221d71134,PTJC
+CA,ON,CAON,Ontario,,,,,fe184c3b-92c4-4bda-a6cf-aec221d71134,PTJC
+CA,PE,CAPE,Prince Edward Island,,,,,fe184c3b-92c4-4bda-a6cf-aec221d71134,PTJC
+CA,QC,CAQC,Quebec,,,,,fe184c3b-92c4-4bda-a6cf-aec221d71134,PTJC
+CA,SK,CASL,Saskatchewan,,,,,fe184c3b-92c4-4bda-a6cf-aec221d71134,PTJC
+CA,YT,CAYT,Yukon,,,,,fe184c3b-92c4-4bda-a6cf-aec221d71134,PTJC
+US,AK,0200000000,Alaska,,,,,fe184c3b-92c4-4bda-a6cf-aec221d71134,PTJC
+US,AL,0100000000,Alabama,,,,,fe184c3b-92c4-4bda-a6cf-aec221d71134,PTJC
+US,AR,0500000000,Arkansas,,,,,fe184c3b-92c4-4bda-a6cf-aec221d71134,PTJC
+US,AZ,0400000000,Arizona,,,,,fe184c3b-92c4-4bda-a6cf-aec221d71134,PTJC
+US,CA,0600000000,California,,,,,fe184c3b-92c4-4bda-a6cf-aec221d71134,PTJC
+US,CO,0800000000,Colorado,,,,,fe184c3b-92c4-4bda-a6cf-aec221d71134,PTJC
+US,CT,0900000000,Connecticut,,,,,fe184c3b-92c4-4bda-a6cf-aec221d71134,PTJC
+US,DC,1100000000,District of Columbia,,,,,fe184c3b-92c4-4bda-a6cf-aec221d71134,PTJC
+US,DE,1000000000,Delaware,,,,,fe184c3b-92c4-4bda-a6cf-aec221d71134,PTJC
+US,FL,1200000000,Florida,,,,,fe184c3b-92c4-4bda-a6cf-aec221d71134,PTJC
+US,GA,1300000000,Georgia,,,,,fe184c3b-92c4-4bda-a6cf-aec221d71134,PTJC
+US,GU,6600000000,Guam,,,,,fe184c3b-92c4-4bda-a6cf-aec221d71134,PTJC
+US,ID,1600000000,Idaho,,,,,fe184c3b-92c4-4bda-a6cf-aec221d71134,PTJC
+US,IL,1700000000,Illinois,,,,,fe184c3b-92c4-4bda-a6cf-aec221d71134,PTJC
+US,IN,1800000000,Indiana,,,,,fe184c3b-92c4-4bda-a6cf-aec221d71134,PTJC
+US,KS,2000000000,Kansas,,,,,fe184c3b-92c4-4bda-a6cf-aec221d71134,PTJC
+US,KY,2100000000,Kentucky,,,,,fe184c3b-92c4-4bda-a6cf-aec221d71134,PTJC
+US,LA,2200000000,Louisiana,,,,,fe184c3b-92c4-4bda-a6cf-aec221d71134,PTJC
+US,MA,2500000000,Massachusetts,,,,,fe184c3b-92c4-4bda-a6cf-aec221d71134,PTJC
+US,MD,2400000000,Maryland,,,,,fe184c3b-92c4-4bda-a6cf-aec221d71134,PTJC
+US,ME,2300000000,Maine,,,,,fe184c3b-92c4-4bda-a6cf-aec221d71134,PTJC
+US,MI,2600000000,Michigan,,,,,fe184c3b-92c4-4bda-a6cf-aec221d71134,PTJC
+US,MN,2700000000,Minnesota,,,,,fe184c3b-92c4-4bda-a6cf-aec221d71134,PTJC
+US,MO,2900000000,Missouri,,,,,fe184c3b-92c4-4bda-a6cf-aec221d71134,PTJC
+US,MS,2800000000,Mississippi,,,,,fe184c3b-92c4-4bda-a6cf-aec221d71134,PTJC
+US,MT,3000000000,Montana,,,,,fe184c3b-92c4-4bda-a6cf-aec221d71134,PTJC
+US,NC,3700000000,North Carolina,,,,,fe184c3b-92c4-4bda-a6cf-aec221d71134,PTJC
+US,ND,3800000000,North Dakota,,,,,fe184c3b-92c4-4bda-a6cf-aec221d71134,PTJC
+US,NE,3100000000,Nebraska,,,,,fe184c3b-92c4-4bda-a6cf-aec221d71134,PTJC
+US,NH,3300000000,New Hampshire,,,,,fe184c3b-92c4-4bda-a6cf-aec221d71134,PTJC
+US,NJ,3400000000,New Jersey,,,,,fe184c3b-92c4-4bda-a6cf-aec221d71134,PTJC
+US,NV,3200000000,Nevada,,,,,fe184c3b-92c4-4bda-a6cf-aec221d71134,PTJC
+US,OK,4000000000,Oklahoma,,,,,fe184c3b-92c4-4bda-a6cf-aec221d71134,PTJC
+US,OR,4100000000,Oregon,,,,,fe184c3b-92c4-4bda-a6cf-aec221d71134,PTJC
+US,PA,4200000000,Pennsylvania,,,,,fe184c3b-92c4-4bda-a6cf-aec221d71134,PTJC
+US,PR,7200000000,Puerto Rico,,,,,fe184c3b-92c4-4bda-a6cf-aec221d71134,PTJC
+US,RI,4400000000,Rhode Island,,,,,fe184c3b-92c4-4bda-a6cf-aec221d71134,PTJC
+US,SC,4500000000,South Carolina,,,,,fe184c3b-92c4-4bda-a6cf-aec221d71134,PTJC
+US,TN,4700000000,Tennessee,,,,,fe184c3b-92c4-4bda-a6cf-aec221d71134,PTJC
+US,TX,4800000000,Texas,,,,,fe184c3b-92c4-4bda-a6cf-aec221d71134,PTJC
+US,UT,4900000000,Utah,,,,,fe184c3b-92c4-4bda-a6cf-aec221d71134,PTJC
+US,VA,5100000000,Virginia,,,,,fe184c3b-92c4-4bda-a6cf-aec221d71134,PTJC
+US,VI,7800000000,Virgin Islands,,,,,fe184c3b-92c4-4bda-a6cf-aec221d71134,PTJC
+US,VT,5000000000,Vermont,,,,,fe184c3b-92c4-4bda-a6cf-aec221d71134,PTJC
+US,WA,5300000000,Washington,,,,,fe184c3b-92c4-4bda-a6cf-aec221d71134,PTJC
+US,WI,5500000000,Wisconsin,,,,,fe184c3b-92c4-4bda-a6cf-aec221d71134,PTJC
+US,WY,5600000000,Wyoming,,,,,fe184c3b-92c4-4bda-a6cf-aec221d71134,PTJC

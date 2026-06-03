@@ -1,0 +1,36 @@
+###
+# Environment should be switched by commenting either BAS environment or Local VSCode environment. Make sure to comment the other environment.
+# Region for comment would be - Start to - End
+
+### BAS environment -- Start
+@s4_base_url=http://S4HC_MONITOR_BASIC_AUTH_CUST.dest
+@default_headers=Content-Type: application/json
+### BAS environment -- End
+
+### Local VSCode environment - Start
+# @s4_user={{$dotenv s4_user}}
+# @s4_pass={{$dotenv s4_pass}}
+# @s4_base_url=https://my420210-api.s4hana.cloud.sap
+# @basic_auth=Authorization: Basic {{s4_user}}:{{s4_pass}}
+# @default_headers=Content-Type: application/json\n{{basic_auth}}
+### Local VSCode environment - End
+
+# Service Variables
+@svc_url={{s4_base_url}}/sap/opu/odata/sap/YY1_BILLINGTYPE_CDS
+ 
+###
+@csrf_token={{metadata_call.response.headers.X-CSRF-Token}}
+
+### Metadata
+# @name metadata_call
+GET {{svc_url}}/$metadata
+{{default_headers}}
+X-CSRF-Token: Fetch
+
+
+### Get exact BillingType
+GET {{svc_url}}/YY1_BILLINGTYPE
+?$format=json
+&$filter=SO_order_Type eq 'ZWCP'
+# &$select=Billing_type
+{{default_headers}}

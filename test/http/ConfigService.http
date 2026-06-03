@@ -1,0 +1,756 @@
+@server = http://localhost:4004
+
+
+### Configurations
+# @name Configurations_GET
+GET {{server}}/odata/v4/config/Configurations
+
+
+
+### Configurations Drafts GET
+# @name Configurations_Drafts_GET
+GET {{server}}/odata/v4/config/Configurations?$filter=(IsActiveEntity eq false)
+
+
+
+### Configurations Draft POST
+# @name Configurations_Draft_POST
+POST {{server}}/odata/v4/config/Configurations
+Content-Type: application/json
+
+{
+  "tableName": "Configurations-70225",
+  "tableDescr": "tableDescr-70225",
+  "target": "target-70225",
+  "interfaceTypes": [
+    {
+      "ID": "0",
+      "name": "name-6336810",
+      "descr": "descr-6336810",
+      "mappedEntity": "mappedEntity-6336810",
+      "filePrefix": "filePrefix-6336810",
+      "createdAt": "2016-06-06T00:00:00.000Z",
+      "createdBy": "createdBy.3rtii@example.com",
+      "modifiedAt": "2014-07-05T00:00:00.000Z",
+      "modifiedBy": "modifiedBy.3rtii@example.com"
+    },
+    {
+      "ID": "1",
+      "name": "name-6336811",
+      "descr": "descr-6336811",
+      "mappedEntity": "mappedEntity-6336811",
+      "filePrefix": "filePrefix-6336811",
+      "texts": [
+        {
+          "locale": "de",
+          "descr": "descr-3078415"
+        },
+        {
+          "locale": "nl",
+          "descr": "descr-3078416"
+        }
+      ],
+      "createdAt": "2007-01-28T00:00:00.000Z",
+      "createdBy": "createdBy.3rtij@example.net",
+      "modifiedAt": "2002-07-23T00:00:00.000Z",
+      "modifiedBy": "modifiedBy.3rtij@example.com"
+    }
+  ],
+  "interfaceSteps": [
+    {
+      "ID": "0752",
+      "interfaceType": {
+        "ID": "1"
+      },
+      "name": "name-16600752",
+      "process": {
+        "code": "9"
+      },
+      "createdAt": "2013-09-14T00:00:00.000Z",
+      "createdBy": "createdBy.9vt80@example.org",
+      "modifiedAt": "2004-03-10T00:00:00.000Z",
+      "modifiedBy": "modifiedBy.9vt80@example.com"
+    },
+    {
+      "ID": "0753",
+      "interfaceType": {
+        "ID": "1"
+      },
+      "name": "name-16600753",
+      "process": {
+        "code": "9"
+      },
+      "texts": [
+        {
+          "ID": "3256",
+          "interfaceType": {
+            "ID": "1"
+          },
+          "locale": "ru",
+          "name": "name-2223256"
+        },
+        {
+          "ID": "3257",
+          "interfaceType": {
+            "ID": "1"
+          },
+          "locale": "it",
+          "name": "name-2223257"
+        }
+      ],
+      "createdAt": "2012-11-19T00:00:00.000Z",
+      "createdBy": "createdBy.9vt81@example.org",
+      "modifiedAt": "2005-09-16T00:00:00.000Z",
+      "modifiedBy": "modifiedBy.9vt81@example.org"
+    }
+  ],
+  "fieldValidations": [
+    {
+      "interfaceType": {
+        "ID": "1"
+      },
+      "field": "FieldValidations-22130241",
+      "country": "FieldValidations-22130241",
+      "area": "FieldValidations-22130241",
+      "term": "FieldValidations-22130241",
+      "actionIndicator": "FieldValidations-22130241",
+      "validation": "B",
+      "createdAt": "2003-07-29T00:00:00.000Z",
+      "createdBy": "createdBy.d6bsx@example.org",
+      "modifiedAt": "2020-12-31T00:00:00.000Z",
+      "modifiedBy": "modifiedBy.d6bsx@example.net"
+    },
+    {
+      "interfaceType": {
+        "ID": "1"
+      },
+      "field": "FieldValidations-22130242",
+      "country": "FieldValidations-22130242",
+      "area": "FieldValidations-22130242",
+      "term": "FieldValidations-22130242",
+      "actionIndicator": "FieldValidations-22130242",
+      "validation": "B",
+      "createdAt": "2009-04-12T00:00:00.000Z",
+      "createdBy": "createdBy.d6bsy@example.net",
+      "modifiedAt": "2004-03-05T00:00:00.000Z",
+      "modifiedBy": "modifiedBy.d6bsy@example.net"
+    }
+  ],
+  "processes": [
+    {
+      "code": "1",
+      "texts": [
+        {
+          "locale": "it",
+          "name": "name-1234645",
+          "descr": "descr-1234645"
+        },
+        {
+          "locale": "tr",
+          "name": "name-1234646",
+          "descr": "descr-1234646"
+        }
+      ],
+      "name": "name-2051831",
+      "descr": "descr-2051831"
+    },
+    {
+      "code": "2",
+      "texts": [
+        {
+          "locale": "ro",
+          "name": "name-10341099",
+          "descr": "descr-10341099"
+        },
+        {
+          "locale": "fr",
+          "name": "name-10341100",
+          "descr": "descr-10341100"
+        }
+      ],
+      "name": "name-2051832",
+      "descr": "descr-2051832"
+    }
+  ],
+  "customerSaleOrders": [
+    {
+      "ID": "29729376-8175-4ac0-9ff0-ee36b80596a5",
+      "contract": "t-29729376",
+      "contractType": "6"
+    },
+    {
+      "ID": "29729377-55f7-45c8-b68e-9df6cd7408fa",
+      "contract": "t-29729377",
+      "contractType": "7"
+    }
+  ],
+  "skipInterfaces": [
+    {
+      "ID": "13786464-1c45-4c12-a7f2-1159128f9a61",
+      "contract": "t-13786464"
+    },
+    {
+      "ID": "13786465-1b1e-4e0a-b9ee-a91388e4bca3",
+      "contract": "t-13786465"
+    }
+  ],
+  "purchaseOrders": [
+    {
+      "ID": "14681033-5af4-45ed-89dc-44ba6ef807f7",
+      "soldToParty": "y-14681033",
+      "billToParty": "y-14681033",
+      "laberPO": "laberPO-14681033",
+      "expensePO": "expensePO-14681033"
+    },
+    {
+      "ID": "14681034-5fdc-43ae-b426-48ee8c9fe44a",
+      "soldToParty": "y-14681034",
+      "billToParty": "y-14681034",
+      "laberPO": "laberPO-14681034",
+      "expensePO": "expensePO-14681034"
+    }
+  ],
+  "paymentTerms": [
+    {
+      "customerNo": "ms-3330852",
+      "supplierNo": "ms-3330852",
+      "ID": "3330852d-c788-4155-8d90-6f302bcbeb47",
+      "customerTerm": "0852",
+      "vendorTerm": "0852"
+    },
+    {
+      "customerNo": "ms-3330853",
+      "supplierNo": "ms-3330853",
+      "ID": "3330853a-a7b5-4262-9d82-8534a9af8341",
+      "customerTerm": "0853",
+      "vendorTerm": "0853"
+    }
+  ]
+}
+
+### Configurations Draft POST
+# @name Configurations_Draft_POST
+POST {{server}}/odata/v4/config/Configurations
+Content-Type: application/json
+
+{
+  "tableName": "InterfaceTypes",
+  "tableDescr": "Type of Interfaces",
+  "target": "IFT1"
+}
+
+
+### Result from POST request above
+@draftID = {{Configurations_Draft_POST.response.body.$.ID}}
+
+
+### Configurations Draft PATCH
+# @name Configurations_Draft_Patch
+PATCH {{server}}/odata/v4/config/Configurations(ID={{draftID}},IsActiveEntity=false)
+Content-Type: application/json
+
+{
+  "tableName": "Configurations-70225",
+  "tableDescr": "tableDescr-70225",
+  "target": "target-70225",
+  "interfaceTypes": [
+    {
+      "ID": "0",
+      "name": "name-6336810",
+      "descr": "descr-6336810",
+      "mappedEntity": "mappedEntity-6336810",
+      "filePrefix": "filePrefix-6336810",
+      "createdAt": "2016-06-06T00:00:00.000Z",
+      "createdBy": "createdBy.3rtii@example.com",
+      "modifiedAt": "2014-07-05T00:00:00.000Z",
+      "modifiedBy": "modifiedBy.3rtii@example.com"
+    },
+    {
+      "ID": "1",
+      "name": "name-6336811",
+      "descr": "descr-6336811",
+      "mappedEntity": "mappedEntity-6336811",
+      "filePrefix": "filePrefix-6336811",
+      "texts": [
+        {
+          "locale": "de",
+          "descr": "descr-3078415"
+        },
+        {
+          "locale": "nl",
+          "descr": "descr-3078416"
+        }
+      ],
+      "createdAt": "2007-01-28T00:00:00.000Z",
+      "createdBy": "createdBy.3rtij@example.net",
+      "modifiedAt": "2002-07-23T00:00:00.000Z",
+      "modifiedBy": "modifiedBy.3rtij@example.com"
+    }
+  ],
+  "interfaceSteps": [
+    {
+      "ID": "0752",
+      "interfaceType": {
+        "ID": "1"
+      },
+      "name": "name-16600752",
+      "process": {
+        "code": "9"
+      },
+      "createdAt": "2013-09-14T00:00:00.000Z",
+      "createdBy": "createdBy.9vt80@example.org",
+      "modifiedAt": "2004-03-10T00:00:00.000Z",
+      "modifiedBy": "modifiedBy.9vt80@example.com"
+    },
+    {
+      "ID": "0753",
+      "interfaceType": {
+        "ID": "1"
+      },
+      "name": "name-16600753",
+      "process": {
+        "code": "9"
+      },
+      "texts": [
+        {
+          "ID": "3256",
+          "interfaceType": {
+            "ID": "1"
+          },
+          "locale": "ru",
+          "name": "name-2223256"
+        },
+        {
+          "ID": "3257",
+          "interfaceType": {
+            "ID": "1"
+          },
+          "locale": "it",
+          "name": "name-2223257"
+        }
+      ],
+      "createdAt": "2012-11-19T00:00:00.000Z",
+      "createdBy": "createdBy.9vt81@example.org",
+      "modifiedAt": "2005-09-16T00:00:00.000Z",
+      "modifiedBy": "modifiedBy.9vt81@example.org"
+    }
+  ],
+  "fieldValidations": [
+    {
+      "interfaceType": {
+        "ID": "1"
+      },
+      "field": "FieldValidations-22130241",
+      "country": "FieldValidations-22130241",
+      "area": "FieldValidations-22130241",
+      "term": "FieldValidations-22130241",
+      "actionIndicator": "FieldValidations-22130241",
+      "validation": "B",
+      "createdAt": "2003-07-29T00:00:00.000Z",
+      "createdBy": "createdBy.d6bsx@example.org",
+      "modifiedAt": "2020-12-31T00:00:00.000Z",
+      "modifiedBy": "modifiedBy.d6bsx@example.net"
+    },
+    {
+      "interfaceType": {
+        "ID": "1"
+      },
+      "field": "FieldValidations-22130242",
+      "country": "FieldValidations-22130242",
+      "area": "FieldValidations-22130242",
+      "term": "FieldValidations-22130242",
+      "actionIndicator": "FieldValidations-22130242",
+      "validation": "B",
+      "createdAt": "2009-04-12T00:00:00.000Z",
+      "createdBy": "createdBy.d6bsy@example.net",
+      "modifiedAt": "2004-03-05T00:00:00.000Z",
+      "modifiedBy": "modifiedBy.d6bsy@example.net"
+    }
+  ],
+  "processes": [
+    {
+      "code": "1",
+      "texts": [
+        {
+          "locale": "it",
+          "name": "name-1234645",
+          "descr": "descr-1234645"
+        },
+        {
+          "locale": "tr",
+          "name": "name-1234646",
+          "descr": "descr-1234646"
+        }
+      ],
+      "name": "name-2051831",
+      "descr": "descr-2051831"
+    },
+    {
+      "code": "2",
+      "texts": [
+        {
+          "locale": "ro",
+          "name": "name-10341099",
+          "descr": "descr-10341099"
+        },
+        {
+          "locale": "fr",
+          "name": "name-10341100",
+          "descr": "descr-10341100"
+        }
+      ],
+      "name": "name-2051832",
+      "descr": "descr-2051832"
+    }
+  ],
+  "customerSaleOrders": [
+    {
+      "ID": "29729376-8175-4ac0-9ff0-ee36b80596a5",
+      "contract": "t-29729376",
+      "contractType": "6"
+    },
+    {
+      "ID": "29729377-55f7-45c8-b68e-9df6cd7408fa",
+      "contract": "t-29729377",
+      "contractType": "7"
+    }
+  ],
+  "skipInterfaces": [
+    {
+      "ID": "13786464-1c45-4c12-a7f2-1159128f9a61",
+      "contract": "t-13786464"
+    },
+    {
+      "ID": "13786465-1b1e-4e0a-b9ee-a91388e4bca3",
+      "contract": "t-13786465"
+    }
+  ],
+  "purchaseOrders": [
+    {
+      "ID": "14681033-5af4-45ed-89dc-44ba6ef807f7",
+      "soldToParty": "y-14681033",
+      "billToParty": "y-14681033",
+      "laberPO": "laberPO-14681033",
+      "expensePO": "expensePO-14681033"
+    },
+    {
+      "ID": "14681034-5fdc-43ae-b426-48ee8c9fe44a",
+      "soldToParty": "y-14681034",
+      "billToParty": "y-14681034",
+      "laberPO": "laberPO-14681034",
+      "expensePO": "expensePO-14681034"
+    }
+  ],
+  "paymentTerms": [
+    {
+      "customerNo": "ms-3330852",
+      "supplierNo": "ms-3330852",
+      "ID": "3330852d-c788-4155-8d90-6f302bcbeb47",
+      "customerTerm": "0852",
+      "vendorTerm": "0852"
+    },
+    {
+      "customerNo": "ms-3330853",
+      "supplierNo": "ms-3330853",
+      "ID": "3330853a-a7b5-4262-9d82-8534a9af8341",
+      "customerTerm": "0853",
+      "vendorTerm": "0853"
+    }
+  ]
+}
+
+
+### Configurations Draft Prepare
+# @name Configurations_Draft_Prepare
+POST {{server}}/odata/v4/config/Configurations(ID={{draftID}},IsActiveEntity=false)/AdminService.draftPrepare
+Content-Type: application/json
+
+{}
+
+
+### Configurations Draft Activate
+# @name Configurations_Draft_Activate
+POST {{server}}/odata/v4/config/Configurations(ID={{draftID}},IsActiveEntity=false,tableName="InterfaceTypes")/AdminService.draftActivate
+Content-Type: application/json
+
+{}
+###
+
+POST {{server}}/odata/v4/config/Configurations
+Content-Type: application/json
+
+{
+    "tableName": "XYZ",
+    "tableDescr": "Type of Interfaces"
+}
+
+### InterfaceTypes
+# @name InterfaceTypes_GET
+GET {{server}}/odata/v4/config/InterfaceTypes
+
+
+
+### InterfaceSteps
+# @name InterfaceSteps_GET
+GET {{server}}/odata/v4/config/InterfaceSteps
+
+
+
+### InterfaceSteps
+# @name InterfaceSteps_POST
+POST {{server}}/odata/v4/config/InterfaceSteps
+Content-Type: application/json
+
+{
+  "ID": "0752",
+  "interfaceType": {
+    "ID": "1"
+  },
+  "name": "name-16600752",
+  "process": {
+    "code": "9"
+  },
+  "createdAt": "2013-09-14T00:00:00.000Z",
+  "createdBy": "createdBy.9vt80@example.org",
+  "modifiedAt": "2004-03-10T00:00:00.000Z",
+  "modifiedBy": "modifiedBy.9vt80@example.com"
+}
+
+
+### InterfaceSteps
+# @name InterfaceSteps_PATCH
+PATCH {{server}}/odata/v4/config/InterfaceSteps(ID='0752',interfaceType=[object Object])
+Content-Type: application/json
+
+{
+  "ID": "0752",
+  "interfaceType": {
+    "ID": "1"
+  },
+  "name": "name-16600752",
+  "process": {
+    "code": "9"
+  },
+  "createdAt": "2013-09-14T00:00:00.000Z",
+  "createdBy": "createdBy.9vt80@example.org",
+  "modifiedAt": "2004-03-10T00:00:00.000Z",
+  "modifiedBy": "modifiedBy.9vt80@example.com"
+}
+
+
+### InterfaceSteps
+# @name InterfaceSteps_DELETE
+DELETE {{server}}/odata/v4/config/InterfaceSteps(ID='0752',interfaceType=[object Object])
+Content-Type: application/json
+
+
+### FieldValidations
+# @name FieldValidations_GET
+GET {{server}}/odata/v4/config/FieldValidations
+
+
+
+### FieldValidations
+# @name FieldValidations_POST
+POST {{server}}/odata/v4/config/FieldValidations
+Content-Type: application/json
+
+{
+  "interfaceType": {
+    "ID": "1"
+  },
+  "field": "FieldValidations-22130241",
+  "country": "FieldValidations-22130241",
+  "area": "FieldValidations-22130241",
+  "term": "FieldValidations-22130241",
+  "actionIndicator": "FieldValidations-22130241",
+  "validation": "B",
+  "createdAt": "2003-07-29T00:00:00.000Z",
+  "createdBy": "createdBy.d6bsx@example.org",
+  "modifiedAt": "2020-12-31T00:00:00.000Z",
+  "modifiedBy": "modifiedBy.d6bsx@example.net"
+}
+
+
+### FieldValidations
+# @name FieldValidations_PATCH
+PATCH {{server}}/odata/v4/config/FieldValidations(interfaceType=[object Object],field='FieldValidations-22130241',country='FieldValidations-22130241',area='FieldValidations-22130241',term='FieldValidations-22130241',actionIndicator='FieldValidations-22130241')
+Content-Type: application/json
+
+{
+  "interfaceType": {
+    "ID": "1"
+  },
+  "field": "FieldValidations-22130241",
+  "country": "FieldValidations-22130241",
+  "area": "FieldValidations-22130241",
+  "term": "FieldValidations-22130241",
+  "actionIndicator": "FieldValidations-22130241",
+  "validation": "B",
+  "createdAt": "2003-07-29T00:00:00.000Z",
+  "createdBy": "createdBy.d6bsx@example.org",
+  "modifiedAt": "2020-12-31T00:00:00.000Z",
+  "modifiedBy": "modifiedBy.d6bsx@example.net"
+}
+
+
+### FieldValidations
+# @name FieldValidations_DELETE
+DELETE {{server}}/odata/v4/config/FieldValidations(interfaceType=[object Object],field='FieldValidations-22130241',country='FieldValidations-22130241',area='FieldValidations-22130241',term='FieldValidations-22130241',actionIndicator='FieldValidations-22130241')
+Content-Type: application/json
+
+
+### Processes
+# @name Processes_GET
+GET {{server}}/odata/v4/config/Processes
+
+
+
+### CustomerSaleOrders
+# @name CustomerSaleOrders_GET
+GET {{server}}/odata/v4/config/CustomerSaleOrders
+
+
+
+### CustomerSaleOrders
+# @name CustomerSaleOrders_POST
+POST {{server}}/odata/v4/config/CustomerSaleOrders
+Content-Type: application/json
+
+{
+  "ID": "29729376-8175-4ac0-9ff0-ee36b80596a5",
+  "contract": "t-29729376",
+  "contractType": "6"
+}
+
+
+### CustomerSaleOrders
+# @name CustomerSaleOrders_PATCH
+PATCH {{server}}/odata/v4/config/CustomerSaleOrders/29729376-8175-4ac0-9ff0-ee36b80596a5
+Content-Type: application/json
+
+{
+  "ID": "29729376-8175-4ac0-9ff0-ee36b80596a5",
+  "contract": "t-29729376",
+  "contractType": "6"
+}
+
+
+### CustomerSaleOrders
+# @name CustomerSaleOrders_DELETE
+DELETE {{server}}/odata/v4/config/CustomerSaleOrders/29729376-8175-4ac0-9ff0-ee36b80596a5
+Content-Type: application/json
+
+
+### SkipInterfaces
+# @name SkipInterfaces_GET
+GET {{server}}/odata/v4/config/SkipInterfaces
+
+
+
+### SkipInterfaces
+# @name SkipInterfaces_POST
+POST {{server}}/odata/v4/config/SkipInterfaces
+Content-Type: application/json
+
+{
+  "ID": "13786464-1c45-4c12-a7f2-1159128f9a61",
+  "contract": "t-13786464"
+}
+
+
+### SkipInterfaces
+# @name SkipInterfaces_PATCH
+PATCH {{server}}/odata/v4/config/SkipInterfaces/13786464-1c45-4c12-a7f2-1159128f9a61
+Content-Type: application/json
+
+{
+  "ID": "13786464-1c45-4c12-a7f2-1159128f9a61",
+  "contract": "t-13786464"
+}
+
+
+### SkipInterfaces
+# @name SkipInterfaces_DELETE
+DELETE {{server}}/odata/v4/config/SkipInterfaces/13786464-1c45-4c12-a7f2-1159128f9a61
+Content-Type: application/json
+
+
+### PurchaseOrders
+# @name PurchaseOrders_GET
+GET {{server}}/odata/v4/config/PurchaseOrders
+
+
+
+### PurchaseOrders
+# @name PurchaseOrders_POST
+POST {{server}}/odata/v4/config/PurchaseOrders
+Content-Type: application/json
+
+{
+  "ID": "14681033-5af4-45ed-89dc-44ba6ef807f7",
+  "soldToParty": "y-14681033",
+  "billToParty": "y-14681033",
+  "laberPO": "laberPO-14681033",
+  "expensePO": "expensePO-14681033"
+}
+
+
+### PurchaseOrders
+# @name PurchaseOrders_PATCH
+PATCH {{server}}/odata/v4/config/PurchaseOrders/14681033-5af4-45ed-89dc-44ba6ef807f7
+Content-Type: application/json
+
+{
+  "ID": "14681033-5af4-45ed-89dc-44ba6ef807f7",
+  "soldToParty": "y-14681033",
+  "billToParty": "y-14681033",
+  "laberPO": "laberPO-14681033",
+  "expensePO": "expensePO-14681033"
+}
+
+
+### PurchaseOrders
+# @name PurchaseOrders_DELETE
+DELETE {{server}}/odata/v4/config/PurchaseOrders/14681033-5af4-45ed-89dc-44ba6ef807f7
+Content-Type: application/json
+
+
+### PaymentTerms
+# @name PaymentTerms_GET
+GET {{server}}/odata/v4/config/PaymentTerms
+
+
+
+### PaymentTerms
+# @name PaymentTerms_POST
+POST {{server}}/odata/v4/config/PaymentTerms
+Content-Type: application/json
+
+{
+  "customerNo": "ms-3330852",
+  "supplierNo": "ms-3330852",
+  "ID": "3330852d-c788-4155-8d90-6f302bcbeb47",
+  "customerTerm": "0852",
+  "vendorTerm": "0852"
+}
+
+
+### PaymentTerms
+# @name PaymentTerms_PATCH
+PATCH {{server}}/odata/v4/config/PaymentTerms(ID=3330852d-c788-4155-8d90-6f302bcbeb47,customerNo='ms-3330852',supplierNo='ms-3330852')
+Content-Type: application/json
+
+{
+  "customerNo": "ms-3330852",
+  "supplierNo": "ms-3330852",
+  "ID": "3330852d-c788-4155-8d90-6f302bcbeb47",
+  "customerTerm": "0852",
+  "vendorTerm": "0852"
+}
+
+
+### PaymentTerms
+# @name PaymentTerms_DELETE
+DELETE {{server}}/odata/v4/config/PaymentTerms(ID=3330852d-c788-4155-8d90-6f302bcbeb47,customerNo='ms-3330852',supplierNo='ms-3330852')
+Content-Type: application/json

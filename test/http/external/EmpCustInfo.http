@@ -1,0 +1,70 @@
+###
+# Environment should be switched by commenting either BAS environment or Local VSCode environment. Make sure to comment the other environment.
+# Region for comment would be - Start to - End
+
+### BAS environment -- Start
+@s4_base_url=http://S4HC_MONITOR_BASIC_AUTH_CUST.dest
+@default_headers=Content-Type: application/json
+@Accept=Accept: application/json
+
+
+@svc_url={{s4_base_url}}/sap/opu/odata/sap/YY1_EMPLOYEE_CUSTOMER_INFO_CDS
+@svc=http://localhost:4004/odata/v4/monitor
+
+# @name metadata_call
+
+GET {{svc_url}}/$metadata
+{{default_headers}}
+X-CSRF-Token: Fetch
+
+###
+@csrf_token={{metadata_call.response.headers.X-CSRF-Token}}
+
+### Get Enterprise Project
+GET {{svc_url}}/YY1_EMPLOYEE_CUSTOMER_INFO
+?$top=3
+# ?$filter=WORKER_ID eq '11900053'
+# ?$filter=SSN eq '28994485' and FirstName eq 'Melissa' and Name eq 'Waldron' and MiddleName eq ''
+{{default_headers}}
+{{Accept}}
+
+
+### Update EmployeeHires - Intergration Step
+PATCH {{svc_url}}/YY1_EMPLOYEE_CUSTOMER_INFO(guid'fde8c272-cf59-1fd0-8183-c428a8e95abc')
+{{default_headers}}
+X-CSRF-Token: {{csrf_token}}
+
+{
+    "PROJECT_NAME": "Hello"
+}
+
+### Post infortype
+POST {{svc_url}}/YY1_EMPLOYEE_CUSTOMER_INFO
+{{default_headers}}
+X-CSRF-Token: {{csrf_token}}
+ 
+{   
+    "WORKER_ID": "215553000",
+    "Name": "",
+    "SSN": "0830389388",
+    "EMP_GRP": "",
+    "EMP_SUBGRP": "",
+    "START_DATE": null,
+    "END_DATE": null,
+    "CONTRAT_SAP": "98489050",
+    "SALES_ORD_SAP": "1200900",
+    "PROJECT_ID": "783738376",
+    "PROJECT_NAME": "Hello",
+    "CUSTOMER_ID": "7909090",
+    "SS_ORDER": "218900",
+    "WN_ORDER": "98909090",
+    "POSITION_ID": "0",
+    "JOB_ID": "0",
+    "ZPAYROLL": "",
+    "RECRID": "0",
+    "ZTIME_IND": "",
+    "ZHIRE_ACTION": "",
+    "ACTION_TYPE": "",
+    "T_REASON": "",
+    "ZHRREPT": ""
+}

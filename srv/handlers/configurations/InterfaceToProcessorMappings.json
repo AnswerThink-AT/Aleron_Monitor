@@ -1,0 +1,19 @@
+{
+    "1": "WorkOrderWNInterface",
+    "T": "EmployeeContractorInterface",
+    "U": "EmployeeStaffInterface",
+    "S": "WorkOrderVNInterface",
+    "M": "WorkOrderFGInterface",
+    "4": "TermProcessor",
+    "N": "FgTimeInvoiceInterface",
+    "3": "TimeContractorInterface",
+    "C": "TimeStaffInterface",
+    "E": "SOWscWOInterface",
+    "F": "SOWscInvoiceInterface",
+    "D": "CreditFG",
+    "2": "TravelInterface",
+    "A": "DrugBackgroundCheckProcessor",
+    "G": "Bonus_GInterface",
+    "O": "OtherBillablesInterface",
+    "Q": "FgCreditRebill"
+}

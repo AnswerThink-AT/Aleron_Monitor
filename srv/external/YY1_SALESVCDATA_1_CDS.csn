@@ -1,0 +1,1642 @@
+{
+ "meta": {
+  "creator": "cds-dk 8.9.2"
+ },
+ "$version": "2.0",
+ "definitions": {
+  "YY1_SALESVCDATA_1_CDS": {
+   "kind": "service",
+   "@cds.external": true,
+   "@m.IsDefaultEntityContainer": "true",
+   "@sap.message.scope.supported": "true",
+   "@sap.supported.formats": "atom json xlsx"
+  },
+  "YY1_SALESVCDATA_1_CDS.YY1_SALESVCDATA_1": {
+   "kind": "entity",
+   "@cds.external": true,
+   "@cds.persistence.skip": true,
+   "@sap.searchable": "true",
+   "@sap.content.version": "1",
+   "@sap.label": "SalesVCData_1",
+   "elements": {
+    "SAP_UUID": {
+     "key": true,
+     "type": "cds.UUID",
+     "@sap.label": "UUID",
+     "@sap.quickinfo": "16 Byte UUID in 16 Bytes (Raw Format)",
+     "notNull": true
+    },
+    "SalesOrderNumber": {
+     "type": "cds.String",
+     "length": 20,
+     "@sap.label": "Sales Order Number"
+    },
+    "SalesOrderItemNum": {
+     "type": "cds.String",
+     "length": 20,
+     "@sap.label": "Sales Order Item Num"
+    },
+    "SAP_Description": {
+     "type": "cds.String",
+     "length": 80,
+     "@sap.label": "Description"
+    },
+    "Billing_Document_Number": {
+     "type": "cds.String",
+     "length": 20,
+     "@sap.label": "Billing Document Number"
+    },
+    "Billing_Document_Item_Number": {
+     "type": "cds.String",
+     "length": 20,
+     "@sap.label": "Billing Document Item Number"
+    },
+    "Custom_Sales_Order_Type": {
+     "type": "cds.String",
+     "length": 4,
+     "@sap.label": "Custom Sales Order Type"
+    },
+    "Custom_Billing_type": {
+     "type": "cds.String",
+     "length": 4,
+     "@sap.label": "Custom Billing type"
+    },
+    "YY1_ACA_RG_ONLY": {
+     "type": "cds.String",
+     "length": 2,
+     "@sap.label": "Customer condition group 2"
+    },
+    "YY2_ACA_HRS": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "ACA Hours"
+    },
+    "YY3_ACA_HRS_PRICE": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "ACA Hours Price"
+    },
+    "YY4_ACA_TOTAL_HRS_PRICE": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "ACA Total Hours Price"
+    },
+    "YY5_LINE_ITEM_NUMBER": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 0,
+     "@sap.label": "Line Item Number"
+    },
+    "YY6_SC_LINE_ITEM_NUMBER": {
+     "type": "cds.String",
+     "length": 30,
+     "@sap.label": "Cust PO Line Item Number"
+    },
+    "YY7_INVISIBLE": {
+     "type": "cds.String",
+     "length": 30,
+     "@sap.label": "INVISIBLE"
+    },
+    "YY8_WEEK_ENDING2": {
+     "type": "cds.Date",
+     "@sap.display.format": "Date",
+     "@sap.label": "Week Ending",
+     "@sap.quickinfo": "DATE"
+    },
+    "YY9_ZZWEEK_END_VBAP": {
+     "type": "cds.Date",
+     "@sap.display.format": "Date",
+     "@sap.label": "Week End VBAP"
+    },
+    "YY10_EMPLOYEE_TYPE": {
+     "type": "cds.String",
+     "length": 3,
+     "@sap.label": "Employee Type"
+    },
+    "YY11_EIGHT_DAY_WEEK": {
+     "type": "cds.String",
+     "length": 1,
+     "@sap.label": "Eight Day Week"
+    },
+    "YY12_DAY1_SHIFT1_RG": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 1 Shift 1 RG"
+    },
+    "YY13_DAY1_SHIFT1_OT": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 1 Shift 1 Overtime"
+    },
+    "YY14_DAY1_SHIFT1_DB": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 1 Shift 1 DoubleTime"
+    },
+    "YY15_DAY1_SHIFT2_RG": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 1 Shift 2 RG"
+    },
+    "YY16_DAY1_SHIFT2_OT": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 1 Shift 2 Overtime"
+    },
+    "YY17_DAY1_SHIFT2_DB": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 1 Shift 2 DoubleTime"
+    },
+    "YY18_DAY1_SHIFT3_RG": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 1 Shift 3 RG"
+    },
+    "YY19_DAY1_SHIFT3_OT": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 1 Shift 3 Overtime"
+    },
+    "YY20_DAY1_SHIFT3_DB": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 1 Shift 3 DoubleTime"
+    },
+    "YY21_DAY_ONE": {
+     "type": "cds.Date",
+     "@sap.display.format": "Date",
+     "@sap.label": "Day One"
+    },
+    "YY22_DAY_ONE_WORKED": {
+     "type": "cds.Decimal",
+     "precision": 1,
+     "scale": 0,
+     "@sap.label": "Daily: Enter 1 if Day 1 Worked"
+    },
+    "YY23_DAY2_SHIFT1_RG": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 2 Shift 1 RG"
+    },
+    "YY24_DAY2_SHIFT1_OT": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 2 Shift 1 Overtime"
+    },
+    "YY25_DAY2_SHIFT1_DB": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 2 Shift 1 DoubleTime"
+    },
+    "YY26_DAY2_SHIFT2_RG": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 2 Shift 2 RG"
+    },
+    "YY27_DAY2_SHIFT2_OT": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 2 Shift 2 Overtime"
+    },
+    "YY28_DAY2_SHIFT2_DB": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 2 Shift 2 DoubleTime"
+    },
+    "YY29_DAY2_SHIFT3_RG": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 2 Shift 3 RG"
+    },
+    "YY30_DAY2_SHIFT3_OT": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 2 Shift 3 Overtime"
+    },
+    "YY31_DAY2_SHIFT3_DB": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 2 Shift 3 DoubleTime"
+    },
+    "YY32_DAY_TWO": {
+     "type": "cds.Date",
+     "@sap.display.format": "Date",
+     "@sap.label": "Day Two"
+    },
+    "YY33_DAY_TWO_WORKED": {
+     "type": "cds.Decimal",
+     "precision": 1,
+     "scale": 0,
+     "@sap.label": "Daily: Enter 1 if Day 2 Worked"
+    },
+    "YY34_DAY3_SHIFT1_RG": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 3 Shift 1 RG"
+    },
+    "YY35_DAY3_SHIFT1_OT": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 3 Shift 1 Overtime"
+    },
+    "YY36_DAY3_SHIFT1_DB": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 3 Shift 1 DoubleTime"
+    },
+    "YY37_DAY3_SHIFT2_RG": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 3 Shift 2 RG"
+    },
+    "YY38_DAY3_SHIFT2_OT": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 3 Shift 2 Overtime"
+    },
+    "YY39_DAY3_SHIFT2_DB": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 3 Shift 2 DoubleTime"
+    },
+    "YY40_DAY3_SHIFT3_RG": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 3 Shift 3 RG"
+    },
+    "YY41_DAY3_SHIFT3_OT": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 3 Shift 3 Overtime"
+    },
+    "YY42_DAY3_SHIFT3_DB": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 3 Shift 3 DoubleTime"
+    },
+    "YY43_DAY_THREE": {
+     "type": "cds.Date",
+     "@sap.display.format": "Date",
+     "@sap.label": "Day Three"
+    },
+    "YY44_DAY_THREE_WORKED": {
+     "type": "cds.Decimal",
+     "precision": 1,
+     "scale": 0,
+     "@sap.label": "Daily: Enter 1 if Day 3 Worked"
+    },
+    "YY45_DAY4_SHIFT1_RG": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 4 Shift 1 RG"
+    },
+    "YY46_DAY4_SHIFT1_OT": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 4 Shift 1 Overtime"
+    },
+    "YY47_DAY4_SHIFT1_DB": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 4 Shift 1 DoubleTime"
+    },
+    "YY48_DAY4_SHIFT2_RG": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 4 Shift 2 RG"
+    },
+    "YY49_DAY4_SHIFT2_OT": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 4 Shift 2 OT"
+    },
+    "YY50_DAY4_SHIFT2_DB": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 4 Shift 2 DoubleTime"
+    },
+    "YY51_DAY4_SHIFT3_RG": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 4 Shift 3 RG"
+    },
+    "YY52_DAY4_SHIFT3_OT": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 4 Shift 3 Overtime"
+    },
+    "YY53_DAY4_SHIFT3_DB": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 4 Shift 3 DoubleTime"
+    },
+    "YY54_DAY_FOUR": {
+     "type": "cds.Date",
+     "@sap.display.format": "Date",
+     "@sap.label": "Day Four"
+    },
+    "YY55_DAY_FOUR_WORKED": {
+     "type": "cds.Decimal",
+     "precision": 1,
+     "scale": 0,
+     "@sap.label": "Daily: Enter 1 if Day 4 Worked"
+    },
+    "YY56_DAY5_SHIFT1_RG": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 5 Shift 1 RG"
+    },
+    "YY57_DAY5_SHIFT1_OT": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 5 Shift 1 Overtime"
+    },
+    "YY58_DAY5_SHIFT1_DB": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 5 Shift 1 DoubleTime"
+    },
+    "YY59_DAY5_SHIFT2_RG": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 5 Shift 2 RG"
+    },
+    "YY60_DAY5_SHIFT2_OT": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 5 Shift 2 Overtime"
+    },
+    "YY61_DAY5_SHIFT2_DB": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 5 Shift 2 DoubleTime"
+    },
+    "YY62_DAY5_SHIFT3_RG": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 5 Shift 3 RG"
+    },
+    "YY63_DAY5_SHIFT3_OT": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 5 Shift 3 Overtime"
+    },
+    "YY64_DAY5_SHIFT3_DB": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 5 Shift 3 DoubleTime"
+    },
+    "YY65_DAY_FIVE": {
+     "type": "cds.Date",
+     "@sap.display.format": "Date",
+     "@sap.label": "Day Five"
+    },
+    "YY66_DAY_FIVE_WORKED": {
+     "type": "cds.Decimal",
+     "precision": 1,
+     "scale": 0,
+     "@sap.label": "Daily: Enter 1 if Day 5 Worked"
+    },
+    "YY67_DAY6_SHIFT1_RG": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 6 Shift 1 RG"
+    },
+    "YY68_DAY6_SHIFT1_OT": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 6 Shift 1 Overtime"
+    },
+    "YY69_DAY6_SHIFT1_DB": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 6 Shift 1 DoubleTime"
+    },
+    "YY70_DAY6_SHIFT2_RG": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 6 Shift 2 RG"
+    },
+    "YY71_DAY6_SHIFT2_OT": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 6 Shift 2 Overtime"
+    },
+    "YY72_DAY6_SHIFT2_DB": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 6 Shift 2 DoubleTime"
+    },
+    "YY73_DAY6_SHIFT3_RG": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 6 Shift 3 RG"
+    },
+    "YY74_DAY6_SHIFT3_OT": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 6 Shift 3 Overtime"
+    },
+    "YY75_DAY6_SHIFT3_DB": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 6 Shift 3 DoubleTime"
+    },
+    "YY76_DAY_SIX": {
+     "type": "cds.Date",
+     "@sap.display.format": "Date",
+     "@sap.label": "Day Six"
+    },
+    "YY77_DAY_SIX_WORKED": {
+     "type": "cds.Decimal",
+     "precision": 1,
+     "scale": 0,
+     "@sap.label": "Daily: Enter 1 if Day 6 Worked"
+    },
+    "YY78_DAY7_SHIFT1_RG": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 7 Shift 1 RG"
+    },
+    "YY79_DAY7_SHIFT1_OT": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 7 Shift 1 Overtime"
+    },
+    "YY80_DAY7_SHIFT1_DB": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 7 Shift 1 DoubleTime"
+    },
+    "YY81_DAY7_SHIFT2_RG": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 7 Shift 2 RG"
+    },
+    "YY82_DAY7_SHIFT2_OT": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 7 Shift 2 Overtime"
+    },
+    "YY83_DAY7_SHIFT2_DB": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 7 Shift 2 DoubleTime"
+    },
+    "YY84_DAY7_SHIFT3_RG": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 7 Shift 3 RG"
+    },
+    "YY85_DAY7_SHIFT3_OT": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 7 Shift 3 Overtime"
+    },
+    "YY86_DAY7_SHIFT3_DB": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 7 Shift 3 DoubleTime"
+    },
+    "YY87_DAY_SEVEN": {
+     "type": "cds.Date",
+     "@sap.display.format": "Date",
+     "@sap.label": "Day Seven"
+    },
+    "YY88_DAY_SEVEN_WORKED": {
+     "type": "cds.Decimal",
+     "precision": 1,
+     "scale": 0,
+     "@sap.label": "Daily: Enter 1 if Day 7 Worked"
+    },
+    "YY89_DAY8_SHIFT1_RG": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 8 Shift 1 RG"
+    },
+    "YY90_DAY8_SHIFT1_OT": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 8 Shift 1 Overtime"
+    },
+    "YY91_DAY8_SHIFT1_DB": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 8 Shift 1 DoubleTime"
+    },
+    "YY92_DAY8_SHIFT2_RG": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 8 Shift 2 RG"
+    },
+    "YY93_DAY8_SHIFT2_OT": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 8 Shift 2 Overtime"
+    },
+    "YY94_DAY8_SHIFT2_DB": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 8 Shift 2 DoubleTime"
+    },
+    "YY95_DAY8_SHIFT3_RG": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 8 Shift 3 Regular Time"
+    },
+    "YY96_DAY8_SHIFT3_OT": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 8 Shift 3 Overtime"
+    },
+    "YY97_DAY8_SHIFT3_DB": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 8 Shift 3 DoubleTime"
+    },
+    "YY98_DAY_EIGHT": {
+     "type": "cds.Date",
+     "@sap.display.format": "Date",
+     "@sap.label": "Day Eight"
+    },
+    "YY99_DAY_EIGHT_WORKED": {
+     "type": "cds.Decimal",
+     "precision": 1,
+     "scale": 0,
+     "@sap.label": "Daily: Enter 1 if Day 8 Worked"
+    },
+    "YY100_SHIFT1_TOTAL_HRS_RG": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Shift 1 Total Hours RG"
+    },
+    "YY101_SHIFT1_TOTAL_HRS_OT": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Shift 1 Total Hours OT"
+    },
+    "YY102_SHIFT1_TOTAL_HRS_DB": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Shift 1 Total Hours DB"
+    },
+    "YY103_SHIFT2_TOTAL_HRS_RG": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Shift 2 Total Hours RG"
+    },
+    "YY104_SHIFT2_TOTAL_HRS_OT": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Shift 2 Total Hours OT"
+    },
+    "YY105_SHIFT2_TOTAL_HRS_DB": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Shift 2 Total Hours DB"
+    },
+    "YY106_SHIFT3_TOTAL_HRS_RG": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Shift 3 Total Hours RG"
+    },
+    "YY107_SHIFT3_TOTAL_HRS_OT": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Shift 3 Total Hours OT"
+    },
+    "YY108_SHIFT3_TOTAL_HRS_DB": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Shift 3 Total Hours DB"
+    },
+    "YY109_SHIFT1_PRICE_RG": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Shift 1 Price RG"
+    },
+    "YY110_SHIFT1_PRICE_OT": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Shift 1 Price OT"
+    },
+    "YY111_SHIFT1_PRICE_DB": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Shift 1 Price DB"
+    },
+    "YY112_SHIFT2_PRICE_RG": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Shift 2 Price RG"
+    },
+    "YY113_SHIFT2_PRICE_OT": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Shift 2 Price OT"
+    },
+    "YY114_SHIFT2_PRICE_DB": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Shift 2 Price DB"
+    },
+    "YY115_SHIFT3_PRICE_RG": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Shift 3 Price RG"
+    },
+    "YY116_SHIFT3_PRICE_OT": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Shift 3 Price OT"
+    },
+    "YY117_SHIFT3_PRICE_DB": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Shift 3 Price DB"
+    },
+    "YY118_MARK_UP_RG": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Straight time Mark Up %"
+    },
+    "YY119_MARK_UP_OT": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Overtime Mark Up %"
+    },
+    "YY120_MARK_UP_DB": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Double Time Mark Up %"
+    },
+    "YY121_SHIFT1_TOTAL_PRICE_RG": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Shift 1 Total Price RG"
+    },
+    "YY122_SHIFT1_TOTAL_PRICE_OT": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Shift 1 Total Price OT"
+    },
+    "YY123_SHIFT1_TOTAL_PRICE_DB": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Shift 1 Total Price DB"
+    },
+    "YY124_SHIFT2_TOTAL_PRICE_RG": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Shift 2 Total Price RG"
+    },
+    "YY125_SHIFT2_TOTAL_PRICE_OT": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Shift 2 Total Price OT"
+    },
+    "YY126_SHIFT2_TOTAL_PRICE_DB": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Shift 2 Total Price DB"
+    },
+    "YY127_SHIFT3_TOTAL_PAY_RG": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Shift 3 Total Pay RG"
+    },
+    "YY128_SHIFT3_TOTAL_PAY_OT": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Shift 3 Total Pay OT"
+    },
+    "YY129_SHIFT3_TOTAL_PAY_DB": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Shift 3 Total Pay DB"
+    },
+    "YY130_ADMIN_FEE_PRICE": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "MS Admin Fee"
+    }
+   }
+  },
+  "YY1_SALESVCDATA_1_CDS.YY1_SALESVCDATA_1Sap_upsert": {
+   "kind": "action",
+   "@cds.external": true,
+   "params": {
+    "SalesOrderNumber": {
+     "type": "cds.String",
+     "length": 20,
+     "@sap.label": "Text of length 20"
+    },
+    "SalesOrderItemNum": {
+     "type": "cds.String",
+     "length": 20,
+     "@sap.label": "Text of length 20"
+    },
+    "SAP_Description": {
+     "type": "cds.String",
+     "length": 80,
+     "@sap.label": "Text of length 80"
+    },
+    "Billing_Document_Number": {
+     "type": "cds.String",
+     "length": 20,
+     "@sap.label": "Text of length 20"
+    },
+    "Billing_Document_Item_Number": {
+     "type": "cds.String",
+     "length": 20,
+     "@sap.label": "Text of length 20"
+    },
+    "Custom_Sales_Order_Type": {
+     "type": "cds.String",
+     "length": 4,
+     "@sap.label": "Text of length 4"
+    },
+    "Custom_Billing_type": {
+     "type": "cds.String",
+     "length": 4,
+     "@sap.label": "Text of length 4"
+    },
+    "YY1_ACA_RG_ONLY": {
+     "type": "cds.String",
+     "length": 2,
+     "@sap.label": "Text of length 2"
+    },
+    "YY2_ACA_HRS": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "ACA Hours"
+    },
+    "YY3_ACA_HRS_PRICE": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "ACA Hours Price"
+    },
+    "YY4_ACA_TOTAL_HRS_PRICE": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "ACA Total Hours Price"
+    },
+    "YY5_LINE_ITEM_NUMBER": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 0,
+     "@sap.label": "Line Item Number"
+    },
+    "YY6_SC_LINE_ITEM_NUMBER": {
+     "type": "cds.String",
+     "length": 30,
+     "@sap.label": "Text of length 30"
+    },
+    "YY7_INVISIBLE": {
+     "type": "cds.String",
+     "length": 30,
+     "@sap.label": "Text of length 30"
+    },
+    "YY8_WEEK_ENDING2": {
+     "type": "cds.Date",
+     "@sap.label": "Week Ending",
+     "@sap.display.format": "Date"
+    },
+    "YY9_ZZWEEK_END_VBAP": {
+     "type": "cds.Date",
+     "@sap.label": "Week End VBAP",
+     "@sap.display.format": "Date"
+    },
+    "YY10_EMPLOYEE_TYPE": {
+     "type": "cds.String",
+     "length": 3,
+     "@sap.label": "Text of length 3"
+    },
+    "YY11_EIGHT_DAY_WEEK": {
+     "type": "cds.String",
+     "length": 1,
+     "@sap.label": "Text of length 1"
+    },
+    "YY12_DAY1_SHIFT1_RG": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 1 Shift 1 RG"
+    },
+    "YY13_DAY1_SHIFT1_OT": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 1 Shift 1 Overtime"
+    },
+    "YY14_DAY1_SHIFT1_DB": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 1 Shift 1 DoubleTime"
+    },
+    "YY15_DAY1_SHIFT2_RG": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 1 Shift 2 RG"
+    },
+    "YY16_DAY1_SHIFT2_OT": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 1 Shift 2 Overtime"
+    },
+    "YY17_DAY1_SHIFT2_DB": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 1 Shift 2 DoubleTime"
+    },
+    "YY18_DAY1_SHIFT3_RG": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 1 Shift 3 RG"
+    },
+    "YY19_DAY1_SHIFT3_OT": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 1 Shift 3 Overtime"
+    },
+    "YY20_DAY1_SHIFT3_DB": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 1 Shift 3 DoubleTime"
+    },
+    "YY21_DAY_ONE": {
+     "type": "cds.Date",
+     "@sap.label": "Day One",
+     "@sap.display.format": "Date"
+    },
+    "YY22_DAY_ONE_WORKED": {
+     "type": "cds.Decimal",
+     "precision": 1,
+     "scale": 0,
+     "@sap.label": "Daily: Enter 1 if Day 1 Worked"
+    },
+    "YY23_DAY2_SHIFT1_RG": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 2 Shift 1 RG"
+    },
+    "YY24_DAY2_SHIFT1_OT": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 2 Shift 1 Overtime"
+    },
+    "YY25_DAY2_SHIFT1_DB": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 2 Shift 1 DoubleTime"
+    },
+    "YY26_DAY2_SHIFT2_RG": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 2 Shift 2 RG"
+    },
+    "YY27_DAY2_SHIFT2_OT": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 2 Shift 2 Overtime"
+    },
+    "YY28_DAY2_SHIFT2_DB": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 2 Shift 2 DoubleTime"
+    },
+    "YY29_DAY2_SHIFT3_RG": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 2 Shift 3 RG"
+    },
+    "YY30_DAY2_SHIFT3_OT": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 2 Shift 3 Overtime"
+    },
+    "YY31_DAY2_SHIFT3_DB": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 2 Shift 3 DoubleTime"
+    },
+    "YY32_DAY_TWO": {
+     "type": "cds.Date",
+     "@sap.label": "Day Two",
+     "@sap.display.format": "Date"
+    },
+    "YY33_DAY_TWO_WORKED": {
+     "type": "cds.Decimal",
+     "precision": 1,
+     "scale": 0,
+     "@sap.label": "Daily: Enter 1 if Day 2 Worked"
+    },
+    "YY34_DAY3_SHIFT1_RG": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 3 Shift 1 RG"
+    },
+    "YY35_DAY3_SHIFT1_OT": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 3 Shift 1 Overtime"
+    },
+    "YY36_DAY3_SHIFT1_DB": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 3 Shift 1 DoubleTime"
+    },
+    "YY37_DAY3_SHIFT2_RG": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 3 Shift 2 RG"
+    },
+    "YY38_DAY3_SHIFT2_OT": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 3 Shift 2 Overtime"
+    },
+    "YY39_DAY3_SHIFT2_DB": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 3 Shift 2 DoubleTime"
+    },
+    "YY40_DAY3_SHIFT3_RG": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 3 Shift 3 RG"
+    },
+    "YY41_DAY3_SHIFT3_OT": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 3 Shift 3 Overtime"
+    },
+    "YY42_DAY3_SHIFT3_DB": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 3 Shift 3 DoubleTime"
+    },
+    "YY43_DAY_THREE": {
+     "type": "cds.Date",
+     "@sap.label": "Day Three",
+     "@sap.display.format": "Date"
+    },
+    "YY44_DAY_THREE_WORKED": {
+     "type": "cds.Decimal",
+     "precision": 1,
+     "scale": 0,
+     "@sap.label": "Daily: Enter 1 if Day 3 Worked"
+    },
+    "YY45_DAY4_SHIFT1_RG": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 4 Shift 1 RG"
+    },
+    "YY46_DAY4_SHIFT1_OT": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 4 Shift 1 Overtime"
+    },
+    "YY47_DAY4_SHIFT1_DB": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 4 Shift 1 DoubleTime"
+    },
+    "YY48_DAY4_SHIFT2_RG": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 4 Shift 2 RG"
+    },
+    "YY49_DAY4_SHIFT2_OT": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 4 Shift 2 OT"
+    },
+    "YY50_DAY4_SHIFT2_DB": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 4 Shift 2 DoubleTime"
+    },
+    "YY51_DAY4_SHIFT3_RG": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 4 Shift 3 RG"
+    },
+    "YY52_DAY4_SHIFT3_OT": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 4 Shift 3 Overtime"
+    },
+    "YY53_DAY4_SHIFT3_DB": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 4 Shift 3 DoubleTime"
+    },
+    "YY54_DAY_FOUR": {
+     "type": "cds.Date",
+     "@sap.label": "Day Four",
+     "@sap.display.format": "Date"
+    },
+    "YY55_DAY_FOUR_WORKED": {
+     "type": "cds.Decimal",
+     "precision": 1,
+     "scale": 0,
+     "@sap.label": "Daily: Enter 1 if Day 4 Worked"
+    },
+    "YY56_DAY5_SHIFT1_RG": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 5 Shift 1 RG"
+    },
+    "YY57_DAY5_SHIFT1_OT": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 5 Shift 1 Overtime"
+    },
+    "YY58_DAY5_SHIFT1_DB": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 5 Shift 1 DoubleTime"
+    },
+    "YY59_DAY5_SHIFT2_RG": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 5 Shift 2 RG"
+    },
+    "YY60_DAY5_SHIFT2_OT": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 5 Shift 2 Overtime"
+    },
+    "YY61_DAY5_SHIFT2_DB": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 5 Shift 2 DoubleTime"
+    },
+    "YY62_DAY5_SHIFT3_RG": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 5 Shift 3 RG"
+    },
+    "YY63_DAY5_SHIFT3_OT": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 5 Shift 3 Overtime"
+    },
+    "YY64_DAY5_SHIFT3_DB": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 5 Shift 3 DoubleTime"
+    },
+    "YY65_DAY_FIVE": {
+     "type": "cds.Date",
+     "@sap.label": "Day Five",
+     "@sap.display.format": "Date"
+    },
+    "YY66_DAY_FIVE_WORKED": {
+     "type": "cds.Decimal",
+     "precision": 1,
+     "scale": 0,
+     "@sap.label": "Daily: Enter 1 if Day 5 Worked"
+    },
+    "YY67_DAY6_SHIFT1_RG": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 6 Shift 1 RG"
+    },
+    "YY68_DAY6_SHIFT1_OT": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 6 Shift 1 Overtime"
+    },
+    "YY69_DAY6_SHIFT1_DB": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 6 Shift 1 DoubleTime"
+    },
+    "YY70_DAY6_SHIFT2_RG": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 6 Shift 2 RG"
+    },
+    "YY71_DAY6_SHIFT2_OT": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 6 Shift 2 Overtime"
+    },
+    "YY72_DAY6_SHIFT2_DB": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 6 Shift 2 DoubleTime"
+    },
+    "YY73_DAY6_SHIFT3_RG": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 6 Shift 3 RG"
+    },
+    "YY74_DAY6_SHIFT3_OT": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 6 Shift 3 Overtime"
+    },
+    "YY75_DAY6_SHIFT3_DB": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 6 Shift 3 DoubleTime"
+    },
+    "YY76_DAY_SIX": {
+     "type": "cds.Date",
+     "@sap.label": "Day Six",
+     "@sap.display.format": "Date"
+    },
+    "YY77_DAY_SIX_WORKED": {
+     "type": "cds.Decimal",
+     "precision": 1,
+     "scale": 0,
+     "@sap.label": "Daily: Enter 1 if Day 6 Worked"
+    },
+    "YY78_DAY7_SHIFT1_RG": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 7 Shift 1 RG"
+    },
+    "YY79_DAY7_SHIFT1_OT": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 7 Shift 1 Overtime"
+    },
+    "YY80_DAY7_SHIFT1_DB": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 7 Shift 1 DoubleTime"
+    },
+    "YY81_DAY7_SHIFT2_RG": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 7 Shift 2 RG"
+    },
+    "YY82_DAY7_SHIFT2_OT": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 7 Shift 2 Overtime"
+    },
+    "YY83_DAY7_SHIFT2_DB": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 7 Shift 2 DoubleTime"
+    },
+    "YY84_DAY7_SHIFT3_RG": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 7 Shift 3 RG"
+    },
+    "YY85_DAY7_SHIFT3_OT": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 7 Shift 3 Overtime"
+    },
+    "YY86_DAY7_SHIFT3_DB": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 7 Shift 3 DoubleTime"
+    },
+    "YY87_DAY_SEVEN": {
+     "type": "cds.Date",
+     "@sap.label": "Day Seven",
+     "@sap.display.format": "Date"
+    },
+    "YY88_DAY_SEVEN_WORKED": {
+     "type": "cds.Decimal",
+     "precision": 1,
+     "scale": 0,
+     "@sap.label": "Daily: Enter 1 if Day 7 Worked"
+    },
+    "YY89_DAY8_SHIFT1_RG": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 8 Shift 1 RG"
+    },
+    "YY90_DAY8_SHIFT1_OT": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 8 Shift 1 Overtime"
+    },
+    "YY91_DAY8_SHIFT1_DB": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 8 Shift 1 DoubleTime"
+    },
+    "YY92_DAY8_SHIFT2_RG": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 8 Shift 2 RG"
+    },
+    "YY93_DAY8_SHIFT2_OT": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 8 Shift 2 Overtime"
+    },
+    "YY94_DAY8_SHIFT2_DB": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 8 Shift 2 DoubleTime"
+    },
+    "YY95_DAY8_SHIFT3_RG": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 8 Shift 3 Regular Time"
+    },
+    "YY96_DAY8_SHIFT3_OT": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 8 Shift 3 Overtime"
+    },
+    "YY97_DAY8_SHIFT3_DB": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Day 8 Shift 3 DoubleTime"
+    },
+    "YY98_DAY_EIGHT": {
+     "type": "cds.Date",
+     "@sap.label": "Day Eight",
+     "@sap.display.format": "Date"
+    },
+    "YY99_DAY_EIGHT_WORKED": {
+     "type": "cds.Decimal",
+     "precision": 1,
+     "scale": 0,
+     "@sap.label": "Daily: Enter 1 if Day 8 Worked"
+    },
+    "YY100_SHIFT1_TOTAL_HRS_RG": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Shift 1 Total Hours RG"
+    },
+    "YY101_SHIFT1_TOTAL_HRS_OT": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Shift 1 Total Hours OT"
+    },
+    "YY102_SHIFT1_TOTAL_HRS_DB": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Shift 1 Total Hours DB"
+    },
+    "YY103_SHIFT2_TOTAL_HRS_RG": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Shift 2 Total Hours RG"
+    },
+    "YY104_SHIFT2_TOTAL_HRS_OT": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Shift 2 Total Hours OT"
+    },
+    "YY105_SHIFT2_TOTAL_HRS_DB": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Shift 2 Total Hours DB"
+    },
+    "YY106_SHIFT3_TOTAL_HRS_RG": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Shift 3 Total Hours RG"
+    },
+    "YY107_SHIFT3_TOTAL_HRS_OT": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Shift 3 Total Hours OT"
+    },
+    "YY108_SHIFT3_TOTAL_HRS_DB": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Shift 3 Total Hours DB"
+    },
+    "YY109_SHIFT1_PRICE_RG": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Shift 1 Price RG"
+    },
+    "YY110_SHIFT1_PRICE_OT": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Shift 1 Price OT"
+    },
+    "YY111_SHIFT1_PRICE_DB": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Shift 1 Price DB"
+    },
+    "YY112_SHIFT2_PRICE_RG": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Shift 2 Price RG"
+    },
+    "YY113_SHIFT2_PRICE_OT": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Shift 2 Price OT"
+    },
+    "YY114_SHIFT2_PRICE_DB": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Shift 2 Price DB"
+    },
+    "YY115_SHIFT3_PRICE_RG": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Shift 3 Price RG"
+    },
+    "YY116_SHIFT3_PRICE_OT": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Shift 3 Price OT"
+    },
+    "YY117_SHIFT3_PRICE_DB": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Shift 3 Price DB"
+    },
+    "YY118_MARK_UP_RG": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Straight time Mark Up %"
+    },
+    "YY119_MARK_UP_OT": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Overtime Mark Up %"
+    },
+    "YY120_MARK_UP_DB": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Double Time Mark Up %"
+    },
+    "YY121_SHIFT1_TOTAL_PRICE_RG": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Shift 1 Total Price RG"
+    },
+    "YY122_SHIFT1_TOTAL_PRICE_OT": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Shift 1 Total Price OT"
+    },
+    "YY123_SHIFT1_TOTAL_PRICE_DB": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Shift 1 Total Price DB"
+    },
+    "YY124_SHIFT2_TOTAL_PRICE_RG": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Shift 2 Total Price RG"
+    },
+    "YY125_SHIFT2_TOTAL_PRICE_OT": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Shift 2 Total Price OT"
+    },
+    "YY126_SHIFT2_TOTAL_PRICE_DB": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Shift 2 Total Price DB"
+    },
+    "YY127_SHIFT3_TOTAL_PAY_RG": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Shift 3 Total Pay RG"
+    },
+    "YY128_SHIFT3_TOTAL_PAY_OT": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Shift 3 Total Pay OT"
+    },
+    "YY129_SHIFT3_TOTAL_PAY_DB": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "Shift 3 Total Pay DB"
+    },
+    "YY130_ADMIN_FEE_PRICE": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 2,
+     "@sap.label": "MS Admin Fee"
+    }
+   },
+   "returns": {
+    "type": "YY1_SALESVCDATA_1_CDS.YY1_SALESVCDATA_1"
+   }
+  }
+ }
+}

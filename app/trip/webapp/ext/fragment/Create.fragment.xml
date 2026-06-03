@@ -1,0 +1,95 @@
+<core:FragmentDefinition
+  xmlns="sap.m"
+  xmlns:core="sap.ui.core"
+  xmlns:layout="sap.ui.layout.form"
+  displayBlock="true">
+
+  <Dialog
+      id="frag_createTripDialog1"
+      title="{i18n>CreateTrip}"
+      class="sapUiContentPadding"
+      stretchOnPhone="true"
+      contentWidth="450px"
+      contentHeight="auto"
+      draggable="true"
+      resizable="true"
+      core:require="{ handler: 'trip/ext/controller/Create' }">
+
+    <layout:Form
+        id="frag_createTripSimpleForm"
+        editable="true"
+        width="100%">
+      <layout:layout>
+        <layout:ResponsiveGridLayout id="_IDGenResponsiveGridLayout"
+            labelSpanXL="4" columnsXL="2" breakpointXL="1200"
+            labelSpanL="4"  columnsL="2"  breakpointL="800"
+            labelSpanM="4"  columnsM="1"  breakpointM="600"/>
+      </layout:layout>
+
+      <layout:FormContainer id="_IDGenFormContainer" title="{i18n>TripMaster}">
+        <!-- <layout:FormElement id="_IDGenFormElement1">
+          <layout:label>
+            <Label id="_IDGenLabel" text="{i18n>TripNumber}" required="true"/>
+          </layout:label>
+          <layout:fields>
+            <Input
+                id="frag__IDGenInput"
+                value="{createModel>/TripNumber}"
+                width="100%"/>
+          </layout:fields>
+        </layout:FormElement> -->
+
+        <layout:FormElement id="_IDGenFormElement2">
+          <layout:label>
+            <Label id="_IDGenLabel1" text="{i18n>Personnel}" required="true"/>
+          </layout:label>
+          <layout:fields>
+            <Input
+                id="frag__IDGenInput1"
+                value="{createModel>/Personnel}"
+                width="100%"/>
+          </layout:fields>
+        </layout:FormElement>
+
+        <layout:FormElement id="_IDGenFormElement3">
+          <layout:label>
+            <Label id="_IDGenLabel2" text="{i18n>StartOfTrip}" required="true"/>
+          </layout:label>
+          <layout:fields>
+            <DatePicker
+                id="frag__IDGenDatePicker"
+                value="{createModel>/StartOfTrip}"
+                placeholder="e.g. 12/31/25"
+                width="100%"/>
+          </layout:fields>
+        </layout:FormElement>
+
+        <layout:FormElement id="_IDGenFormElement4">
+          <layout:label>
+            <Label id="_IDGenLabel3" text="{i18n>EndOfTrip}" required="true"/>
+          </layout:label>
+          <layout:fields>
+            <DatePicker
+                id="frag__IDGenDatePicker1"
+                value="{createModel>/EndOfTrip}"
+                placeholder="e.g. 12/31/25"
+                width="100%"/>
+          </layout:fields>
+        </layout:FormElement>
+      </layout:FormContainer>
+    </layout:Form>
+
+    <buttons>
+      <Button
+        id="frag__IDGenButton1"
+        text="{i18n>Submit}"
+        type="Emphasized"
+        press="handler.onSubmit"/>
+      <Button
+        id="frag__IDGenButton2"
+        text="{i18n>Cancel}"
+        press="handler.onCancel"/>
+    </buttons>
+
+  </Dialog>
+</core:FragmentDefinition>

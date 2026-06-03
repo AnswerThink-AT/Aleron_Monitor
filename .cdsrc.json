@@ -1,0 +1,256 @@
+{
+    "requires": {
+        "query": {
+            "limit": {
+                "max": 10000
+            }
+        },
+        "auth": "xsuaa",
+        "API_SALES_ORDER_SRV": {
+            "kind": "odata-v2",
+            "model": "srv/external/API_SALES_ORDER_SRV",
+            "csrf": true,
+            "csrfInBatch": true,
+            "credentials": {
+                "destination": "S4HC_MONITOR_BASIC_AUTH_CUST",
+                "path": "/sap/opu/odata/sap/API_SALES_ORDER_SRV"
+            }
+        },
+        "API_BUSINESS_PARTNER": {
+            "kind": "odata-v2",
+            "model": "srv/external/API_BUSINESS_PARTNER",
+            "csrf": true,
+            "csrfInBatch": true,
+            "credentials": {
+                "destination": "S4HC_MONITOR_BASIC_AUTH_CUST",
+                "path": "/sap/opu/odata/sap/API_BUSINESS_PARTNER"
+            }
+        },
+        "API_COMPANYCODE": {
+            "kind": "odata-v2",
+            "model": "srv/external/API_COMPANYCODE",
+            "csrf": true,
+            "csrfInBatch": true,
+            "credentials": {
+                "destination": "S4HC_MONITOR_BASIC_AUTH_CUST",
+                "path": "/sap/opu/odata/sap/API_COMPANYCODE_SRV"
+            }
+        },
+        "API_SUPPLIERINVOICE_PROCESS": {
+            "kind": "odata-v2",
+            "model": "srv/external/API_SUPPLIERINVOICE_PROCESS",
+            "csrf": true,
+            "csrfInBatch": true,
+            "credentials": {
+                "destination": "S4HC_MONITOR_BASIC_AUTH_CUST",
+                "path": "/sap/opu/odata/sap/API_SUPPLIERINVOICE_PROCESS_SRV"
+            }
+        },
+        "API_ENTERPRISE_PROJECT_0002": {
+            "kind": "odata-v2",
+            "model": "srv/external/API_ENTERPRISE_PROJECT_0002",
+            "csrf": true,
+            "csrfInBatch": true,
+            "credentials": {
+                "destination": "S4HC_MONITOR_BASIC_AUTH_CUST",
+                "path": "/sap/opu/odata/sap/API_ENTERPRISE_PROJECT_SRV;v=0002"
+            }
+        },
+        "API_PRODUCT_SRV": {
+            "kind": "odata-v2",
+            "model": "srv/external/API_PRODUCT_SRV",
+            "csrf": true,
+            "csrfInBatch": true,
+            "credentials": {
+                "destination": "S4HC_MONITOR_BASIC_AUTH_CUST",
+                "path": "/sap/opu/odata/sap/API_PRODUCT_SRV"
+            }
+        },
+        "YY1_WORKFORCE_CDS": {
+            "kind": "odata-v2",
+            "model": "srv/external/YY1_WORKFORCE_CDS",
+            "csrf": true,
+            "csrfInBatch": true,
+            "credentials": {
+                "destination": "S4HC_MONITOR_BASIC_AUTH_CUST",
+                "path": "/sap/opu/odata/sap/YY1_WORKFORCE_CDS_CDS"
+            }
+        },
+        "YY1_HRCOSTDISTRIBUTIONOBJ_CDS": {
+            "kind": "odata-v2",
+            "model": "srv/external/YY1_HRCOSTDISTRIBUTIONOBJ_CDS",
+            "csrf": true,
+            "csrfInBatch": true,
+            "credentials": {
+                "destination": "S4HC_MONITOR_BASIC_AUTH_CUST",
+                "path": "/sap/opu/odata/sap/YY1_HRCOSTDISTRIBUTIONOBJ_CDS"
+            }
+        },
+        "YY1_BILLINGTYPE_CDS": {
+            "kind": "odata-v2",
+            "model": "srv/external/YY1_BILLINGTYPE_CDS",
+            "csrf": true,
+            "csrfInBatch": true,
+            "credentials": {
+                "destination": "S4HC_MONITOR_BASIC_AUTH_CUST",
+                "path": "/sap/opu/odata/sap/YY1_BILLINGTYPE_CDS"
+            }
+        },
+        "UserRead": {
+            "kind": "SOAP",
+            "csrf": true,
+            "csrfInBatch": true,
+            "credentials": {
+                "destination": "S4HC_MONITOR_BASIC_AUTH_CUST",
+                "path": "/sap/bc/srt/scs_ext/sap/querybusinessuserin"
+            }
+        },
+        "JournalEntryCreateRequestConfirmation_In": {
+            "kind": "SOAP",
+            "csrf": true,
+            "csrfInBatch": true,
+            "credentials": {
+                "destination": "S4HC_MONITOR_BASIC_AUTH_CUST",
+                "path": "/sap/bc/srt/scs_ext/sap/journalentrycreaterequestconfi"
+            }
+        },
+        "YY1_EMPLOYEE_CUSTOMER_INFO_CDS": {
+            "kind": "odata-v2",
+            "model": "srv/external/YY1_EMPLOYEE_CUSTOMER_INFO_CDS",
+            "csrf": true,
+            "csrfInBatch": true,
+            "credentials": {
+                "destination": "S4HC_MONITOR_BASIC_AUTH_CUST",
+                "path": "/sap/opu/odata/sap/YY1_EMPLOYEE_CUSTOMER_INFO_CDS"
+            }
+        },
+        "YY1_SALESVCDATA_1_CDS": {
+            "kind": "odata-v2",
+            "model": "srv/external/YY1_SALESVCDATA_1_CDS",
+            "csrf": true,
+            "csrfInBatch": true,
+            "credentials": {
+                "destination": "S4HC_MONITOR_BASIC_AUTH_CUST",
+                "path": "/sap/opu/odata/sap/YY1_SALESVCDATA_1_CDS"
+            }
+        },
+        "YY1_SALESVCDATA_2_CDS": {
+            "kind": "odata-v2",
+            "model": "srv/external/YY1_SALESVCDATA_2_CDS",
+            "csrf": true,
+            "csrfInBatch": true,
+            "credentials": {
+                "destination": "S4HC_MONITOR_BASIC_AUTH_CUST",
+                "path": "/sap/opu/odata/sap/YY1_SALESVCDATA_2_CDS"
+            }
+        },
+        "YY1_TIME_INFO_CDS": {
+            "kind": "odata-v2",
+            "model": "srv/external/YY1_TIME_INFO_CDS",
+            "csrf": true,
+            "csrfInBatch": true,
+            "credentials": {
+                "destination": "S4HC_MONITOR_BASIC_AUTH_CUST",
+                "path": "/sap/opu/odata/sap/YY1_TIME_INFO_CDS"
+            }
+        },
+        "YY1_TIME_INFO_PA2002_CDS": {
+            "kind": "odata-v2",
+            "model": "srv/external/YY1_TIME_INFO_PA2002_CDS",
+            "csrf": true,
+            "csrfInBatch": true,
+            "credentials": {
+                "destination": "S4HC_MONITOR_BASIC_AUTH_CUST",
+                "path": "/sap/opu/odata/sap/YY1_TIME_INFO_PA2002_CDS"
+            }
+        },
+        "YY1_SUPPLIER_LFA1_CDS": {
+        "kind": "odata-v2",
+        "model": "srv/external/YY1_SUPPLIER_LFA1_CDS",
+        "csrf": true,
+        "csrfInBatch": true,
+        "credentials": {
+          "destination": "S4HC_MONITOR_BASIC_AUTH_CUST",
+          "path": "/sap/opu/odata/sap/YY1_SUPPLIER_LFA1_CDS"
+        }
+      },
+        "CE_SALESORDER_0001": {
+            "kind": "odata",
+            "model": "srv/external/CE_SALESORDER_0001",
+            "csrf": true,
+            "csrfInBatch": true,
+            "[production]": {
+                "credentials": {
+                    "destination": "S4HC_MONITOR_BASIC_AUTH_CUST",
+                    "path": "/sap/opu/odata4/sap/api_salesorder/srvd_a2x/sap/salesorder/0001",
+                    "forwardAuthToken": true
+                }
+            },
+            "[hybrid]": {
+                "credentials": {
+                    "destination": "S4HC_MONITOR_BASIC_AUTH_CUST",
+                    "path": "/sap/opu/odata4/sap/api_salesorder/srvd_a2x/sap/salesorder/0001"
+                }
+            }
+        },
+        "CE_SALESCONTRACT_0001": {
+            "kind": "odata",
+            "model": "srv/external/CE_SALESCONTRACT_0001",
+            "csrf": true,
+            "csrfInBatch": true,
+            "[production]": {
+                "credentials": {
+                    "destination": "S4HC_MONITOR_BASIC_AUTH_CUST",
+                    "path": "/sap/opu/odata4/sap/api_salescontract/srvd_a2x/sap/salescontract/0001",
+                    "forwardAuthToken": true
+                }
+            },
+            "[hybrid]": {
+                "credentials": {
+                    "destination": "S4HC_MONITOR_BASIC_AUTH_CUST",
+                    "path": "/sap/opu/odata4/sap/api_salescontract/srvd_a2x/sap/salescontract/0001"
+                }
+            }
+        },
+        "CE_PURCHASEORDER_0001": {
+            "kind": "odata",
+            "model": "srv/external/CE_PURCHASEORDER_0001",
+            "csrf": true,
+            "csrfInBatch": true,
+            "[production]": {
+                "credentials": {
+                    "destination": "S4HC_MONITOR_BASIC_AUTH_CUST",
+                    "path": "/sap/opu/odata4/sap/api_purchaseorder_2/srvd_a2x/sap/purchaseorder/0001",
+                    "forwardAuthToken": true
+                }
+            },
+            "[hybrid]": {
+                "credentials": {
+                    "destination": "S4HC_MONITOR_BASIC_AUTH_CUST",
+                    "path": "/sap/opu/odata4/sap/api_purchaseorder_2/srvd_a2x/sap/purchaseorder/0001"
+                }
+            }
+        },
+        "API_CREDIT_MEMO_REQUEST_SRV": {
+            "kind": "odata-v2",
+            "model": "srv/external/API_CREDIT_MEMO_REQUEST_SRV",
+            "csrf": true,
+            "csrfInBatch": true,
+            "[production]": {
+                "credentials": {
+                    "destination": "S4HC_MONITOR_BASIC_AUTH_CUST",
+                    "path": "/sap/opu/odata/sap/API_CREDIT_MEMO_REQUEST_SRV"
+                }
+            },
+            "[hybrid]": {
+                "credentials": {
+                    "destination": "S4HC_MONITOR_BASIC_AUTH_CUST",
+                    "path": "/sap/opu/odata/sap/API_CREDIT_MEMO_REQUEST_SRV"
+                }
+            }
+        }
+    },
+    "launchpad": {
+        "version": "1.132.1"
+    }
+}

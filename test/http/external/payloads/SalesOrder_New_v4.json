@@ -1,0 +1,29 @@
+{
+    "SalesOrderType": "TA",
+    "SoldToParty": "10362",
+    "SalesOrganization": "1200",
+    "DistributionChannel": "MS",
+    "ReferenceDistributionChannel": "01",
+    "PurchaseOrderByShipToParty": "100",
+    "SDDocumentReason": "",
+    "PricingDate": "2025-03-18",
+    "IncotermsClassification": "DAP",
+    "IncotermsLocation1": "1",
+    "SDPricingProcedure": "ZMS",
+    "CustomerPaymentTerms": "NT65",
+    "YY1_CustomSalesOrder_SDH": "ZWMS",
+    "_Item": [
+        {
+            "SalesOrderItemCategory": "TADN",
+            "Product": "100000310",
+            "ConfdDelivQtyInOrderQtyUnit": 1,
+            "OrderQuantityISOUnit": "_01",
+            "TransactionCurrency": "USD",
+            "ReferenceSDDocument": "40000002",
+            "ReferenceSDDocumentItem": "10",
+            "ReferenceSDDocumentCategory": "G",
+            "PurchaseOrderByCustomer": "12",
+            "WBSElementExternalID": "400259755"
+        }
+    ]
+}

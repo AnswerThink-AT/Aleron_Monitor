@@ -1,0 +1,51 @@
+{
+ "meta": {
+  "creator": "cds-dk 8.9.2"
+ },
+ "$version": "2.0",
+ "definitions": {
+  "YY1_SUPPLIER_LFA1_CDS": {
+   "kind": "service",
+   "@cds.external": true,
+   "@m.IsDefaultEntityContainer": "true",
+   "@sap.message.scope.supported": "true",
+   "@sap.supported.formats": "atom json xlsx"
+  },
+  "YY1_SUPPLIER_LFA1_CDS.YY1_Supplier_LFA1": {
+   "kind": "entity",
+   "@cds.external": true,
+   "@cds.persistence.skip": true,
+   "@sap.creatable": "false",
+   "@sap.updatable": "false",
+   "@sap.deletable": "false",
+   "@sap.content.version": "1",
+   "@sap.label": "Supplier_LFA1",
+   "elements": {
+    "BusinessPartnerUUID": {
+     "key": true,
+     "type": "cds.UUID",
+     "@sap.required.in.filter": "false",
+     "@sap.label": "BP GUID",
+     "@sap.quickinfo": "Business Partner GUID",
+     "notNull": true
+    },
+    "Supplier": {
+     "type": "cds.String",
+     "length": 10,
+     "@sap.display.format": "UpperCase",
+     "@sap.required.in.filter": "false",
+     "@sap.label": "Supplier",
+     "@sap.quickinfo": "Account Number of Supplier"
+    },
+    "SupplierStandardCarrierAccess": {
+     "type": "cds.String",
+     "length": 4,
+     "@sap.display.format": "UpperCase",
+     "@sap.required.in.filter": "false",
+     "@sap.label": "SCAC",
+     "@sap.quickinfo": "Standard carrier access code"
+    }
+   }
+  }
+ }
+}

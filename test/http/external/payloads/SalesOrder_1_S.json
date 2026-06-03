@@ -1,0 +1,72 @@
+{
+  "SalesOrderType": "OR",
+  "SDDocumentReason": "",
+  "PricingDate": "/Date(1748456724197)/",
+  "IncotermsClassification": "DAP",
+  "IncotermsLocation1": "1",
+  "CustomerPaymentTerms": "NT65",
+  "YY1_CustomSalesOrder_SDH": "ZWMS",
+  "SoldToParty": "10362",
+  "DistributionChannel": "MS",
+  "ReferenceSDDocumentCategory": "G",
+  "to_Item": [
+    {
+      "SalesOrderItem": "10",
+      "UnderlyingPurchaseOrderItem": "10",
+      "SalesOrderItemCategory": "TADN",
+      "Material": "100000563",
+      "RequestedQuantity": "1",
+      "RequestedQuantityUnit": "LAB",
+      "RequestedQuantitySAPUnit": "LAB",
+      "RequestedQuantityISOUnit": "_01",
+      "TransactionCurrency": "USD",
+      "ReferenceSDDocument": "40000164",
+      "ReferenceSDDocumentItem": "10",
+      "WBSElement": "4400000229",
+      "to_ScheduleLine": [
+        {
+          "RequestedDeliveryDate": "/Date(1748456724198)/",
+          "ScheduleLineOrderQuantity": "1",
+          "OrderQuantityISOUnit": "_01"
+        }
+      ],
+      "PurchaseOrderByCustomer": ""
+    }
+  ],
+  "to_Partner": [
+    {
+      "PartnerFunction": "AG",
+      "Customer": "10362"
+    },
+    {
+      "PartnerFunction": "RE",
+      "Customer": "10362"
+    },
+    {
+      "PartnerFunction": "Z3",
+      "Personnel": "50006889"
+    },
+    {
+      "PartnerFunction": "ZV",
+      "Supplier": "4022902"
+    },
+    {
+      "PartnerFunction": "WE",
+      "Customer": "10362",
+      "to_Address": [
+        {
+          "CorrespondenceLanguage": "EN",
+          "StreetName": "S Cavalier Drive",
+          "CityName": "\t Gilbert",
+          "HouseNumber": "3872",
+          "Country": "US",
+          "Region": "AZ",
+          "PostalCode": "85297",
+          "TaxJurisdiction": "0400000000",
+          "AddresseeFullName": "Accounts Payable"
+        }
+      ]
+    }
+  ],
+  "YY1_ShipToParty_SDH": "Z02"
+}

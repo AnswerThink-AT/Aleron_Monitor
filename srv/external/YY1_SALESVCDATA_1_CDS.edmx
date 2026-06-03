@@ -1,0 +1,346 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="1.0" xmlns:edmx="http://schemas.microsoft.com/ado/2007/06/edmx" xmlns:m="http://schemas.microsoft.com/ado/2007/08/dataservices/metadata" xmlns:sap="http://www.sap.com/Protocols/SAPData">
+    <edmx:Reference Uri="https://my420210-api.s4hana.cloud.sap/sap/opu/odata/iwfnd/catalogservice;v=2/Vocabularies(TechnicalName='%2FIWBEP%2FVOC_AGGREGATION',Version='0001',SAP__Origin='')/$value" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+        <edmx:Include Namespace="Org.OData.Aggregation.V1" Alias="Aggregation"/>
+    </edmx:Reference>
+    <edmx:Reference Uri="https://my420210-api.s4hana.cloud.sap/sap/opu/odata/iwfnd/catalogservice;v=2/Vocabularies(TechnicalName='%2FIWBEP%2FVOC_ANALYTICS',Version='0001',SAP__Origin='')/$value" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+        <edmx:Include Namespace="com.sap.vocabularies.Analytics.v1" Alias="Analytics"/>
+    </edmx:Reference>
+    <edmx:Reference Uri="https://my420210-api.s4hana.cloud.sap/sap/opu/odata/iwfnd/catalogservice;v=2/Vocabularies(TechnicalName='%2FIWBEP%2FVOC_CAPABILITIES',Version='0001',SAP__Origin='')/$value" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+        <edmx:Include Namespace="Org.OData.Capabilities.V1" Alias="Capabilities"/>
+    </edmx:Reference>
+    <edmx:Reference Uri="https://my420210-api.s4hana.cloud.sap/sap/opu/odata/iwfnd/catalogservice;v=2/Vocabularies(TechnicalName='%2FIWBEP%2FVOC_CODELIST',Version='0001',SAP__Origin='')/$value" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+        <edmx:Include Namespace="com.sap.vocabularies.CodeList.v1" Alias="SAP__CodeList"/>
+    </edmx:Reference>
+    <edmx:Reference Uri="https://my420210-api.s4hana.cloud.sap/sap/opu/odata/iwfnd/catalogservice;v=2/Vocabularies(TechnicalName='%2FIWBEP%2FVOC_COMMON',Version='0001',SAP__Origin='')/$value" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+        <edmx:Include Namespace="com.sap.vocabularies.Common.v1" Alias="Common"/>
+    </edmx:Reference>
+    <edmx:Reference Uri="https://my420210-api.s4hana.cloud.sap/sap/opu/odata/iwfnd/catalogservice;v=2/Vocabularies(TechnicalName='%2FIWBEP%2FVOC_COMMUNICATION',Version='0001',SAP__Origin='')/$value" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+        <edmx:Include Namespace="com.sap.vocabularies.Communication.v1" Alias="Communication"/>
+    </edmx:Reference>
+    <edmx:Reference Uri="https://my420210-api.s4hana.cloud.sap/sap/opu/odata/iwfnd/catalogservice;v=2/Vocabularies(TechnicalName='%2FIWBEP%2FVOC_MEASURES',Version='0001',SAP__Origin='')/$value" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+        <edmx:Include Namespace="Org.OData.Measures.V1" Alias="Measures"/>
+    </edmx:Reference>
+    <edmx:Reference Uri="https://my420210-api.s4hana.cloud.sap/sap/opu/odata/iwfnd/catalogservice;v=2/Vocabularies(TechnicalName='%2FIWBEP%2FVOC_ODM',Version='0001',SAP__Origin='')/$value" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+        <edmx:Include Namespace="com.sap.vocabularies.ODM.v1" Alias="SAP__ODM"/>
+    </edmx:Reference>
+    <edmx:Reference Uri="https://my420210-api.s4hana.cloud.sap/sap/opu/odata/iwfnd/catalogservice;v=2/Vocabularies(TechnicalName='%2FIWBEP%2FVOC_PERSONALDATA',Version='0001',SAP__Origin='')/$value" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+        <edmx:Include Namespace="com.sap.vocabularies.PersonalData.v1" Alias="PersonalData"/>
+    </edmx:Reference>
+    <edmx:Reference Uri="https://my420210-api.s4hana.cloud.sap/sap/opu/odata/iwfnd/catalogservice;v=2/Vocabularies(TechnicalName='%2FIWBEP%2FVOC_UI',Version='0001',SAP__Origin='')/$value" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+        <edmx:Include Namespace="com.sap.vocabularies.UI.v1" Alias="UI"/>
+    </edmx:Reference>
+    <edmx:Reference Uri="https://my420210-api.s4hana.cloud.sap/sap/opu/odata/iwfnd/catalogservice;v=2/Vocabularies(TechnicalName='%2FIWBEP%2FVOC_VALIDATION',Version='0001',SAP__Origin='')/$value" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+        <edmx:Include Namespace="Org.OData.Validation.V1" Alias="Validation"/>
+    </edmx:Reference>
+    <edmx:DataServices m:DataServiceVersion="2.0">
+        <Schema Namespace="YY1_SALESVCDATA_1_CDS" xml:lang="en" sap:schema-version="1" xmlns="http://schemas.microsoft.com/ado/2008/09/edm">
+            <EntityType Name="YY1_SALESVCDATA_1Type" sap:label="SalesVCData_1" sap:content-version="1">
+                <Key>
+                    <PropertyRef Name="SAP_UUID"/>
+                </Key>
+                <Property Name="SAP_UUID" Type="Edm.Guid" Nullable="false" sap:label="UUID" sap:quickinfo="16 Byte UUID in 16 Bytes (Raw Format)"/>
+                <Property Name="SalesOrderNumber" Type="Edm.String" MaxLength="20" sap:label="Sales Order Number"/>
+                <Property Name="SalesOrderItemNum" Type="Edm.String" MaxLength="20" sap:label="Sales Order Item Num"/>
+                <Property Name="SAP_Description" Type="Edm.String" MaxLength="80" sap:label="Description"/>
+                <Property Name="Billing_Document_Number" Type="Edm.String" MaxLength="20" sap:label="Billing  Document Number"/>
+                <Property Name="Billing_Document_Item_Number" Type="Edm.String" MaxLength="20" sap:label="Billing Document Item Number"/>
+                <Property Name="Custom_Sales_Order_Type" Type="Edm.String" MaxLength="4" sap:label="Custom Sales Order Type"/>
+                <Property Name="Custom_Billing_type" Type="Edm.String" MaxLength="4" sap:label="Custom Billing type"/>
+                <Property Name="YY1_ACA_RG_ONLY" Type="Edm.String" MaxLength="2" sap:label="Customer condition group 2"/>
+                <Property Name="YY2_ACA_HRS" Type="Edm.Decimal" Precision="15" Scale="2" sap:label="ACA Hours"/>
+                <Property Name="YY3_ACA_HRS_PRICE" Type="Edm.Decimal" Precision="15" Scale="2" sap:label="ACA Hours Price"/>
+                <Property Name="YY4_ACA_TOTAL_HRS_PRICE" Type="Edm.Decimal" Precision="15" Scale="2" sap:label="ACA Total Hours Price"/>
+                <Property Name="YY5_LINE_ITEM_NUMBER" Type="Edm.Decimal" Precision="15" Scale="0" sap:label="Line Item Number"/>
+                <Property Name="YY6_SC_LINE_ITEM_NUMBER" Type="Edm.String" MaxLength="30" sap:label="Cust PO Line Item Number"/>
+                <Property Name="YY7_INVISIBLE" Type="Edm.String" MaxLength="30" sap:label="INVISIBLE"/>
+                <Property Name="YY8_WEEK_ENDING2" Type="Edm.DateTime" Precision="0" sap:display-format="Date" sap:label="Week Ending" sap:quickinfo="DATE"/>
+                <Property Name="YY9_ZZWEEK_END_VBAP" Type="Edm.DateTime" Precision="0" sap:display-format="Date" sap:label="Week End VBAP"/>
+                <Property Name="YY10_EMPLOYEE_TYPE" Type="Edm.String" MaxLength="3" sap:label="Employee Type"/>
+                <Property Name="YY11_EIGHT_DAY_WEEK" Type="Edm.String" MaxLength="1" sap:label="Eight Day Week"/>
+                <Property Name="YY12_DAY1_SHIFT1_RG" Type="Edm.Decimal" Precision="15" Scale="2" sap:label="Day 1 Shift 1 RG"/>
+                <Property Name="YY13_DAY1_SHIFT1_OT" Type="Edm.Decimal" Precision="15" Scale="2" sap:label="Day 1 Shift 1 Overtime"/>
+                <Property Name="YY14_DAY1_SHIFT1_DB" Type="Edm.Decimal" Precision="15" Scale="2" sap:label="Day 1 Shift 1 DoubleTime"/>
+                <Property Name="YY15_DAY1_SHIFT2_RG" Type="Edm.Decimal" Precision="15" Scale="2" sap:label="Day 1 Shift 2 RG"/>
+                <Property Name="YY16_DAY1_SHIFT2_OT" Type="Edm.Decimal" Precision="15" Scale="2" sap:label="Day 1 Shift 2 Overtime"/>
+                <Property Name="YY17_DAY1_SHIFT2_DB" Type="Edm.Decimal" Precision="15" Scale="2" sap:label="Day 1 Shift 2 DoubleTime"/>
+                <Property Name="YY18_DAY1_SHIFT3_RG" Type="Edm.Decimal" Precision="15" Scale="2" sap:label="Day 1 Shift 3 RG"/>
+                <Property Name="YY19_DAY1_SHIFT3_OT" Type="Edm.Decimal" Precision="15" Scale="2" sap:label="Day 1 Shift 3 Overtime"/>
+                <Property Name="YY20_DAY1_SHIFT3_DB" Type="Edm.Decimal" Precision="15" Scale="2" sap:label="Day 1 Shift 3 DoubleTime"/>
+                <Property Name="YY21_DAY_ONE" Type="Edm.DateTime" Precision="0" sap:display-format="Date" sap:label="Day One"/>
+                <Property Name="YY22_DAY_ONE_WORKED" Type="Edm.Decimal" Precision="1" Scale="0" sap:label="Daily: Enter 1 if Day 1 Worked"/>
+                <Property Name="YY23_DAY2_SHIFT1_RG" Type="Edm.Decimal" Precision="15" Scale="2" sap:label="Day 2 Shift 1 RG"/>
+                <Property Name="YY24_DAY2_SHIFT1_OT" Type="Edm.Decimal" Precision="15" Scale="2" sap:label="Day 2 Shift 1 Overtime"/>
+                <Property Name="YY25_DAY2_SHIFT1_DB" Type="Edm.Decimal" Precision="15" Scale="2" sap:label="Day 2 Shift 1 DoubleTime"/>
+                <Property Name="YY26_DAY2_SHIFT2_RG" Type="Edm.Decimal" Precision="15" Scale="2" sap:label="Day 2 Shift 2 RG"/>
+                <Property Name="YY27_DAY2_SHIFT2_OT" Type="Edm.Decimal" Precision="15" Scale="2" sap:label="Day 2 Shift 2 Overtime"/>
+                <Property Name="YY28_DAY2_SHIFT2_DB" Type="Edm.Decimal" Precision="15" Scale="2" sap:label="Day 2 Shift 2 DoubleTime"/>
+                <Property Name="YY29_DAY2_SHIFT3_RG" Type="Edm.Decimal" Precision="15" Scale="2" sap:label="Day 2 Shift 3 RG"/>
+                <Property Name="YY30_DAY2_SHIFT3_OT" Type="Edm.Decimal" Precision="15" Scale="2" sap:label="Day 2 Shift 3 Overtime"/>
+                <Property Name="YY31_DAY2_SHIFT3_DB" Type="Edm.Decimal" Precision="15" Scale="2" sap:label="Day 2 Shift 3 DoubleTime"/>
+                <Property Name="YY32_DAY_TWO" Type="Edm.DateTime" Precision="0" sap:display-format="Date" sap:label="Day Two"/>
+                <Property Name="YY33_DAY_TWO_WORKED" Type="Edm.Decimal" Precision="1" Scale="0" sap:label="Daily: Enter 1 if Day 2 Worked"/>
+                <Property Name="YY34_DAY3_SHIFT1_RG" Type="Edm.Decimal" Precision="15" Scale="2" sap:label="Day 3 Shift 1 RG"/>
+                <Property Name="YY35_DAY3_SHIFT1_OT" Type="Edm.Decimal" Precision="15" Scale="2" sap:label="Day 3 Shift 1 Overtime"/>
+                <Property Name="YY36_DAY3_SHIFT1_DB" Type="Edm.Decimal" Precision="15" Scale="2" sap:label="Day 3 Shift 1 DoubleTime"/>
+                <Property Name="YY37_DAY3_SHIFT2_RG" Type="Edm.Decimal" Precision="15" Scale="2" sap:label="Day 3 Shift 2 RG"/>
+                <Property Name="YY38_DAY3_SHIFT2_OT" Type="Edm.Decimal" Precision="15" Scale="2" sap:label="Day 3 Shift 2 Overtime"/>
+                <Property Name="YY39_DAY3_SHIFT2_DB" Type="Edm.Decimal" Precision="15" Scale="2" sap:label="Day 3 Shift 2 DoubleTime"/>
+                <Property Name="YY40_DAY3_SHIFT3_RG" Type="Edm.Decimal" Precision="15" Scale="2" sap:label="Day 3 Shift 3 RG"/>
+                <Property Name="YY41_DAY3_SHIFT3_OT" Type="Edm.Decimal" Precision="15" Scale="2" sap:label="Day 3 Shift 3 Overtime"/>
+                <Property Name="YY42_DAY3_SHIFT3_DB" Type="Edm.Decimal" Precision="15" Scale="2" sap:label="Day 3 Shift 3 DoubleTime"/>
+                <Property Name="YY43_DAY_THREE" Type="Edm.DateTime" Precision="0" sap:display-format="Date" sap:label="Day Three"/>
+                <Property Name="YY44_DAY_THREE_WORKED" Type="Edm.Decimal" Precision="1" Scale="0" sap:label="Daily: Enter 1 if Day 3 Worked"/>
+                <Property Name="YY45_DAY4_SHIFT1_RG" Type="Edm.Decimal" Precision="15" Scale="2" sap:label="Day 4 Shift 1 RG"/>
+                <Property Name="YY46_DAY4_SHIFT1_OT" Type="Edm.Decimal" Precision="15" Scale="2" sap:label="Day 4 Shift 1 Overtime"/>
+                <Property Name="YY47_DAY4_SHIFT1_DB" Type="Edm.Decimal" Precision="15" Scale="2" sap:label="Day 4 Shift 1 DoubleTime"/>
+                <Property Name="YY48_DAY4_SHIFT2_RG" Type="Edm.Decimal" Precision="15" Scale="2" sap:label="Day 4 Shift 2 RG"/>
+                <Property Name="YY49_DAY4_SHIFT2_OT" Type="Edm.Decimal" Precision="15" Scale="2" sap:label="Day 4 Shift 2 OT"/>
+                <Property Name="YY50_DAY4_SHIFT2_DB" Type="Edm.Decimal" Precision="15" Scale="2" sap:label="Day 4 Shift 2 DoubleTime"/>
+                <Property Name="YY51_DAY4_SHIFT3_RG" Type="Edm.Decimal" Precision="15" Scale="2" sap:label="Day 4 Shift 3 RG"/>
+                <Property Name="YY52_DAY4_SHIFT3_OT" Type="Edm.Decimal" Precision="15" Scale="2" sap:label="Day 4 Shift 3 Overtime"/>
+                <Property Name="YY53_DAY4_SHIFT3_DB" Type="Edm.Decimal" Precision="15" Scale="2" sap:label="Day 4 Shift 3 DoubleTime"/>
+                <Property Name="YY54_DAY_FOUR" Type="Edm.DateTime" Precision="0" sap:display-format="Date" sap:label="Day Four"/>
+                <Property Name="YY55_DAY_FOUR_WORKED" Type="Edm.Decimal" Precision="1" Scale="0" sap:label="Daily: Enter 1 if Day 4 Worked"/>
+                <Property Name="YY56_DAY5_SHIFT1_RG" Type="Edm.Decimal" Precision="15" Scale="2" sap:label="Day 5 Shift 1 RG"/>
+                <Property Name="YY57_DAY5_SHIFT1_OT" Type="Edm.Decimal" Precision="15" Scale="2" sap:label="Day 5 Shift 1 Overtime"/>
+                <Property Name="YY58_DAY5_SHIFT1_DB" Type="Edm.Decimal" Precision="15" Scale="2" sap:label="Day 5 Shift 1 DoubleTime"/>
+                <Property Name="YY59_DAY5_SHIFT2_RG" Type="Edm.Decimal" Precision="15" Scale="2" sap:label="Day 5 Shift 2 RG"/>
+                <Property Name="YY60_DAY5_SHIFT2_OT" Type="Edm.Decimal" Precision="15" Scale="2" sap:label="Day 5 Shift 2 Overtime"/>
+                <Property Name="YY61_DAY5_SHIFT2_DB" Type="Edm.Decimal" Precision="15" Scale="2" sap:label="Day 5 Shift 2 DoubleTime"/>
+                <Property Name="YY62_DAY5_SHIFT3_RG" Type="Edm.Decimal" Precision="15" Scale="2" sap:label="Day 5 Shift 3 RG"/>
+                <Property Name="YY63_DAY5_SHIFT3_OT" Type="Edm.Decimal" Precision="15" Scale="2" sap:label="Day 5 Shift 3 Overtime"/>
+                <Property Name="YY64_DAY5_SHIFT3_DB" Type="Edm.Decimal" Precision="15" Scale="2" sap:label="Day 5 Shift 3 DoubleTime"/>
+                <Property Name="YY65_DAY_FIVE" Type="Edm.DateTime" Precision="0" sap:display-format="Date" sap:label="Day Five"/>
+                <Property Name="YY66_DAY_FIVE_WORKED" Type="Edm.Decimal" Precision="1" Scale="0" sap:label="Daily: Enter 1 if Day 5 Worked"/>
+                <Property Name="YY67_DAY6_SHIFT1_RG" Type="Edm.Decimal" Precision="15" Scale="2" sap:label="Day 6 Shift 1 RG"/>
+                <Property Name="YY68_DAY6_SHIFT1_OT" Type="Edm.Decimal" Precision="15" Scale="2" sap:label="Day 6 Shift 1 Overtime"/>
+                <Property Name="YY69_DAY6_SHIFT1_DB" Type="Edm.Decimal" Precision="15" Scale="2" sap:label="Day 6 Shift 1 DoubleTime"/>
+                <Property Name="YY70_DAY6_SHIFT2_RG" Type="Edm.Decimal" Precision="15" Scale="2" sap:label="Day 6 Shift 2 RG"/>
+                <Property Name="YY71_DAY6_SHIFT2_OT" Type="Edm.Decimal" Precision="15" Scale="2" sap:label="Day 6 Shift 2 Overtime"/>
+                <Property Name="YY72_DAY6_SHIFT2_DB" Type="Edm.Decimal" Precision="15" Scale="2" sap:label="Day 6 Shift 2 DoubleTime"/>
+                <Property Name="YY73_DAY6_SHIFT3_RG" Type="Edm.Decimal" Precision="15" Scale="2" sap:label="Day 6 Shift 3 RG"/>
+                <Property Name="YY74_DAY6_SHIFT3_OT" Type="Edm.Decimal" Precision="15" Scale="2" sap:label="Day 6 Shift 3 Overtime"/>
+                <Property Name="YY75_DAY6_SHIFT3_DB" Type="Edm.Decimal" Precision="15" Scale="2" sap:label="Day 6 Shift 3 DoubleTime"/>
+                <Property Name="YY76_DAY_SIX" Type="Edm.DateTime" Precision="0" sap:display-format="Date" sap:label="Day Six"/>
+                <Property Name="YY77_DAY_SIX_WORKED" Type="Edm.Decimal" Precision="1" Scale="0" sap:label="Daily: Enter 1 if Day 6 Worked"/>
+                <Property Name="YY78_DAY7_SHIFT1_RG" Type="Edm.Decimal" Precision="15" Scale="2" sap:label="Day 7 Shift 1 RG"/>
+                <Property Name="YY79_DAY7_SHIFT1_OT" Type="Edm.Decimal" Precision="15" Scale="2" sap:label="Day 7 Shift 1 Overtime"/>
+                <Property Name="YY80_DAY7_SHIFT1_DB" Type="Edm.Decimal" Precision="15" Scale="2" sap:label="Day 7 Shift 1 DoubleTime"/>
+                <Property Name="YY81_DAY7_SHIFT2_RG" Type="Edm.Decimal" Precision="15" Scale="2" sap:label="Day 7 Shift 2 RG"/>
+                <Property Name="YY82_DAY7_SHIFT2_OT" Type="Edm.Decimal" Precision="15" Scale="2" sap:label="Day 7 Shift 2 Overtime"/>
+                <Property Name="YY83_DAY7_SHIFT2_DB" Type="Edm.Decimal" Precision="15" Scale="2" sap:label="Day 7 Shift 2 DoubleTime"/>
+                <Property Name="YY84_DAY7_SHIFT3_RG" Type="Edm.Decimal" Precision="15" Scale="2" sap:label="Day 7 Shift 3 RG"/>
+                <Property Name="YY85_DAY7_SHIFT3_OT" Type="Edm.Decimal" Precision="15" Scale="2" sap:label="Day 7 Shift 3 Overtime"/>
+                <Property Name="YY86_DAY7_SHIFT3_DB" Type="Edm.Decimal" Precision="15" Scale="2" sap:label="Day 7 Shift 3 DoubleTime"/>
+                <Property Name="YY87_DAY_SEVEN" Type="Edm.DateTime" Precision="0" sap:display-format="Date" sap:label="Day Seven"/>
+                <Property Name="YY88_DAY_SEVEN_WORKED" Type="Edm.Decimal" Precision="1" Scale="0" sap:label="Daily: Enter 1 if Day 7 Worked"/>
+                <Property Name="YY89_DAY8_SHIFT1_RG" Type="Edm.Decimal" Precision="15" Scale="2" sap:label="Day 8 Shift 1 RG"/>
+                <Property Name="YY90_DAY8_SHIFT1_OT" Type="Edm.Decimal" Precision="15" Scale="2" sap:label="Day 8 Shift 1 Overtime"/>
+                <Property Name="YY91_DAY8_SHIFT1_DB" Type="Edm.Decimal" Precision="15" Scale="2" sap:label="Day 8 Shift 1 DoubleTime"/>
+                <Property Name="YY92_DAY8_SHIFT2_RG" Type="Edm.Decimal" Precision="15" Scale="2" sap:label="Day 8 Shift 2 RG"/>
+                <Property Name="YY93_DAY8_SHIFT2_OT" Type="Edm.Decimal" Precision="15" Scale="2" sap:label="Day 8 Shift 2 Overtime"/>
+                <Property Name="YY94_DAY8_SHIFT2_DB" Type="Edm.Decimal" Precision="15" Scale="2" sap:label="Day 8 Shift 2 DoubleTime"/>
+                <Property Name="YY95_DAY8_SHIFT3_RG" Type="Edm.Decimal" Precision="15" Scale="2" sap:label="Day 8 Shift 3 Regular Time"/>
+                <Property Name="YY96_DAY8_SHIFT3_OT" Type="Edm.Decimal" Precision="15" Scale="2" sap:label="Day 8 Shift 3 Overtime"/>
+                <Property Name="YY97_DAY8_SHIFT3_DB" Type="Edm.Decimal" Precision="15" Scale="2" sap:label="Day 8 Shift 3 DoubleTime"/>
+                <Property Name="YY98_DAY_EIGHT" Type="Edm.DateTime" Precision="0" sap:display-format="Date" sap:label="Day Eight"/>
+                <Property Name="YY99_DAY_EIGHT_WORKED" Type="Edm.Decimal" Precision="1" Scale="0" sap:label="Daily: Enter 1 if Day 8 Worked"/>
+                <Property Name="YY100_SHIFT1_TOTAL_HRS_RG" Type="Edm.Decimal" Precision="15" Scale="2" sap:label="Shift 1 Total Hours RG"/>
+                <Property Name="YY101_SHIFT1_TOTAL_HRS_OT" Type="Edm.Decimal" Precision="15" Scale="2" sap:label="Shift 1 Total Hours OT"/>
+                <Property Name="YY102_SHIFT1_TOTAL_HRS_DB" Type="Edm.Decimal" Precision="15" Scale="2" sap:label="Shift 1 Total Hours DB"/>
+                <Property Name="YY103_SHIFT2_TOTAL_HRS_RG" Type="Edm.Decimal" Precision="15" Scale="2" sap:label="Shift 2 Total Hours RG"/>
+                <Property Name="YY104_SHIFT2_TOTAL_HRS_OT" Type="Edm.Decimal" Precision="15" Scale="2" sap:label="Shift 2 Total Hours OT"/>
+                <Property Name="YY105_SHIFT2_TOTAL_HRS_DB" Type="Edm.Decimal" Precision="15" Scale="2" sap:label="Shift 2 Total Hours DB"/>
+                <Property Name="YY106_SHIFT3_TOTAL_HRS_RG" Type="Edm.Decimal" Precision="15" Scale="2" sap:label="Shift 3 Total Hours RG"/>
+                <Property Name="YY107_SHIFT3_TOTAL_HRS_OT" Type="Edm.Decimal" Precision="15" Scale="2" sap:label="Shift 3 Total Hours OT"/>
+                <Property Name="YY108_SHIFT3_TOTAL_HRS_DB" Type="Edm.Decimal" Precision="15" Scale="2" sap:label="Shift 3 Total Hours DB"/>
+                <Property Name="YY109_SHIFT1_PRICE_RG" Type="Edm.Decimal" Precision="15" Scale="2" sap:label="Shift 1 Price RG"/>
+                <Property Name="YY110_SHIFT1_PRICE_OT" Type="Edm.Decimal" Precision="15" Scale="2" sap:label="Shift 1 Price OT"/>
+                <Property Name="YY111_SHIFT1_PRICE_DB" Type="Edm.Decimal" Precision="15" Scale="2" sap:label="Shift 1 Price DB"/>
+                <Property Name="YY112_SHIFT2_PRICE_RG" Type="Edm.Decimal" Precision="15" Scale="2" sap:label="Shift 2 Price RG"/>
+                <Property Name="YY113_SHIFT2_PRICE_OT" Type="Edm.Decimal" Precision="15" Scale="2" sap:label="Shift 2 Price OT"/>
+                <Property Name="YY114_SHIFT2_PRICE_DB" Type="Edm.Decimal" Precision="15" Scale="2" sap:label="Shift 2 Price DB"/>
+                <Property Name="YY115_SHIFT3_PRICE_RG" Type="Edm.Decimal" Precision="15" Scale="2" sap:label="Shift 3 Price RG"/>
+                <Property Name="YY116_SHIFT3_PRICE_OT" Type="Edm.Decimal" Precision="15" Scale="2" sap:label="Shift 3 Price OT"/>
+                <Property Name="YY117_SHIFT3_PRICE_DB" Type="Edm.Decimal" Precision="15" Scale="2" sap:label="Shift 3 Price DB"/>
+                <Property Name="YY118_MARK_UP_RG" Type="Edm.Decimal" Precision="15" Scale="2" sap:label="Straight time Mark Up %"/>
+                <Property Name="YY119_MARK_UP_OT" Type="Edm.Decimal" Precision="15" Scale="2" sap:label="Overtime Mark Up %"/>
+                <Property Name="YY120_MARK_UP_DB" Type="Edm.Decimal" Precision="15" Scale="2" sap:label="Double Time Mark Up %"/>
+                <Property Name="YY121_SHIFT1_TOTAL_PRICE_RG" Type="Edm.Decimal" Precision="15" Scale="2" sap:label="Shift 1 Total Price RG"/>
+                <Property Name="YY122_SHIFT1_TOTAL_PRICE_OT" Type="Edm.Decimal" Precision="15" Scale="2" sap:label="Shift 1 Total Price OT"/>
+                <Property Name="YY123_SHIFT1_TOTAL_PRICE_DB" Type="Edm.Decimal" Precision="15" Scale="2" sap:label="Shift 1 Total Price DB"/>
+                <Property Name="YY124_SHIFT2_TOTAL_PRICE_RG" Type="Edm.Decimal" Precision="15" Scale="2" sap:label="Shift 2 Total Price RG"/>
+                <Property Name="YY125_SHIFT2_TOTAL_PRICE_OT" Type="Edm.Decimal" Precision="15" Scale="2" sap:label="Shift 2 Total Price OT"/>
+                <Property Name="YY126_SHIFT2_TOTAL_PRICE_DB" Type="Edm.Decimal" Precision="15" Scale="2" sap:label="Shift 2 Total Price DB"/>
+                <Property Name="YY127_SHIFT3_TOTAL_PAY_RG" Type="Edm.Decimal" Precision="15" Scale="2" sap:label="Shift 3 Total Pay RG"/>
+                <Property Name="YY128_SHIFT3_TOTAL_PAY_OT" Type="Edm.Decimal" Precision="15" Scale="2" sap:label="Shift 3 Total Pay OT"/>
+                <Property Name="YY129_SHIFT3_TOTAL_PAY_DB" Type="Edm.Decimal" Precision="15" Scale="2" sap:label="Shift 3 Total Pay DB"/>
+                <Property Name="YY130_ADMIN_FEE_PRICE" Type="Edm.Decimal" Precision="15" Scale="2" sap:label="MS Admin Fee"/>
+            </EntityType>
+            <EntityContainer Name="YY1_SALESVCDATA_1_CDS_Entities" m:IsDefaultEntityContainer="true" sap:message-scope-supported="true" sap:supported-formats="atom json xlsx">
+                <EntitySet Name="YY1_SALESVCDATA_1" EntityType="YY1_SALESVCDATA_1_CDS.YY1_SALESVCDATA_1Type" sap:searchable="true" sap:content-version="1"/>
+                <FunctionImport Name="YY1_SALESVCDATA_1Sap_upsert" ReturnType="YY1_SALESVCDATA_1_CDS.YY1_SALESVCDATA_1Type" EntitySet="YY1_SALESVCDATA_1" m:HttpMethod="POST">
+                    <Parameter Name="SalesOrderNumber" Type="Edm.String" Mode="In" MaxLength="20" sap:label="Text of length 20"/>
+                    <Parameter Name="SalesOrderItemNum" Type="Edm.String" Mode="In" MaxLength="20" sap:label="Text of length 20"/>
+                    <Parameter Name="SAP_Description" Type="Edm.String" Mode="In" MaxLength="80" sap:label="Text of length 80"/>
+                    <Parameter Name="Billing_Document_Number" Type="Edm.String" Mode="In" MaxLength="20" sap:label="Text of length 20"/>
+                    <Parameter Name="Billing_Document_Item_Number" Type="Edm.String" Mode="In" MaxLength="20" sap:label="Text of length 20"/>
+                    <Parameter Name="Custom_Sales_Order_Type" Type="Edm.String" Mode="In" MaxLength="4" sap:label="Text of length 4"/>
+                    <Parameter Name="Custom_Billing_type" Type="Edm.String" Mode="In" MaxLength="4" sap:label="Text of length 4"/>
+                    <Parameter Name="YY1_ACA_RG_ONLY" Type="Edm.String" Mode="In" MaxLength="2" sap:label="Text of length 2"/>
+                    <Parameter Name="YY2_ACA_HRS" Type="Edm.Decimal" Mode="In" Precision="15" Scale="2" sap:label="ACA Hours"/>
+                    <Parameter Name="YY3_ACA_HRS_PRICE" Type="Edm.Decimal" Mode="In" Precision="15" Scale="2" sap:label="ACA Hours Price"/>
+                    <Parameter Name="YY4_ACA_TOTAL_HRS_PRICE" Type="Edm.Decimal" Mode="In" Precision="15" Scale="2" sap:label="ACA Total Hours Price"/>
+                    <Parameter Name="YY5_LINE_ITEM_NUMBER" Type="Edm.Decimal" Mode="In" Precision="15" Scale="0" sap:label="Line Item Number"/>
+                    <Parameter Name="YY6_SC_LINE_ITEM_NUMBER" Type="Edm.String" Mode="In" MaxLength="30" sap:label="Text of length 30"/>
+                    <Parameter Name="YY7_INVISIBLE" Type="Edm.String" Mode="In" MaxLength="30" sap:label="Text of length 30"/>
+                    <Parameter Name="YY8_WEEK_ENDING2" Type="Edm.DateTime" Mode="In" Precision="0" sap:label="Week Ending" sap:display-format="Date"/>
+                    <Parameter Name="YY9_ZZWEEK_END_VBAP" Type="Edm.DateTime" Mode="In" Precision="0" sap:label="Week End VBAP" sap:display-format="Date"/>
+                    <Parameter Name="YY10_EMPLOYEE_TYPE" Type="Edm.String" Mode="In" MaxLength="3" sap:label="Text of length 3"/>
+                    <Parameter Name="YY11_EIGHT_DAY_WEEK" Type="Edm.String" Mode="In" MaxLength="1" sap:label="Text of length 1"/>
+                    <Parameter Name="YY12_DAY1_SHIFT1_RG" Type="Edm.Decimal" Mode="In" Precision="15" Scale="2" sap:label="Day 1 Shift 1 RG"/>
+                    <Parameter Name="YY13_DAY1_SHIFT1_OT" Type="Edm.Decimal" Mode="In" Precision="15" Scale="2" sap:label="Day 1 Shift 1 Overtime"/>
+                    <Parameter Name="YY14_DAY1_SHIFT1_DB" Type="Edm.Decimal" Mode="In" Precision="15" Scale="2" sap:label="Day 1 Shift 1 DoubleTime"/>
+                    <Parameter Name="YY15_DAY1_SHIFT2_RG" Type="Edm.Decimal" Mode="In" Precision="15" Scale="2" sap:label="Day 1 Shift 2 RG"/>
+                    <Parameter Name="YY16_DAY1_SHIFT2_OT" Type="Edm.Decimal" Mode="In" Precision="15" Scale="2" sap:label="Day 1 Shift 2 Overtime"/>
+                    <Parameter Name="YY17_DAY1_SHIFT2_DB" Type="Edm.Decimal" Mode="In" Precision="15" Scale="2" sap:label="Day 1 Shift 2 DoubleTime"/>
+                    <Parameter Name="YY18_DAY1_SHIFT3_RG" Type="Edm.Decimal" Mode="In" Precision="15" Scale="2" sap:label="Day 1 Shift 3 RG"/>
+                    <Parameter Name="YY19_DAY1_SHIFT3_OT" Type="Edm.Decimal" Mode="In" Precision="15" Scale="2" sap:label="Day 1 Shift 3 Overtime"/>
+                    <Parameter Name="YY20_DAY1_SHIFT3_DB" Type="Edm.Decimal" Mode="In" Precision="15" Scale="2" sap:label="Day 1 Shift 3 DoubleTime"/>
+                    <Parameter Name="YY21_DAY_ONE" Type="Edm.DateTime" Mode="In" Precision="0" sap:label="Day One" sap:display-format="Date"/>
+                    <Parameter Name="YY22_DAY_ONE_WORKED" Type="Edm.Decimal" Mode="In" Precision="1" Scale="0" sap:label="Daily: Enter 1 if Day 1 Worked"/>
+                    <Parameter Name="YY23_DAY2_SHIFT1_RG" Type="Edm.Decimal" Mode="In" Precision="15" Scale="2" sap:label="Day 2 Shift 1 RG"/>
+                    <Parameter Name="YY24_DAY2_SHIFT1_OT" Type="Edm.Decimal" Mode="In" Precision="15" Scale="2" sap:label="Day 2 Shift 1 Overtime"/>
+                    <Parameter Name="YY25_DAY2_SHIFT1_DB" Type="Edm.Decimal" Mode="In" Precision="15" Scale="2" sap:label="Day 2 Shift 1 DoubleTime"/>
+                    <Parameter Name="YY26_DAY2_SHIFT2_RG" Type="Edm.Decimal" Mode="In" Precision="15" Scale="2" sap:label="Day 2 Shift 2 RG"/>
+                    <Parameter Name="YY27_DAY2_SHIFT2_OT" Type="Edm.Decimal" Mode="In" Precision="15" Scale="2" sap:label="Day 2 Shift 2 Overtime"/>
+                    <Parameter Name="YY28_DAY2_SHIFT2_DB" Type="Edm.Decimal" Mode="In" Precision="15" Scale="2" sap:label="Day 2 Shift 2 DoubleTime"/>
+                    <Parameter Name="YY29_DAY2_SHIFT3_RG" Type="Edm.Decimal" Mode="In" Precision="15" Scale="2" sap:label="Day 2 Shift 3 RG"/>
+                    <Parameter Name="YY30_DAY2_SHIFT3_OT" Type="Edm.Decimal" Mode="In" Precision="15" Scale="2" sap:label="Day 2 Shift 3 Overtime"/>
+                    <Parameter Name="YY31_DAY2_SHIFT3_DB" Type="Edm.Decimal" Mode="In" Precision="15" Scale="2" sap:label="Day 2 Shift 3 DoubleTime"/>
+                    <Parameter Name="YY32_DAY_TWO" Type="Edm.DateTime" Mode="In" Precision="0" sap:label="Day Two" sap:display-format="Date"/>
+                    <Parameter Name="YY33_DAY_TWO_WORKED" Type="Edm.Decimal" Mode="In" Precision="1" Scale="0" sap:label="Daily: Enter 1 if Day 2 Worked"/>
+                    <Parameter Name="YY34_DAY3_SHIFT1_RG" Type="Edm.Decimal" Mode="In" Precision="15" Scale="2" sap:label="Day 3 Shift 1 RG"/>
+                    <Parameter Name="YY35_DAY3_SHIFT1_OT" Type="Edm.Decimal" Mode="In" Precision="15" Scale="2" sap:label="Day 3 Shift 1 Overtime"/>
+                    <Parameter Name="YY36_DAY3_SHIFT1_DB" Type="Edm.Decimal" Mode="In" Precision="15" Scale="2" sap:label="Day 3 Shift 1 DoubleTime"/>
+                    <Parameter Name="YY37_DAY3_SHIFT2_RG" Type="Edm.Decimal" Mode="In" Precision="15" Scale="2" sap:label="Day 3 Shift 2 RG"/>
+                    <Parameter Name="YY38_DAY3_SHIFT2_OT" Type="Edm.Decimal" Mode="In" Precision="15" Scale="2" sap:label="Day 3 Shift 2 Overtime"/>
+                    <Parameter Name="YY39_DAY3_SHIFT2_DB" Type="Edm.Decimal" Mode="In" Precision="15" Scale="2" sap:label="Day 3 Shift 2 DoubleTime"/>
+                    <Parameter Name="YY40_DAY3_SHIFT3_RG" Type="Edm.Decimal" Mode="In" Precision="15" Scale="2" sap:label="Day 3 Shift 3 RG"/>
+                    <Parameter Name="YY41_DAY3_SHIFT3_OT" Type="Edm.Decimal" Mode="In" Precision="15" Scale="2" sap:label="Day 3 Shift 3 Overtime"/>
+                    <Parameter Name="YY42_DAY3_SHIFT3_DB" Type="Edm.Decimal" Mode="In" Precision="15" Scale="2" sap:label="Day 3 Shift 3 DoubleTime"/>
+                    <Parameter Name="YY43_DAY_THREE" Type="Edm.DateTime" Mode="In" Precision="0" sap:label="Day Three" sap:display-format="Date"/>
+                    <Parameter Name="YY44_DAY_THREE_WORKED" Type="Edm.Decimal" Mode="In" Precision="1" Scale="0" sap:label="Daily: Enter 1 if Day 3 Worked"/>
+                    <Parameter Name="YY45_DAY4_SHIFT1_RG" Type="Edm.Decimal" Mode="In" Precision="15" Scale="2" sap:label="Day 4 Shift 1 RG"/>
+                    <Parameter Name="YY46_DAY4_SHIFT1_OT" Type="Edm.Decimal" Mode="In" Precision="15" Scale="2" sap:label="Day 4 Shift 1 Overtime"/>
+                    <Parameter Name="YY47_DAY4_SHIFT1_DB" Type="Edm.Decimal" Mode="In" Precision="15" Scale="2" sap:label="Day 4 Shift 1 DoubleTime"/>
+                    <Parameter Name="YY48_DAY4_SHIFT2_RG" Type="Edm.Decimal" Mode="In" Precision="15" Scale="2" sap:label="Day 4 Shift 2 RG"/>
+                    <Parameter Name="YY49_DAY4_SHIFT2_OT" Type="Edm.Decimal" Mode="In" Precision="15" Scale="2" sap:label="Day 4 Shift 2 OT"/>
+                    <Parameter Name="YY50_DAY4_SHIFT2_DB" Type="Edm.Decimal" Mode="In" Precision="15" Scale="2" sap:label="Day 4 Shift 2 DoubleTime"/>
+                    <Parameter Name="YY51_DAY4_SHIFT3_RG" Type="Edm.Decimal" Mode="In" Precision="15" Scale="2" sap:label="Day 4 Shift 3 RG"/>
+                    <Parameter Name="YY52_DAY4_SHIFT3_OT" Type="Edm.Decimal" Mode="In" Precision="15" Scale="2" sap:label="Day 4 Shift 3 Overtime"/>
+                    <Parameter Name="YY53_DAY4_SHIFT3_DB" Type="Edm.Decimal" Mode="In" Precision="15" Scale="2" sap:label="Day 4 Shift 3 DoubleTime"/>
+                    <Parameter Name="YY54_DAY_FOUR" Type="Edm.DateTime" Mode="In" Precision="0" sap:label="Day Four" sap:display-format="Date"/>
+                    <Parameter Name="YY55_DAY_FOUR_WORKED" Type="Edm.Decimal" Mode="In" Precision="1" Scale="0" sap:label="Daily: Enter 1 if Day 4 Worked"/>
+                    <Parameter Name="YY56_DAY5_SHIFT1_RG" Type="Edm.Decimal" Mode="In" Precision="15" Scale="2" sap:label="Day 5 Shift 1 RG"/>
+                    <Parameter Name="YY57_DAY5_SHIFT1_OT" Type="Edm.Decimal" Mode="In" Precision="15" Scale="2" sap:label="Day 5 Shift 1 Overtime"/>
+                    <Parameter Name="YY58_DAY5_SHIFT1_DB" Type="Edm.Decimal" Mode="In" Precision="15" Scale="2" sap:label="Day 5 Shift 1 DoubleTime"/>
+                    <Parameter Name="YY59_DAY5_SHIFT2_RG" Type="Edm.Decimal" Mode="In" Precision="15" Scale="2" sap:label="Day 5 Shift 2 RG"/>
+                    <Parameter Name="YY60_DAY5_SHIFT2_OT" Type="Edm.Decimal" Mode="In" Precision="15" Scale="2" sap:label="Day 5 Shift 2 Overtime"/>
+                    <Parameter Name="YY61_DAY5_SHIFT2_DB" Type="Edm.Decimal" Mode="In" Precision="15" Scale="2" sap:label="Day 5 Shift 2 DoubleTime"/>
+                    <Parameter Name="YY62_DAY5_SHIFT3_RG" Type="Edm.Decimal" Mode="In" Precision="15" Scale="2" sap:label="Day 5 Shift 3 RG"/>
+                    <Parameter Name="YY63_DAY5_SHIFT3_OT" Type="Edm.Decimal" Mode="In" Precision="15" Scale="2" sap:label="Day 5 Shift 3 Overtime"/>
+                    <Parameter Name="YY64_DAY5_SHIFT3_DB" Type="Edm.Decimal" Mode="In" Precision="15" Scale="2" sap:label="Day 5 Shift 3 DoubleTime"/>
+                    <Parameter Name="YY65_DAY_FIVE" Type="Edm.DateTime" Mode="In" Precision="0" sap:label="Day Five" sap:display-format="Date"/>
+                    <Parameter Name="YY66_DAY_FIVE_WORKED" Type="Edm.Decimal" Mode="In" Precision="1" Scale="0" sap:label="Daily: Enter 1 if Day 5 Worked"/>
+                    <Parameter Name="YY67_DAY6_SHIFT1_RG" Type="Edm.Decimal" Mode="In" Precision="15" Scale="2" sap:label="Day 6 Shift 1 RG"/>
+                    <Parameter Name="YY68_DAY6_SHIFT1_OT" Type="Edm.Decimal" Mode="In" Precision="15" Scale="2" sap:label="Day 6 Shift 1 Overtime"/>
+                    <Parameter Name="YY69_DAY6_SHIFT1_DB" Type="Edm.Decimal" Mode="In" Precision="15" Scale="2" sap:label="Day 6 Shift 1 DoubleTime"/>
+                    <Parameter Name="YY70_DAY6_SHIFT2_RG" Type="Edm.Decimal" Mode="In" Precision="15" Scale="2" sap:label="Day 6 Shift 2 RG"/>
+                    <Parameter Name="YY71_DAY6_SHIFT2_OT" Type="Edm.Decimal" Mode="In" Precision="15" Scale="2" sap:label="Day 6 Shift 2 Overtime"/>
+                    <Parameter Name="YY72_DAY6_SHIFT2_DB" Type="Edm.Decimal" Mode="In" Precision="15" Scale="2" sap:label="Day 6 Shift 2 DoubleTime"/>
+                    <Parameter Name="YY73_DAY6_SHIFT3_RG" Type="Edm.Decimal" Mode="In" Precision="15" Scale="2" sap:label="Day 6 Shift 3 RG"/>
+                    <Parameter Name="YY74_DAY6_SHIFT3_OT" Type="Edm.Decimal" Mode="In" Precision="15" Scale="2" sap:label="Day 6 Shift 3 Overtime"/>
+                    <Parameter Name="YY75_DAY6_SHIFT3_DB" Type="Edm.Decimal" Mode="In" Precision="15" Scale="2" sap:label="Day 6 Shift 3 DoubleTime"/>
+                    <Parameter Name="YY76_DAY_SIX" Type="Edm.DateTime" Mode="In" Precision="0" sap:label="Day Six" sap:display-format="Date"/>
+                    <Parameter Name="YY77_DAY_SIX_WORKED" Type="Edm.Decimal" Mode="In" Precision="1" Scale="0" sap:label="Daily: Enter 1 if Day 6 Worked"/>
+                    <Parameter Name="YY78_DAY7_SHIFT1_RG" Type="Edm.Decimal" Mode="In" Precision="15" Scale="2" sap:label="Day 7 Shift 1 RG"/>
+                    <Parameter Name="YY79_DAY7_SHIFT1_OT" Type="Edm.Decimal" Mode="In" Precision="15" Scale="2" sap:label="Day 7 Shift 1 Overtime"/>
+                    <Parameter Name="YY80_DAY7_SHIFT1_DB" Type="Edm.Decimal" Mode="In" Precision="15" Scale="2" sap:label="Day 7 Shift 1 DoubleTime"/>
+                    <Parameter Name="YY81_DAY7_SHIFT2_RG" Type="Edm.Decimal" Mode="In" Precision="15" Scale="2" sap:label="Day 7 Shift 2 RG"/>
+                    <Parameter Name="YY82_DAY7_SHIFT2_OT" Type="Edm.Decimal" Mode="In" Precision="15" Scale="2" sap:label="Day 7 Shift 2 Overtime"/>
+                    <Parameter Name="YY83_DAY7_SHIFT2_DB" Type="Edm.Decimal" Mode="In" Precision="15" Scale="2" sap:label="Day 7 Shift 2 DoubleTime"/>
+                    <Parameter Name="YY84_DAY7_SHIFT3_RG" Type="Edm.Decimal" Mode="In" Precision="15" Scale="2" sap:label="Day 7 Shift 3 RG"/>
+                    <Parameter Name="YY85_DAY7_SHIFT3_OT" Type="Edm.Decimal" Mode="In" Precision="15" Scale="2" sap:label="Day 7 Shift 3 Overtime"/>
+                    <Parameter Name="YY86_DAY7_SHIFT3_DB" Type="Edm.Decimal" Mode="In" Precision="15" Scale="2" sap:label="Day 7 Shift 3 DoubleTime"/>
+                    <Parameter Name="YY87_DAY_SEVEN" Type="Edm.DateTime" Mode="In" Precision="0" sap:label="Day Seven" sap:display-format="Date"/>
+                    <Parameter Name="YY88_DAY_SEVEN_WORKED" Type="Edm.Decimal" Mode="In" Precision="1" Scale="0" sap:label="Daily: Enter 1 if Day 7 Worked"/>
+                    <Parameter Name="YY89_DAY8_SHIFT1_RG" Type="Edm.Decimal" Mode="In" Precision="15" Scale="2" sap:label="Day 8 Shift 1 RG"/>
+                    <Parameter Name="YY90_DAY8_SHIFT1_OT" Type="Edm.Decimal" Mode="In" Precision="15" Scale="2" sap:label="Day 8 Shift 1 Overtime"/>
+                    <Parameter Name="YY91_DAY8_SHIFT1_DB" Type="Edm.Decimal" Mode="In" Precision="15" Scale="2" sap:label="Day 8 Shift 1 DoubleTime"/>
+                    <Parameter Name="YY92_DAY8_SHIFT2_RG" Type="Edm.Decimal" Mode="In" Precision="15" Scale="2" sap:label="Day 8 Shift 2 RG"/>
+                    <Parameter Name="YY93_DAY8_SHIFT2_OT" Type="Edm.Decimal" Mode="In" Precision="15" Scale="2" sap:label="Day 8 Shift 2 Overtime"/>
+                    <Parameter Name="YY94_DAY8_SHIFT2_DB" Type="Edm.Decimal" Mode="In" Precision="15" Scale="2" sap:label="Day 8 Shift 2 DoubleTime"/>
+                    <Parameter Name="YY95_DAY8_SHIFT3_RG" Type="Edm.Decimal" Mode="In" Precision="15" Scale="2" sap:label="Day 8 Shift 3 Regular Time"/>
+                    <Parameter Name="YY96_DAY8_SHIFT3_OT" Type="Edm.Decimal" Mode="In" Precision="15" Scale="2" sap:label="Day 8 Shift 3 Overtime"/>
+                    <Parameter Name="YY97_DAY8_SHIFT3_DB" Type="Edm.Decimal" Mode="In" Precision="15" Scale="2" sap:label="Day 8 Shift 3 DoubleTime"/>
+                    <Parameter Name="YY98_DAY_EIGHT" Type="Edm.DateTime" Mode="In" Precision="0" sap:label="Day Eight" sap:display-format="Date"/>
+                    <Parameter Name="YY99_DAY_EIGHT_WORKED" Type="Edm.Decimal" Mode="In" Precision="1" Scale="0" sap:label="Daily: Enter 1 if Day 8 Worked"/>
+                    <Parameter Name="YY100_SHIFT1_TOTAL_HRS_RG" Type="Edm.Decimal" Mode="In" Precision="15" Scale="2" sap:label="Shift 1 Total Hours RG"/>
+                    <Parameter Name="YY101_SHIFT1_TOTAL_HRS_OT" Type="Edm.Decimal" Mode="In" Precision="15" Scale="2" sap:label="Shift 1 Total Hours OT"/>
+                    <Parameter Name="YY102_SHIFT1_TOTAL_HRS_DB" Type="Edm.Decimal" Mode="In" Precision="15" Scale="2" sap:label="Shift 1 Total Hours DB"/>
+                    <Parameter Name="YY103_SHIFT2_TOTAL_HRS_RG" Type="Edm.Decimal" Mode="In" Precision="15" Scale="2" sap:label="Shift 2 Total Hours RG"/>
+                    <Parameter Name="YY104_SHIFT2_TOTAL_HRS_OT" Type="Edm.Decimal" Mode="In" Precision="15" Scale="2" sap:label="Shift 2 Total Hours OT"/>
+                    <Parameter Name="YY105_SHIFT2_TOTAL_HRS_DB" Type="Edm.Decimal" Mode="In" Precision="15" Scale="2" sap:label="Shift 2 Total Hours DB"/>
+                    <Parameter Name="YY106_SHIFT3_TOTAL_HRS_RG" Type="Edm.Decimal" Mode="In" Precision="15" Scale="2" sap:label="Shift 3 Total Hours RG"/>
+                    <Parameter Name="YY107_SHIFT3_TOTAL_HRS_OT" Type="Edm.Decimal" Mode="In" Precision="15" Scale="2" sap:label="Shift 3 Total Hours OT"/>
+                    <Parameter Name="YY108_SHIFT3_TOTAL_HRS_DB" Type="Edm.Decimal" Mode="In" Precision="15" Scale="2" sap:label="Shift 3 Total Hours DB"/>
+                    <Parameter Name="YY109_SHIFT1_PRICE_RG" Type="Edm.Decimal" Mode="In" Precision="15" Scale="2" sap:label="Shift 1 Price RG"/>
+                    <Parameter Name="YY110_SHIFT1_PRICE_OT" Type="Edm.Decimal" Mode="In" Precision="15" Scale="2" sap:label="Shift 1 Price OT"/>
+                    <Parameter Name="YY111_SHIFT1_PRICE_DB" Type="Edm.Decimal" Mode="In" Precision="15" Scale="2" sap:label="Shift 1 Price DB"/>
+                    <Parameter Name="YY112_SHIFT2_PRICE_RG" Type="Edm.Decimal" Mode="In" Precision="15" Scale="2" sap:label="Shift 2 Price RG"/>
+                    <Parameter Name="YY113_SHIFT2_PRICE_OT" Type="Edm.Decimal" Mode="In" Precision="15" Scale="2" sap:label="Shift 2 Price OT"/>
+                    <Parameter Name="YY114_SHIFT2_PRICE_DB" Type="Edm.Decimal" Mode="In" Precision="15" Scale="2" sap:label="Shift 2 Price DB"/>
+                    <Parameter Name="YY115_SHIFT3_PRICE_RG" Type="Edm.Decimal" Mode="In" Precision="15" Scale="2" sap:label="Shift 3 Price RG"/>
+                    <Parameter Name="YY116_SHIFT3_PRICE_OT" Type="Edm.Decimal" Mode="In" Precision="15" Scale="2" sap:label="Shift 3 Price OT"/>
+                    <Parameter Name="YY117_SHIFT3_PRICE_DB" Type="Edm.Decimal" Mode="In" Precision="15" Scale="2" sap:label="Shift 3 Price DB"/>
+                    <Parameter Name="YY118_MARK_UP_RG" Type="Edm.Decimal" Mode="In" Precision="15" Scale="2" sap:label="Straight time Mark Up %"/>
+                    <Parameter Name="YY119_MARK_UP_OT" Type="Edm.Decimal" Mode="In" Precision="15" Scale="2" sap:label="Overtime Mark Up %"/>
+                    <Parameter Name="YY120_MARK_UP_DB" Type="Edm.Decimal" Mode="In" Precision="15" Scale="2" sap:label="Double Time Mark Up %"/>
+                    <Parameter Name="YY121_SHIFT1_TOTAL_PRICE_RG" Type="Edm.Decimal" Mode="In" Precision="15" Scale="2" sap:label="Shift 1 Total Price RG"/>
+                    <Parameter Name="YY122_SHIFT1_TOTAL_PRICE_OT" Type="Edm.Decimal" Mode="In" Precision="15" Scale="2" sap:label="Shift 1 Total Price OT"/>
+                    <Parameter Name="YY123_SHIFT1_TOTAL_PRICE_DB" Type="Edm.Decimal" Mode="In" Precision="15" Scale="2" sap:label="Shift 1 Total Price DB"/>
+                    <Parameter Name="YY124_SHIFT2_TOTAL_PRICE_RG" Type="Edm.Decimal" Mode="In" Precision="15" Scale="2" sap:label="Shift 2 Total Price RG"/>
+                    <Parameter Name="YY125_SHIFT2_TOTAL_PRICE_OT" Type="Edm.Decimal" Mode="In" Precision="15" Scale="2" sap:label="Shift 2 Total Price OT"/>
+                    <Parameter Name="YY126_SHIFT2_TOTAL_PRICE_DB" Type="Edm.Decimal" Mode="In" Precision="15" Scale="2" sap:label="Shift 2 Total Price DB"/>
+                    <Parameter Name="YY127_SHIFT3_TOTAL_PAY_RG" Type="Edm.Decimal" Mode="In" Precision="15" Scale="2" sap:label="Shift 3 Total Pay RG"/>
+                    <Parameter Name="YY128_SHIFT3_TOTAL_PAY_OT" Type="Edm.Decimal" Mode="In" Precision="15" Scale="2" sap:label="Shift 3 Total Pay OT"/>
+                    <Parameter Name="YY129_SHIFT3_TOTAL_PAY_DB" Type="Edm.Decimal" Mode="In" Precision="15" Scale="2" sap:label="Shift 3 Total Pay DB"/>
+                    <Parameter Name="YY130_ADMIN_FEE_PRICE" Type="Edm.Decimal" Mode="In" Precision="15" Scale="2" sap:label="MS Admin Fee"/>
+                </FunctionImport>
+            </EntityContainer>
+            <Annotation Term="Core.SchemaVersion" String="1.0.0" xmlns="http://docs.oasis-open.org/odata/ns/edm"/>
+            <Annotations Target="YY1_SALESVCDATA_1_CDS.YY1_SALESVCDATA_1_CDS_Entities" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+                <Annotation Term="Common.ApplyMultiUnitBehaviorForSortingAndFiltering" Bool="true"/>
+            </Annotations>
+            <Annotations Target="YY1_SALESVCDATA_1_CDS.YY1_SALESVCDATA_1Type/SalesOrderItemNum" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+                <Annotation Term="Common.FieldControl" EnumMember="Common.FieldControlType/Mandatory"/>
+            </Annotations>
+            <Annotations Target="YY1_SALESVCDATA_1_CDS.YY1_SALESVCDATA_1Type/SalesOrderNumber" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+                <Annotation Term="Common.FieldControl" EnumMember="Common.FieldControlType/Mandatory"/>
+            </Annotations>
+            <Annotations Target="YY1_SALESVCDATA_1_CDS.YY1_SALESVCDATA_1Type" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+                <Annotation Term="Common.SemanticKey">
+                    <Collection>
+                        <PropertyPath>SalesOrderItemNum</PropertyPath>
+                        <PropertyPath>SalesOrderNumber</PropertyPath>
+                    </Collection>
+                </Annotation>
+            </Annotations>
+            <Annotations Target="YY1_SALESVCDATA_1_CDS.YY1_SALESVCDATA_1_CDS_Entities" xmlns="http://docs.oasis-open.org/odata/ns/edm"/>
+            <atom:link rel="self" href="https://my420210-api.s4hana.cloud.sap/sap/opu/odata/sap/YY1_SALESVCDATA_1_CDS/$metadata" xmlns:atom="http://www.w3.org/2005/Atom"/>
+            <atom:link rel="latest-version" href="https://my420210-api.s4hana.cloud.sap/sap/opu/odata/sap/YY1_SALESVCDATA_1_CDS/$metadata" xmlns:atom="http://www.w3.org/2005/Atom"/>
+        </Schema>
+    </edmx:DataServices>
+</edmx:Edmx>

@@ -1,0 +1,211 @@
+###
+# Environment should be switched by commenting either BAS environment or Local VSCode environment. Make sure to comment the other environment.
+# Region for comment would be - Start to - End
+
+### BAS environment -- Start
+@s4_base_url=http://S4HC_MONITOR_BASIC_AUTH_CUST.dest
+@default_headers=Content-Type: application/json
+### BAS environment -- End
+
+### Local VSCode environment - Start
+# @s4_user={{$dotenv s4_user}}
+# @s4_pass={{$dotenv s4_pass}}
+# @s4_base_url=https://my420210-api.s4hana.cloud.sap
+# @basic_auth=Authorization: Basic {{s4_user}}:{{s4_pass}}
+# @default_headers=Content-Type: application/json\n{{basic_auth}}
+### Local VSCode environment - End
+
+# Service Variables
+@svc_url={{s4_base_url}}/sap/opu/odata/sap/API_ENTERPRISE_PROJECT_SRV;v=0002
+@svc=http://localhost:4004/odata/v4/monitor
+
+@default_headers=Content-Type: application/json
+### Metadata
+# @name metadata_call
+ 
+GET {{svc_url}}/$metadata
+{{default_headers}}
+X-CSRF-Token: Fetch
+ 
+###
+@csrf_token={{metadata_call.response.headers.X-CSRF-Token}}
+
+### Get Enterprise Project
+GET {{svc_url}}/A_EnterpriseProject
+?$top=1
+{{default_headers}}
+
+### Get Enterprise Project
+GET {{svc_url}}/ChangeEntProjProcgStatus?ProjectUUID=guid'25fae728-ea6c-1fd0-88c2-55822b705ae5'
+{{default_headers}}
+
+### Get Enterprise Project
+POST {{svc_url}}/ChangeEntProjProcgStatus?ProjectUUID=guid'25fae728-ea6c-1fd0-88c2-55822b705ae5'&ProcessingStatus='10'  
+Content-Type: application/json
+X-CSRF-Token: {{csrf_token}}
+If-Match: *
+
+
+
+
+### Get Enterprise Project
+GET {{svc_url}}/A_EnterpriseProject
+# ?$select=Project
+# &$orderby=CreationDateTime desc
+&$top=1
+# ?$filter=Project eq '4400000062'
+{{default_headers}}
+
+### Update call
+PATCH {{svc_url}}/A_EnterpriseProject(guid'25fae728-ea6c-1fd0-88be-95f4d1c09ae5')
+Content-Type: application/json
+X-CSRF-Token: {{csrf_token}}
+If-Match: *
+
+{   
+    "Project": "4400000062"
+}
+### Post Enterprise Project
+ 
+ "YY1_SalesOrder_PPH": "2700000036"
+POST {{svc_url}}/A_EnterpriseProject
+Content-Type: application/json
+X-CSRF-Token: {{csrf_token}}
+ 
+{   
+    "ProjectDescription": "10362-15000598",
+    "EnterpriseProjectType": "40",
+    "ProjectStartDate": "\/Date(1740355200000)\/",
+    "ProjectEndDate": "\/Date(2055888000000)\/",
+    "ProfitCenter": "1227",
+    "CompanyCode": "1200",
+    "ResponsibleCostCenter": "12001227",
+    "ProjectProfileCode": "YP05",
+    "EntProjIsMultiSlsOrdItmsEnbld": true
+}
+
+### Post Enterprise Project
+ 
+POST {{svc_url}}/A_EnterpriseProject
+Content-Type: application/json
+X-CSRF-Token: {{csrf_token}}
+ 
+{   
+    "ProjectDescription": "10362-15000598",
+    "EnterpriseProjectType": "40",
+    "ProjectStartDate": "\/Date(1740355200000)\/",
+    "ProjectEndDate": "\/Date(2055888000000)\/",
+    "ProfitCenter": "1227",
+    "CompanyCode": "1200",
+    "ResponsibleCostCenter": "12001227",
+    "ProjectProfileCode": "YP05",
+    "EntProjIsMultiSlsOrdItmsEnbld": true
+}
+ 
+### Post Enterprise Project
+ 
+POST {{svc_url}}/A_EnterpriseProject
+{{default_headers}}
+X-CSRF-Token: {{csrf_token}}
+ 
+{
+    "ChangeEntProjProcgStatus_ac": true,
+        "CopyToActiveDocument_ac": true,
+        "ActualEndDate_fc": 3,
+        "ActualStartDate_fc": 3,
+        "AvailabilityControlIsActive_fc": 3,
+        "AvailabilityControlProfile_fc": 3,
+        "ControllingArea_fc": 3,
+        "CostingSheet_fc": 3,
+        "EnterpriseProjectType_fc": 3,
+        "EntProjIsMultiSlsOrdItmsEnbld_fc": 3,
+        "FunctionalArea_fc": 3,
+        "FunctionalLocation_fc": 3,
+        "InvestmentProfile_fc": 3,
+        "IsBillingRelevant_fc": 3,
+        "Location_fc": 3,
+        "Plant_fc": 3,
+        "PriorityCode_fc": 3,
+        "ProfitCenter_fc": 3,
+        "Project_fc": 3,
+        "ProjectCurrency_fc": 3,
+        "ProjectDescription_fc": 3,
+        "ProjectEndDate_fc": 3,
+        "ProjectProfileCode_fc": 3,
+        "ProjectStartDate_fc": 3,
+        "ResponsibleCostCenter_fc": 3,
+        "ResultAnalysisInternalID_fc": 3,
+        "Delete_mc": true,
+        "Update_mc": true,
+        "to_EnterpriseProjectElement_oc": true,
+        "to_EntProjBlkFunc_oc": true,
+        "to_EntProjRole_oc": true,
+        "to_EntProjTeamMember_oc": true,
+        "Project": "400004",
+        "ProjectDescription": "Sonic",
+        "EnterpriseProjectType": "Z4",
+        "PriorityCode": "0",
+        "ProjectStartDate": "\/Date(1735689600000)\/",
+        "ProjectEndDate": "\/Date(1924905600000)\/",
+        "ActualStartDate": null,
+        "ActualEndDate": null,
+        "CustomerUUID": "00000000-0000-0000-0000-000000000000",
+        "EnterpriseProjectServiceOrg": "",
+        "EntProjectIsConfidential": false,
+        "RestrictedTimePosting": "",
+        "ProcessingStatus": "10",
+        "ResponsibleCostCenter": "10009700",
+        "ProfitCenter": "9700",
+        "ProjectProfileCode": "YP05",
+        "FunctionalArea": "",
+        "CompanyCode": "1000",
+        "ControllingArea": "A000",
+        "Plant": "",
+        "Location": "",
+        "TaxJurisdiction": "",
+        "ProjectCurrency": "USD",
+        "AvailabilityControlProfile": "",
+        "AvailabilityControlIsActive": false,
+        "FunctionalLocation": "",
+        "IsBillingRelevant": true,
+        "InvestmentProfile": "",
+        "LastChangeDateTime": "\/Date(1740065826000+0000)\/",
+        "ProjectLastChangedDateTime": "\/Date(1740065822000+0000)\/",
+        "LastChangedByUser": "CB9980000005",
+        "EntProjIsMultiSlsOrdItmsEnbld": true,
+        "ResultAnalysisInternalID": "",
+        "CostingSheet": "",
+        "CreatedByUser": "CB9980000005",
+        "CreationDateTime": "\/Date(1739819914000+0000)\/"
+}
+
+### Post Enterprise Project 1
+ 
+POST {{svc_url}}/A_EnterpriseProject
+Content-Type: application/json
+X-CSRF-Token: {{csrf_token}}
+ 
+{
+  "EnterpriseProjectType": "40",
+  "CompanyCode": "1100",
+  "ProfitCenter": "1315",
+  "ProjectDescription": "14770-11900011",
+  "ResponsibleCostCenter": "11001315",
+  "ProjectStartDate": "\/Date(1740355200000)\/",
+  "ProjectEndDate": "\/Date(2055888000000)\/",
+  "ProjectProfileCode": "YP05",
+  "EntProjIsMultiSlsOrdItmsEnbld": true,
+  "ProjectCurrency": "USD",
+  "YY1_EmployeeName_PPH": "Pettid Marc",
+  "YY1_Employee_PPH": "11900011",
+}
+
+### Validate File - Action call
+POST {{svc}}/test
+Content-Type: application/json
+
+{
+    
+}
+
+

@@ -1,0 +1,104 @@
+{
+  "name": "com.aleron.monitor",
+  "version": "1.0.0",
+  "description": "A simple CAP project.",
+  "repository": "<Add your repository here>",
+  "license": "UNLICENSED",
+  "private": true,
+  "dependencies": {
+    "@cap-js/hana": "^1",
+    "@sap-cloud-sdk/connectivity": "^3",
+    "@sap-cloud-sdk/http-client": "^3.25.0",
+    "@sap-cloud-sdk/odata-v2": "^4.0.2",
+    "@sap-cloud-sdk/odata-v4": "^4.0.2",
+    "@sap-cloud-sdk/resilience": "^3.25.0",
+    "@sap/cds": "^8",
+    "@sap/cds-common-content": "^2.1.0",
+    "@sap/xssec": "^4",
+    "express": "^4",
+    "moment": "^2.30.1",
+    "soap": "^1.2.1"
+  },
+  "devDependencies": {
+    "@cap-js/sqlite": "^1",
+    "@sap-cloud-sdk/generator": "^4.0.2",
+    "@sap/cds-dk": "^8.7.0",
+    "@types/node": "^22.14.1",
+    "cds-launchpad-plugin": "^2.2.0",
+    "cds-plugin-ui5": "^0.11.2",
+    "eslint": "^9.18.0",
+    "eslint-config-prettier": "^9.1.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^15.3.0",
+    "mbt": "^1.2.29",
+    "prettier": "^3.4.2",
+    "rimraf": "^5.0.5"
+  },
+  "scripts": {
+    "start": "cds-serve",
+    "start:hybrid": "cds watch --profile hybrid",
+    "clean": "rimraf resources mta_archives mta-op* Makefile* gen app/**/dist",
+    "prebuild": "npm run clean",
+    "build": "rimraf resources mta_archives && mbt build --mtar archive",
+    "deploy": "cf deploy mta_archives/archive.mtar --retries 1",
+    "deploy:cf": "npm run build && npm run deploy && npm run clean",
+    "postdeploy": "npm run clean",
+    "undeploy": "cf undeploy com.aleron.monitor --delete-services --delete-service-keys --delete-service-brokers",
+    "deploy:db": "cds deploy --to hana:monitor-db",
+    "setup:hybrid": "npm run bind:db && npm run bind:uaa && npm run bind:dest",
+    "bind:db": "cds bind db --to monitor-db",
+    "bind:uaa": "cds bind -2 monitor-xsuaa-srv",
+    "bind:dest": "cds bind -2 monitor-destination-service",
+    "watch-wn2sap_time": "cds watch --open wn2sap_time/webapp/index.html?sap-ui-xx-viewCache=false",
+    "watch-configuration": "cds watch --open configuration/index.html?sap-ui-xx-viewCache=false --livereload false",
+    "watch-trip": "cds watch --open trip/index.html?sap-ui-xx-viewCache=false --livereload false",
+    "watch-tripmanagement": "cds watch --open tripmanagement/index.html?sap-ui-xx-viewCache=false --livereload false",
+    "watch-monitorinterfacereporting": "cds watch --open monitorinterfacereporting/index.html?sap-ui-xx-viewCache=false --livereload false"
+  },
+  "engines": {
+    "node": "^20"
+  },
+  "workspaces": [
+    "app/*"
+  ],
+  "sapux": [
+    "app/monitor",
+    "app/configuration",
+    "app/trip",
+    "app/tripmanagement"
+  ],
+  "cds": {
+    "requires": {
+      "YY1_HRCOSTDISTRIBUTIONOBJ_CDS": {
+        "kind": "odata-v2",
+        "model": "srv/external/YY1_HRCOSTDISTRIBUTIONOBJ_CDS"
+      },
+      "YY1_TIME_INFO_PA2002_CDS": {
+        "kind": "odata-v2",
+        "model": "srv/external/YY1_TIME_INFO_PA2002_CDS"
+      },
+      "YY1_WORKFORCE_CDS": {
+        "kind": "odata-v2",
+        "model": "srv/external/YY1_WORKFORCE_CDS"
+      },
+      "YY1_SUPPLIER_LFA1_CDS": {
+        "kind": "odata-v2",
+        "model": "srv/external/YY1_SUPPLIER_LFA1_CDS"
+      }
+    },
+    "query": {
+      "limit": {
+        "default": 10000,
+        "max": 10000
+      }
+    },
+    "hana": {
+      "query": {
+        "limit": {
+          "default": 10000,
+          "max": 10000
+        }
+      }
+    }
+  }
+}

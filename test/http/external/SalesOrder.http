@@ -1,0 +1,167 @@
+
+###
+# Environment should be switched by commenting either BAS environment or Local VSCode environment. Make sure to comment the other environment.
+# Region for comment would be - Start to - End
+
+### BAS environment -- Start
+@s4_base_url=http://S4HC_MONITOR_BASIC_AUTH_CUST.dest
+@default_headers_v4=Content-Type: application/json
+@default_headers=Accept:application/json\nContent-Type: application/json
+### BAS environment -- End
+
+### Local VSCode environment - Start
+# @s4_user={{$dotenv s4_user}}
+# @s4_pass={{$dotenv s4_pass}}
+# @s4_base_url=https://my420210-api.s4hana.cloud.sap
+# @basic_auth=Authorization: Basic {{s4_user}}:{{s4_pass}}
+# @default_headers_v4=Content-Type: application/json\n{{basic_auth}}
+# @default_headers=Accept:application/json\nContent-Type: application/json\n{{basic_auth}}
+### Local VSCode environment - End
+
+# Service Variables
+@svc_url={{s4_base_url}}/sap/opu/odata/sap/API_SALES_ORDER_SRV
+@svc_url_v4={{s4_base_url}}/sap/opu/odata4/sap/api_salesorder/srvd_a2x/sap/salesorder/0001
+
+
+### Set order & Item info
+@new_so={{create_so_call.response.body.SalesOrder}}
+@new_soitem={{create_so_call.response.body._Item[0].SalesOrderItem}}
+ 
+###
+@csrf_token={{metadata_call.response.headers.X-CSRF-Token}}
+
+
+### 
+# V2 - API_SALES_ORDER_SRV
+
+### Metadata
+# @name metadata_call
+GET {{svc_url}}/$metadata
+{{default_headers_v4}}
+X-CSRF-Token: Fetch
+
+
+### Get exact SalesOrder
+GET {{svc_url}}/A_SalesOrder('2700000074')
+?$format=json
+&$expand=to_Item,to_Item/to_ScheduleLine,to_Partner
+# &$expand=_Item($expand=_ItemPartner,_ItemPricingElement,_ScheduleLine,_ItemText;$filter=SalesOrderItem eq '10'),_Partner,_PricingElement
+{{default_headers}}
+
+
+### Create SalesOrder
+POST {{svc_url}}/A_SalesOrder
+X-CSRF-Token: {{csrf_token}}
+{{default_headers}}
+
+<@ ./payloads/SalesOrder_1_S.json
+### <@ ./payloads/SalesOrder_FG.json
+### <@ ./payloads/SalesOrder_New_v2_Valid.json
+
+### Create ScheduleLine for Item
+# POST {{svc_url}}/A_SalesOrderItem(SalesOrder='{{new_so}}',SalesOrderItem='{{new_soitem}}')/to_ScheduleLine
+POST {{svc_url}}/A_SalesOrderItem
+X-CSRF-Token: {{csrf_token}}
+{{default_headers_v4}}
+
+<@ ./payloads/SalesOrder_Test.json
+### <@ ./payloads/ScheduleLines.json
+
+### Get Addresses
+GET {{svc_url}}/A_SalesOrderPartnerAddress
+?$format=json
+&$top=40
+&$inlinecount=allpages
+{{default_headers}}
+
+### Get Addresses
+GET {{svc_url}}/A_SalesOrder
+?$format=json
+&$top=1
+&$filter=SalesOrder eq '2700000067'
+# &$expand=to_Partner,to_Partner/to_Address
+&$expand=to_Item,to_Item/to_ScheduleLine,to_Partner,to_Partner/to_Address
+&$inlinecount=allpages
+{{default_headers}}
+
+### GET SalesOrderPartner
+GET {{svc_url}}/A_SalesOrderHeaderPartner(SalesOrder='2700003995',PartnerFunction='ZM')
+{{default_headers}}
+
+### GET SalesOrderPartner - ZR
+GET {{svc_url}}/A_SalesOrderHeaderPartner
+?$filter=SalesOrder eq '2700004007' and ( PartnerFunction eq 'SH' )
+{{default_headers}}
+
+
+### DELETE SalesOrderPartner - ZR
+DELETE {{svc_url}}/A_SalesOrderHeaderPartner(SalesOrder='2200000037',PartnerFunction='ZM')
+{{default_headers}}
+X-CSRF-Token: {{csrf_token}}
+
+### DELETE SalesOrderPartner - ZV
+DELETE {{svc_url}}/A_SalesOrderHeaderPartner(SalesOrder='2200000037',PartnerFunction='ZV')
+{{default_headers}}
+X-CSRF-Token: {{csrf_token}}
+
+### DELETE SalesOrderItem
+DELETE {{svc_url}}/A_SalesOrderItem(SalesOrder='2700003995',SalesOrderItem='000020')
+{{default_headers}}
+X-CSRF-Token: {{csrf_token}}
+
+
+### 
+# V4 - CE_SALESORDER_0001
+
+### Metadata
+# @name metadata_call
+ 
+GET {{svc_url_v4}}/$metadata
+{{default_headers_v4}}
+X-CSRF-Token: Fetch
+
+
+### Get SalesOrder
+GET {{svc_url_v4}}/SalesOrder
+?$format=json
+# &$expand=_Item($expand=_ItemPartner,_ItemPricingElement,_ScheduleLine,_ItemText),_Partner,_PricingElement
+&$filter=SalesOrderType eq 'TA'
+&$top=5
+# &$select=Customer,SalesOrganization,BPCustomerNumber,PartnerFunction
+# &$filter=SalesOrganization eq '1100' and PartnerFunction eq 'Z1' and BPCustomerNumber eq '10000' and Customer eq '10000'
+{{default_headers_v4}}
+
+
+### Get exact SalesOrder
+GET {{svc_url_v4}}/SalesOrder/2700000009
+?$format=json
+&$expand=_Item($expand=_ItemPartner,_ItemPricingElement,_ScheduleLine,_ItemText;$filter=SalesOrderItem eq '10'),_Partner,_PricingElement
+{{default_headers_v4}}
+
+
+### Create SalesOrder
+# @name create_so_call
+POST {{svc_url_v4}}/SalesOrder
+X-CSRF-Token: {{csrf_token}}
+{{default_headers_v4}}
+
+<@ ./payloads/SalesOrder_New_v4.json
+
+###
+
+GET {{svc_url}}/A_SalesOrderItem
+?$format=json
+# &$orderby=SalesOrder desc
+# &$top=10
+&$format=json
+&$filter=YY1_WNWorkOrder_SD_SDI eq 'GER00006'
+# &$expand=to_Text
+{{default_headers}}
+
+###
+
+GET {{svc_url}}/A_SalesOrder
+?$format=json
+&$filter=SalesOrder eq '2700004007' 
+&$expand=to_Item,to_Item/to_ScheduleLine,to_Partner
+{{default_headers}}

@@ -1,0 +1,31 @@
+code,locale,name,descr
+0,en,FILE LOAD,File Load
+1,en,FILE VALIDATION,File Validation
+2,en,HIRE/RE-HIRE PROCESS,Employee Hire/Re-Hire Process
+3,en,SALES ORDER CREATE/CHANGE,Sales Order Create/Change
+4,en,ENTERPRISE PROJECT CREATE,Enterprise Project Create
+5,en,PURCHASE ORDER/CHANGE,Purchase Order Create/Change
+6,en,UPDATE SALES ORDER,Update Sales Order
+7,en,CREATE EMPLOYEE VENDOR,Create Employee Vendor
+8,en,READY FOR OUTBOUND PROCESS,Ready for Outbound Process
+9,en,INTERFACE PROCESS COMPLETE,Interface Process Complete
+A,en,TRIP,Trip
+B,en,MIRO CREATE,MIRO Create
+C,en,UPDATE PROJECT,Update Project
+D,en,UPDATE DELIVERY ADDRESS ON PO,Update Delivery Address on PurchaseOrder
+E,en,SMART SEARCH ADDITIONAL INFOTYPE,Smart Search Additional Infotype
+F,en,UPDATE SALES ORDER PARTNERS,Update Sales Order Partners
+G,en,INTERCOMPANY SALES ORDER CREATE/CHANGE,Intercompany Sales Order Create/Change
+H,en,REJECT SALES ORDER,Reject Sales Order
+I,en,REJECT IC SALES ORDER,Reject IC Sales Order
+J,en,CANCEL MIRO,Cancel MIRO
+K,en,REJECT PO,Reject PurchaseOrder
+L,en,CREATE CREDIT MEMO REQUEST,Create Credit Memo Request
+M,en,CREATE IC CREDIT MEMO REQUEST,Create IC Credit Memo Request
+N,en,CREATE MIRO CREDIT,Create MIRO Credit
+O,en,DELETE PARTNER FUNCTION,Delete Partner Function
+P,en,DELETE PARTNER FUNCTION IC,Delete Partner Function IC
+Q,en,MAINTAIN CONTRACT DATES,Maintain Contract Dates
+S,en,HIRED IN SUCCESSFACTORS,Hired in SuccessFactors
+Z,en,MANUALLY REJECTED,Manually Rejected
+U,en,CHECK EMPLOYEE CREATION S4,check Employee Creation S4

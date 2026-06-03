@@ -1,0 +1,55 @@
+{
+    "CompanyCode": "1200",
+    "DocumentDate": "/Date(1747958400000)/",
+    "PostingDate": "/Date(1744156800000)/",
+    "SupplierInvoiceIDByInvcgParty": "05/23/2025",
+    "InvoicingParty": "40151",
+    "DocumentCurrency": "USD",
+    "InvoiceGrossAmount": "15.00",
+    "PaymentTerms": "0001",
+    "DueCalculationBaseDate": "/Date(1747958400000)/",
+    "ReconciliationAccount": "212100",
+    "TaxIsCalculatedAutomatically": true,
+    "to_SuplrInvcItemPurOrdRef": {
+        "results": [
+            {
+                "SupplierInvoiceItem": "1",
+                "PurchaseOrder": "4500003665",
+                "PurchaseOrderItem": "20",
+                "Plant": "1200",
+                "TaxCode": "I0",
+                "TaxJurisdiction": "4503132560",
+                "DocumentCurrency": "USD",
+                "SupplierInvoiceItemAmount": "15.00",
+                "PurchaseOrderQuantityUnit": "LAB",
+                "PurchaseOrderQtyUnitSAPCode": "LAB",
+                "PurchaseOrderQtyUnitISOCode": "_01",
+                "QuantityInPurchaseOrderUnit": "1",
+                "PurchaseOrderPriceUnit": "LAB",
+                "PurchaseOrderPriceUnitSAPCode": "LAB",
+                "PurchaseOrderPriceUnitISOCode": "_01",
+                "QtyInPurchaseOrderPriceUnit": "1"
+            }
+        ]
+    },
+    "to_SuplrInvcItemMaterial": {
+        "results": [
+            {
+                "SupplierInvoiceItem": "1",
+                "Material": "100000006",
+                "ValuationArea": "1200",
+                "TaxCode": "I0",
+                "TaxJurisdiction": "4503132560",
+                "TaxCountry": "US",
+                "TaxDeterminationDate": "/Date(1747958400000)/",
+                "DocumentCurrency": "USD",
+                "SupplierInvoiceItemAmount": "0.00",
+                "QuantityUnit": "LAB",
+                "SuplrInvcItmQtyUnitSAPCode": "LAB",
+                "SuplrInvcItmQtyUnitISOCode": "",
+                "Quantity": "1",
+                "DebitCreditCode": "S"
+            }
+        ]
+    }
+}

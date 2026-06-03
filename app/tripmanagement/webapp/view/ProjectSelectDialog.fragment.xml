@@ -1,0 +1,38 @@
+<core:FragmentDefinition
+  xmlns="sap.m"
+  xmlns:core="sap.ui.core">
+
+  <Dialog
+    id="projectSelectDialog"
+    title="Select Project"
+    draggable="true"
+    stretchOnPhone="true"
+    contentHeight="360px"
+    contentWidth="300px"
+    >
+
+    <VBox id="_IDGenVBox7" class="sapUiSmallMargin">
+      <SearchField
+        id="projectDialogSearch"
+        placeholder="Search projects…"
+        liveChange=".onProjectSearch"
+        search=".onProjectSearch" />
+
+      <List
+        id="projectDialogList"
+        mode="SingleSelectMaster"
+        selectionChange=".onProjectSelect"
+        growingThreshold="50"
+        items="{projects>/}">
+        <StandardListItem id="_IDGenStandardListItem3"
+          title       ="{projects>PROJECT}"
+          description ="{projects>PROJECTDESCRIPTION}"
+          type        ="Active" />
+      </List>
+    </VBox>
+
+    <endButton>
+      <Button id="_IDGenButton23" text="Cancel" press=".onProjectCancel"/>
+    </endButton>
+  </Dialog>
+</core:FragmentDefinition>

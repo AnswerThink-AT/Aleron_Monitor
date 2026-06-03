@@ -1,0 +1,955 @@
+{
+  "_version": "1.65.0",
+  "sap.app": {
+    "id": "configuration",
+    "type": "application",
+    "i18n": "i18n/i18n.properties",
+    "applicationVersion": {
+      "version": "0.0.1"
+    },
+    "title": "{{appTitle}}",
+    "description": "{{appDescription}}",
+    "resources": "resources.json",
+    "sourceTemplate": {
+      "id": "@sap/generator-fiori:lrop",
+      "version": "1.16.2",
+      "toolsId": "5f5258c0-57be-4300-9021-b0eae15276da"
+    },
+    "dataSources": {
+      "mainService": {
+        "uri": "/odata/v4/config/",
+        "type": "OData",
+        "settings": {
+          "annotations": [],
+          "odataVersion": "4.0"
+        }
+      }
+    },
+    "crossNavigation": {
+      "inbounds": {
+        "Interface-configuration": {
+          "semanticObject": "Interface",
+          "action": "configuration",
+          "title": "{{flpTitle}}",
+          "signature": {
+            "parameters": {},
+            "additionalParameters": "allowed"
+          }
+        }
+      }
+    }
+  },
+  "sap.ui": {
+    "technology": "UI5",
+    "icons": {
+      "icon": "",
+      "favIcon": "",
+      "phone": "",
+      "phone@2": "",
+      "tablet": "",
+      "tablet@2": ""
+    },
+    "deviceTypes": {
+      "desktop": true,
+      "tablet": true,
+      "phone": true
+    }
+  },
+  "sap.ui5": {
+    "flexEnabled": true,
+    "dependencies": {
+      "minUI5Version": "1.131.1",
+      "libs": {
+        "sap.m": {},
+        "sap.ui.core": {},
+        "sap.fe.templates": {},
+        "sap.f": {}
+      }
+    },
+    "contentDensities": {
+      "compact": true,
+      "cozy": true
+    },
+    "models": {
+      "i18n": {
+        "type": "sap.ui.model.resource.ResourceModel",
+        "settings": {
+          "bundleName": "configuration.i18n.i18n"
+        }
+      },
+      "": {
+        "dataSource": "mainService",
+        "preload": true,
+        "settings": {
+          "operationMode": "Server",
+          "autoExpandSelect": true,
+          "earlyRequests": true
+        }
+      },
+      "@i18n": {
+        "type": "sap.ui.model.resource.ResourceModel",
+        "uri": "i18n/i18n.properties"
+      }
+    },
+    "resources": {
+      "css": [
+        {
+          "uri": "css/style.css"
+        }
+      ]
+    },
+    "routing": {
+      "config": {
+        "flexibleColumnLayout": {
+          "defaultTwoColumnLayoutType": "TwoColumnsMidExpanded",
+          "defaultThreeColumnLayoutType": "ThreeColumnsMidExpanded"
+        },
+        "routerClass": "sap.f.routing.Router"
+      },
+      "routes": [
+        {
+          "pattern": ":?query:",
+          "name": "ConfigurationsList",
+          "target": [
+            "ConfigurationsList"
+          ]
+        },
+        {
+          "pattern": "Configurations({key}):?query:",
+          "name": "ConfigurationsObjectPage",
+          "target": [
+            "ConfigurationsList",
+            "ConfigurationsObjectPage"
+          ]
+        },
+        {
+          "name": "Configurations_interfaceTypesObjectPage",
+          "pattern": "Configurations({key})/interfaceTypes({interfaceTypesKey}):?query:",
+          "target": [
+            "ConfigurationsList",
+            "Configurations_interfaceTypesObjectPage"
+          ]
+        },
+        {
+          "name": "Configurations_interfaceStepsObjectPage",
+          "pattern": "Configurations({key})/interfaceSteps({interfaceStepsKey}):?query:",
+          "target": [
+            "ConfigurationsList",
+            "Configurations_interfaceStepsObjectPage"
+          ]
+        },
+        {
+          "name": "Configurations_fieldValidationsObjectPage",
+          "pattern": "Configurations({key})/fieldValidations({fieldValidationsKey}):?query:",
+          "target": [
+            "ConfigurationsList",
+            "Configurations_fieldValidationsObjectPage"
+          ]
+        },
+        {
+          "name": "Configurations_processesObjectPage",
+          "pattern": "Configurations({key})/processes({processesKey}):?query:",
+          "target": [
+            "ConfigurationsList",
+            "Configurations_processesObjectPage"
+          ]
+        },
+        {
+          "name": "Configurations_customerSaleOrdersObjectPage",
+          "pattern": "Configurations({key})/customerSaleOrders({customerSaleOrdersKey}):?query:",
+          "target": [
+            "ConfigurationsList",
+            "Configurations_customerSaleOrdersObjectPage"
+          ]
+        },
+        {
+          "name": "Configurations_skipInterfacesObjectPage",
+          "pattern": "Configurations({key})/skipInterfaces({skipInterfacesKey}):?query:",
+          "target": [
+            "ConfigurationsList",
+            "Configurations_skipInterfacesObjectPage"
+          ]
+        },
+        {
+          "name": "Configurations_purchaseOrdersObjectPage",
+          "pattern": "Configurations({key})/purchaseOrders({purchaseOrdersKey}):?query:",
+          "target": [
+            "ConfigurationsList",
+            "Configurations_purchaseOrdersObjectPage"
+          ]
+        },
+        {
+          "name": "Configurations_paymentTermsObjectPage",
+          "pattern": "Configurations({key})/paymentTerms({paymentTermsKey}):?query:",
+          "target": [
+            "ConfigurationsList",
+            "Configurations_paymentTermsObjectPage"
+          ]
+        },
+        {
+          "name": "Configurations_taxCodeByProvinceObjectPage",
+          "pattern": "Configurations({key})/taxCodeByProvince({taxCodeByProvinceKey}):?query:",
+          "target": [
+            "ConfigurationsList",
+            "ConfigurationsObjectPage",
+            "Configurations_taxCodeByProvinceObjectPage"
+          ]
+        },
+        {
+          "name": "Configurations_taxCodeByCountyObjectPage",
+          "pattern": "Configurations({key})/taxCodeByCounty({taxCodeByCountyKey}):?query:",
+          "target": [
+            "ConfigurationsList",
+            "ConfigurationsObjectPage",
+            "Configurations_taxCodeByCountyObjectPage"
+          ]
+        },
+        {
+          "name": "Configurations_taxCodeByCityObjectPage",
+          "pattern": "Configurations({key})/taxCodeByCity({taxCodeByCityKey}):?query:",
+          "target": [
+            "ConfigurationsList",
+            "ConfigurationsObjectPage",
+            "Configurations_taxCodeByCityObjectPage"
+          ]
+        },
+        {
+          "name": "Configurations_scon_UomObjectPage",
+          "pattern": "Configurations({key})/scon_Uom({scon_UomKey}):?query:",
+          "target": [
+            "ConfigurationsList",
+            "ConfigurationsObjectPage",
+            "Configurations_scon_UomObjectPage"
+          ]
+        },
+        {
+          "name": "Configurations_vendor_VendorRemitObjectPage",
+          "pattern": "Configurations({key})/vendor_VendorRemit({vendor_VendorRemitKey}):?query:",
+          "target": [
+            "ConfigurationsList",
+            "ConfigurationsObjectPage",
+            "Configurations_vendor_VendorRemitObjectPage"
+          ]
+        },
+        {
+          "name": "Configurations_customerEDIPartnerConfigObjectPage",
+          "pattern": "Configurations({key})/customerEDIPartnerConfig({customerEDIPartnerConfigKey}):?query:",
+          "target": [
+            "ConfigurationsList",
+            "ConfigurationsObjectPage",
+            "Configurations_customerEDIPartnerConfigObjectPage"
+          ]
+        },
+        {
+          "name": "Configurations_ediShiftDiffForEmpSubGrpObjectPage",
+          "pattern": "Configurations({key})/ediShiftDiffForEmpSubGrp({ediShiftDiffForEmpSubGrpKey}):?query:",
+          "target": [
+            "ConfigurationsList",
+            "ConfigurationsObjectPage",
+            "Configurations_ediShiftDiffForEmpSubGrpObjectPage"
+          ]
+        },
+        {
+          "name": "Configurations_ediShiftDiffForCanadaObjectPage",
+          "pattern": "Configurations({key})/ediShiftDiffForCanada({ediShiftDiffForCanadaKey}):?query:",
+          "target": [
+            "ConfigurationsList",
+            "ConfigurationsObjectPage",
+            "Configurations_ediShiftDiffForCanadaObjectPage"
+          ]
+        },
+        {
+          "name": "Configurations_fGdefaultEmpObjectPage",
+          "pattern": "Configurations({key})/fGdefaultEmp({fGdefaultEmpKey}):?query:",
+          "target": [
+            "ConfigurationsList",
+            "ConfigurationsObjectPage",
+            "Configurations_fGdefaultEmpObjectPage"
+          ]
+        },
+        {
+          "name": "Configurations_fGSiteCodeToAddressMappingObjectPage",
+          "pattern": "Configurations({key})/fGSiteCodeToAddressMapping({fGSiteCodeToAddressMappingKey}):?query:",
+          "target": [
+            "ConfigurationsList",
+            "ConfigurationsObjectPage",
+            "Configurations_fGSiteCodeToAddressMappingObjectPage"
+          ]
+        },
+        {
+          "name": "Configurations_fGBusinessUnitObjectPage",
+          "pattern": "Configurations({key})/fGBusinessUnit({fGBusinessUnitKey}):?query:",
+          "target": [
+            "ConfigurationsList",
+            "ConfigurationsObjectPage",
+            "Configurations_fGBusinessUnitObjectPage"
+          ]
+        },
+        {
+          "name": "Configurations_fGCostCenterObjectPage",
+          "pattern": "Configurations({key})/fGCostCenter({fGCostCenterKey}):?query:",
+          "target": [
+            "ConfigurationsList",
+            "ConfigurationsObjectPage",
+            "Configurations_fGCostCenterObjectPage"
+          ]
+        },
+        {
+          "name": "Configurations_travelCustomerPayTermByPOBoxObjectPage",
+          "pattern": "Configurations({key})/travelCustomerPayTermByPOBox({travelCustomerPayTermByPOBoxKey}):?query:",
+          "target": [
+            "ConfigurationsList",
+            "ConfigurationsObjectPage",
+            "Configurations_travelCustomerPayTermByPOBoxObjectPage"
+          ]
+        },
+        {
+          "name": "Configurations_travelPayTermFeedObjectPage",
+          "pattern": "Configurations({key})/travelPayTermFeed({travelPayTermFeedKey}):?query:",
+          "target": [
+            "ConfigurationsList",
+            "ConfigurationsObjectPage",
+            "Configurations_travelPayTermFeedObjectPage"
+          ]
+        },
+        {
+          "name": "Configurations_customFieldsToVCObjectPage",
+          "pattern": "Configurations({key})/customFieldsToVC({customFieldsToVCKey}):?query:",
+          "target": [
+            "ConfigurationsList",
+            "ConfigurationsObjectPage",
+            "Configurations_customFieldsToVCObjectPage"
+          ]
+        },
+        {
+          "name": "Configurations_salesConditionObjectPage",
+          "pattern": "Configurations({key})/salesCondition({salesConditionKey}):?query:",
+          "target": [
+            "ConfigurationsList",
+            "ConfigurationsObjectPage",
+            "Configurations_salesConditionObjectPage"
+          ]
+        },
+        {
+          "name": "Configurations_customerZJOBObjectPage",
+          "pattern": "Configurations({key})/customerZJOB({customerZJOBKey}):?query:",
+          "target": [
+            "ConfigurationsList",
+            "ConfigurationsObjectPage",
+            "Configurations_customerZJOBObjectPage"
+          ]
+        },
+        {
+          "name": "Configurations_char_Usage_DetailsObjectPage",
+          "pattern": "Configurations({key})/char_Usage_Details({char_Usage_DetailsKey}):?query:",
+          "target": [
+            "ConfigurationsList",
+            "ConfigurationsObjectPage",
+            "Configurations_char_Usage_DetailsObjectPage"
+          ]
+        }
+      ],
+      "targets": {
+        "ConfigurationsList": {
+          "type": "Component",
+          "id": "ConfigurationsList",
+          "name": "sap.fe.templates.ListReport",
+          "options": {
+            "settings": {
+              "contextPath": "/Configurations",
+              "variantManagement": "None",
+              "navigation": {
+                "Configurations": {
+                  "detail": {
+                    "route": "ConfigurationsObjectPage"
+                  }
+                }
+              },
+              "controlConfiguration": {
+                "@com.sap.vocabularies.UI.v1.LineItem": {
+                  "tableSettings": {
+                    "type": "ResponsiveTable",
+                    "disableCopyToClipboard": true,
+                    "enableExport": false,
+                    "selectAll": false,
+                    "personalization": {
+                      "filter": false,
+                      "sort": false
+                    }
+                  }
+                }
+              },
+              "initialLoad": "Enabled",
+              "hideFilterBar": true
+            }
+          },
+          "controlAggregation": "beginColumnPages",
+          "contextPattern": ""
+        },
+        "ConfigurationsObjectPage": {
+          "type": "Component",
+          "id": "ConfigurationsObjectPage",
+          "name": "sap.fe.templates.ObjectPage",
+          "options": {
+            "settings": {
+              "editableHeaderContent": false,
+              "contextPath": "/Configurations",
+              "navigation": {
+                "interfaceTypes": {
+                  "detail": {
+                    "route": "Configurations_interfaceTypesObjectPage"
+                  }
+                },
+                "interfaceSteps": {
+                  "detail": {
+                    "route": "Configurations_interfaceStepsObjectPage"
+                  }
+                },
+                "fieldValidations": {
+                  "detail": {
+                    "route": "Configurations_fieldValidationsObjectPage"
+                  }
+                },
+                "processes": {
+                  "detail": {
+                    "route": "Configurations_processesObjectPage"
+                  }
+                },
+                "customerSaleOrders": {
+                  "detail": {
+                    "route": "Configurations_customerSaleOrdersObjectPage"
+                  }
+                },
+                "skipInterfaces": {
+                  "detail": {
+                    "route": "Configurations_skipInterfacesObjectPage"
+                  }
+                },
+                "purchaseOrders": {
+                  "detail": {
+                    "route": "Configurations_purchaseOrdersObjectPage"
+                  }
+                },
+                "paymentTerms": {
+                  "detail": {
+                    "route": "Configurations_paymentTermsObjectPage"
+                  }
+                },
+                "taxCodeByProvince": {
+                  "detail": {
+                    "route": "Configurations_taxCodeByProvinceObjectPage"
+                  }
+                },
+                "taxCodeByCounty": {
+                  "detail": {
+                    "route": "Configurations_taxCodeByCountyObjectPage"
+                  }
+                },
+                "taxCodeByCity": {
+                  "detail": {
+                    "route": "Configurations_taxCodeByCityObjectPage"
+                  }
+                },
+                "scon_Uom": {
+                  "detail": {
+                    "route": "Configurations_scon_UomObjectPage"
+                  }
+                },
+                "vendor_VendorRemit": {
+                  "detail": {
+                    "route": "Configurations_vendor_VendorRemitObjectPage"
+                  }
+                },
+                "customerEDIPartnerConfig": {
+                  "detail": {
+                    "route": "Configurations_customerEDIPartnerConfigObjectPage"
+                  }
+                },
+                "ediShiftDiffForEmpSubGrp": {
+                  "detail": {
+                    "route": "Configurations_ediShiftDiffForEmpSubGrpObjectPage"
+                  }
+                },
+                "ediShiftDiffForCanada": {
+                  "detail": {
+                    "route": "Configurations_ediShiftDiffForCanadaObjectPage"
+                  }
+                },
+                "fGdefaultEmp": {
+                  "detail": {
+                    "route": "Configurations_fGdefaultEmpObjectPage"
+                  }
+                },
+                "fGSiteCodeToAddressMapping": {
+                  "detail": {
+                    "route": "Configurations_fGSiteCodeToAddressMappingObjectPage"
+                  }
+                },
+                "fGBusinessUnit": {
+                  "detail": {
+                    "route": "Configurations_fGBusinessUnitObjectPage"
+                  }
+                },
+                "fGCostCenter": {
+                  "detail": {
+                    "route": "Configurations_fGCostCenterObjectPage"
+                  }
+                },
+                "travelCustomerPayTermByPOBox": {
+                  "detail": {
+                    "route": "Configurations_travelCustomerPayTermByPOBoxObjectPage"
+                  }
+                },
+                "travelPayTermFeed": {
+                  "detail": {
+                    "route": "Configurations_travelPayTermFeedObjectPage"
+                  }
+                },
+                "customFieldsToVC": {
+                  "detail": {
+                    "route": "Configurations_customFieldsToVCObjectPage"
+                  }
+                },
+                "salesCondition": {
+                  "detail": {
+                    "route": "Configurations_salesConditionObjectPage"
+                  }
+                },
+                "customerZJOB": {
+                  "detail": {
+                    "route": "Configurations_customerZJOBObjectPage"
+                  }
+                },
+                "char_Usage_Details": {
+                  "detail": {
+                    "route": "Configurations_char_Usage_DetailsObjectPage"
+                  }
+                }
+              },
+              "controlConfiguration": {
+                "interfaceTypes/@com.sap.vocabularies.UI.v1.LineItem#i18ntype": {
+                  "tableSettings": {
+                    "enablePaste": false,
+                    "selectAll": false,
+                    "selectionMode": "Single",
+                    "disableCopyToClipboard": true
+                  }
+                },
+                "interfaceSteps/@com.sap.vocabularies.UI.v1.LineItem#i18nInterfaceSteps": {
+                  "tableSettings": {
+                    "disableCopyToClipboard": true,
+                    "enablePaste": false,
+                    "selectAll": false,
+                    "selectionMode": "Single"
+                  }
+                },
+                "fieldValidations/@com.sap.vocabularies.UI.v1.LineItem#i18nFiledValidation": {
+                  "tableSettings": {
+                    "disableCopyToClipboard": true,
+                    "enablePaste": false,
+                    "selectAll": false,
+                    "selectionMode": "Single"
+                  }
+                },
+                "processes/@com.sap.vocabularies.UI.v1.LineItem#i18nProcessLevel": {
+                  "tableSettings": {
+                    "disableCopyToClipboard": true,
+                    "enablePaste": false,
+                    "selectAll": false,
+                    "selectionMode": "Single"
+                  }
+                },
+                "skipInterfaces/@com.sap.vocabularies.UI.v1.LineItem#i18nSkipInterface": {
+                  "tableSettings": {
+                    "disableCopyToClipboard": true,
+                    "enablePaste": false,
+                    "selectAll": false,
+                    "selectionMode": "Single"
+                  }
+                },
+                "purchaseOrders/@com.sap.vocabularies.UI.v1.LineItem#i18nPurchaseOrders": {
+                  "tableSettings": {
+                    "disableCopyToClipboard": true,
+                    "enablePaste": false,
+                    "selectAll": false,
+                    "selectionMode": "Single"
+                  }
+                },
+                "paymentTerms/@com.sap.vocabularies.UI.v1.LineItem#i18nPaymentTerms": {
+                  "tableSettings": {
+                    "disableCopyToClipboard": true,
+                    "enablePaste": false,
+                    "selectAll": false,
+                    "selectionMode": "Single"
+                  }
+                }
+              }
+            }
+          },
+          "controlAggregation": "midColumnPages",
+          "contextPattern": "/Configurations({key})"
+        },
+        "Configurations_interfaceTypesObjectPage": {
+          "type": "Component",
+          "id": "Configurations_interfaceTypesObjectPage",
+          "name": "sap.fe.templates.ObjectPage",
+          "options": {
+            "settings": {
+              "navigation": {},
+              "contextPath": "/Configurations/interfaceTypes",
+              "editableHeaderContent": false
+            }
+          },
+          "controlAggregation": "midColumnPages",
+          "contextPattern": "/Configurations({key})/interfaceTypes({interfaceTypesKey})"
+        },
+        "Configurations_interfaceStepsObjectPage": {
+          "type": "Component",
+          "id": "Configurations_interfaceStepsObjectPage",
+          "name": "sap.fe.templates.ObjectPage",
+          "controlAggregation": "midColumnPages",
+          "options": {
+            "settings": {
+              "navigation": {},
+              "contextPath": "/Configurations/interfaceSteps",
+              "editableHeaderContent": false
+            }
+          },
+          "contextPattern": "/Configurations({key})/interfaceSteps({interfaceStepsKey})"
+        },
+        "Configurations_fieldValidationsObjectPage": {
+          "type": "Component",
+          "id": "Configurations_fieldValidationsObjectPage",
+          "name": "sap.fe.templates.ObjectPage",
+          "controlAggregation": "midColumnPages",
+          "options": {
+            "settings": {
+              "navigation": {},
+              "contextPath": "/Configurations/fieldValidations",
+              "editableHeaderContent": false
+            }
+          },
+          "contextPattern": "/Configurations({key})/fieldValidations({fieldValidationsKey})"
+        },
+        "Configurations_processesObjectPage": {
+          "type": "Component",
+          "id": "Configurations_processesObjectPage",
+          "name": "sap.fe.templates.ObjectPage",
+          "controlAggregation": "midColumnPages",
+          "options": {
+            "settings": {
+              "navigation": {},
+              "contextPath": "/Configurations/processes",
+              "editableHeaderContent": false
+            }
+          },
+          "contextPattern": "/Configurations({key})/processes({processesKey})"
+        },
+        "Configurations_customerSaleOrdersObjectPage": {
+          "type": "Component",
+          "id": "Configurations_customerSaleOrdersObjectPage",
+          "name": "sap.fe.templates.ObjectPage",
+          "controlAggregation": "midColumnPages",
+          "options": {
+            "settings": {
+              "navigation": {},
+              "contextPath": "/Configurations/customerSaleOrders",
+              "editableHeaderContent": false
+            }
+          },
+          "contextPattern": "/Configurations({key})/customerSaleOrders({customerSaleOrdersKey})"
+        },
+        "Configurations_skipInterfacesObjectPage": {
+          "type": "Component",
+          "id": "Configurations_skipInterfacesObjectPage",
+          "name": "sap.fe.templates.ObjectPage",
+          "controlAggregation": "midColumnPages",
+          "options": {
+            "settings": {
+              "navigation": {},
+              "contextPath": "/Configurations/skipInterfaces",
+              "editableHeaderContent": false
+            }
+          },
+          "contextPattern": "/Configurations({key})/skipInterfaces({skipInterfacesKey})"
+        },
+        "Configurations_purchaseOrdersObjectPage": {
+          "type": "Component",
+          "id": "Configurations_purchaseOrdersObjectPage",
+          "name": "sap.fe.templates.ObjectPage",
+          "controlAggregation": "midColumnPages",
+          "options": {
+            "settings": {
+              "navigation": {},
+              "contextPath": "/Configurations/purchaseOrders",
+              "editableHeaderContent": false
+            }
+          },
+          "contextPattern": "/Configurations({key})/purchaseOrders({purchaseOrdersKey})"
+        },
+        "Configurations_paymentTermsObjectPage": {
+          "type": "Component",
+          "id": "Configurations_paymentTermsObjectPage",
+          "name": "sap.fe.templates.ObjectPage",
+          "controlAggregation": "midColumnPages",
+          "options": {
+            "settings": {
+              "navigation": {},
+              "contextPath": "/Configurations/paymentTerms",
+              "editableHeaderContent": false
+            }
+          },
+          "contextPattern": "/Configurations({key})/paymentTerms({paymentTermsKey})"
+        },
+        "Configurations_taxCodeByProvinceObjectPage": {
+          "type": "Component",
+          "id": "Configurations_taxCodeByProvinceObjectPage",
+          "name": "sap.fe.templates.ObjectPage",
+          "controlAggregation": "beginColumnPages",
+          "options": {
+            "settings": {
+              "navigation": {},
+              "contextPath": "/Configurations/taxCodeByProvince"
+            }
+          },
+          "contextPattern": "/Configurations({key})/taxCodeByProvince({taxCodeByProvinceKey})"
+        },
+        "Configurations_taxCodeByCountyObjectPage": {
+          "type": "Component",
+          "id": "Configurations_taxCodeByCountyObjectPage",
+          "name": "sap.fe.templates.ObjectPage",
+          "controlAggregation": "beginColumnPages",
+          "options": {
+            "settings": {
+              "navigation": {},
+              "contextPath": "/Configurations/taxCodeByCounty"
+            }
+          },
+          "contextPattern": "/Configurations({key})/taxCodeByCounty({taxCodeByCountyKey})"
+        },
+        "Configurations_taxCodeByCityObjectPage": {
+          "type": "Component",
+          "id": "Configurations_taxCodeByCityObjectPage",
+          "name": "sap.fe.templates.ObjectPage",
+          "controlAggregation": "beginColumnPages",
+          "options": {
+            "settings": {
+              "navigation": {},
+              "contextPath": "/Configurations/taxCodeByCity"
+            }
+          },
+          "contextPattern": "/Configurations({key})/taxCodeByCity({taxCodeByCityKey})"
+        },
+        "Configurations_scon_UomObjectPage": {
+          "type": "Component",
+          "id": "Configurations_scon_UomObjectPage",
+          "name": "sap.fe.templates.ObjectPage",
+          "controlAggregation": "endColumnPages",
+          "options": {
+            "settings": {
+              "navigation": {},
+              "contextPath": "/Configurations/scon_Uom"
+            }
+          },
+          "contextPattern": "/Configurations({key})/scon_Uom({scon_UomKey})"
+        },
+        "Configurations_vendor_VendorRemitObjectPage": {
+          "type": "Component",
+          "id": "Configurations_vendor_VendorRemitObjectPage",
+          "name": "sap.fe.templates.ObjectPage",
+          "controlAggregation": "endColumnPages",
+          "options": {
+            "settings": {
+              "navigation": {},
+              "contextPath": "/Configurations/vendor_VendorRemit"
+            }
+          },
+          "contextPattern": "/Configurations({key})/vendor_VendorRemit({vendor_VendorRemitKey})"
+        },
+        "Configurations_customerEDIPartnerConfigObjectPage": {
+          "type": "Component",
+          "id": "Configurations_customerEDIPartnerConfigObjectPage",
+          "name": "sap.fe.templates.ObjectPage",
+          "controlAggregation": "endColumnPages",
+          "options": {
+            "settings": {
+              "navigation": {},
+              "contextPath": "/Configurations/customerEDIPartnerConfig"
+            }
+          },
+          "contextPattern": "/Configurations({key})/customerEDIPartnerConfig({customerEDIPartnerConfigKey})"
+        },
+        "Configurations_ediShiftDiffForEmpSubGrpObjectPage": {
+          "type": "Component",
+          "id": "Configurations_ediShiftDiffForEmpSubGrpObjectPage",
+          "name": "sap.fe.templates.ObjectPage",
+          "controlAggregation": "endColumnPages",
+          "options": {
+            "settings": {
+              "navigation": {},
+              "contextPath": "/Configurations/ediShiftDiffForEmpSubGrp"
+            }
+          },
+          "contextPattern": "/Configurations({key})/ediShiftDiffForEmpSubGrp({ediShiftDiffForEmpSubGrpKey})"
+        },
+        "Configurations_ediShiftDiffForCanadaObjectPage": {
+          "type": "Component",
+          "id": "Configurations_ediShiftDiffForCanadaObjectPage",
+          "name": "sap.fe.templates.ObjectPage",
+          "controlAggregation": "endColumnPages",
+          "options": {
+            "settings": {
+              "navigation": {},
+              "contextPath": "/Configurations/ediShiftDiffForCanada"
+            }
+          },
+          "contextPattern": "/Configurations({key})/ediShiftDiffForCanada({ediShiftDiffForCanadaKey})"
+        },
+        "Configurations_fGdefaultEmpObjectPage": {
+          "type": "Component",
+          "id": "Configurations_fGdefaultEmpObjectPage",
+          "name": "sap.fe.templates.ObjectPage",
+          "controlAggregation": "endColumnPages",
+          "options": {
+            "settings": {
+              "navigation": {},
+              "contextPath": "/Configurations/fGdefaultEmp"
+            }
+          },
+          "contextPattern": "/Configurations({key})/fGdefaultEmp({fGdefaultEmpKey})"
+        },
+        "Configurations_fGSiteCodeToAddressMappingObjectPage": {
+          "type": "Component",
+          "id": "Configurations_fGSiteCodeToAddressMappingObjectPage",
+          "name": "sap.fe.templates.ObjectPage",
+          "controlAggregation": "endColumnPages",
+          "options": {
+            "settings": {
+              "navigation": {},
+              "contextPath": "/Configurations/fGSiteCodeToAddressMapping"
+            }
+          },
+          "contextPattern": "/Configurations({key})/fGSiteCodeToAddressMapping({fGSiteCodeToAddressMappingKey})"
+        },
+        "Configurations_fGBusinessUnitObjectPage": {
+          "type": "Component",
+          "id": "Configurations_fGBusinessUnitObjectPage",
+          "name": "sap.fe.templates.ObjectPage",
+          "controlAggregation": "endColumnPages",
+          "options": {
+            "settings": {
+              "navigation": {},
+              "contextPath": "/Configurations/fGBusinessUnit"
+            }
+          },
+          "contextPattern": "/Configurations({key})/fGBusinessUnit({fGBusinessUnitKey})"
+        },
+        "Configurations_fGCostCenterObjectPage": {
+          "type": "Component",
+          "id": "Configurations_fGCostCenterObjectPage",
+          "name": "sap.fe.templates.ObjectPage",
+          "controlAggregation": "endColumnPages",
+          "options": {
+            "settings": {
+              "navigation": {},
+              "contextPath": "/Configurations/fGCostCenter"
+            }
+          },
+          "contextPattern": "/Configurations({key})/fGCostCenter({fGCostCenterKey})"
+        },
+        "Configurations_travelCustomerPayTermByPOBoxObjectPage": {
+          "type": "Component",
+          "id": "Configurations_travelCustomerPayTermByPOBoxObjectPage",
+          "name": "sap.fe.templates.ObjectPage",
+          "controlAggregation": "endColumnPages",
+          "options": {
+            "settings": {
+              "navigation": {},
+              "contextPath": "/Configurations/travelCustomerPayTermByPOBox"
+            }
+          },
+          "contextPattern": "/Configurations({key})/travelCustomerPayTermByPOBox({travelCustomerPayTermByPOBoxKey})"
+        },
+        "Configurations_travelPayTermFeedObjectPage": {
+          "type": "Component",
+          "id": "Configurations_travelPayTermFeedObjectPage",
+          "name": "sap.fe.templates.ObjectPage",
+          "controlAggregation": "endColumnPages",
+          "options": {
+            "settings": {
+              "navigation": {},
+              "contextPath": "/Configurations/travelPayTermFeed"
+            }
+          },
+          "contextPattern": "/Configurations({key})/travelPayTermFeed({travelPayTermFeedKey})"
+        },
+        "Configurations_customFieldsToVCObjectPage": {
+          "type": "Component",
+          "id": "Configurations_customFieldsToVCObjectPage",
+          "name": "sap.fe.templates.ObjectPage",
+          "controlAggregation": "endColumnPages",
+          "options": {
+            "settings": {
+              "navigation": {},
+              "contextPath": "/Configurations/customFieldsToVC"
+            }
+          },
+          "contextPattern": "/Configurations({key})/customFieldsToVC({customFieldsToVCKey})"
+        },
+        "Configurations_salesConditionObjectPage": {
+          "type": "Component",
+          "id": "Configurations_salesConditionObjectPage",
+          "name": "sap.fe.templates.ObjectPage",
+          "controlAggregation": "endColumnPages",
+          "options": {
+            "settings": {
+              "navigation": {},
+              "contextPath": "/Configurations/salesCondition"
+            }
+          },
+          "contextPattern": "/Configurations({key})/salesCondition({salesConditionKey})"
+        },
+        "Configurations_customerZJOBObjectPage": {
+          "type": "Component",
+          "id": "Configurations_customerZJOBObjectPage",
+          "name": "sap.fe.templates.ObjectPage",
+          "controlAggregation": "endColumnPages",
+          "options": {
+            "settings": {
+              "navigation": {},
+              "contextPath": "/Configurations/customerZJOB"
+            }
+          },
+          "contextPattern": "/Configurations({key})/customerZJOB({customerZJOBKey})"
+        },
+        "Configurations_char_Usage_DetailsObjectPage": {
+          "type": "Component",
+          "id": "Configurations_char_Usage_DetailsObjectPage",
+          "name": "sap.fe.templates.ObjectPage",
+          "controlAggregation": "endColumnPages",
+          "options": {
+            "settings": {
+              "navigation": {},
+              "contextPath": "/Configurations/char_Usage_Details"
+            }
+          },
+          "contextPattern": "/Configurations({key})/char_Usage_Details({char_Usage_DetailsKey})"
+        }
+      }
+    },
+    "rootView": {
+      "viewName": "sap.fe.templates.RootContainer.view.Fcl",
+      "type": "XML",
+      "async": true,
+      "id": "appRootView"
+    }
+  },
+  "sap.fiori": {
+    "registrationIds": [],
+    "archeType": "transactional"
+  },
+  "sap.cloud": {
+    "public": true,
+    "service": "monitor"
+  }
+}

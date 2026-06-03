@@ -1,0 +1,78 @@
+@us_address_url=https://us-street.api.smarty.com/street-address
+@zip_code_url=https://us-zipcode.api.smarty.com/lookup
+@api_auth=auth-id={{$dotenv smarty_auth_id}}&auth-token={{$dotenv smarty_auth_token}}
+@default_headers=Content-Type: application/json;charset=utf-8
+
+# Must give following input for Smarty API to work
+
+###
+# @single_address
+GET {{us_address_url}}
+?{{api_auth}}
+&street=1600+amphitheatre+pkwy\
+&city=mountain+view
+&state=CA
+&candidates=10
+&format=project-usa'
+
+
+###
+# @multiple_address
+POST {{us_address_url}}
+?{{api_auth}}
+{{default_headers}}
+
+[
+    {
+        "record_ID": "{{$guid}}",
+        "street":"1 Santa Claus",
+        "city":"North Pole",
+        "state":"AK",
+        "candidates":10
+    },
+    {
+        "record_ID": "{{$guid}}",
+        "addressee":"Apple Inc",
+        "street":"1 infinite loop",
+        "city":"cupertino",
+        "state":"CA",
+        "zipcode":"95014",
+        "candidates":10
+    },
+    {
+        "street": "Knox Park Rd",
+        "city": "Lake Zurich",
+        "state": "IL"
+    },
+    {
+        "street":"1 infinite loop",
+        "city":"cupertino",
+        "state":"CA"
+    }
+]
+
+###
+# @multiple_address
+POST {{us_address_url}}
+?{{api_auth}}
+{{default_headers}}
+
+[
+    {
+        "street": "235Knox Park Rd",
+        "city": "Lake Zurich",
+        "state": "IL"
+    }
+]
+
+
+### Postal Code Check
+# @postal_code_check
+POST {{zip_code_url}}
+?{{api_auth}}
+{{default_headers}}
+
+[
+    {"record_ID": "{{$guid}}","zipcode": "94043"},
+    {"zipcode": "560066"}
+]

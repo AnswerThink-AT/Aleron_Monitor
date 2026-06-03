@@ -1,0 +1,72 @@
+{
+  "../../../../../../Downloads/CE_SALESORDER_0001.edmx": {
+    "packageName": "ce_salesorder_0001",
+    "directoryName": "CE_SALESORDER_0001",
+    "basePath": "/"
+  },
+  "srv/external/API_BUSINESS_PARTNER.edmx": {
+    "packageName": "api_business_partner",
+    "directoryName": "API_BUSINESS_PARTNER",
+    "basePath": "/sap/opu/odata/sap/API_BUSINESS_PARTNER"
+  },
+  "srv/external/API_COMPANYCODE.edmx": {
+    "packageName": "api_companycode",
+    "directoryName": "API_COMPANYCODE",
+    "basePath": "/sap/opu/odata/sap/API_COMPANYCODE_SRV"
+  },
+  "srv/external/API_ENTERPRISE_PROJECT_0002.edmx": {
+    "packageName": "api_enterprise_project_0002",
+    "directoryName": "API_ENTERPRISE_PROJECT_0002",
+    "basePath": "/sap/opu/odata/sap/API_ENTERPRISE_PROJECT_SRV;v=0002"
+  },
+  "srv/external/API_SALES_ORDER_SRV.edmx": {
+    "packageName": "api_sales_order_srv",
+    "directoryName": "API_SALES_ORDER_SRV",
+    "basePath": "/sap/opu/odata/sap/API_SALES_ORDER_SRV"
+  },
+  "srv/external/API_SUPPLIERINVOICE_PROCESS.edmx": {
+    "packageName": "api_supplierinvoice_process",
+    "directoryName": "API_SUPPLIERINVOICE_PROCESS",
+    "basePath": "/sap/opu/odata/sap/API_SUPPLIERINVOICE_PROCESS_SRV"
+  },
+  "srv/external/CE_PURCHASEORDER_0001.edmx": {
+    "packageName": "ce_purchaseorder_0001",
+    "directoryName": "CE_PURCHASEORDER_0001",
+    "basePath": "/"
+  },
+  "srv/external/CE_SALESCONTRACT_0001.edmx": {
+    "packageName": "ce_salescontract_0001",
+    "directoryName": "CE_SALESCONTRACT_0001",
+    "basePath": "/"
+  },
+  "srv/external/CE_SALESORDER_0001.edmx": {
+    "packageName": "ce_salesorder_0001",
+    "directoryName": "CE_SALESORDER_0001",
+    "basePath": "/"
+  },
+  "srv/external/YY1_WORKFORCE_CDS.edmx": {
+    "packageName": "yy1_workforce_cds",
+    "directoryName": "YY1_WORKFORCE_CDS",
+    "basePath": "/sap/opu/odata/sap/YY1_WORKFORCE_CDS_CDS"
+  },
+  "srv/external/YY1_BILLINGTYPE_CDS.edmx": {
+    "packageName": "yy1_billingtype_cds",
+    "directoryName": "YY1_BILLINGTYPE_CDS",
+    "basePath": "/sap/opu/odata/sap/YY1_BILLINGTYPE_CDS"
+  },
+  "srv/external/YY1_EMPLOYEE_CUSTOMER_INFO_CDS.edmx": {
+    "packageName": "yy1_employee_customer_info_cds",
+    "directoryName": "YY1_EMPLOYEE_CUSTOMER_INFO_CDS",
+    "basePath": "/sap/opu/odata/sap/YY1_EMPLOYEE_CUSTOMER_INFO_CDS"
+  },
+  "srv/external/YY1_SALESVCDATA_1_CDS.edmx": {
+    "packageName": "yy1_salesvcdata_1_cds",
+    "directoryName": "YY1_SALESVCDATA_1_CDS",
+    "basePath": "/sap/opu/odata/sap/YY1_SALESVCDATA_1_CDS"
+  },
+  "srv/external/YY1_SALESVCDATA_2_CDS.edmx": {
+    "packageName": "yy1_salesvcdata_2_cds",
+    "directoryName": "YY1_SALESVCDATA_2_CDS",
+    "basePath": "/sap/opu/odata/sap/YY1_SALESVCDATA_2_CDS"
+  }
+}

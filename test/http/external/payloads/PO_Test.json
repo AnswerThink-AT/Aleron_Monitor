@@ -1,0 +1,42 @@
+{
+    "PurchaseOrderType": "ZMS",
+    "CompanyCode": "1200",
+    "PurchasingOrganization": "1200",
+    "PurchasingGroup": "MS",
+    "Supplier": "4030048",
+    "DocumentCurrency": "USD",
+    "_PurchaseOrderItem": [
+      {
+        "PurchaseOrderItem": "10",
+        "Material": "100000511",
+        "Plant": "1200",
+        "PurchaseOrderQuantityUnit": "LAB",
+        "OrderQuantity": 1,
+        "NetPriceQuantity": 1,
+        "OrderPriceUnit": "LAB",
+        "DocumentCurrency": "USD",
+        "NetPriceAmount": 1,
+        "TaxCode": "I0",
+        "TaxJurisdiction": "4503132560",
+        "AccountAssignmentCategory": "Z",
+        "_PurOrdAccountAssignment": [
+          {
+            "AccountAssignmentNumber": "1",
+            "OrderQuantityUnit": "LAB",
+            "Quantity": 1,
+            "DocumentCurrency": "USD",
+            "PurgDocNetAmount": 0,
+            "GLAccount": "615115",
+            "ControllingArea": "A000",
+            "WBSElementExternalID": "400287686"
+          }
+        ],
+        "_PurOrdPricingElement": [
+          {
+            "ConditionType": "ZPAY",
+            "ConditionRateAmount": 1
+          }
+        ]
+      }
+    ]
+  }

@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="1.0" xmlns:edmx="http://schemas.microsoft.com/ado/2007/06/edmx" xmlns:m="http://schemas.microsoft.com/ado/2007/08/dataservices/metadata" xmlns:sap="http://www.sap.com/Protocols/SAPData">
+    <edmx:Reference Uri="https://my420210-api.s4hana.cloud.sap/sap/opu/odata/iwfnd/catalogservice;v=2/Vocabularies(TechnicalName='%2FIWBEP%2FVOC_AGGREGATION',Version='0001',SAP__Origin='')/$value" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+        <edmx:Include Namespace="Org.OData.Aggregation.V1" Alias="Aggregation"/>
+    </edmx:Reference>
+    <edmx:Reference Uri="https://my420210-api.s4hana.cloud.sap/sap/opu/odata/iwfnd/catalogservice;v=2/Vocabularies(TechnicalName='%2FIWBEP%2FVOC_ANALYTICS',Version='0001',SAP__Origin='')/$value" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+        <edmx:Include Namespace="com.sap.vocabularies.Analytics.v1" Alias="Analytics"/>
+    </edmx:Reference>
+    <edmx:Reference Uri="https://my420210-api.s4hana.cloud.sap/sap/opu/odata/iwfnd/catalogservice;v=2/Vocabularies(TechnicalName='%2FIWBEP%2FVOC_CAPABILITIES',Version='0001',SAP__Origin='')/$value" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+        <edmx:Include Namespace="Org.OData.Capabilities.V1" Alias="Capabilities"/>
+    </edmx:Reference>
+    <edmx:Reference Uri="https://my420210-api.s4hana.cloud.sap/sap/opu/odata/iwfnd/catalogservice;v=2/Vocabularies(TechnicalName='%2FIWBEP%2FVOC_CODELIST',Version='0001',SAP__Origin='')/$value" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+        <edmx:Include Namespace="com.sap.vocabularies.CodeList.v1" Alias="SAP__CodeList"/>
+    </edmx:Reference>
+    <edmx:Reference Uri="https://my420210-api.s4hana.cloud.sap/sap/opu/odata/iwfnd/catalogservice;v=2/Vocabularies(TechnicalName='%2FIWBEP%2FVOC_COMMON',Version='0001',SAP__Origin='')/$value" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+        <edmx:Include Namespace="com.sap.vocabularies.Common.v1" Alias="Common"/>
+    </edmx:Reference>
+    <edmx:Reference Uri="https://my420210-api.s4hana.cloud.sap/sap/opu/odata/iwfnd/catalogservice;v=2/Vocabularies(TechnicalName='%2FIWBEP%2FVOC_COMMUNICATION',Version='0001',SAP__Origin='')/$value" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+        <edmx:Include Namespace="com.sap.vocabularies.Communication.v1" Alias="Communication"/>
+    </edmx:Reference>
+    <edmx:Reference Uri="https://my420210-api.s4hana.cloud.sap/sap/opu/odata/iwfnd/catalogservice;v=2/Vocabularies(TechnicalName='%2FIWBEP%2FVOC_MEASURES',Version='0001',SAP__Origin='')/$value" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+        <edmx:Include Namespace="Org.OData.Measures.V1" Alias="Measures"/>
+    </edmx:Reference>
+    <edmx:Reference Uri="https://my420210-api.s4hana.cloud.sap/sap/opu/odata/iwfnd/catalogservice;v=2/Vocabularies(TechnicalName='%2FIWBEP%2FVOC_ODM',Version='0001',SAP__Origin='')/$value" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+        <edmx:Include Namespace="com.sap.vocabularies.ODM.v1" Alias="SAP__ODM"/>
+    </edmx:Reference>
+    <edmx:Reference Uri="https://my420210-api.s4hana.cloud.sap/sap/opu/odata/iwfnd/catalogservice;v=2/Vocabularies(TechnicalName='%2FIWBEP%2FVOC_PERSONALDATA',Version='0001',SAP__Origin='')/$value" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+        <edmx:Include Namespace="com.sap.vocabularies.PersonalData.v1" Alias="PersonalData"/>
+    </edmx:Reference>
+    <edmx:Reference Uri="https://my420210-api.s4hana.cloud.sap/sap/opu/odata/iwfnd/catalogservice;v=2/Vocabularies(TechnicalName='%2FIWBEP%2FVOC_UI',Version='0001',SAP__Origin='')/$value" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+        <edmx:Include Namespace="com.sap.vocabularies.UI.v1" Alias="UI"/>
+    </edmx:Reference>
+    <edmx:Reference Uri="https://my420210-api.s4hana.cloud.sap/sap/opu/odata/iwfnd/catalogservice;v=2/Vocabularies(TechnicalName='%2FIWBEP%2FVOC_VALIDATION',Version='0001',SAP__Origin='')/$value" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+        <edmx:Include Namespace="Org.OData.Validation.V1" Alias="Validation"/>
+    </edmx:Reference>
+    <edmx:DataServices m:DataServiceVersion="2.0">
+        <Schema Namespace="YY1_EMPLOYEE_CUSTOMER_INFO_CDS" xml:lang="en" sap:schema-version="1" xmlns="http://schemas.microsoft.com/ado/2008/09/edm">
+            <EntityType Name="YY1_EMPLOYEE_CUSTOMER_INFOType" sap:label="EMPLOYEE_CUSTOMER_INFO" sap:content-version="1">
+                <Key>
+                    <PropertyRef Name="SAP_UUID"/>
+                </Key>
+                <Property Name="SAP_UUID" Type="Edm.Guid" Nullable="false" sap:label="UUID" sap:quickinfo="16 Byte UUID in 16 Bytes (Raw Format)"/>
+                <Property Name="WORKER_ID" Type="Edm.String" MaxLength="15" sap:label="Employee Number" sap:quickinfo="Text of length 15"/>
+                <Property Name="Name" Type="Edm.String" MaxLength="50" sap:label="Last Name" sap:quickinfo="Employee Name"/>
+                <Property Name="FirstName" Type="Edm.String" MaxLength="40" sap:label="First Name"/>
+                <Property Name="MiddleName" Type="Edm.String" MaxLength="40" sap:label="Middle Name"/>
+                <Property Name="WorkScheduleRule" Type="Edm.String" MaxLength="20" sap:label="Work Schedule Rule"/>
+                <Property Name="WorkScheduleType" Type="Edm.String" MaxLength="20" sap:label="Work Schedule Type"/>
+                <Property Name="EmployeePersonnelArea" Type="Edm.String" MaxLength="4" sap:label="Employee Personnel Area"/>
+                <Property Name="EmploymentType" Type="Edm.String" MaxLength="10" sap:label="Employment Type"/>
+                <Property Name="SSN" Type="Edm.String" MaxLength="15" sap:label="Social Security Number"/>
+                <Property Name="EMP_GRP" Type="Edm.String" MaxLength="1" sap:label="Employee Group"/>
+                <Property Name="EMP_SUBGRP" Type="Edm.String" MaxLength="2" sap:label="Employee Subgroup"/>
+                <Property Name="START_DATE" Type="Edm.DateTime" Precision="0" sap:display-format="Date" sap:label="Start Date"/>
+                <Property Name="END_DATE" Type="Edm.DateTime" Precision="0" sap:display-format="Date" sap:label="End Date"/>
+                <Property Name="CONTRAT_SAP" Type="Edm.String" MaxLength="15" sap:label="Contract Number"/>
+                <Property Name="SALES_ORD_SAP" Type="Edm.String" MaxLength="15" sap:label="Sales Order Number"/>
+                <Property Name="PROJECT_ID" Type="Edm.String" MaxLength="15" sap:label="Project ID"/>
+                <Property Name="PROJECT_NAME" Type="Edm.String" MaxLength="30" sap:label="Project Name"/>
+                <Property Name="CUSTOMER_ID" Type="Edm.String" MaxLength="10" sap:label="Customer Number"/>
+                <Property Name="SS_ORDER" Type="Edm.String" MaxLength="10" sap:label="SS Sales Document"/>
+                <Property Name="WN_ORDER" Type="Edm.String" MaxLength="10" sap:label="WN Sales Document"/>
+                <Property Name="POSITION_ID" Type="Edm.Decimal" Precision="8" Scale="0" sap:label="Position"/>
+                <Property Name="JOB_ID" Type="Edm.Decimal" Precision="8" Scale="0" sap:label="Job"/>
+                <Property Name="ZPAYROLL" Type="Edm.String" MaxLength="10" sap:label="Payroll or Recruited"/>
+                <Property Name="RECRID" Type="Edm.Decimal" Precision="8" Scale="0" sap:label="Recruiter ID"/>
+                <Property Name="ZTIME_IND" Type="Edm.String" MaxLength="3" sap:label="Work Nexus Time Indicator"/>
+                <Property Name="ZHIRE_ACTION" Type="Edm.String" MaxLength="3" sap:label="Cust Hire Act"/>
+                <Property Name="ACTION_TYPE" Type="Edm.String" MaxLength="2" sap:label="Custom Actions for inf. 9001"/>
+                <Property Name="T_REASON" Type="Edm.String" MaxLength="2" sap:label="Termination Reason"/>
+                <Property Name="ZHRREPT" Type="Edm.String" MaxLength="3" sap:label="HR Report"/>
+                <Property Name="CreatedOn" Type="Edm.DateTime" Precision="0" sap:display-format="Date" sap:label="Created On"/>
+            </EntityType>
+            <EntityContainer Name="YY1_EMPLOYEE_CUSTOMER_INFO_CDS_Entities" m:IsDefaultEntityContainer="true" sap:message-scope-supported="true" sap:supported-formats="atom json xlsx">
+                <EntitySet Name="YY1_EMPLOYEE_CUSTOMER_INFO" EntityType="YY1_EMPLOYEE_CUSTOMER_INFO_CDS.YY1_EMPLOYEE_CUSTOMER_INFOType" sap:searchable="true" sap:content-version="1"/>
+                <FunctionImport Name="YY1_EMPLOYEE_CUSTOMER_INFOSap_upsert" ReturnType="YY1_EMPLOYEE_CUSTOMER_INFO_CDS.YY1_EMPLOYEE_CUSTOMER_INFOType" EntitySet="YY1_EMPLOYEE_CUSTOMER_INFO" m:HttpMethod="POST">
+                    <Parameter Name="WORKER_ID" Type="Edm.String" Mode="In" MaxLength="15" sap:label="Text of length 15"/>
+                    <Parameter Name="Name" Type="Edm.String" Mode="In" MaxLength="50" sap:label="Text of length 50"/>
+                    <Parameter Name="FirstName" Type="Edm.String" Mode="In" MaxLength="40" sap:label="Text of length 40"/>
+                    <Parameter Name="MiddleName" Type="Edm.String" Mode="In" MaxLength="40" sap:label="Text of length 40"/>
+                    <Parameter Name="WorkScheduleRule" Type="Edm.String" Mode="In" MaxLength="20" sap:label="Text of length 20"/>
+                    <Parameter Name="WorkScheduleType" Type="Edm.String" Mode="In" MaxLength="20" sap:label="Text of length 20"/>
+                    <Parameter Name="EmployeePersonnelArea" Type="Edm.String" Mode="In" MaxLength="4" sap:label="Text of length 4"/>
+                    <Parameter Name="EmploymentType" Type="Edm.String" Mode="In" MaxLength="10" sap:label="Text of length 10"/>
+                    <Parameter Name="SSN" Type="Edm.String" Mode="In" MaxLength="15" sap:label="Text of length 15"/>
+                    <Parameter Name="EMP_GRP" Type="Edm.String" Mode="In" MaxLength="1" sap:label="Text of length 1"/>
+                    <Parameter Name="EMP_SUBGRP" Type="Edm.String" Mode="In" MaxLength="2" sap:label="Text of length 2"/>
+                    <Parameter Name="START_DATE" Type="Edm.DateTime" Mode="In" Precision="0" sap:label="Start Date" sap:display-format="Date"/>
+                    <Parameter Name="END_DATE" Type="Edm.DateTime" Mode="In" Precision="0" sap:label="End Date" sap:display-format="Date"/>
+                    <Parameter Name="CONTRAT_SAP" Type="Edm.String" Mode="In" MaxLength="15" sap:label="Text of length 15"/>
+                    <Parameter Name="SALES_ORD_SAP" Type="Edm.String" Mode="In" MaxLength="15" sap:label="Text of length 15"/>
+                    <Parameter Name="PROJECT_ID" Type="Edm.String" Mode="In" MaxLength="15" sap:label="Text of length 15"/>
+                    <Parameter Name="PROJECT_NAME" Type="Edm.String" Mode="In" MaxLength="30" sap:label="Text of length 30"/>
+                    <Parameter Name="CUSTOMER_ID" Type="Edm.String" Mode="In" MaxLength="10" sap:label="Text of length 10"/>
+                    <Parameter Name="SS_ORDER" Type="Edm.String" Mode="In" MaxLength="10" sap:label="Text of length 10"/>
+                    <Parameter Name="WN_ORDER" Type="Edm.String" Mode="In" MaxLength="10" sap:label="Text of length 10"/>
+                    <Parameter Name="POSITION_ID" Type="Edm.Decimal" Mode="In" Precision="8" Scale="0" sap:label="Position"/>
+                    <Parameter Name="JOB_ID" Type="Edm.Decimal" Mode="In" Precision="8" Scale="0" sap:label="Job"/>
+                    <Parameter Name="ZPAYROLL" Type="Edm.String" Mode="In" MaxLength="10" sap:label="Text of length 10"/>
+                    <Parameter Name="RECRID" Type="Edm.Decimal" Mode="In" Precision="8" Scale="0" sap:label="Recruiter ID"/>
+                    <Parameter Name="ZTIME_IND" Type="Edm.String" Mode="In" MaxLength="3" sap:label="Text of length 3"/>
+                    <Parameter Name="ZHIRE_ACTION" Type="Edm.String" Mode="In" MaxLength="3" sap:label="Text of length 3"/>
+                    <Parameter Name="ACTION_TYPE" Type="Edm.String" Mode="In" MaxLength="2" sap:label="Text of length 2"/>
+                    <Parameter Name="T_REASON" Type="Edm.String" Mode="In" MaxLength="2" sap:label="Text of length 2"/>
+                    <Parameter Name="ZHRREPT" Type="Edm.String" Mode="In" MaxLength="3" sap:label="Text of length 3"/>
+                    <Parameter Name="CreatedOn" Type="Edm.DateTime" Mode="In" Precision="0" sap:label="Created On" sap:display-format="Date"/>
+                </FunctionImport>
+            </EntityContainer>
+            <Annotation Term="Core.SchemaVersion" String="1.0.0" xmlns="http://docs.oasis-open.org/odata/ns/edm"/>
+            <Annotations Target="YY1_EMPLOYEE_CUSTOMER_INFO_CDS.YY1_EMPLOYEE_CUSTOMER_INFO_CDS_Entities" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+                <Annotation Term="Common.ApplyMultiUnitBehaviorForSortingAndFiltering" Bool="true"/>
+            </Annotations>
+            <Annotations Target="YY1_EMPLOYEE_CUSTOMER_INFO_CDS.YY1_EMPLOYEE_CUSTOMER_INFOType/CONTRAT_SAP" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+                <Annotation Term="Common.FieldControl" EnumMember="Common.FieldControlType/Mandatory"/>
+            </Annotations>
+            <Annotations Target="YY1_EMPLOYEE_CUSTOMER_INFO_CDS.YY1_EMPLOYEE_CUSTOMER_INFOType/CUSTOMER_ID" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+                <Annotation Term="Common.FieldControl" EnumMember="Common.FieldControlType/Mandatory"/>
+            </Annotations>
+            <Annotations Target="YY1_EMPLOYEE_CUSTOMER_INFO_CDS.YY1_EMPLOYEE_CUSTOMER_INFOType/PROJECT_ID" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+                <Annotation Term="Common.FieldControl" EnumMember="Common.FieldControlType/Mandatory"/>
+            </Annotations>
+            <Annotations Target="YY1_EMPLOYEE_CUSTOMER_INFO_CDS.YY1_EMPLOYEE_CUSTOMER_INFOType/SALES_ORD_SAP" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+                <Annotation Term="Common.FieldControl" EnumMember="Common.FieldControlType/Mandatory"/>
+            </Annotations>
+            <Annotations Target="YY1_EMPLOYEE_CUSTOMER_INFO_CDS.YY1_EMPLOYEE_CUSTOMER_INFOType/SSN" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+                <Annotation Term="Common.FieldControl" EnumMember="Common.FieldControlType/Mandatory"/>
+            </Annotations>
+            <Annotations Target="YY1_EMPLOYEE_CUSTOMER_INFO_CDS.YY1_EMPLOYEE_CUSTOMER_INFOType/SS_ORDER" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+                <Annotation Term="Common.FieldControl" EnumMember="Common.FieldControlType/Mandatory"/>
+            </Annotations>
+            <Annotations Target="YY1_EMPLOYEE_CUSTOMER_INFO_CDS.YY1_EMPLOYEE_CUSTOMER_INFOType/WN_ORDER" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+                <Annotation Term="Common.FieldControl" EnumMember="Common.FieldControlType/Mandatory"/>
+            </Annotations>
+            <Annotations Target="YY1_EMPLOYEE_CUSTOMER_INFO_CDS.YY1_EMPLOYEE_CUSTOMER_INFOType/WORKER_ID" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+                <Annotation Term="Common.FieldControl" EnumMember="Common.FieldControlType/Mandatory"/>
+            </Annotations>
+            <Annotations Target="YY1_EMPLOYEE_CUSTOMER_INFO_CDS.YY1_EMPLOYEE_CUSTOMER_INFOType" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+                <Annotation Term="Common.SemanticKey">
+                    <Collection>
+                        <PropertyPath>WN_ORDER</PropertyPath>
+                        <PropertyPath>SS_ORDER</PropertyPath>
+                        <PropertyPath>CUSTOMER_ID</PropertyPath>
+                        <PropertyPath>PROJECT_ID</PropertyPath>
+                        <PropertyPath>SALES_ORD_SAP</PropertyPath>
+                        <PropertyPath>CONTRAT_SAP</PropertyPath>
+                        <PropertyPath>SSN</PropertyPath>
+                        <PropertyPath>WORKER_ID</PropertyPath>
+                    </Collection>
+                </Annotation>
+            </Annotations>
+            <Annotations Target="YY1_EMPLOYEE_CUSTOMER_INFO_CDS.YY1_EMPLOYEE_CUSTOMER_INFO_CDS_Entities" xmlns="http://docs.oasis-open.org/odata/ns/edm"/>
+            <atom:link rel="self" href="https://my420210-api.s4hana.cloud.sap/sap/opu/odata/sap/YY1_EMPLOYEE_CUSTOMER_INFO_CDS/$metadata" xmlns:atom="http://www.w3.org/2005/Atom"/>
+            <atom:link rel="latest-version" href="https://my420210-api.s4hana.cloud.sap/sap/opu/odata/sap/YY1_EMPLOYEE_CUSTOMER_INFO_CDS/$metadata" xmlns:atom="http://www.w3.org/2005/Atom"/>
+        </Schema>
+    </edmx:DataServices>
+</edmx:Edmx>

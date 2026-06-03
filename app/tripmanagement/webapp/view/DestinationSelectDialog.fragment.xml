@@ -1,0 +1,39 @@
+<core:FragmentDefinition
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core">
+
+  <Dialog
+    id="destinationDialog"
+    title="Select Destination"
+    draggable="true"
+    stretchOnPhone="true"
+    contentHeight="360px"
+    contentWidth="300px">
+
+    <VBox id="_IDGenVBox5" class="sapUiSmallMargin">
+      <SearchField
+        id="destinationSearch"
+        placeholder="Search destinations…"
+        liveChange=".onDestinationSearch"
+        search    =".onDestinationSearch" />
+
+      <List
+        id="destinationList"
+        mode="SingleSelectMaster"
+        growing="true"
+        growingThreshold="30"
+        selectionChange=".onDestinationSelect"
+        items="{countries>/}">
+        <StandardListItem id="_IDGenStandardListItem2"
+          title="{countries>name} : {countries>code}"
+          type="Active" />
+      </List>
+    </VBox>
+
+    <endButton>
+      <Button id="_IDGenButton22"
+        text="Cancel"
+        press=".onDestinationCancel"/>
+    </endButton>
+  </Dialog>
+</core:FragmentDefinition>

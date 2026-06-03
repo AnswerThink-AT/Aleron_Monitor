@@ -1,0 +1,59 @@
+{
+    "SalesOrderType": "OR",    
+    "SalesOffice": "3600",
+    "PurchaseOrderByShipToParty": "100",
+    "SDDocumentReason": "",
+    "PricingDate": "/Date(1747249110933)/",
+    "IncotermsClassification": "DAP",
+    "IncotermsLocation1": "1",    
+    "YY1_CustomSalesOrder_SDH": "ZWCP",
+    "ReferenceSDDocument": "40000068",
+    "ReferenceSDDocumentCategory": "G",
+    "CustomerPriceGroup": "ZM",          
+    "SoldToParty": "13387",    
+    "to_Item": [
+        {
+            "SalesOrderItemCategory": "TADN",
+            "Material": "100000527",
+            "RequestedQuantity": "1",
+            "RequestedQuantityUnit": "LAB",
+            "RequestedQuantitySAPUnit": "LAB",
+            "RequestedQuantityISOUnit": "_01",
+            "TransactionCurrency": "USD",
+            "ReferenceSDDocument": "40000068",
+            "ReferenceSDDocumentItem": "10",
+            "YY1_CommodityCode_SD_SDI": "RRNAWO00000358",
+            "WBSElement": "",
+            "NetAmount": "0",    
+            "to_ScheduleLine": [
+                {
+                    "RequestedDeliveryDate": "/Date(1704067200000)/",
+                    "ScheduleLineOrderQuantity": "1",
+                    "OrderQuantityISOUnit": "_01"
+                }
+            ]
+        }
+    ],
+    "to_Partner": [
+        {
+            "PartnerFunction": "AG",
+            "Customer": "13387"
+        },
+        {
+            "PartnerFunction": "RE",
+            "Customer": "13387"
+        },
+        {
+            "PartnerFunction": "Z3",
+            "Customer": "50006877"
+        }
+    ],
+    "to_Text":[
+        {
+        "LongTextID": "ZCMT",
+        "Language": "EN",
+        "LongText": "Test"
+        }
+    ]
+    
+}

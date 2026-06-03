@@ -1,0 +1,25 @@
+<core:FragmentDefinition xmlns:unified="sap.ui.unified"
+	xmlns:core="sap.ui.core"
+	xmlns="sap.m">
+	<Dialog core:require="{ handler: 'monitor/ext/controller/CustomAction' }"
+		title="Process Errors"
+		verticalScrolling="true"
+		contentHeight="150px"
+		contentWidth="600px">
+		<content>
+			<List id="idList" items="{/ProcessLogs}">
+				<CustomListItem>
+					<VBox class="customMessageBox">
+						<Text text="{message}" wrapping="true"/>
+					</VBox>
+				</CustomListItem>
+			</List>
+		</content>
+		<beginButton>
+			<Button text="Ok"
+				type="Default"
+				press="handler.onProcessErrorsOK"
+				></Button>
+		</beginButton>
+	</Dialog>
+</core:FragmentDefinition>

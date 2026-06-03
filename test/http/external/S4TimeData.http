@@ -1,0 +1,145 @@
+###
+# Environment should be switched by commenting either BAS environment or Local VSCode environment. Make sure to comment the other environment.
+# Region for comment would be - Start to - End
+
+### BAS environment -- Start
+@s4_base_url=http://S4HC_MONITOR_BASIC_AUTH_CUST.dest
+@default_headers=Content-Type: application/json
+@Accept=Accept: application/json
+
+
+@svc_url_v1={{s4_base_url}}/sap/opu/odata/sap/YY1_TIME_INFO_CDS
+@svc_url_v2={{s4_base_url}}/sap/opu/odata/sap/YY1_TIME_INFO_CDS
+
+@svc=http://localhost:4004/odata/v4/monitor
+
+### V1 metadata call
+# @name metadata_call_V1
+
+GET {{svc_url_v1}}/$metadata
+{{default_headers}}
+X-CSRF-Token: Fetch
+
+### V2 metadata call
+# @name metadata_call_V2
+
+GET {{svc_url_v2}}/$metadata
+{{default_headers}}
+X-CSRF-Token: Fetch
+
+###
+@csrf_token_V1={{metadata_call_V1.response.headers.X-CSRF-Token}}
+@csrf_token_v2={{metadata_call_V2.response.headers.X-CSRF-Token}}
+
+### Get Sales VC DATA V1 
+GET {{svc_url_v1}}/YY1_TIME_INFO
+?$filter=WORKER_ID eq '15000685'
+{{default_headers}}
+{{Accept}}
+
+
+### Post Sales VC DATA V1
+POST {{svc_url_v1}}/YY1_TIME_INFO
+{{default_headers}}
+X-CSRF-Token: {{csrf_token_V1}}
+
+{
+        "WORKER_ID": "2",
+        "Name": "",
+        "Subtype": "4",
+        "START_DATE": "\/Date(1746921600000)\/",
+        "END_DATE": "\/Date(1747526400000)\/",
+        "START_TIME": "PT01H06M20S",
+        "END_TIME": "PT18H06M25S",
+        "PREVIOUS_DAY": "",
+        "Type": "",
+        "AttAbsDays": "0.00",
+        "PAYROLL_HOURS": "0.00",
+        "PAYROLL_DAYS": "1.00",
+        "CAL_DAYS": "1.00",
+        "ATT_HOURS": "0.00",
+        "WAGE_TYPE": "",
+        "VALUATION": "0.00",
+        "EXTRA_PAY": "",
+        "OVERTIME_TYPE": "",
+        "PAY_SCALE_GRP": "",
+        "PAY_SCALE_LEVEL": "",
+        "PRE_NUMBER": "",
+        "PremiumIndicator": "",
+        "ObjectType": "",
+        "Positionplans": "",
+        "Generationflag": "",
+        "ExternalDocumentNumber": "",
+        "Setnumberofhours": "",
+        "RecordisforFullDay": "",
+        "CurrencyKey": "",
+        "Logicalsystem": "",
+        "ReferenceTransaction": "",
+        "ReferenceDocumentNumber": "",
+        "ReferenceOrganizationalUnits": "",
+        "Logicalsystemfordocumentpers": "",
+        "Documentnumberfortimedata": "",
+        "Worktaxarea": "",
+        "EvaluationTypeforAttendances": "",
+        "DefinitionSetforIDs": "",
+        "DefinitionSubsetforIDs": "",
+        "TimeDataIDType": "",
+        "Nobreak": "",
+        "BreaksSpecifiedExplicitly": "",
+        "StartofBreak": "PT00H00M00S",
+        "EndofBreak": "PT00H00M00S",
+        "PaidBreakPeriod": "0.00",
+        "UnpaidBreakPeriod": "0.00",
+        "StartofBreak2": "PT00H00M00S",
+        "EndofBreak2": "PT00H00M00S",
+        "PaidBreakPeriod2": "0.00",
+        "UnpaidBreakPeriod2": "0.00",
+        "NextDayIndicator": "",
+        "SequentialnumberforPDCmessag": "",
+        "CompanyCode": "",
+        "BusinessArea": "",
+        "ControllingArea": "",
+        "WBSElement": "",
+        "NumberofHoursforActivityAllo": "0.00"
+}
+
+### Post Sales VC DATA V1
+POST {{svc_url_v1}}/YY1_TIME_INFO
+{{default_headers}}
+X-CSRF-Token: {{csrf_token_V1}}
+
+{
+        
+  WORKER_ID: "11250953",
+  Subtype: "1001",
+  START_DATE: "2025-01-22",
+  END_DATE: "2025-01-26",
+  Type: "1001",
+  PAYROLL_HOURS: "8.00",
+  CAL_DAYS: "0.00",
+  ATT_HOURS: "8.00",
+  PremiumIndicator: "0000",
+  Positionplans: "00000000",
+  Logicalsystemfordocumentpers: "S4H",
+  StartofBreak: "00:00:00",
+  EndofBreak: "00:00:00",
+  PaidBreakPeriod: "0.00",
+  UnpaidBreakPeriod: "00:00:00",
+  StartofBreak2: "00:00:00",
+  EndofBreak2: "00:00:00",
+  PaidBreakPeriod2: "0.00",
+  UnpaidBreakPeriod2: "0.00",
+  CompanyCode: "",
+  BusinessArea: undefined,
+  ControllingArea: "A000",
+  WBSElement: "505326",
+  NumberofHoursforActivityAllo: "8.00"
+
+}
+
+### Delete Time Info 
+DELETE {{svc_url_v1}}/YY1_TIME_INFO(guid'fa163ef2-161d-1fd0-8dc5-11f881a3db55')
+{{default_headers}}
+X-CSRF-Token: {{csrf_token_V1}}
+
+15000685

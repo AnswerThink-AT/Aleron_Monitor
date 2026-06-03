@@ -1,0 +1,339 @@
+###
+# Environment should be switched by commenting either BAS environment or Local VSCode environment. Make sure to comment the other environment.
+# Region for comment would be - Start to - End
+
+### BAS environment -- Start
+@s4_base_url=http://S4HC_MONITOR_BASIC_AUTH_CUST.dest
+@default_headers=Content-Type: application/json
+@Accept=Accept: application/json
+
+
+@svc_url_v1={{s4_base_url}}/sap/opu/odata/sap/YY1_SALESVCDATA_1_CDS
+@svc_url_v2={{s4_base_url}}/sap/opu/odata/sap/YY1_SALESVCDATA_2_CDS
+
+@svc=http://localhost:4004/odata/v4/monitor
+
+### V1 metadata call
+# @name metadata_call_V1
+
+GET {{svc_url_v1}}/$metadata
+{{default_headers}}
+X-CSRF-Token: Fetch
+
+### V2 metadata call
+# @name metadata_call_V2
+
+GET {{svc_url_v2}}/$metadata
+{{default_headers}}
+X-CSRF-Token: Fetch
+
+###
+@csrf_token_v1={{metadata_call_V1.response.headers.X-CSRF-Token}}
+@csrf_token_v2={{metadata_call_V2.response.headers.X-CSRF-Token}}
+
+### Get Sales VC DATA V1 
+GET {{svc_url_v1}}/YY1_SALESVCDATA_1
+?$filter=SalesOrderNumber eq '2700003985'
+{{default_headers}}
+{{Accept}}
+
+### Get Sales VC DATA V2 
+GET {{svc_url_v2}}/YY1_SALESVCDATA_2
+?$filter=Sales_Order_Number eq '2700000085'
+{{default_headers}}
+{{Accept}}
+
+### Post Sales VC DATA V1
+POST {{svc_url_v1}}/YY1_SALESVCDATA_1
+{{default_headers}}
+X-CSRF-Token: {{csrf_token_V1}}
+
+{
+    "SalesOrderNumber": "20",
+    "SalesOrderItemNum": "10",
+    "SAP_Description": "",
+    "Billing_Document_Number": "0",
+    "Billing_Document_Item_Number": "0",
+    "Custom_Sales_Order_Type": "",
+    "Custom_Billing_type": "",
+    "YY1_ACA_RG_ONLY": "",
+    "YY2_ACA_HRS": "0",
+    "YY3_ACA_HRS_PRICE": "0",
+    "YY4_ACA_TOTAL_HRS_PRICE": "0",
+    "YY5_LINE_ITEM_NUMBER": "0",
+    "YY6_SC_LINE_ITEM_NUMBER": "",
+    "YY7_INVISIBLE": "",
+    "YY8_WEEK_ENDING2": null,
+    "YY9_ZZWEEK_END_VBAP": null,
+    "YY10_EMPLOYEE_TYPE": "",
+    "YY11_EIGHT_DAY_WEEK": "",
+    "YY12_DAY1_SHIFT1_RG": "0",
+    "YY13_DAY1_SHIFT1_OT": "0",
+    "YY14_DAY1_SHIFT1_DB": "0",
+    "YY15_DAY1_SHIFT2_RG": "0",
+    "YY16_DAY1_SHIFT2_OT": "0",
+    "YY17_DAY1_SHIFT2_DB": "0",
+    "YY18_DAY1_SHIFT3_RG": "0",
+    "YY19_DAY1_SHIFT3_OT": "0",
+    "YY20_DAY1_SHIFT3_DB": "0",
+    "YY21_DAY_ONE": null,
+    "YY22_DAY_ONE_WORKED": "0",
+    "YY23_DAY2_SHIFT1_RG": "0",
+    "YY24_DAY2_SHIFT1_OT": "0",
+    "YY25_DAY2_SHIFT1_DB": "0",
+    "YY26_DAY2_SHIFT2_RG": "0",
+    "YY27_DAY2_SHIFT2_OT": "0",
+    "YY28_DAY2_SHIFT2_DB": "0",
+    "YY29_DAY2_SHIFT3_RG": "0",
+    "YY30_DAY2_SHIFT3_OT": "0",
+    "YY31_DAY2_SHIFT3_DB": "0",
+    "YY32_DAY_TWO": null,
+    "YY33_DAY_TWO_WORKED": "0",
+    "YY34_DAY3_SHIFT1_RG": "0",
+    "YY35_DAY3_SHIFT1_OT": "0",
+    "YY36_DAY3_SHIFT1_DB": "0",
+    "YY37_DAY3_SHIFT2_RG": "0",
+    "YY38_DAY3_SHIFT2_OT": "0",
+    "YY39_DAY3_SHIFT2_DB": "0",
+    "YY40_DAY3_SHIFT3_RG": "0",
+    "YY41_DAY3_SHIFT3_OT": "0",
+    "YY42_DAY3_SHIFT3_DB": "0",
+    "YY43_DAY_THREE": null,
+    "YY44_DAY_THREE_WORKED": "0",
+    "YY45_DAY4_SHIFT1_RG": "0",
+    "YY46_DAY4_SHIFT1_OT": "0",
+    "YY47_DAY4_SHIFT1_DB": "0",
+    "YY48_DAY4_SHIFT2_RG": "0",
+    "YY49_DAY4_SHIFT2_OT": "0",
+    "YY50_DAY4_SHIFT2_DB": "0",
+    "YY51_DAY4_SHIFT3_RG": "0",
+    "YY52_DAY4_SHIFT3_OT": "0",
+    "YY53_DAY4_SHIFT3_DB": "0",
+    "YY54_DAY_FOUR": null,
+    "YY55_DAY_FOUR_WORKED": "0",
+    "YY56_DAY5_SHIFT1_RG": "0",
+    "YY57_DAY5_SHIFT1_OT": "0",
+    "YY58_DAY5_SHIFT1_DB": "0",
+    "YY59_DAY5_SHIFT2_RG": "0",
+    "YY60_DAY5_SHIFT2_OT": "0",
+    "YY61_DAY5_SHIFT2_DB": "0",
+    "YY62_DAY5_SHIFT3_RG": "0",
+    "YY63_DAY5_SHIFT3_OT": "0",
+    "YY64_DAY5_SHIFT3_DB": "0",
+    "YY65_DAY_FIVE": null,
+    "YY66_DAY_FIVE_WORKED": "0",
+    "YY67_DAY6_SHIFT1_RG": "0",
+    "YY68_DAY6_SHIFT1_OT": "0",
+    "YY69_DAY6_SHIFT1_DB": "0",
+    "YY70_DAY6_SHIFT2_RG": "0",
+    "YY71_DAY6_SHIFT2_OT": "0",
+    "YY72_DAY6_SHIFT2_DB": "0",
+    "YY73_DAY6_SHIFT3_RG": "0",
+    "YY74_DAY6_SHIFT3_OT": "0",
+    "YY75_DAY6_SHIFT3_DB": "0",
+    "YY76_DAY_SIX": null,
+    "YY77_DAY_SIX_WORKED": "0",
+    "YY78_DAY7_SHIFT1_RG": "0",
+    "YY79_DAY7_SHIFT1_OT": "0",
+    "YY80_DAY7_SHIFT1_DB": "0",
+    "YY81_DAY7_SHIFT2_RG": "0",
+    "YY82_DAY7_SHIFT2_OT": "0",
+    "YY83_DAY7_SHIFT2_DB": "0",
+    "YY84_DAY7_SHIFT3_RG": "0",
+    "YY85_DAY7_SHIFT3_OT": "0",
+    "YY86_DAY7_SHIFT3_DB": "0",
+    "YY87_DAY_SEVEN": null,
+    "YY88_DAY_SEVEN_WORKED": "0",
+    "YY89_DAY8_SHIFT1_RG": "0",
+    "YY90_DAY8_SHIFT1_OT": "0",
+    "YY91_DAY8_SHIFT1_DB": "0",
+    "YY92_DAY8_SHIFT2_RG": "0",
+    "YY93_DAY8_SHIFT2_OT": "0",
+    "YY94_DAY8_SHIFT2_DB": "0",
+    "YY95_DAY8_SHIFT3_RG": "0",
+    "YY96_DAY8_SHIFT3_OT": "0",
+    "YY97_DAY8_SHIFT3_DB": "0",
+    "YY98_DAY_EIGHT": null,
+    "YY99_DAY_EIGHT_WORKED": "0",
+    "YY100_SHIFT1_TOTAL_HRS_RG": "0",
+    "YY101_SHIFT1_TOTAL_HRS_OT": "0",
+    "YY102_SHIFT1_TOTAL_HRS_DB": "0",
+    "YY103_SHIFT2_TOTAL_HRS_RG": "0",
+    "YY104_SHIFT2_TOTAL_HRS_OT": "0",
+    "YY105_SHIFT2_TOTAL_HRS_DB": "0",
+    "YY106_SHIFT3_TOTAL_HRS_RG": "0",
+    "YY107_SHIFT3_TOTAL_HRS_OT": "0",
+    "YY108_SHIFT3_TOTAL_HRS_DB": "0",
+    "YY109_SHIFT1_PRICE_RG": "0",
+    "YY110_SHIFT1_PRICE_OT": "0",
+    "YY111_SHIFT1_PRICE_DB": "0",
+    "YY112_SHIFT2_PRICE_RG": "0",
+    "YY113_SHIFT2_PRICE_OT": "0",
+    "YY114_SHIFT2_PRICE_DB": "0",
+    "YY115_SHIFT3_PRICE_RG": "0",
+    "YY116_SHIFT3_PRICE_OT": "0",
+    "YY117_SHIFT3_PRICE_DB": "0",
+    "YY118_MARK_UP_RG": "0",
+    "YY119_MARK_UP_OT": "0",
+    "YY120_MARK_UP_DB": "0",
+    "YY121_SHIFT1_TOTAL_PRICE_RG": "0",
+    "YY122_SHIFT1_TOTAL_PRICE_OT": "0",
+    "YY123_SHIFT1_TOTAL_PRICE_DB": "0",
+    "YY124_SHIFT2_TOTAL_PRICE_RG": "0",
+    "YY125_SHIFT2_TOTAL_PRICE_OT": "0",
+    "YY126_SHIFT2_TOTAL_PRICE_DB": "0",
+    "YY127_SHIFT3_TOTAL_PAY_RG": "0",
+    "YY128_SHIFT3_TOTAL_PAY_OT": "0",
+    "YY129_SHIFT3_TOTAL_PAY_DB": "0",
+    "YY130_ADMIN_FEE_PRICE": "0"
+}
+
+### Post Sales VC DATA V2
+POST {{svc_url_v1}}/YY1_SALESVCDATA_2
+{{default_headers}}
+X-CSRF-Token: {{csrf_token_V2}}
+
+{
+    "Sales_Order_Number": "0",
+    "Sales_Order_Item_Num": "0",
+    "Billing_Document_Number": "90000000",
+    "Billing_Document_Item_Number": "10",
+    "YY131_DC": "",
+    "YY132_HW_PAY_VENDOR": "0",
+    "YY133_HW_TOTAL_VENDOR": "0",
+    "YY134_DAILY_PAY_VENDOR": "0",
+    "YY135_DAILY_TOTAL_VENDOR": "0",
+    "YY136_HOLIDAY_PAY_VENDOR": "0",
+    "YY137_HOLIDAY_TOTAL_VENDOR": "0",
+    "YY138_ONCALL_PAY_VENDOR": "0",
+    "YY139_ONCALL_TOTAL_VENDOR": "0",
+    "YY140_VACATION_PAY_VENDOR": "0",
+    "YY141_VACATION_TOTAL_VENDOR": "0",
+    "YY142_SALARY_PAY_VENDOR": "0",
+    "YY143_DIRECT_PLACEMENT": "0",
+    "YY144_WEEKLY_CLOCK_FEE": "0",
+    "YY145_PER_DIEM_DAYS": "0",
+    "YY146_PER_DIEM_TAX_PRICE": "0",
+    "YY147_PER_DIEM_NOTAX_PRICE": "0",
+    "YY148_PER_DIEM_TAX": "0",
+    "YY149_PER_DIEM_NO_TAX": "0",
+    "YY150_DAILY_PAY_DAYS": "0.00",
+    "YY151_DAILY_PRICE": "0",
+    "YY152_DAILY_TOTAL_RATE": "0",
+    "YY153_SICK_DAYS": "0",
+    "YY154_SICK_DAYS_PRICE": "0",
+    "YY155_SICK_TOTAL_DAYS_PRICE": "0",
+    "YY156_SICK_HOURS": "0",
+    "YY157_SICK_HRS_PRICE": "0.00",
+    "YY158_SICK_TOTAL_HRS_PRICE": "0",
+    "YY159_MISC": "0",
+    "YY160_BEREAV_DAYS": "0",
+    "YY161_BEREAV_HRS": "0",
+    "YY162_BEREAV_HRS_RATE": "0",
+    "YY163_BEREAV_DAYS_RATE": "0",
+    "YY164_BEREAV_TOTAL_HRS_RATE": "0",
+    "YY165_BEREAV_TOTAL_DAYS_RATE": "0",
+    "YY166_BONUS_PRICE": "0",
+    "YY167_BONUS_PAY_RATE": "0",
+    "YY168_COMMISSION_PRICE": "0",
+    "YY169_HOL_DAYS": "0",
+    "YY170_HOL_HRS": "0",
+    "YY171_HOL_HRS_PRICE": "0",
+    "YY172_HOL_DAYS_PRICE": "0",
+    "YY173_HOL_TOTAL_HRS_PRICE": "0",
+    "YY174_HOL_TOTAL_DAYS_PRICE": "0",
+    "YY175_HOLIDAY_DATE": null,
+    "YY176_HW_HRS": "0",
+    "YY177_HW_HRS_PRICE": "0",
+    "YY178_HW_TOTAL_PRICE": "0",
+    "YY179_JURY_DAYS": "0",
+    "YY180_JURY_HRS": "0",
+    "YY181_JURY_HRS_PRICE": "0",
+    "YY182_JURY_DAYS_PRICE": "0",
+    "YY183_JURY_TOTAL_HRS_PRICE": "0",
+    "YY184_JURY_TOTAL_DAYS_PRICE": "0",
+    "YY185_LONGEVITY_DAYS": "0",
+    "YY186_LONGEVITY_HRS": "0",
+    "YY187_LONGEVITY_HRS_PRICE": "0",
+    "YY188_LONGEVITY_DAYS_PRICE": "0",
+    "YY189_LONGEVITY_TOTAL_HRS_PR": "0",
+    "YY190_LONGEVITY_TOTAL_DAYS_P": "0",
+    "YY191_ONCALL_DAYS": "0",
+    "YY192_ONCALL_HRS": "0",
+    "YY193_ONCALL_HRS_PRICE": "0",
+    "YY194_ONCALL_DAYS_PRICE": "0",
+    "YY195_ONCALL_TOTAL_HRS_PRICE": "0",
+    "YY196_ONCALL_TOTAL_DAYS_PRIC": "0",
+    "YY197_RETRO_DAYS": "0",
+    "YY198_RETRO_HRS": "0",
+    "YY199_RETRO_DAYS_PRICE": "0",
+    "YY200_RETRO_HRS_PRICE": "0",
+    "YY201_RETRO_TOTAL_HRS_PRICE": "0",
+    "YY202_RETRO_TOTAL_DAYS_PRICE": "0",
+    "YY203_SALARY": "0",
+    "YY204_SEV_PAY_DAYS": "0",
+    "YY205_SEV_PAY_HRS": "0",
+    "YY206_SEV_PAY_HRS_PRICE": "0",
+    "YY207_SEV_PAY_DAYS_PRICE": "0",
+    "YY208_SEV_PAY_TOTAL_HRS_PRIC": "0",
+    "YY209_SEV_PAY_TOTAL_DAYS_PRI": "0",
+    "YY210_VAC_BILL_DAYS": "0",
+    "YY211_VAC_BILL_HRS": "0",
+    "YY212_VAC_BILL_HRS_PRICE": "0",
+    "YY213_VAC_BILL_DAYS_PRICE": "0",
+    "YY214_VAC_BILL_TOTAL_HRS_PRI": "0",
+    "YY215_VAC_BILL_TOTAL_DAYS_PR": "0",
+    "YY216_CUST_BUSINESS_UNIT": "",
+    "YY217_CUST_CHARGE_NUMBER": "",
+    "YY218_CUST_PROJECT_NUMBER": "",
+    "YY219_CUST_COST_CENTER": "",
+    "YY220_CUST_COMPANY_CODE": "",
+    "YY221_CUST_DEPT_NUMBER": "",
+    "YY222_CUST_DOTS_NUMBER": "",
+    "YY223_CUST_RUI": "",
+    "YY224_CUST_ACCT_NUMBER": "",
+    "YY225_CUST_BUDGET_CENTER": "",
+    "YY226_CUST_CON_NUMBER": "",
+    "YY227_CUST_VENDOR_NUMBER": "",
+    "YY228_CUST_ORG_CODE": "",
+    "YY229_CUST_LEGAL_ENTITY": "",
+    "YY230_CUST_ORACLE_NUMBER": "",
+    "YY231_CUST_UNIT_STORE_NUMBER": "",
+    "YY232_CUST_SVC_DATE": null,
+    "YY233_CUST_EMPLOYEE_NUMBER": "",
+    "YY234_CUST_AGREE_NUMBER": "",
+    "YY235_CUST_TASK15": "",
+    "YY236_CUST_FEPS_CODE": "",
+    "YY237_CUST_POSITION": "",
+    "YY238_CUST_GL_CODE": "",
+    "YY239_CUST_PURCHASE_AGREE": "",
+    "YY240_CUST_BB_NUMBER": "",
+    "YY241_CUST_BGRD_CHECK_DATE": null,
+    "YY242_CUST_DIV_UNIT_NUMBER": "",
+    "YY243_CUST_POSITION_CODE": "",
+    "YY244_ITEM_CATEGORY": "",
+    "YY245_ZSD_WN_INVOICE_VBAP": "",
+    "YY246_ZSD_WN_INVOICE_VCSD": "",
+    "YY247_ZSD_WN_WORK_ORDER_VCSD": "",
+    "YY248_ZSD_WN_WORK_ORDER_VBAP": "",
+    "YY249_CUST_COST_CENTER2_VBAP": "",
+    "Field124": "",
+    "Field125": "",
+    "Field126": "",
+    "Field127": "",
+    "Field128": "",
+    "Field129": ""
+}
+
+###
+
+DELETE {{svc_url_v1}}/YY1_SALESVCDATA_1(guid'fa163ef2-161d-1fd0-91f6-5d5ecc0b7ba3')
+{{default_headers}}
+X-CSRF-Token: {{csrf_token_v1}}
+
+
+###
+
+DELETE {{svc_url_v2}}/YY1_SALESVCDATA_2(guid'fa163ef2-161d-1fd0-91c3-6114b185bb9a')
+{{default_headers}}
+X-CSRF-Token: {{csrf_token_v2}}

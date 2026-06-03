@@ -1,0 +1,29 @@
+{
+    "PurchaseOrderType": "ZMS",
+    "Language": "EN",
+    "PurchasingCompletenessStatus": false,
+    "CompanyCode": "1100",
+    "PurchasingOrganization": "1100",
+    "PurchasingGroup": "001",
+    "DocumentCurrency": "USD",  
+    "ExchangeRate": 1.00000,
+    "CreatedByUser": "CB9980000002",
+    "CreationDate": "2025-02-14",
+    "_PurchaseOrderPartner": [
+        {
+          "SupplierSubrange": "",
+          "Plant": "",
+          "PurchasingOrganization": "1200",
+          "PartnerCounter": "0",
+          "CreatedByUser": "CB9980000002",
+          "CreationDate": "2025-02-24",
+          "PurchasingDocumentPartnerType": "LI",
+          "Supplier": "4024666",
+          "SupplierHierarchyCategory": "",
+          "SupplierContact": "0",
+          "PersonWorkAgreement": "0",
+          "EmploymentInternalID": "0",
+          "DefaultPartner": false
+        }
+    ]
+}

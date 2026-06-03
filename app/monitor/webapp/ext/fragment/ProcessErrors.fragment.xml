@@ -1,0 +1,3 @@
+<core:FragmentDefinition xmlns:core="sap.ui.core" xmlns="sap.m">
+	<Button core:require="{ handler: 'monitor/ext/controller/CustomAction'}"   press="handler.onPressProcessError" icon="sap-icon://document-text"/>
+</core:FragmentDefinition>

@@ -1,0 +1,9 @@
+span[id*="__button1-internalBtn-img"] {
+    display: none !important;
+  }
+  span[data-sap-ui-icon-content=""] {
+    display: none !important;
+  }
+.sapMMenuBtn .sapMBtnInner::after {
+    display: none !important;
+}

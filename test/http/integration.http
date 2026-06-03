@@ -1,0 +1,65 @@
+### Get oAuth Token
+# @name oauth_token_call
+GET https://app-dev-393rfxdv.authentication.us10.hana.ondemand.com/oauth/token
+?grant_type=client_credentials
+Authorization: Basic {{$dotenv integration_client_id}}:{{$dotenv integration_client_secret}}
+
+###
+@bearer_token={{oauth_token_call.response.body.access_token}}
+
+### Create File
+POST https://aleron-shared-resources-inc--app-dev-393rfxdv-dev-monitor-srv.cfapps.us10-001.hana.ondemand.com/odata/v4/monitor/Files
+Content-Type: application/json
+Authorization: Bearer {{bearer_token}}
+
+{
+  "name": "File from Integration",
+  "type": "csv",
+  "status": {
+    "code": 1
+  },
+  "interfaceType": {
+    "ID": "3"
+  },
+  "source": "SFTP",
+  "recordsCount": 2,
+  "reprocessed": false,
+  "processMessage": "nothing",
+  "processLevel": {
+    "code": "0"
+  },
+  "times": [
+    {
+        "contractNo": "1",
+        "orderNo": "123"
+    },
+    {
+        "contractNo": "2",
+        "orderNo": "456"
+    }
+  ],
+  "IsActiveEntity": true
+}
+
+### ProcessFile
+
+POST https://aleron-shared-resources-inc--app-dev-393rfxdv-dev-monitor-srv.cfapps.us10-001.hana.ondemand.com/odata/v4/monitor/processFile
+Content-Type: application/json
+Authorization: Bearer {{bearer_token}}
+
+{
+  "fileNumber":1025,
+  "records":[]
+}
+
+### ValidateFile
+
+POST https://aleron-shared-resources-inc--app-dev-393rfxdv-dev-monitor-srv.cfapps.us10-001.hana.ondemand.com/odata/v4/monitor/validateFile
+Content-Type: application/json
+
+{
+  "fileNumber": "1025",
+  "records": [
+    ""
+  ]
+}

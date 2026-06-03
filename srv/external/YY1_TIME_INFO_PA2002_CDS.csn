@@ -1,0 +1,732 @@
+{
+ "meta": {
+  "creator": "cds-dk 8.9.2"
+ },
+ "$version": "2.0",
+ "definitions": {
+  "YY1_TIME_INFO_PA2002_CDS": {
+   "kind": "service",
+   "@cds.external": true,
+   "@m.IsDefaultEntityContainer": "true",
+   "@sap.message.scope.supported": "true",
+   "@sap.supported.formats": "atom json xlsx"
+  },
+  "YY1_TIME_INFO_PA2002_CDS.P_Scbo_User": {
+   "kind": "entity",
+   "@cds.external": true,
+   "@cds.persistence.skip": true,
+   "@sap.creatable": "false",
+   "@sap.updatable": "false",
+   "@sap.deletable": "false",
+   "@sap.addressable": "false",
+   "@sap.content.version": "1",
+   "@sap.label": "User",
+   "elements": {
+    "name": {
+     "key": true,
+     "type": "cds.String",
+     "length": 12,
+     "@sap.display.format": "UpperCase",
+     "@sap.label": "User",
+     "@sap.quickinfo": "User Name in User Master Record",
+     "notNull": true
+    },
+    "description": {
+     "type": "cds.String",
+     "length": 80,
+     "@sap.label": "Description",
+     "@sap.quickinfo": "Description of the Technical User Account"
+    }
+   }
+  },
+  "YY1_TIME_INFO_PA2002_CDS.YY1_TIME_INFO_PA2002": {
+   "kind": "entity",
+   "@cds.external": true,
+   "@cds.persistence.skip": true,
+   "@sap.searchable": "true",
+   "@sap.content.version": "1",
+   "@sap.label": "EMPLOYEE_TIME_INFO",
+   "elements": {
+    "SAP_UUID": {
+     "key": true,
+     "type": "cds.UUID",
+     "@sap.label": "UUID",
+     "@sap.quickinfo": "16 Byte UUID in 16 Bytes (Raw Format)",
+     "notNull": true
+    },
+    "WORKER_ID": {
+     "type": "cds.String",
+     "length": 15,
+     "@sap.label": "Employee Number",
+     "@sap.quickinfo": "Text of length 15"
+    },
+    "Subtype": {
+     "type": "cds.String",
+     "length": 4,
+     "@sap.label": "Subtype"
+    },
+    "START_DATE": {
+     "type": "cds.Date",
+     "@sap.display.format": "Date",
+     "@sap.label": "Start Date"
+    },
+    "END_DATE": {
+     "type": "cds.Date",
+     "@sap.display.format": "Date",
+     "@sap.label": "End Date"
+    },
+    "WBSElement": {
+     "type": "cds.String",
+     "length": 10,
+     "@sap.label": "WBS Element"
+    },
+    "Name": {
+     "type": "cds.String",
+     "length": 50,
+     "@sap.label": "Employee Name"
+    },
+    "START_TIME": {
+     "type": "cds.Time",
+     "@sap.label": "Start Time"
+    },
+    "END_TIME": {
+     "type": "cds.Time",
+     "@sap.label": "End Time"
+    },
+    "PREVIOUS_DAY": {
+     "type": "cds.String",
+     "length": 1,
+     "@sap.label": "Previous Day Indicator"
+    },
+    "Type": {
+     "type": "cds.String",
+     "length": 4,
+     "@sap.label": "Attendance or absence type"
+    },
+    "AttAbsDays": {
+     "type": "cds.Decimal",
+     "precision": 6,
+     "scale": 2,
+     "@sap.label": "Attendance and Absence Days"
+    },
+    "PAYROLL_HOURS": {
+     "type": "cds.Decimal",
+     "precision": 7,
+     "scale": 2,
+     "@sap.label": "Payroll hours"
+    },
+    "PAYROLL_DAYS": {
+     "type": "cds.Decimal",
+     "precision": 6,
+     "scale": 2,
+     "@sap.label": "Payroll Days"
+    },
+    "CAL_DAYS": {
+     "type": "cds.Decimal",
+     "precision": 6,
+     "scale": 2,
+     "@sap.label": "Calendar days"
+    },
+    "ATT_HOURS": {
+     "type": "cds.Decimal",
+     "precision": 7,
+     "scale": 2,
+     "@sap.label": "Attendance hours"
+    },
+    "WAGE_TYPE": {
+     "type": "cds.String",
+     "length": 4,
+     "@sap.label": "Wage Type"
+    },
+    "VALUATION": {
+     "type": "cds.Decimal",
+     "precision": 13,
+     "scale": 2,
+     "@sap.label": "Valuation",
+     "@sap.quickinfo": "Valuation Basis for Different Payment"
+    },
+    "EXTRA_PAY": {
+     "type": "cds.String",
+     "length": 1,
+     "@sap.label": "Extra Pay Indicator"
+    },
+    "OVERTIME_TYPE": {
+     "type": "cds.String",
+     "length": 1,
+     "@sap.label": "Overtime Compensation Type"
+    },
+    "PAY_SCALE_GRP": {
+     "type": "cds.String",
+     "length": 8,
+     "@sap.label": "Pay Scale Group"
+    },
+    "PAY_SCALE_LEVEL": {
+     "type": "cds.String",
+     "length": 2,
+     "@sap.label": "Pay Scale Level"
+    },
+    "PRE_NUMBER": {
+     "type": "cds.String",
+     "length": 2,
+     "@sap.label": "Premium Number"
+    },
+    "PremiumIndicator": {
+     "type": "cds.String",
+     "length": 4,
+     "@sap.label": "Premium Indicator"
+    },
+    "ObjectType": {
+     "type": "cds.String",
+     "length": 2,
+     "@sap.label": "Object Type"
+    },
+    "Positionplans": {
+     "type": "cds.String",
+     "length": 8,
+     "@sap.label": "Position plans",
+     "@sap.quickinfo": "Position"
+    },
+    "Generationflag": {
+     "type": "cds.String",
+     "length": 1,
+     "@sap.label": "Generation flag"
+    },
+    "ExternalDocumentNumber": {
+     "type": "cds.String",
+     "length": 8,
+     "@sap.label": "External Document Number"
+    },
+    "Setnumberofhours": {
+     "type": "cds.String",
+     "length": 1,
+     "@sap.label": "Set number of hours"
+    },
+    "RecordisforFullDay": {
+     "type": "cds.String",
+     "length": 1,
+     "@sap.label": "Record is for Full Day"
+    },
+    "CurrencyKey": {
+     "type": "cds.String",
+     "length": 5,
+     "@sap.label": "Currency Key"
+    },
+    "Logicalsystem": {
+     "type": "cds.String",
+     "length": 10,
+     "@sap.label": "Logical system"
+    },
+    "ReferenceTransaction": {
+     "type": "cds.String",
+     "length": 5,
+     "@sap.label": "Reference Transaction"
+    },
+    "ReferenceDocumentNumber": {
+     "type": "cds.String",
+     "length": 10,
+     "@sap.label": "Reference Document Number"
+    },
+    "ReferenceOrganizationalUnits": {
+     "type": "cds.String",
+     "length": 10,
+     "@sap.label": "Reference Organizational Units"
+    },
+    "Logicalsystemfordocumentpers": {
+     "type": "cds.String",
+     "length": 10,
+     "@sap.label": "Logical system for document (personnel time)"
+    },
+    "Documentnumberfortimedata": {
+     "type": "cds.String",
+     "length": 20,
+     "@sap.label": "Document number for time data"
+    },
+    "Worktaxarea": {
+     "type": "cds.String",
+     "length": 4,
+     "@sap.label": "Work tax area"
+    },
+    "EvaluationTypeforAttendances": {
+     "type": "cds.String",
+     "length": 2,
+     "@sap.label": "Evaluation Type for Attendances/Absences"
+    },
+    "DefinitionSetforIDs": {
+     "type": "cds.String",
+     "length": 10,
+     "@sap.label": "Definition Set for IDs"
+    },
+    "DefinitionSubsetforIDs": {
+     "type": "cds.String",
+     "length": 3,
+     "@sap.label": "Definition Subset for IDs"
+    },
+    "TimeDataIDType": {
+     "type": "cds.String",
+     "length": 4,
+     "@sap.label": "Time Data ID Type"
+    },
+    "Nobreak": {
+     "type": "cds.String",
+     "length": 1,
+     "@sap.label": "No break"
+    },
+    "BreaksSpecifiedExplicitly": {
+     "type": "cds.String",
+     "length": 1,
+     "@sap.label": "Breaks Specified Explicitly"
+    },
+    "StartofBreak": {
+     "type": "cds.Time",
+     "@sap.label": "Start of Break"
+    },
+    "EndofBreak": {
+     "type": "cds.Time",
+     "@sap.label": "End of Break"
+    },
+    "PaidBreakPeriod": {
+     "type": "cds.Decimal",
+     "precision": 4,
+     "scale": 2,
+     "@sap.label": "Paid Break Period"
+    },
+    "UnpaidBreakPeriod": {
+     "type": "cds.Decimal",
+     "precision": 4,
+     "scale": 2,
+     "@sap.label": "Unpaid Break Period"
+    },
+    "StartofBreak2": {
+     "type": "cds.Time",
+     "@sap.label": "Start of Break 2"
+    },
+    "EndofBreak2": {
+     "type": "cds.Time",
+     "@sap.label": "End of Break 2"
+    },
+    "PaidBreakPeriod2": {
+     "type": "cds.Decimal",
+     "precision": 4,
+     "scale": 2,
+     "@sap.label": "Paid Break Period 2"
+    },
+    "UnpaidBreakPeriod2": {
+     "type": "cds.Decimal",
+     "precision": 4,
+     "scale": 2,
+     "@sap.label": "Unpaid Break Period 2"
+    },
+    "NextDayIndicator": {
+     "type": "cds.String",
+     "length": 1,
+     "@sap.label": "Next Day Indicator"
+    },
+    "SequentialnumberforPDCmessag": {
+     "type": "cds.String",
+     "length": 12,
+     "@sap.label": "Sequential number for PDC messages"
+    },
+    "CompanyCode": {
+     "type": "cds.String",
+     "length": 4,
+     "@sap.label": "Company Code"
+    },
+    "BusinessArea": {
+     "type": "cds.String",
+     "length": 4,
+     "@sap.label": "Business Area"
+    },
+    "ControllingArea": {
+     "type": "cds.String",
+     "length": 4,
+     "@sap.label": "Controlling Area"
+    },
+    "NumberofHoursforActivityAllo": {
+     "type": "cds.Decimal",
+     "precision": 7,
+     "scale": 2,
+     "@sap.label": "Number of Hours for Activity Allocation/External Services"
+    },
+    "Seqnr": {
+     "type": "cds.String",
+     "length": 2,
+     "@sap.label": "Seqnr"
+    },
+    "Refex": {
+     "type": "cds.String",
+     "length": 1,
+     "@sap.label": "Refex"
+    },
+    "SAP_CreatedDateTime": {
+     "type": "cds.Timestamp",
+     "@odata.Type": "Edm.DateTimeOffset",
+     "@odata.Precision": 7,
+     "@sap.label": "Created On",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false"
+    },
+    "SAP_CreatedByUser": {
+     "type": "cds.String",
+     "length": 12,
+     "@sap.display.format": "UpperCase",
+     "@sap.text": "SAP_CreatedByUser_Text",
+     "@sap.label": "Created By",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false"
+    },
+    "SAP_CreatedByUser_Text": {
+     "type": "cds.String",
+     "length": 80,
+     "@sap.label": "Description",
+     "@sap.quickinfo": "Description of the Technical User Account",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false"
+    },
+    "SAP_LastChangedDateTime": {
+     "type": "cds.Timestamp",
+     "@odata.Type": "Edm.DateTimeOffset",
+     "@odata.Precision": 7,
+     "@sap.label": "Last Changed On",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false"
+    },
+    "SAP_LastChangedByUser": {
+     "type": "cds.String",
+     "length": 12,
+     "@sap.display.format": "UpperCase",
+     "@sap.text": "SAP_LastChangedByUser_Text",
+     "@sap.label": "Last Changed By",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false"
+    },
+    "SAP_LastChangedByUser_Text": {
+     "type": "cds.String",
+     "length": 80,
+     "@sap.label": "Description",
+     "@sap.quickinfo": "Description of the Technical User Account",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false"
+    },
+    "to_SAPSysAdminDataChangeUser": {
+     "type": "cds.Association",
+     "target": "YY1_TIME_INFO_PA2002_CDS.P_Scbo_User",
+     "keys": []
+    },
+    "to_SAPSysAdminDataCreateUser": {
+     "type": "cds.Association",
+     "target": "YY1_TIME_INFO_PA2002_CDS.P_Scbo_User",
+     "keys": []
+    }
+   }
+  },
+  "YY1_TIME_INFO_PA2002_CDS.YY1_TIME_INFO_PA2002Sap_upsert": {
+   "kind": "action",
+   "@cds.external": true,
+   "params": {
+    "WORKER_ID": {
+     "type": "cds.String",
+     "length": 15,
+     "@sap.label": "Text of length 15"
+    },
+    "Subtype": {
+     "type": "cds.String",
+     "length": 4,
+     "@sap.label": "Text of length 4"
+    },
+    "START_DATE": {
+     "type": "cds.Date",
+     "@sap.label": "Start Date",
+     "@sap.display.format": "Date"
+    },
+    "END_DATE": {
+     "type": "cds.Date",
+     "@sap.label": "End Date",
+     "@sap.display.format": "Date"
+    },
+    "WBSElement": {
+     "type": "cds.String",
+     "length": 10,
+     "@sap.label": "Text of length 10"
+    },
+    "Name": {
+     "type": "cds.String",
+     "length": 50,
+     "@sap.label": "Text of length 50"
+    },
+    "START_TIME": {
+     "type": "cds.Time",
+     "@sap.label": "Field of type TIMS"
+    },
+    "END_TIME": {
+     "type": "cds.Time",
+     "@sap.label": "Field of type TIMS"
+    },
+    "PREVIOUS_DAY": {
+     "type": "cds.String",
+     "length": 1,
+     "@sap.label": "Text of length 1"
+    },
+    "Type": {
+     "type": "cds.String",
+     "length": 4,
+     "@sap.label": "Text of length 4"
+    },
+    "AttAbsDays": {
+     "type": "cds.Decimal",
+     "precision": 6,
+     "scale": 2,
+     "@sap.label": "Attendance and Absence Days"
+    },
+    "PAYROLL_HOURS": {
+     "type": "cds.Decimal",
+     "precision": 7,
+     "scale": 2,
+     "@sap.label": "Payroll hours"
+    },
+    "PAYROLL_DAYS": {
+     "type": "cds.Decimal",
+     "precision": 6,
+     "scale": 2,
+     "@sap.label": "Payroll Days"
+    },
+    "CAL_DAYS": {
+     "type": "cds.Decimal",
+     "precision": 6,
+     "scale": 2,
+     "@sap.label": "Calendar days"
+    },
+    "ATT_HOURS": {
+     "type": "cds.Decimal",
+     "precision": 7,
+     "scale": 2,
+     "@sap.label": "Attendance hours"
+    },
+    "WAGE_TYPE": {
+     "type": "cds.String",
+     "length": 4,
+     "@sap.label": "Text of length 4"
+    },
+    "VALUATION": {
+     "type": "cds.Decimal",
+     "precision": 13,
+     "scale": 2,
+     "@sap.label": "Valuation"
+    },
+    "EXTRA_PAY": {
+     "type": "cds.String",
+     "length": 1,
+     "@sap.label": "Text of length 1"
+    },
+    "OVERTIME_TYPE": {
+     "type": "cds.String",
+     "length": 1,
+     "@sap.label": "Text of length 1"
+    },
+    "PAY_SCALE_GRP": {
+     "type": "cds.String",
+     "length": 8,
+     "@sap.label": "Text of length 8"
+    },
+    "PAY_SCALE_LEVEL": {
+     "type": "cds.String",
+     "length": 2,
+     "@sap.label": "Text of length 2"
+    },
+    "PRE_NUMBER": {
+     "type": "cds.String",
+     "length": 2,
+     "@sap.label": "Text of length 2"
+    },
+    "PremiumIndicator": {
+     "type": "cds.String",
+     "length": 4,
+     "@sap.label": "Text of length 4"
+    },
+    "ObjectType": {
+     "type": "cds.String",
+     "length": 2,
+     "@sap.label": "Text of length 2"
+    },
+    "Positionplans": {
+     "type": "cds.String",
+     "length": 8,
+     "@sap.label": "Text of length 8"
+    },
+    "Generationflag": {
+     "type": "cds.String",
+     "length": 1,
+     "@sap.label": "Text of length 1"
+    },
+    "ExternalDocumentNumber": {
+     "type": "cds.String",
+     "length": 8,
+     "@sap.label": "Text of length 8"
+    },
+    "Setnumberofhours": {
+     "type": "cds.String",
+     "length": 1,
+     "@sap.label": "Text of length 1"
+    },
+    "RecordisforFullDay": {
+     "type": "cds.String",
+     "length": 1,
+     "@sap.label": "Text of length 1"
+    },
+    "CurrencyKey": {
+     "type": "cds.String",
+     "length": 5,
+     "@sap.label": "Text of length 5"
+    },
+    "Logicalsystem": {
+     "type": "cds.String",
+     "length": 10,
+     "@sap.label": "Text of length 10"
+    },
+    "ReferenceTransaction": {
+     "type": "cds.String",
+     "length": 5,
+     "@sap.label": "Text of length 5"
+    },
+    "ReferenceDocumentNumber": {
+     "type": "cds.String",
+     "length": 10,
+     "@sap.label": "Text of length 10"
+    },
+    "ReferenceOrganizationalUnits": {
+     "type": "cds.String",
+     "length": 10,
+     "@sap.label": "Text of length 10"
+    },
+    "Logicalsystemfordocumentpers": {
+     "type": "cds.String",
+     "length": 10,
+     "@sap.label": "Text of length 10"
+    },
+    "Documentnumberfortimedata": {
+     "type": "cds.String",
+     "length": 20,
+     "@sap.label": "Text of length 20"
+    },
+    "Worktaxarea": {
+     "type": "cds.String",
+     "length": 4,
+     "@sap.label": "Text of length 4"
+    },
+    "EvaluationTypeforAttendances": {
+     "type": "cds.String",
+     "length": 2,
+     "@sap.label": "Text of length 2"
+    },
+    "DefinitionSetforIDs": {
+     "type": "cds.String",
+     "length": 10,
+     "@sap.label": "Text of length 10"
+    },
+    "DefinitionSubsetforIDs": {
+     "type": "cds.String",
+     "length": 3,
+     "@sap.label": "Text of length 3"
+    },
+    "TimeDataIDType": {
+     "type": "cds.String",
+     "length": 4,
+     "@sap.label": "Text of length 4"
+    },
+    "Nobreak": {
+     "type": "cds.String",
+     "length": 1,
+     "@sap.label": "Text of length 1"
+    },
+    "BreaksSpecifiedExplicitly": {
+     "type": "cds.String",
+     "length": 1,
+     "@sap.label": "Text of length 1"
+    },
+    "StartofBreak": {
+     "type": "cds.Time",
+     "@sap.label": "Field of type TIMS"
+    },
+    "EndofBreak": {
+     "type": "cds.Time",
+     "@sap.label": "Field of type TIMS"
+    },
+    "PaidBreakPeriod": {
+     "type": "cds.Decimal",
+     "precision": 4,
+     "scale": 2,
+     "@sap.label": "Paid Break Period"
+    },
+    "UnpaidBreakPeriod": {
+     "type": "cds.Decimal",
+     "precision": 4,
+     "scale": 2,
+     "@sap.label": "Unpaid Break Period"
+    },
+    "StartofBreak2": {
+     "type": "cds.Time",
+     "@sap.label": "Field of type TIMS"
+    },
+    "EndofBreak2": {
+     "type": "cds.Time",
+     "@sap.label": "Field of type TIMS"
+    },
+    "PaidBreakPeriod2": {
+     "type": "cds.Decimal",
+     "precision": 4,
+     "scale": 2,
+     "@sap.label": "Paid Break Period 2"
+    },
+    "UnpaidBreakPeriod2": {
+     "type": "cds.Decimal",
+     "precision": 4,
+     "scale": 2,
+     "@sap.label": "Unpaid Break Period 2"
+    },
+    "NextDayIndicator": {
+     "type": "cds.String",
+     "length": 1,
+     "@sap.label": "Text of length 1"
+    },
+    "SequentialnumberforPDCmessag": {
+     "type": "cds.String",
+     "length": 12,
+     "@sap.label": "Text of length 12"
+    },
+    "CompanyCode": {
+     "type": "cds.String",
+     "length": 4,
+     "@sap.label": "Text of length 4"
+    },
+    "BusinessArea": {
+     "type": "cds.String",
+     "length": 4,
+     "@sap.label": "Text of length 4"
+    },
+    "ControllingArea": {
+     "type": "cds.String",
+     "length": 4,
+     "@sap.label": "Text of length 4"
+    },
+    "NumberofHoursforActivityAllo": {
+     "type": "cds.Decimal",
+     "precision": 7,
+     "scale": 2,
+     "@sap.label": "Number of Hours for Activity Allocation/External Services"
+    },
+    "Seqnr": {
+     "type": "cds.String",
+     "length": 2,
+     "@sap.label": "Text of length 2"
+    },
+    "Refex": {
+     "type": "cds.String",
+     "length": 1,
+     "@sap.label": "Text of length 1"
+    }
+   },
+   "returns": {
+    "type": "YY1_TIME_INFO_PA2002_CDS.YY1_TIME_INFO_PA2002"
+   }
+  }
+ }
+}

@@ -1,0 +1,15 @@
+customerNo,materialGroup2,shiftDiffCustom,shiftDiffUS,shiftDiffCA,refOrigInvoice,createdAt,createdBy,modifiedAt,modifiedBy,config_ID,config_tableName
+EDIDELAWAR,Z02,X,,,X,,,,,fe184c3b-92c4-4bda-a6cf-aec221d71131,CEPC
+EDIIBM,Z02,,,,,,,,,fe184c3b-92c4-4bda-a6cf-aec221d71131,CEPC
+EDIIBMSSR,Z02,,,,,,,,,fe184c3b-92c4-4bda-a6cf-aec221d71131,CEPC
+EDILAMSEA,Z01,,,,,,,,,fe184c3b-92c4-4bda-a6cf-aec221d71131,CEPC
+EDINASG,Z02,,,,,,,,,fe184c3b-92c4-4bda-a6cf-aec221d71131,CEPC
+EDIOSRM,Z02,,,,,,,,,fe184c3b-92c4-4bda-a6cf-aec221d71131,CEPC
+EDIPIGRANG,Z02,,,,,,,,,fe184c3b-92c4-4bda-a6cf-aec221d71131,CEPC
+EDISIEENT,Z02,,,,,,,,,fe184c3b-92c4-4bda-a6cf-aec221d71131,CEPC
+EDISONOCO,Z02,,,,,,,,,fe184c3b-92c4-4bda-a6cf-aec221d71131,CEPC
+EDISONOCOC,Z02,,,,,,,,,fe184c3b-92c4-4bda-a6cf-aec221d71131,CEPC
+EDISWSMBE,Z01,,,,,,,,,fe184c3b-92c4-4bda-a6cf-aec221d71131,CEPC
+EDIXEROXCA,,,,X,,,,,,fe184c3b-92c4-4bda-a6cf-aec221d71131,CEPC
+EDIXEROXUS,,,X,,,,,,,fe184c3b-92c4-4bda-a6cf-aec221d71131,CEPC
+EDIXEROXXS,Z02,,,,,,,,,fe184c3b-92c4-4bda-a6cf-aec221d71131,CEPC

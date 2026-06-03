@@ -1,0 +1,7 @@
+code,name,descr
+1,New,New
+2,In Process,In Process
+3,Completed,Completed
+4,Error,Error
+5,Manually Rejected,Manually Rejected
+6,Partially Processed,Partially Processed

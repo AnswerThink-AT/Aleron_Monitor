@@ -1,0 +1,40 @@
+<core:FragmentDefinition xmlns:unified="sap.ui.unified"
+	xmlns:core="sap.ui.core"
+	xmlns="sap.m">
+	<Dialog id="fileUploadDialog"
+		title="Upload File">
+		<content>
+			<Label text="{i18n>interfaceType} :"
+				design="Bold"
+				class="sapUiSmallMarginBegin sapUiSmallMarginTop"></Label>
+			<!-- <Select items="{ path: '/InterfaceTypes'}" class="sapUiSmallMarginBegin sapUiSmallMarginEnd sapUiTinyMarginBottom" width="90%"> 
+				<core:Item key="{ID}" text="{name}" />
+			</Select > -->
+			<ComboBox items="{
+					path: '/InterfaceTypes'
+				}"
+				class="sapUiSmallMarginBegin sapUiSmallMarginEnd sapUiTinyMarginBottom"
+				width="90%">
+				<core:Item key="{ID}"
+					text="{name}" />
+			</ComboBox>
+			<unified:FileUploader id="filedUploader"
+				class="sapUiSmallMarginBegin sapUiSmallMarginEnd sapUiTinyMarginBottom"
+				width="90%"
+				fileType="csv"
+				placeholder="Choose a file"
+				change="onFileBrowse"></unified:FileUploader>
+		</content>
+		<beginButton>
+			<Button text="Upload"
+				type="Emphasized"
+				press="onFileUpload"
+				busyIndicatorDelay="0"
+				busy="{appModel>/isUploadBusy}"></Button>
+		</beginButton>
+		<endButton>
+			<Button text="Cancel"
+				press="onPressCancel"></Button>
+		</endButton>
+	</Dialog>
+</core:FragmentDefinition>

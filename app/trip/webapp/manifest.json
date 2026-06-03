@@ -1,0 +1,305 @@
+{
+  "_version": "1.65.0",
+  "sap.app": {
+    "id": "trip",
+    "type": "application",
+    "i18n": "i18n/i18n.properties",
+    "applicationVersion": {
+      "version": "0.0.1"
+    },
+    "title": "{{appTitle}}",
+    "description": "{{appDescription}}",
+    "resources": "resources.json",
+    "sourceTemplate": {
+      "id": "@sap/generator-fiori:lrop",
+      "version": "1.18.0",
+      "toolsId": "7c8068de-63c6-4b5b-960d-4c4c3922a689"
+    },
+    "dataSources": {
+      "mainService": {
+        "uri": "/odata/v4/trip/",
+        "type": "OData",
+        "settings": {
+          "annotations": [],
+          "odataVersion": "4.0"
+        }
+      }
+    },
+    "crossNavigation": {
+      "inbounds": {
+        "ztrip-create": {
+          "semanticObject": "ztrip",
+          "action": "create",
+          "title": "{{ztrip-create.flpTitle}}",
+          "signature": {
+            "parameters": {},
+            "additionalParameters": "allowed"
+          }
+        }
+      }
+    }
+  },
+  "sap.ui": {
+    "technology": "UI5",
+    "icons": {
+      "icon": "",
+      "favIcon": "",
+      "phone": "",
+      "phone@2": "",
+      "tablet": "",
+      "tablet@2": ""
+    },
+    "deviceTypes": {
+      "desktop": true,
+      "tablet": true,
+      "phone": true
+    }
+  },
+  "sap.ui5": {
+    "flexEnabled": true,
+    "dependencies": {
+      "minUI5Version": "1.136.2",
+      "libs": {
+        "sap.m": {},
+        "sap.ui.core": {},
+        "sap.fe.templates": {},
+        "sap.fe.core": {}
+      }
+    },
+    "contentDensities": {
+      "compact": true,
+      "cozy": true
+    },
+    "models": {
+      "i18n": {
+        "type": "sap.ui.model.resource.ResourceModel",
+        "settings": {
+          "bundleName": "trip.i18n.i18n"
+        }
+      },
+      "": {
+        "dataSource": "mainService",
+        "preload": true,
+        "settings": {
+          "operationMode": "Server",
+          "autoExpandSelect": true,
+          "earlyRequests": true
+        }
+      },
+      "@i18n": {
+        "type": "sap.ui.model.resource.ResourceModel",
+        "uri": "i18n/i18n.properties"
+      }
+    },
+    "resources": {
+      "css": [
+        {
+          "uri": "css/style.css"
+        }
+      ]
+    },
+    "routing": {
+      "config": {},
+      "routes": [
+        {
+          "pattern": ":?query:",
+          "name": "TripList",
+          "target": "TripList"
+        },
+        {
+          "pattern": "Trip({key}):?query:",
+          "name": "TripObjectPage",
+          "target": "TripObjectPage"
+        }
+      ],
+      "targets": {
+        "TripList": {
+          "type": "Component",
+          "id": "TripList",
+          "name": "sap.fe.templates.ListReport",
+          "options": {
+            "settings": {
+              "contextPath": "/Trip",
+              "variantManagement": "Page",
+              "navigation": {
+                "Trip": {
+                  "detail": {
+                    "route": "TripObjectPage"
+                  }
+                }
+              },
+              "controlConfiguration": {
+                "@com.sap.vocabularies.UI.v1.LineItem": {
+                  "tableSettings": {
+                    "type": "ResponsiveTable",
+                    "stableId": true,
+                    "disableCopyToClipboard": true,
+                    "enableExport": true,
+                    "widthIncludingColumnHeader": false,
+                    "selectionMode": "Multi"
+                  },
+                  "actions": {
+                    "create": {
+                      "press": "trip.ext.controller.Create.create",
+                      "visible": true,
+                      "enabled": true,
+                      "requiresSelection": false,
+                      "text": "Create"
+                    },
+                    "delete": {
+                      "press": "trip.ext.controller.Create.delete",
+                      "visible": true,
+                      "enabled": true,
+                      "requiresSelection": true,
+                      "text": "{i18n>delete}",
+                      "position": {
+                        "placement": "After",
+                        "anchor": "Settle"
+                      }
+                    },
+                    "Settle": {
+                      "press": "trip.ext.controller.Create.settle",
+                      "visible": true,
+                      "enabled": true,
+                      "requiresSelection": true,
+                      "text": "{i18n>settle}",
+                      "position": {
+                        "placement": "After",
+                        "anchor": "Cancel"
+                      }
+                    },
+                    "Cancel": {
+                      "press": "trip.ext.controller.Create.cancel",
+                      "visible": true,
+                      "enabled": true,
+                      "requiresSelection": true,
+                      "text": "{i18n>Cancel}",
+                      "position": {
+                        "placement": "After",
+                        "anchor": "Create"
+                      }
+                    }
+                  },
+                  "columns": {
+                    "DataField::TripNumber": {
+                      "width": "12.5%",
+                      "horizontalAlign": "Left"
+                    },
+                    "DataField::StartOfTrip": {
+                      "width": "12.5%",
+                      "horizontalAlign": "Center"
+                    },
+                    "DataField::EndOfTrip": {
+                      "width": "12.5%",
+                      "horizontalAlign": "Center"
+                    },
+                    "DataField::Items::Destination": {
+                      "width": "12.5%",
+                      "horizontalAlign": "Center"
+                    },
+                    "DataField::Items::Project": {
+                      "width": "12.5%",
+                      "horizontalAlign": "Center"
+                    },
+                    "DataField::Items::TripStatus": {
+                      "width": "12.5%",
+                      "horizontalAlign": "Center"
+                    },
+                    "DataField::Personnel": {
+                      "width": "12.5%",
+                      "horizontalAlign": "Center"
+                    },
+                    "DataField::Items::TripExpenseType": {
+                      "width": "12.5%",
+                      "horizontalAlign": "Center"
+                    }
+                  }
+                }
+              },
+              "hideFilterBar": false,
+              "initialLoad": "Auto"
+            }
+          }
+        },
+        "TripObjectPage": {
+          "type": "Component",
+          "id": "TripObjectPage",
+          "name": "sap.fe.templates.ObjectPage",
+          "options": {
+            "settings": {
+              "sections": {
+                "i18nExpenseReceipts": {
+                  "editable": true,
+                  "tableSettings": {
+                    "creationMode": "Inline",
+                    "createAtEnd": true
+                  }
+                }
+              },
+              "editableHeaderContent": false,
+              "contextPath": "/Trip",
+              "content": {
+                "header": {
+                  "actions": {
+                    "Approve": {
+                      "press": "trip.ext.controller.ObjectExt.approve",
+                      "visible": true,
+                      "enabled": true,
+                      "text": "{i18n>approve}",
+                      "position": {
+                        "placement": "Before",
+                        "anchor": "EditAction"
+                      }
+                    }
+                  }
+                }
+              },
+              "controlConfiguration": {
+                "Items/@com.sap.vocabularies.UI.v1.LineItem#i18nTripItems": {
+                  "actions": {},
+                  "tableSettings": {
+                    "selectionMode": "Multi"
+                  }
+                },
+                "Items/@com.sap.vocabularies.UI.v1.LineItem#i18nExpenseReceipts": {
+                  "actions": {
+                    "create": {
+                      "press": "sap.fe.core.actions.createLineItem",
+                      "text": "{i18n>Add}",
+                      "requiresSelection": false
+                    },
+                    "delete": {
+                      "press": "sap.fe.core.actions.deleteLineItem",
+                      "requiresSelection": true
+                    },
+                    "Edit": {
+                      "press": "trip.ext.controller.ObjectExt.edit",
+                      "requiresSelection": true,
+                      "text": "{i18n>Edit}"
+                    }
+                  },
+                  "tableSettings": {
+                    "selectionMode": "Multi",
+                    "creationMode": {
+                      "name": "Inline"
+                    },
+                    "createAtEnd": true
+                  },
+                  "editable": true
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "sap.fiori": {
+    "registrationIds": [],
+    "archeType": "transactional"
+  },
+  "sap.cloud": {
+    "public": true,
+    "service": "monitor"
+  }
+}

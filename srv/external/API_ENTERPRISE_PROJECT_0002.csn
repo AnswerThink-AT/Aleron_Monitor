@@ -1,0 +1,2656 @@
+{
+ "meta": {
+  "creator": "cds-dk 8.9.2"
+ },
+ "$version": "2.0",
+ "definitions": {
+  "API_ENTERPRISE_PROJECT_0002": {
+   "kind": "service",
+   "@cds.external": true,
+   "@m.IsDefaultEntityContainer": "true",
+   "@sap.message.scope.supported": "true",
+   "@sap.supported.formats": "atom json xlsx"
+  },
+  "API_ENTERPRISE_PROJECT_0002.A_EnterpriseProjBlkFunc": {
+   "kind": "entity",
+   "@cds.external": true,
+   "@cds.persistence.skip": true,
+   "@sap.deletable": "false",
+   "@sap.content.version": "2",
+   "@sap.updatable.path": "Update_mc",
+   "@sap.label": "Project Block Function",
+   "elements": {
+    "ProjectUUID": {
+     "key": true,
+     "type": "cds.UUID",
+     "@sap.label": "Entity GUID",
+     "@sap.quickinfo": "Entity Guid",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "notNull": true
+    },
+    "Update_mc": {
+     "type": "cds.Boolean",
+     "@sap.label": "Dyn. Method Control",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false"
+    },
+    "EntProjTimeRecgIsBlkd": {
+     "type": "cds.Boolean",
+     "@sap.label": "Boolean Variable (X = True, - = False, Space = Unknown)",
+     "@sap.heading": ""
+    },
+    "EntProjStaffExpensePostgIsBlkd": {
+     "type": "cds.Boolean",
+     "@sap.label": "Boolean Variable (X = True, - = False, Space = Unknown)",
+     "@sap.heading": ""
+    },
+    "EntProjServicePostingIsBlkd": {
+     "type": "cds.Boolean",
+     "@sap.label": "Boolean Variable (X = True, - = False, Space = Unknown)",
+     "@sap.heading": ""
+    },
+    "EntProjOtherExpensePostgIsBlkd": {
+     "type": "cds.Boolean",
+     "@sap.label": "Boolean Variable (X = True, - = False, Space = Unknown)",
+     "@sap.heading": ""
+    },
+    "EntProjPurchasingIsBlkd": {
+     "type": "cds.Boolean",
+     "@sap.label": "Boolean Variable (X = True, - = False, Space = Unknown)",
+     "@sap.heading": ""
+    },
+    "to_EnterpriseProject": {
+     "type": "cds.Association",
+     "target": "API_ENTERPRISE_PROJECT_0002.A_EnterpriseProject",
+     "keys": []
+    }
+   }
+  },
+  "API_ENTERPRISE_PROJECT_0002.A_EnterpriseProjectElement": {
+   "kind": "entity",
+   "@cds.external": true,
+   "@cds.persistence.skip": true,
+   "@sap.content.version": "2",
+   "@sap.deletable.path": "Delete_mc",
+   "@sap.updatable.path": "Update_mc",
+   "@sap.label": "Project Element",
+   "elements": {
+    "ProjectElementUUID": {
+     "key": true,
+     "type": "cds.UUID",
+     "@sap.label": "Entity GUID",
+     "@sap.quickinfo": "Entity Guid",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "notNull": true
+    },
+    "ChangeEntProjElmntPosition_ac": {
+     "type": "cds.Boolean",
+     "@sap.label": "Dyn. Action Control",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false"
+    },
+    "ChangeEntProjElmntProcgStatus_ac": {
+     "type": "cds.Boolean",
+     "@sap.label": "Dyn. Action Control",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false"
+    },
+    "ActualEndDate_fc": {
+     "type": "cds.Integer",
+     "@odata.Type": "Edm.Byte",
+     "@sap.label": "Dyn. Field Control",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false"
+    },
+    "ActualStartDate_fc": {
+     "type": "cds.Integer",
+     "@odata.Type": "Edm.Byte",
+     "@sap.label": "Dyn. Field Control",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false"
+    },
+    "ControllingArea_fc": {
+     "type": "cds.Integer",
+     "@odata.Type": "Edm.Byte",
+     "@sap.label": "Dyn. Field Control",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false"
+    },
+    "CostCenter_fc": {
+     "type": "cds.Integer",
+     "@odata.Type": "Edm.Byte",
+     "@sap.label": "Dyn. Field Control",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false"
+    },
+    "CostingSheet_fc": {
+     "type": "cds.Integer",
+     "@odata.Type": "Edm.Byte",
+     "@sap.label": "Dyn. Field Control",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false"
+    },
+    "FactoryCalendar_fc": {
+     "type": "cds.Integer",
+     "@odata.Type": "Edm.Byte",
+     "@sap.label": "Dyn. Field Control",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false"
+    },
+    "ForecastedEndDate_fc": {
+     "type": "cds.Integer",
+     "@odata.Type": "Edm.Byte",
+     "@sap.label": "Dyn. Field Control",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false"
+    },
+    "FunctionalArea_fc": {
+     "type": "cds.Integer",
+     "@odata.Type": "Edm.Byte",
+     "@sap.label": "Dyn. Field Control",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false"
+    },
+    "FunctionalLocation_fc": {
+     "type": "cds.Integer",
+     "@odata.Type": "Edm.Byte",
+     "@sap.label": "Dyn. Field Control",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false"
+    },
+    "InvestmentProfile_fc": {
+     "type": "cds.Integer",
+     "@odata.Type": "Edm.Byte",
+     "@sap.label": "Dyn. Field Control",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false"
+    },
+    "IsMainMilestone_fc": {
+     "type": "cds.Integer",
+     "@odata.Type": "Edm.Byte",
+     "@sap.label": "Dyn. Field Control",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false"
+    },
+    "Location_fc": {
+     "type": "cds.Integer",
+     "@odata.Type": "Edm.Byte",
+     "@sap.label": "Dyn. Field Control",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false"
+    },
+    "MilestoneApprovalStatus_fc": {
+     "type": "cds.Integer",
+     "@odata.Type": "Edm.Byte",
+     "@sap.label": "Dyn. Field Control",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false"
+    },
+    "PlannedEndDate_fc": {
+     "type": "cds.Integer",
+     "@odata.Type": "Edm.Byte",
+     "@sap.label": "Dyn. Field Control",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false"
+    },
+    "PlannedStartDate_fc": {
+     "type": "cds.Integer",
+     "@odata.Type": "Edm.Byte",
+     "@sap.label": "Dyn. Field Control",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false"
+    },
+    "Plant_fc": {
+     "type": "cds.Integer",
+     "@odata.Type": "Edm.Byte",
+     "@sap.label": "Dyn. Field Control",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false"
+    },
+    "ProfitCenter_fc": {
+     "type": "cds.Integer",
+     "@odata.Type": "Edm.Byte",
+     "@sap.label": "Dyn. Field Control",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false"
+    },
+    "ProjectElement_fc": {
+     "type": "cds.Integer",
+     "@odata.Type": "Edm.Byte",
+     "@sap.label": "Dyn. Field Control",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false"
+    },
+    "ProjectElementDescription_fc": {
+     "type": "cds.Integer",
+     "@odata.Type": "Edm.Byte",
+     "@sap.label": "Dyn. Field Control",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false"
+    },
+    "ResponsibleCostCenter_fc": {
+     "type": "cds.Integer",
+     "@odata.Type": "Edm.Byte",
+     "@sap.label": "Dyn. Field Control",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false"
+    },
+    "ResultAnalysisInternalID_fc": {
+     "type": "cds.Integer",
+     "@odata.Type": "Edm.Byte",
+     "@sap.label": "Dyn. Field Control",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false"
+    },
+    "TaxJurisdiction_fc": {
+     "type": "cds.Integer",
+     "@odata.Type": "Edm.Byte",
+     "@sap.label": "Dyn. Field Control",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false"
+    },
+    "WBSElementIsBillingElement_fc": {
+     "type": "cds.Integer",
+     "@odata.Type": "Edm.Byte",
+     "@sap.label": "Dyn. Field Control",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false"
+    },
+    "Delete_mc": {
+     "type": "cds.Boolean",
+     "@sap.label": "Dyn. Method Control",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false"
+    },
+    "Update_mc": {
+     "type": "cds.Boolean",
+     "@sap.label": "Dyn. Method Control",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false"
+    },
+    "to_EntProjElmntBlkFunc_oc": {
+     "type": "cds.Boolean",
+     "@sap.label": "Dynamic CbA-Control",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false"
+    },
+    "to_EntProjElmntDlvbrl_oc": {
+     "type": "cds.Boolean",
+     "@sap.label": "Dynamic CbA-Control",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false"
+    },
+    "to_EntProjElmntWorkItem_oc": {
+     "type": "cds.Boolean",
+     "@sap.label": "Dynamic CbA-Control",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false"
+    },
+    "to_SubProjElement_oc": {
+     "type": "cds.Boolean",
+     "@sap.label": "Dynamic CbA-Control",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false"
+    },
+    "ProjectElement": {
+     "type": "cds.String",
+     "length": 24,
+     "@sap.display.format": "UpperCase",
+     "@sap.field.control": "ProjectElement_fc",
+     "@sap.label": "Project Element ID"
+    },
+    "WBSElementInternalID": {
+     "type": "cds.String",
+     "length": 8,
+     "@sap.display.format": "NonNegative",
+     "@sap.label": "WBS Internal ID",
+     "@sap.quickinfo": "WBS Element"
+    },
+    "ProjectUUID": {
+     "type": "cds.UUID",
+     "@sap.label": "Entity GUID",
+     "@sap.quickinfo": "Entity Guid",
+     "@sap.updatable": "false"
+    },
+    "ProjectElementDescription": {
+     "type": "cds.String",
+     "length": 60,
+     "@sap.field.control": "ProjectElementDescription_fc",
+     "@sap.label": "Name",
+     "@sap.quickinfo": "Description"
+    },
+    "ParentObjectUUID": {
+     "type": "cds.UUID",
+     "@sap.label": "Parent GUID",
+     "@sap.quickinfo": "Parent Entity Guid"
+    },
+    "ProjectElementOrdinalNumber": {
+     "type": "cds.Integer",
+     "@sap.label": "Sort Number",
+     "@sap.quickinfo": "Sortnumber",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false"
+    },
+    "ProcessingStatus": {
+     "type": "cds.String",
+     "length": 2,
+     "@sap.display.format": "UpperCase",
+     "@sap.label": "Processing Status",
+     "@sap.quickinfo": "Object Processing Status",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false"
+    },
+    "EntProjectElementType": {
+     "type": "cds.String",
+     "length": 15,
+     "@sap.display.format": "UpperCase",
+     "@sap.label": "Task Type"
+    },
+    "PlannedStartDate": {
+     "type": "cds.Date",
+     "@sap.display.format": "Date",
+     "@sap.field.control": "PlannedStartDate_fc",
+     "@sap.label": "Planned Start",
+     "@sap.quickinfo": "Planned Start Date"
+    },
+    "PlannedEndDate": {
+     "type": "cds.Date",
+     "@sap.display.format": "Date",
+     "@sap.field.control": "PlannedEndDate_fc",
+     "@sap.label": "Planned Finish",
+     "@sap.quickinfo": "Planned Finish Date"
+    },
+    "ActualStartDate": {
+     "type": "cds.Date",
+     "@sap.display.format": "Date",
+     "@sap.field.control": "ActualStartDate_fc",
+     "@sap.label": "Actual Start"
+    },
+    "ActualEndDate": {
+     "type": "cds.Date",
+     "@sap.display.format": "Date",
+     "@sap.field.control": "ActualEndDate_fc",
+     "@sap.label": "Actual Finish"
+    },
+    "ResponsibleCostCenter": {
+     "type": "cds.String",
+     "length": 10,
+     "@sap.display.format": "UpperCase",
+     "@sap.field.control": "ResponsibleCostCenter_fc",
+     "@sap.label": "Responsible CC",
+     "@sap.quickinfo": "Responsible Cost Center"
+    },
+    "CompanyCode": {
+     "type": "cds.String",
+     "length": 4,
+     "@sap.display.format": "UpperCase",
+     "@sap.label": "Company code",
+     "@sap.quickinfo": "Company code for WBS element",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false"
+    },
+    "ProfitCenter": {
+     "type": "cds.String",
+     "length": 10,
+     "@sap.display.format": "UpperCase",
+     "@sap.field.control": "ProfitCenter_fc",
+     "@sap.label": "Profit Center"
+    },
+    "FunctionalArea": {
+     "type": "cds.String",
+     "length": 16,
+     "@sap.display.format": "UpperCase",
+     "@sap.field.control": "FunctionalArea_fc",
+     "@sap.label": "Functional Area"
+    },
+    "ControllingArea": {
+     "type": "cds.String",
+     "length": 4,
+     "@sap.display.format": "UpperCase",
+     "@sap.field.control": "ControllingArea_fc",
+     "@sap.label": "Controlling area",
+     "@sap.quickinfo": "Controlling area for WBS element"
+    },
+    "Plant": {
+     "type": "cds.String",
+     "length": 4,
+     "@sap.display.format": "UpperCase",
+     "@sap.field.control": "Plant_fc",
+     "@sap.label": "Plant"
+    },
+    "Location": {
+     "type": "cds.String",
+     "length": 10,
+     "@sap.display.format": "UpperCase",
+     "@sap.field.control": "Location_fc",
+     "@sap.label": "Location"
+    },
+    "TaxJurisdiction": {
+     "type": "cds.String",
+     "length": 15,
+     "@sap.display.format": "UpperCase",
+     "@sap.field.control": "TaxJurisdiction_fc",
+     "@sap.label": "Tax Jurisdiction"
+    },
+    "FunctionalLocation": {
+     "type": "cds.String",
+     "length": 40,
+     "@sap.display.format": "UpperCase",
+     "@sap.field.control": "FunctionalLocation_fc",
+     "@sap.label": "Functional Location"
+    },
+    "FactoryCalendar": {
+     "type": "cds.String",
+     "length": 2,
+     "@sap.display.format": "UpperCase",
+     "@sap.field.control": "FactoryCalendar_fc",
+     "@sap.label": "Factory Calendar",
+     "@sap.quickinfo": "Factory calendar key"
+    },
+    "CostingSheet": {
+     "type": "cds.String",
+     "length": 6,
+     "@sap.display.format": "UpperCase",
+     "@sap.field.control": "CostingSheet_fc",
+     "@sap.label": "Costing Sheet"
+    },
+    "InvestmentProfile": {
+     "type": "cds.String",
+     "length": 6,
+     "@sap.display.format": "UpperCase",
+     "@sap.field.control": "InvestmentProfile_fc",
+     "@sap.label": "Investment Profile",
+     "@sap.quickinfo": "Investment Measure Profile"
+    },
+    "WBSIsStatisticalWBSElement": {
+     "type": "cds.Boolean",
+     "@sap.label": "Statistical",
+     "@sap.quickinfo": "Statistical WBS element"
+    },
+    "CostCenter": {
+     "type": "cds.String",
+     "length": 10,
+     "@sap.display.format": "UpperCase",
+     "@sap.field.control": "CostCenter_fc",
+     "@sap.label": "CCtr posted actual",
+     "@sap.quickinfo": "Cost center to which costs are actually posted"
+    },
+    "WBSElementIsBillingElement": {
+     "type": "cds.Boolean",
+     "@sap.field.control": "WBSElementIsBillingElement_fc",
+     "@sap.label": "Billing Element",
+     "@sap.quickinfo": "Indicator: Billing element"
+    },
+    "ResultAnalysisInternalID": {
+     "type": "cds.String",
+     "length": 6,
+     "@sap.display.format": "UpperCase",
+     "@sap.field.control": "ResultAnalysisInternalID_fc",
+     "@sap.label": "Results analysis key",
+     "@sap.quickinfo": "Results Analysis Key"
+    },
+    "IsProjectMilestone": {
+     "type": "cds.String",
+     "length": 1,
+     "@sap.display.format": "UpperCase",
+     "@sap.label": "Milestone",
+     "@sap.quickinfo": "Milestone flag"
+    },
+    "ForecastedEndDate": {
+     "type": "cds.Date",
+     "@sap.display.format": "Date",
+     "@sap.field.control": "ForecastedEndDate_fc",
+     "@sap.label": "Forecasted Finish"
+    },
+    "MilestoneApprovalStatus": {
+     "type": "cds.String",
+     "length": 5,
+     "@sap.display.format": "UpperCase",
+     "@sap.field.control": "MilestoneApprovalStatus_fc",
+     "@sap.label": "Milestone Apprvl Sts",
+     "@sap.quickinfo": "Milestone Approval Status"
+    },
+    "IsMainMilestone": {
+     "type": "cds.Boolean",
+     "@sap.field.control": "IsMainMilestone_fc",
+     "@sap.label": "Main Milestone",
+     "@sap.quickinfo": "Milestone is essential for Project Planning"
+    },
+    "CreatedByUser": {
+     "type": "cds.String",
+     "length": 12,
+     "@sap.label": "Created By",
+     "@sap.quickinfo": "Name of Person Who Created Object",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false"
+    },
+    "CreationDateTime": {
+     "type": "cds.DateTime",
+     "@odata.Type": "Edm.DateTimeOffset",
+     "@sap.label": "Created On",
+     "@sap.quickinfo": "Timestamp of Object Creation",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false"
+    },
+    "LastChangeDateTime": {
+     "type": "cds.DateTime",
+     "@odata.Type": "Edm.DateTimeOffset",
+     "@sap.label": "Changed On",
+     "@sap.quickinfo": "Timestamp of Last Object Change",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false"
+    },
+    "LastChangedByUser": {
+     "type": "cds.String",
+     "length": 12,
+     "@sap.display.format": "UpperCase",
+     "@sap.label": "Changed By",
+     "@sap.quickinfo": "Name of Person Who Changed Object",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false"
+    },
+    "to_EntProjectElementJVA": {
+     "type": "cds.Composition",
+     "target": "API_ENTERPRISE_PROJECT_0002.A_EntProjectElementJVA",
+     "keys": []
+    },
+    "to_EntProjectElmntPublicSector": {
+     "type": "cds.Composition",
+     "target": "API_ENTERPRISE_PROJECT_0002.A_EntProjectElmntPublicSector",
+     "keys": []
+    },
+    "to_EntProjElmntBlkFunc": {
+     "type": "cds.Composition",
+     "target": "API_ENTERPRISE_PROJECT_0002.A_EntProjElmntBlockFunc",
+     "keys": []
+    },
+    "to_EntProjElmntDlvbrl": {
+     "type": "cds.Composition",
+     "target": "API_ENTERPRISE_PROJECT_0002.A_EntProjElmntDlvbrl",
+     "cardinality": {
+      "max": "*"
+     },
+     "keys": []
+    },
+    "to_EntProjElmntWorkItem": {
+     "type": "cds.Composition",
+     "target": "API_ENTERPRISE_PROJECT_0002.A_EntProjElmntWorkItem",
+     "cardinality": {
+      "max": "*"
+     },
+     "keys": []
+    },
+    "to_ParentProjElement": {
+     "type": "cds.Association",
+     "target": "API_ENTERPRISE_PROJECT_0002.A_EnterpriseProjectElement",
+     "keys": []
+    },
+    "to_SubProjElement": {
+     "type": "cds.Association",
+     "target": "API_ENTERPRISE_PROJECT_0002.A_EnterpriseProjectElement",
+     "cardinality": {
+      "max": "*"
+     },
+     "keys": []
+    },
+    "to_EnterpriseProject": {
+     "type": "cds.Association",
+     "target": "API_ENTERPRISE_PROJECT_0002.A_EnterpriseProject",
+     "keys": []
+    }
+   },
+   "actions": {
+    "ChangeEntProjElmntPosition": {
+     "kind": "action",
+     "params": {
+      "ParentObjectUUID": {
+       "type": "cds.UUID",
+       "@sap.label": "PrjElmnt GUID"
+      },
+      "LeftSiblingUUID": {
+       "type": "cds.UUID",
+       "@sap.label": "PrjElmnt GUID"
+      }
+     },
+     "returns": {
+      "type": "API_ENTERPRISE_PROJECT_0002.A_EnterpriseProjectElement"
+     }
+    },
+    "ChangeEntProjElmntProcgStatus": {
+     "kind": "action",
+     "params": {
+      "ProcessingStatus": {
+       "type": "cds.String",
+       "length": 2,
+       "@sap.label": "Proc. Status"
+      }
+     },
+     "returns": {
+      "type": "API_ENTERPRISE_PROJECT_0002.A_EnterpriseProjectElement"
+     }
+    }
+   }
+  },
+  "API_ENTERPRISE_PROJECT_0002.A_EnterpriseProjectJVA": {
+   "kind": "entity",
+   "@cds.external": true,
+   "@cds.persistence.skip": true,
+   "@sap.creatable": "false",
+   "@sap.deletable": "false",
+   "@sap.content.version": "2",
+   "@sap.updatable.path": "Update_mc",
+   "@sap.label": "Project JVA",
+   "elements": {
+    "ProjectUUID": {
+     "key": true,
+     "type": "cds.UUID",
+     "@sap.label": "Entity GUID",
+     "@sap.quickinfo": "Entity Guid",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "notNull": true
+    },
+    "JntIntrstBillgClass_fc": {
+     "type": "cds.Integer",
+     "@odata.Type": "Edm.Byte",
+     "@sap.label": "Dyn. Field Control",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false"
+    },
+    "JntIntrstBillgSubClass_fc": {
+     "type": "cds.Integer",
+     "@odata.Type": "Edm.Byte",
+     "@sap.label": "Dyn. Field Control",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false"
+    },
+    "JntVntrProjectType_fc": {
+     "type": "cds.Integer",
+     "@odata.Type": "Edm.Byte",
+     "@sap.label": "Dyn. Field Control",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false"
+    },
+    "JointVenture_fc": {
+     "type": "cds.Integer",
+     "@odata.Type": "Edm.Byte",
+     "@sap.label": "Dyn. Field Control",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false"
+    },
+    "JointVentureCostRecoveryCode_fc": {
+     "type": "cds.Integer",
+     "@odata.Type": "Edm.Byte",
+     "@sap.label": "Dyn. Field Control",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false"
+    },
+    "JointVentureEquityType_fc": {
+     "type": "cds.Integer",
+     "@odata.Type": "Edm.Byte",
+     "@sap.label": "Dyn. Field Control",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false"
+    },
+    "Update_mc": {
+     "type": "cds.Boolean",
+     "@sap.label": "Dyn. Method Control",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false"
+    },
+    "JointVenture": {
+     "type": "cds.String",
+     "length": 6,
+     "@sap.display.format": "UpperCase",
+     "@sap.field.control": "JointVenture_fc",
+     "@sap.label": "Joint Venture"
+    },
+    "JointVentureCostRecoveryCode": {
+     "type": "cds.String",
+     "length": 2,
+     "@sap.display.format": "UpperCase",
+     "@sap.field.control": "JointVentureCostRecoveryCode_fc",
+     "@sap.label": "Recovery Indicator"
+    },
+    "JointVentureEquityType": {
+     "type": "cds.String",
+     "length": 3,
+     "@sap.display.format": "UpperCase",
+     "@sap.field.control": "JointVentureEquityType_fc",
+     "@sap.label": "Equity Type"
+    },
+    "JntVntrProjectType": {
+     "type": "cds.String",
+     "length": 4,
+     "@sap.display.format": "UpperCase",
+     "@sap.field.control": "JntVntrProjectType_fc",
+     "@sap.label": "JV Object Type",
+     "@sap.quickinfo": "Joint Venture Object Type"
+    },
+    "JntIntrstBillgClass": {
+     "type": "cds.String",
+     "length": 3,
+     "@sap.display.format": "UpperCase",
+     "@sap.field.control": "JntIntrstBillgClass_fc",
+     "@sap.label": "JIB/JIBE Class"
+    },
+    "JntIntrstBillgSubClass": {
+     "type": "cds.String",
+     "length": 5,
+     "@sap.display.format": "UpperCase",
+     "@sap.field.control": "JntIntrstBillgSubClass_fc",
+     "@sap.label": "JIB/JIBE Subclass A"
+    },
+    "to_EnterpriseProject": {
+     "type": "cds.Association",
+     "target": "API_ENTERPRISE_PROJECT_0002.A_EnterpriseProject",
+     "keys": []
+    }
+   }
+  },
+  "API_ENTERPRISE_PROJECT_0002.A_EnterpriseProjectRole": {
+   "kind": "entity",
+   "@cds.external": true,
+   "@cds.persistence.skip": true,
+   "@sap.updatable": "false",
+   "@sap.deletable": "false",
+   "@sap.content.version": "2",
+   "@sap.label": "Project Role",
+   "elements": {
+    "ProjectRoleUUID": {
+     "key": true,
+     "type": "cds.UUID",
+     "@sap.label": "Role",
+     "@sap.quickinfo": "Role GUID",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "notNull": true
+    },
+    "ProjectUUID": {
+     "type": "cds.UUID",
+     "@sap.label": "Project",
+     "@sap.quickinfo": "Project GUID",
+     "@sap.updatable": "false"
+    },
+    "ProjectRoleType": {
+     "type": "cds.String",
+     "length": 15,
+     "@sap.display.format": "UpperCase",
+     "@sap.label": "Role Type"
+    },
+    "ProjectRoleCategory": {
+     "type": "cds.String",
+     "length": 3,
+     "@sap.display.format": "UpperCase",
+     "@sap.label": "Role Category"
+    },
+    "ProjectRoleName": {
+     "type": "cds.String",
+     "length": 40,
+     "@sap.display.format": "UpperCase",
+     "@sap.label": "Role Name"
+    },
+    "CreatedByUser": {
+     "type": "cds.String",
+     "length": 12,
+     "@sap.label": "Created By",
+     "@sap.quickinfo": "Name of Person Who Created Object"
+    },
+    "CreationDateTime": {
+     "type": "cds.DateTime",
+     "@odata.Type": "Edm.DateTimeOffset",
+     "@sap.label": "Created On",
+     "@sap.quickinfo": "Timestamp of Object Creation"
+    },
+    "LastChangedByUser": {
+     "type": "cds.String",
+     "length": 12,
+     "@sap.display.format": "UpperCase",
+     "@sap.label": "Changed By",
+     "@sap.quickinfo": "Name of Person Who Changed Object"
+    },
+    "LastChangeDateTime": {
+     "type": "cds.DateTime",
+     "@odata.Type": "Edm.DateTimeOffset",
+     "@sap.label": "Changed On",
+     "@sap.quickinfo": "Timestamp of Last Object Change"
+    },
+    "to_EnterpriseProject": {
+     "type": "cds.Association",
+     "target": "API_ENTERPRISE_PROJECT_0002.A_EnterpriseProject",
+     "keys": []
+    }
+   }
+  },
+  "API_ENTERPRISE_PROJECT_0002.A_EnterpriseProjectTeamMember": {
+   "kind": "entity",
+   "@cds.external": true,
+   "@cds.persistence.skip": true,
+   "@sap.updatable": "false",
+   "@sap.deletable": "false",
+   "@sap.content.version": "2",
+   "@sap.label": "Project Team Member",
+   "elements": {
+    "TeamMemberUUID": {
+     "key": true,
+     "type": "cds.UUID",
+     "@sap.label": "Entity GUID",
+     "@sap.quickinfo": "Entity Guid",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "notNull": true
+    },
+    "to_EntProjEntitlement_oc": {
+     "type": "cds.Boolean",
+     "@sap.label": "Dynamic CbA-Control",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false"
+    },
+    "BusinessPartnerUUID": {
+     "type": "cds.UUID",
+     "@sap.label": "BP GUID",
+     "@sap.quickinfo": "Business Partner GUID"
+    },
+    "ProjectUUID": {
+     "type": "cds.UUID",
+     "@sap.label": "Entity GUID",
+     "@sap.quickinfo": "Entity Guid",
+     "@sap.updatable": "false"
+    },
+    "CreatedByUser": {
+     "type": "cds.String",
+     "length": 12,
+     "@sap.label": "Created By",
+     "@sap.quickinfo": "Name of Person Who Created Object"
+    },
+    "CreationDateTime": {
+     "type": "cds.DateTime",
+     "@odata.Type": "Edm.DateTimeOffset",
+     "@sap.label": "Created On",
+     "@sap.quickinfo": "Timestamp of Object Creation"
+    },
+    "LastChangedByUser": {
+     "type": "cds.String",
+     "length": 12,
+     "@sap.display.format": "UpperCase",
+     "@sap.label": "Changed By",
+     "@sap.quickinfo": "Name of Person Who Changed Object"
+    },
+    "LastChangeDateTime": {
+     "type": "cds.DateTime",
+     "@odata.Type": "Edm.DateTimeOffset",
+     "@sap.label": "Changed On",
+     "@sap.quickinfo": "Timestamp of Last Object Change"
+    },
+    "to_EntProjEntitlement": {
+     "type": "cds.Composition",
+     "target": "API_ENTERPRISE_PROJECT_0002.A_EntTeamMemberEntitlement",
+     "cardinality": {
+      "max": "*"
+     },
+     "keys": []
+    },
+    "to_EnterpriseProject": {
+     "type": "cds.Association",
+     "target": "API_ENTERPRISE_PROJECT_0002.A_EnterpriseProject",
+     "keys": []
+    }
+   }
+  },
+  "API_ENTERPRISE_PROJECT_0002.A_EnterpriseProject": {
+   "kind": "entity",
+   "@cds.external": true,
+   "@cds.persistence.skip": true,
+   "@sap.content.version": "2",
+   "@sap.deletable.path": "Delete_mc",
+   "@sap.updatable.path": "Update_mc",
+   "@sap.label": "Project",
+   "elements": {
+    "ProjectUUID": {
+     "key": true,
+     "type": "cds.UUID",
+     "@sap.label": "Entity GUID",
+     "@sap.quickinfo": "Entity Guid",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "notNull": true
+    },
+    "ChangeEntProjProcgStatus_ac": {
+     "type": "cds.Boolean",
+     "@sap.label": "Dyn. Action Control",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false"
+    },
+    "CopyToActiveDocument_ac": {
+     "type": "cds.Boolean",
+     "@sap.label": "Dyn. Action Control",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false"
+    },
+    "ActualEndDate_fc": {
+     "type": "cds.Integer",
+     "@odata.Type": "Edm.Byte",
+     "@sap.label": "Dyn. Field Control",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false"
+    },
+    "ActualStartDate_fc": {
+     "type": "cds.Integer",
+     "@odata.Type": "Edm.Byte",
+     "@sap.label": "Dyn. Field Control",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false"
+    },
+    "AvailabilityControlIsActive_fc": {
+     "type": "cds.Integer",
+     "@odata.Type": "Edm.Byte",
+     "@sap.label": "Dyn. Field Control",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false"
+    },
+    "AvailabilityControlProfile_fc": {
+     "type": "cds.Integer",
+     "@odata.Type": "Edm.Byte",
+     "@sap.label": "Dyn. Field Control",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false"
+    },
+    "ControllingArea_fc": {
+     "type": "cds.Integer",
+     "@odata.Type": "Edm.Byte",
+     "@sap.label": "Dyn. Field Control",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false"
+    },
+    "CostingSheet_fc": {
+     "type": "cds.Integer",
+     "@odata.Type": "Edm.Byte",
+     "@sap.label": "Dyn. Field Control",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false"
+    },
+    "EnterpriseProjectType_fc": {
+     "type": "cds.Integer",
+     "@odata.Type": "Edm.Byte",
+     "@sap.label": "Dyn. Field Control",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false"
+    },
+    "EntProjIsMultiSlsOrdItmsEnbld_fc": {
+     "type": "cds.Integer",
+     "@odata.Type": "Edm.Byte",
+     "@sap.label": "Dyn. Field Control",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false"
+    },
+    "FunctionalArea_fc": {
+     "type": "cds.Integer",
+     "@odata.Type": "Edm.Byte",
+     "@sap.label": "Dyn. Field Control",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false"
+    },
+    "FunctionalLocation_fc": {
+     "type": "cds.Integer",
+     "@odata.Type": "Edm.Byte",
+     "@sap.label": "Dyn. Field Control",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false"
+    },
+    "InvestmentProfile_fc": {
+     "type": "cds.Integer",
+     "@odata.Type": "Edm.Byte",
+     "@sap.label": "Dyn. Field Control",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false"
+    },
+    "IsBillingRelevant_fc": {
+     "type": "cds.Integer",
+     "@odata.Type": "Edm.Byte",
+     "@sap.label": "Dyn. Field Control",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false"
+    },
+    "Location_fc": {
+     "type": "cds.Integer",
+     "@odata.Type": "Edm.Byte",
+     "@sap.label": "Dyn. Field Control",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false"
+    },
+    "Plant_fc": {
+     "type": "cds.Integer",
+     "@odata.Type": "Edm.Byte",
+     "@sap.label": "Dyn. Field Control",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false"
+    },
+    "PriorityCode_fc": {
+     "type": "cds.Integer",
+     "@odata.Type": "Edm.Byte",
+     "@sap.label": "Dyn. Field Control",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false"
+    },
+    "ProfitCenter_fc": {
+     "type": "cds.Integer",
+     "@odata.Type": "Edm.Byte",
+     "@sap.label": "Dyn. Field Control",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false"
+    },
+    "Project_fc": {
+     "type": "cds.Integer",
+     "@odata.Type": "Edm.Byte",
+     "@sap.label": "Dyn. Field Control",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false"
+    },
+    "ProjectCurrency_fc": {
+     "type": "cds.Integer",
+     "@odata.Type": "Edm.Byte",
+     "@sap.label": "Dyn. Field Control",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false"
+    },
+    "ProjectDescription_fc": {
+     "type": "cds.Integer",
+     "@odata.Type": "Edm.Byte",
+     "@sap.label": "Dyn. Field Control",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false"
+    },
+    "ProjectEndDate_fc": {
+     "type": "cds.Integer",
+     "@odata.Type": "Edm.Byte",
+     "@sap.label": "Dyn. Field Control",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false"
+    },
+    "ProjectProfileCode_fc": {
+     "type": "cds.Integer",
+     "@odata.Type": "Edm.Byte",
+     "@sap.label": "Dyn. Field Control",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false"
+    },
+    "ProjectStartDate_fc": {
+     "type": "cds.Integer",
+     "@odata.Type": "Edm.Byte",
+     "@sap.label": "Dyn. Field Control",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false"
+    },
+    "ResponsibleCostCenter_fc": {
+     "type": "cds.Integer",
+     "@odata.Type": "Edm.Byte",
+     "@sap.label": "Dyn. Field Control",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false"
+    },
+    "ResultAnalysisInternalID_fc": {
+     "type": "cds.Integer",
+     "@odata.Type": "Edm.Byte",
+     "@sap.label": "Dyn. Field Control",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false"
+    },
+    "Delete_mc": {
+     "type": "cds.Boolean",
+     "@sap.label": "Dyn. Method Control",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false"
+    },
+    "Update_mc": {
+     "type": "cds.Boolean",
+     "@sap.label": "Dyn. Method Control",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false"
+    },
+    "to_EnterpriseProjectElement_oc": {
+     "type": "cds.Boolean",
+     "@sap.label": "Dynamic CbA-Control",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false"
+    },
+    "to_EntProjBlkFunc_oc": {
+     "type": "cds.Boolean",
+     "@sap.label": "Dynamic CbA-Control",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false"
+    },
+    "to_EntProjRole_oc": {
+     "type": "cds.Boolean",
+     "@sap.label": "Dynamic CbA-Control",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false"
+    },
+    "to_EntProjTeamMember_oc": {
+     "type": "cds.Boolean",
+     "@sap.label": "Dynamic CbA-Control",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false"
+    },
+    "ProjectInternalID": {
+     "type": "cds.String",
+     "length": 8,
+     "@sap.display.format": "NonNegative",
+     "@sap.label": "Project Def.",
+     "@sap.quickinfo": "Project (internal)",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false"
+    },
+    "Project": {
+     "type": "cds.String",
+     "length": 24,
+     "@sap.display.format": "UpperCase",
+     "@sap.field.control": "Project_fc",
+     "@sap.text": "ProjectDescription",
+     "@sap.label": "Project ID"
+    },
+    "ProjectDescription": {
+     "type": "cds.String",
+     "length": 60,
+     "@sap.field.control": "ProjectDescription_fc",
+     "@sap.label": "Name",
+     "@sap.quickinfo": "Description"
+    },
+    "EnterpriseProjectType": {
+     "type": "cds.String",
+     "length": 2,
+     "@sap.display.format": "UpperCase",
+     "@sap.field.control": "EnterpriseProjectType_fc",
+     "@sap.label": "Project Type"
+    },
+    "PriorityCode": {
+     "type": "cds.String",
+     "length": 3,
+     "@sap.display.format": "NonNegative",
+     "@sap.field.control": "PriorityCode_fc",
+     "@sap.label": "Priority"
+    },
+    "ProjectStartDate": {
+     "type": "cds.Date",
+     "@sap.display.format": "Date",
+     "@sap.field.control": "ProjectStartDate_fc",
+     "@sap.label": "Planned Start",
+     "@sap.quickinfo": "Planned Start Date"
+    },
+    "ProjectEndDate": {
+     "type": "cds.Date",
+     "@sap.display.format": "Date",
+     "@sap.field.control": "ProjectEndDate_fc",
+     "@sap.label": "Planned Finish",
+     "@sap.quickinfo": "Planned Finish Date"
+    },
+    "ActualStartDate": {
+     "type": "cds.Date",
+     "@sap.display.format": "Date",
+     "@sap.field.control": "ActualStartDate_fc",
+     "@sap.label": "Actual Start"
+    },
+    "ActualEndDate": {
+     "type": "cds.Date",
+     "@sap.display.format": "Date",
+     "@sap.field.control": "ActualEndDate_fc",
+     "@sap.label": "Actual Finish"
+    },
+    "CustomerUUID": {
+     "type": "cds.UUID",
+     "@sap.label": "BP GUID",
+     "@sap.quickinfo": "Business Partner GUID"
+    },
+    "EnterpriseProjectServiceOrg": {
+     "type": "cds.String",
+     "length": 5,
+     "@sap.display.format": "UpperCase",
+     "@sap.label": "Service Organization"
+    },
+    "EntProjectIsConfidential": {
+     "type": "cds.Boolean",
+     "@sap.label": "Confidential",
+     "@sap.quickinfo": "Enterprise Project Is Confidential"
+    },
+    "RestrictedTimePosting": {
+     "type": "cds.String",
+     "length": 1,
+     "@sap.display.format": "UpperCase",
+     "@sap.label": "Restrict Unstaffed",
+     "@sap.quickinfo": "Restrict Unstaffed Posting"
+    },
+    "ProcessingStatus": {
+     "type": "cds.String",
+     "length": 2,
+     "@sap.display.format": "UpperCase",
+     "@sap.label": "Processing Status",
+     "@sap.quickinfo": "Object Processing Status",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false"
+    },
+    "ResponsibleCostCenter": {
+     "type": "cds.String",
+     "length": 10,
+     "@sap.display.format": "UpperCase",
+     "@sap.field.control": "ResponsibleCostCenter_fc",
+     "@sap.label": "Responsible CC",
+     "@sap.quickinfo": "Responsible Cost Center"
+    },
+    "ProfitCenter": {
+     "type": "cds.String",
+     "length": 10,
+     "@sap.display.format": "UpperCase",
+     "@sap.field.control": "ProfitCenter_fc",
+     "@sap.label": "Profit Center"
+    },
+    "ProjectProfileCode": {
+     "type": "cds.String",
+     "length": 7,
+     "@sap.display.format": "UpperCase",
+     "@sap.field.control": "ProjectProfileCode_fc",
+     "@sap.label": "Project Profile"
+    },
+    "FunctionalArea": {
+     "type": "cds.String",
+     "length": 16,
+     "@sap.display.format": "UpperCase",
+     "@sap.field.control": "FunctionalArea_fc",
+     "@sap.label": "Functional Area"
+    },
+    "CompanyCode": {
+     "type": "cds.String",
+     "length": 4,
+     "@sap.display.format": "UpperCase",
+     "@sap.label": "Company code",
+     "@sap.quickinfo": "Company code for the project",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false"
+    },
+    "ControllingArea": {
+     "type": "cds.String",
+     "length": 4,
+     "@sap.display.format": "UpperCase",
+     "@sap.field.control": "ControllingArea_fc",
+     "@sap.label": "Controlling area",
+     "@sap.quickinfo": "Controlling area for the project"
+    },
+    "Plant": {
+     "type": "cds.String",
+     "length": 4,
+     "@sap.display.format": "UpperCase",
+     "@sap.field.control": "Plant_fc",
+     "@sap.label": "Plant"
+    },
+    "Location": {
+     "type": "cds.String",
+     "length": 10,
+     "@sap.display.format": "UpperCase",
+     "@sap.field.control": "Location_fc",
+     "@sap.label": "Location"
+    },
+    "TaxJurisdiction": {
+     "type": "cds.String",
+     "length": 15,
+     "@sap.display.format": "UpperCase",
+     "@sap.label": "Tax Jurisdiction"
+    },
+    "ProjectCurrency": {
+     "type": "cds.String",
+     "length": 5,
+     "@sap.display.format": "UpperCase",
+     "@sap.field.control": "ProjectCurrency_fc",
+     "@sap.label": "Project Currency",
+     "@sap.semantics": "currency-code"
+    },
+    "AvailabilityControlProfile": {
+     "type": "cds.String",
+     "length": 6,
+     "@sap.display.format": "UpperCase",
+     "@sap.field.control": "AvailabilityControlProfile_fc",
+     "@sap.label": "Availy Ctrl Prfl",
+     "@sap.quickinfo": "Budget Availability Control: Profile"
+    },
+    "AvailabilityControlIsActive": {
+     "type": "cds.Boolean",
+     "@sap.field.control": "AvailabilityControlIsActive_fc",
+     "@sap.label": "AVC is Active",
+     "@sap.quickinfo": "Availability control indicator(AVC)"
+    },
+    "FunctionalLocation": {
+     "type": "cds.String",
+     "length": 40,
+     "@sap.display.format": "UpperCase",
+     "@sap.field.control": "FunctionalLocation_fc",
+     "@sap.label": "Functional Location"
+    },
+    "IsBillingRelevant": {
+     "type": "cds.Boolean",
+     "@sap.field.control": "IsBillingRelevant_fc",
+     "@sap.label": "Billing Element",
+     "@sap.quickinfo": "Indicator: Billing element"
+    },
+    "InvestmentProfile": {
+     "type": "cds.String",
+     "length": 6,
+     "@sap.display.format": "UpperCase",
+     "@sap.field.control": "InvestmentProfile_fc",
+     "@sap.label": "Investment Profile",
+     "@sap.quickinfo": "Investment Measure Profile"
+    },
+    "LastChangeDateTime": {
+     "type": "cds.DateTime",
+     "@odata.Type": "Edm.DateTimeOffset",
+     "@sap.label": "Changed On",
+     "@sap.quickinfo": "Timestamp of Last Object Change",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false"
+    },
+    "ProjectLastChangedDateTime": {
+     "type": "cds.DateTime",
+     "@odata.Type": "Edm.DateTimeOffset",
+     "@sap.label": "Changed on",
+     "@sap.quickinfo": "Timestamp on which project data was changed last",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false"
+    },
+    "LastChangedByUser": {
+     "type": "cds.String",
+     "length": 12,
+     "@sap.display.format": "UpperCase",
+     "@sap.label": "Changed By",
+     "@sap.quickinfo": "Name of Person Who Changed Object",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false"
+    },
+    "EntProjIsMultiSlsOrdItmsEnbld": {
+     "type": "cds.Boolean",
+     "@sap.field.control": "EntProjIsMultiSlsOrdItmsEnbld_fc",
+     "@sap.label": "Project Assigned",
+     "@sap.quickinfo": "Enterprise Project Assigned to Multiple SO Items"
+    },
+    "ResultAnalysisInternalID": {
+     "type": "cds.String",
+     "length": 6,
+     "@sap.display.format": "UpperCase",
+     "@sap.field.control": "ResultAnalysisInternalID_fc",
+     "@sap.label": "Results analysis key",
+     "@sap.quickinfo": "Results Analysis Key"
+    },
+    "CostingSheet": {
+     "type": "cds.String",
+     "length": 6,
+     "@sap.display.format": "UpperCase",
+     "@sap.field.control": "CostingSheet_fc",
+     "@sap.label": "Costing Sheet"
+    },
+    "CreatedByUser": {
+     "type": "cds.String",
+     "length": 12,
+     "@sap.label": "Created By",
+     "@sap.quickinfo": "Name of Person Who Created Object",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false"
+    },
+    "CreationDateTime": {
+     "type": "cds.DateTime",
+     "@odata.Type": "Edm.DateTimeOffset",
+     "@sap.label": "Created On",
+     "@sap.quickinfo": "Timestamp of Object Creation",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false"
+    },
+    "to_EnterpriseProjectElement": {
+     "type": "cds.Composition",
+     "target": "API_ENTERPRISE_PROJECT_0002.A_EnterpriseProjectElement",
+     "cardinality": {
+      "max": "*"
+     },
+     "keys": []
+    },
+    "to_EnterpriseProjectJVA": {
+     "type": "cds.Composition",
+     "target": "API_ENTERPRISE_PROJECT_0002.A_EnterpriseProjectJVA",
+     "keys": []
+    },
+    "to_EntProjBlkFunc": {
+     "type": "cds.Composition",
+     "target": "API_ENTERPRISE_PROJECT_0002.A_EnterpriseProjBlkFunc",
+     "keys": []
+    },
+    "to_EntProjectPublicSector": {
+     "type": "cds.Composition",
+     "target": "API_ENTERPRISE_PROJECT_0002.A_EntProjectPublicSector",
+     "keys": []
+    },
+    "to_EntProjRole": {
+     "type": "cds.Composition",
+     "target": "API_ENTERPRISE_PROJECT_0002.A_EnterpriseProjectRole",
+     "cardinality": {
+      "max": "*"
+     },
+     "keys": []
+    },
+    "to_EntProjTeamMember": {
+     "type": "cds.Composition",
+     "target": "API_ENTERPRISE_PROJECT_0002.A_EnterpriseProjectTeamMember",
+     "cardinality": {
+      "max": "*"
+     },
+     "keys": []
+    }
+   },
+   "actions": {
+    "ChangeEntProjProcgStatus": {
+     "kind": "action",
+     "params": {
+      "ProcessingStatus": {
+       "type": "cds.String",
+       "length": 2,
+       "@sap.label": "Proc. Status"
+      }
+     },
+     "returns": {
+      "type": "API_ENTERPRISE_PROJECT_0002.A_EnterpriseProject"
+     }
+    },
+    "CopyToActiveDocument": {
+     "kind": "action",
+     "params": {
+      "EntProjDemandCopyIsRequested": {
+       "type": "cds.Boolean",
+       "@sap.label": "TRUE"
+      },
+      "EntProjSettlmtRuleCpyIsReqd": {
+       "type": "cds.Boolean",
+       "@sap.label": "TRUE"
+      },
+      "Project": {
+       "type": "cds.String",
+       "length": 24,
+       "@sap.label": "Project ID"
+      },
+      "ProjectName": {
+       "type": "cds.String",
+       "length": 60,
+       "@sap.label": "Name"
+      },
+      "ProjectStartDate": {
+       "type": "cds.Date",
+       "@sap.label": "Planned Start",
+       "@sap.display.format": "Date"
+      },
+      "ProjectEndDate": {
+       "type": "cds.Date",
+       "@sap.label": "Planned Finish",
+       "@sap.display.format": "Date"
+      },
+      "CustomerUUID": {
+       "type": "cds.UUID",
+       "@sap.label": "BP GUID"
+      },
+      "EnterpriseProjectServiceOrg": {
+       "type": "cds.String",
+       "length": 5,
+       "@sap.label": "Service Organization"
+      },
+      "ResponsibleCostCenter": {
+       "type": "cds.String",
+       "length": 10,
+       "@sap.label": "Responsible CC"
+      },
+      "ProjectManagerUUID": {
+       "type": "cds.UUID",
+       "@sap.label": "BP GUID"
+      },
+      "ProjectCurrency": {
+       "type": "cds.String",
+       "length": 5,
+       "@sap.label": "Custom Project Curr"
+      },
+      "EntProjectIsConfidential": {
+       "type": "cds.Boolean",
+       "@sap.label": "Confidential"
+      },
+      "RestrictedTimePosting": {
+       "type": "cds.String",
+       "length": 1,
+       "@sap.label": "Restrict Unstaffed"
+      }
+     },
+     "returns": {
+      "type": "API_ENTERPRISE_PROJECT_0002.A_EnterpriseProject"
+     }
+    }
+   }
+  },
+  "API_ENTERPRISE_PROJECT_0002.A_EntProjectElementJVA": {
+   "kind": "entity",
+   "@cds.external": true,
+   "@cds.persistence.skip": true,
+   "@sap.creatable": "false",
+   "@sap.deletable": "false",
+   "@sap.content.version": "2",
+   "@sap.updatable.path": "Update_mc",
+   "@sap.label": "Project Element JVA",
+   "elements": {
+    "ProjectElementUUID": {
+     "key": true,
+     "type": "cds.UUID",
+     "@sap.label": "Entity GUID",
+     "@sap.quickinfo": "Entity Guid",
+     "@sap.updatable": "false",
+     "notNull": true
+    },
+    "JntIntrstBillgClass_fc": {
+     "type": "cds.Integer",
+     "@odata.Type": "Edm.Byte",
+     "@sap.label": "Dyn. Field Control",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false"
+    },
+    "JntIntrstBillgSubClass_fc": {
+     "type": "cds.Integer",
+     "@odata.Type": "Edm.Byte",
+     "@sap.label": "Dyn. Field Control",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false"
+    },
+    "JntVntrProjectType_fc": {
+     "type": "cds.Integer",
+     "@odata.Type": "Edm.Byte",
+     "@sap.label": "Dyn. Field Control",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false"
+    },
+    "JointVenture_fc": {
+     "type": "cds.Integer",
+     "@odata.Type": "Edm.Byte",
+     "@sap.label": "Dyn. Field Control",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false"
+    },
+    "JointVentureCostRecoveryCode_fc": {
+     "type": "cds.Integer",
+     "@odata.Type": "Edm.Byte",
+     "@sap.label": "Dyn. Field Control",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false"
+    },
+    "JointVentureEquityType_fc": {
+     "type": "cds.Integer",
+     "@odata.Type": "Edm.Byte",
+     "@sap.label": "Dyn. Field Control",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false"
+    },
+    "Update_mc": {
+     "type": "cds.Boolean",
+     "@sap.label": "Dyn. Method Control",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false"
+    },
+    "ProjectUUID": {
+     "type": "cds.UUID",
+     "@sap.label": "Entity GUID",
+     "@sap.quickinfo": "Entity Guid",
+     "@sap.updatable": "false"
+    },
+    "JointVenture": {
+     "type": "cds.String",
+     "length": 6,
+     "@sap.display.format": "UpperCase",
+     "@sap.field.control": "JointVenture_fc",
+     "@sap.label": "Joint Venture"
+    },
+    "JointVentureCostRecoveryCode": {
+     "type": "cds.String",
+     "length": 2,
+     "@sap.display.format": "UpperCase",
+     "@sap.field.control": "JointVentureCostRecoveryCode_fc",
+     "@sap.label": "Recovery Indicator"
+    },
+    "JointVentureEquityType": {
+     "type": "cds.String",
+     "length": 3,
+     "@sap.display.format": "UpperCase",
+     "@sap.field.control": "JointVentureEquityType_fc",
+     "@sap.label": "Equity Type"
+    },
+    "JntVntrProjectType": {
+     "type": "cds.String",
+     "length": 4,
+     "@sap.display.format": "UpperCase",
+     "@sap.field.control": "JntVntrProjectType_fc",
+     "@sap.label": "JV Object Type",
+     "@sap.quickinfo": "Joint Venture Object Type"
+    },
+    "JntIntrstBillgClass": {
+     "type": "cds.String",
+     "length": 3,
+     "@sap.display.format": "UpperCase",
+     "@sap.field.control": "JntIntrstBillgClass_fc",
+     "@sap.label": "JIB/JIBE Class"
+    },
+    "JntIntrstBillgSubClass": {
+     "type": "cds.String",
+     "length": 5,
+     "@sap.display.format": "UpperCase",
+     "@sap.field.control": "JntIntrstBillgSubClass_fc",
+     "@sap.label": "JIB/JIBE Subclass A"
+    },
+    "to_EnterpriseProjectElement": {
+     "type": "cds.Association",
+     "target": "API_ENTERPRISE_PROJECT_0002.A_EnterpriseProjectElement",
+     "keys": []
+    },
+    "to_EnterpriseProject": {
+     "type": "cds.Association",
+     "target": "API_ENTERPRISE_PROJECT_0002.A_EnterpriseProject",
+     "keys": []
+    }
+   }
+  },
+  "API_ENTERPRISE_PROJECT_0002.A_EntProjectPublicSector": {
+   "kind": "entity",
+   "@cds.external": true,
+   "@cds.persistence.skip": true,
+   "@sap.creatable": "false",
+   "@sap.deletable": "false",
+   "@sap.content.version": "2",
+   "@sap.updatable.path": "Update_mc",
+   "@sap.label": "Project Public Sector",
+   "elements": {
+    "ProjectUUID": {
+     "key": true,
+     "type": "cds.UUID",
+     "@sap.label": "Entity GUID",
+     "@sap.quickinfo": "Entity Guid",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "notNull": true
+    },
+    "FunctionalAreaIsFixAssigned_fc": {
+     "type": "cds.Integer",
+     "@odata.Type": "Edm.Byte",
+     "@sap.label": "Dyn. Field Control",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false"
+    },
+    "Fund_fc": {
+     "type": "cds.Integer",
+     "@odata.Type": "Edm.Byte",
+     "@sap.label": "Dyn. Field Control",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false"
+    },
+    "FundIsFixAssigned_fc": {
+     "type": "cds.Integer",
+     "@odata.Type": "Edm.Byte",
+     "@sap.label": "Dyn. Field Control",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false"
+    },
+    "GrantID_fc": {
+     "type": "cds.Integer",
+     "@odata.Type": "Edm.Byte",
+     "@sap.label": "Dyn. Field Control",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false"
+    },
+    "GrantIsFixAssigned_fc": {
+     "type": "cds.Integer",
+     "@odata.Type": "Edm.Byte",
+     "@sap.label": "Dyn. Field Control",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false"
+    },
+    "SponsoredProgram_fc": {
+     "type": "cds.Integer",
+     "@odata.Type": "Edm.Byte",
+     "@sap.label": "Dyn. Field Control",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false"
+    },
+    "Update_mc": {
+     "type": "cds.Boolean",
+     "@sap.label": "Dyn. Method Control",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false"
+    },
+    "Fund": {
+     "type": "cds.String",
+     "length": 10,
+     "@sap.display.format": "UpperCase",
+     "@sap.field.control": "Fund_fc",
+     "@sap.label": "Fund"
+    },
+    "FundIsFixAssigned": {
+     "type": "cds.Boolean",
+     "@sap.field.control": "FundIsFixAssigned_fc",
+     "@sap.label": "Fund Fixed Assignment",
+     "@sap.quickinfo": "Indicator for Fund with Fixed Assignment"
+    },
+    "FunctionalAreaIsFixAssigned": {
+     "type": "cds.Boolean",
+     "@sap.field.control": "FunctionalAreaIsFixAssigned_fc",
+     "@sap.label": "Functional Area Fixed Assignment",
+     "@sap.quickinfo": "Indicator for Functional Area with Fixed Assignment"
+    },
+    "GrantID": {
+     "type": "cds.String",
+     "length": 20,
+     "@sap.display.format": "UpperCase",
+     "@sap.field.control": "GrantID_fc",
+     "@sap.label": "Grant"
+    },
+    "GrantIsFixAssigned": {
+     "type": "cds.Boolean",
+     "@sap.field.control": "GrantIsFixAssigned_fc",
+     "@sap.label": "Grant Fixed Assignment",
+     "@sap.quickinfo": "Indicator for Grant with Fixed Assignment"
+    },
+    "SponsoredProgram": {
+     "type": "cds.String",
+     "length": 20,
+     "@sap.display.format": "UpperCase",
+     "@sap.field.control": "SponsoredProgram_fc",
+     "@sap.label": "Sponsored Program"
+    },
+    "to_EnterpriseProject": {
+     "type": "cds.Association",
+     "target": "API_ENTERPRISE_PROJECT_0002.A_EnterpriseProject",
+     "keys": []
+    }
+   }
+  },
+  "API_ENTERPRISE_PROJECT_0002.A_EntProjElmntBlockFunc": {
+   "kind": "entity",
+   "@cds.external": true,
+   "@cds.persistence.skip": true,
+   "@sap.deletable": "false",
+   "@sap.content.version": "2",
+   "@sap.updatable.path": "Update_mc",
+   "@sap.label": "Project Element Block Function",
+   "elements": {
+    "ProjectElementUUID": {
+     "key": true,
+     "type": "cds.UUID",
+     "@sap.label": "Entity GUID",
+     "@sap.quickinfo": "Entity Guid",
+     "@sap.updatable": "false",
+     "notNull": true
+    },
+    "EntProjOtherExpensePostgIsBlkd_fc": {
+     "type": "cds.Integer",
+     "@odata.Type": "Edm.Byte",
+     "@sap.label": "Dyn. Field Control",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false"
+    },
+    "EntProjPurchasingIsBlkd_fc": {
+     "type": "cds.Integer",
+     "@odata.Type": "Edm.Byte",
+     "@sap.label": "Dyn. Field Control",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false"
+    },
+    "EntProjServicePostingIsBlkd_fc": {
+     "type": "cds.Integer",
+     "@odata.Type": "Edm.Byte",
+     "@sap.label": "Dyn. Field Control",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false"
+    },
+    "EntProjStaffExpensePostgIsBlkd_fc": {
+     "type": "cds.Integer",
+     "@odata.Type": "Edm.Byte",
+     "@sap.label": "Dyn. Field Control",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false"
+    },
+    "EntProjTimeRecgIsBlkd_fc": {
+     "type": "cds.Integer",
+     "@odata.Type": "Edm.Byte",
+     "@sap.label": "Dyn. Field Control",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false"
+    },
+    "Update_mc": {
+     "type": "cds.Boolean",
+     "@sap.label": "Dyn. Method Control",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false"
+    },
+    "ProjectUUID": {
+     "type": "cds.UUID",
+     "@sap.label": "Entity GUID",
+     "@sap.quickinfo": "Entity Guid",
+     "@sap.updatable": "false"
+    },
+    "EntProjTimeRecgIsBlkd": {
+     "type": "cds.Boolean",
+     "@sap.field.control": "EntProjTimeRecgIsBlkd_fc",
+     "@sap.label": "Boolean Variable (X = True, - = False, Space = Unknown)",
+     "@sap.heading": ""
+    },
+    "EntProjStaffExpensePostgIsBlkd": {
+     "type": "cds.Boolean",
+     "@sap.field.control": "EntProjStaffExpensePostgIsBlkd_fc",
+     "@sap.label": "Boolean Variable (X = True, - = False, Space = Unknown)",
+     "@sap.heading": ""
+    },
+    "EntProjServicePostingIsBlkd": {
+     "type": "cds.Boolean",
+     "@sap.field.control": "EntProjServicePostingIsBlkd_fc",
+     "@sap.label": "Boolean Variable (X = True, - = False, Space = Unknown)",
+     "@sap.heading": ""
+    },
+    "EntProjOtherExpensePostgIsBlkd": {
+     "type": "cds.Boolean",
+     "@sap.field.control": "EntProjOtherExpensePostgIsBlkd_fc",
+     "@sap.label": "Boolean Variable (X = True, - = False, Space = Unknown)",
+     "@sap.heading": ""
+    },
+    "EntProjPurchasingIsBlkd": {
+     "type": "cds.Boolean",
+     "@sap.field.control": "EntProjPurchasingIsBlkd_fc",
+     "@sap.label": "Boolean Variable (X = True, - = False, Space = Unknown)",
+     "@sap.heading": ""
+    },
+    "to_EnterpriseProjectElement": {
+     "type": "cds.Association",
+     "target": "API_ENTERPRISE_PROJECT_0002.A_EnterpriseProjectElement",
+     "keys": []
+    },
+    "to_EnterpriseProject": {
+     "type": "cds.Association",
+     "target": "API_ENTERPRISE_PROJECT_0002.A_EnterpriseProject",
+     "keys": []
+    }
+   }
+  },
+  "API_ENTERPRISE_PROJECT_0002.A_EntProjElmntCnfgrdWrkItmTxt": {
+   "kind": "entity",
+   "@cds.external": true,
+   "@cds.persistence.skip": true,
+   "@sap.creatable": "false",
+   "@sap.updatable": "false",
+   "@sap.deletable": "false",
+   "@sap.content.version": "2",
+   "@sap.label": "Project Element Work Item Text",
+   "elements": {
+    "EntProjElmntWorkItem": {
+     "key": true,
+     "type": "cds.String",
+     "length": 10,
+     "@sap.display.format": "UpperCase",
+     "@sap.label": "Work Item ID",
+     "notNull": true
+    },
+    "Language": {
+     "key": true,
+     "type": "cds.String",
+     "length": 2,
+     "@sap.label": "Language Key",
+     "notNull": true
+    },
+    "EntProjElmntCnfgrdWrkItmName": {
+     "type": "cds.String",
+     "length": 40,
+     "@sap.label": "Work Item Name"
+    }
+   }
+  },
+  "API_ENTERPRISE_PROJECT_0002.A_EntProjElmntDlvbrl": {
+   "kind": "entity",
+   "@cds.external": true,
+   "@cds.persistence.skip": true,
+   "@sap.creatable": "false",
+   "@sap.deletable": "false",
+   "@sap.content.version": "2",
+   "@sap.updatable.path": "Update_mc",
+   "@sap.label": "Project Element Deliverable",
+   "elements": {
+    "EntProjElmntDeliverableUUID": {
+     "key": true,
+     "type": "cds.UUID",
+     "@sap.label": "Entity GUID",
+     "@sap.quickinfo": "Entity Guid",
+     "@sap.updatable": "false",
+     "notNull": true
+    },
+    "Update_mc": {
+     "type": "cds.Boolean",
+     "@sap.label": "Dyn. Method Control",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false"
+    },
+    "to_EntProjElmntDlvDistr_oc": {
+     "type": "cds.Boolean",
+     "@sap.label": "Dynamic CbA-Control",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false"
+    },
+    "ProjectElementUUID": {
+     "type": "cds.UUID",
+     "@sap.label": "Entity GUID",
+     "@sap.quickinfo": "Entity Guid",
+     "@sap.updatable": "false"
+    },
+    "ProjectUUID": {
+     "type": "cds.UUID",
+     "@sap.label": "Entity GUID",
+     "@sap.quickinfo": "Entity Guid",
+     "@sap.updatable": "false"
+    },
+    "EntProjElmntDeliverableType": {
+     "type": "cds.String",
+     "length": 6,
+     "@sap.display.format": "UpperCase",
+     "@sap.label": "Deliverable Type",
+     "@sap.quickinfo": "Type of a Project Element Deliverable"
+    },
+    "EntProjElmntDlvbrlQuantity": {
+     "type": "cds.Decimal",
+     "precision": 23,
+     "scale": 2,
+     "@sap.unit": "EntProjElmntDlvbrlQuantityUnit",
+     "@sap.label": "Deliverable Quantity",
+     "@sap.quickinfo": "Total Quantity of a Project Element Deliverable"
+    },
+    "EntProjElmntDlvbrlQuantityUnit": {
+     "type": "cds.String",
+     "length": 3,
+     "@sap.label": "Quantity Unit",
+     "@sap.quickinfo": "Unit of Measure for the Deliverable Quantity",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.semantics": "unit-of-measure"
+    },
+    "CreatedByUser": {
+     "type": "cds.String",
+     "length": 12,
+     "@sap.label": "Created By",
+     "@sap.quickinfo": "Name of Person Who Created Object"
+    },
+    "CreationDateTime": {
+     "type": "cds.DateTime",
+     "@odata.Type": "Edm.DateTimeOffset",
+     "@sap.label": "Created On",
+     "@sap.quickinfo": "Timestamp of Object Creation"
+    },
+    "LastChangeDateTime": {
+     "type": "cds.DateTime",
+     "@odata.Type": "Edm.DateTimeOffset",
+     "@sap.label": "Changed On",
+     "@sap.quickinfo": "Timestamp of Last Object Change"
+    },
+    "LastChangedByUser": {
+     "type": "cds.String",
+     "length": 12,
+     "@sap.display.format": "UpperCase",
+     "@sap.label": "Changed By",
+     "@sap.quickinfo": "Name of Person Who Changed Object"
+    },
+    "to_EnterpriseProjectElement": {
+     "type": "cds.Association",
+     "target": "API_ENTERPRISE_PROJECT_0002.A_EnterpriseProjectElement",
+     "keys": []
+    },
+    "to_EntProjElmntDlvDistr": {
+     "type": "cds.Composition",
+     "target": "API_ENTERPRISE_PROJECT_0002.A_EntProjElmntDlvbrlDistr",
+     "cardinality": {
+      "max": "*"
+     },
+     "keys": []
+    }
+   }
+  },
+  "API_ENTERPRISE_PROJECT_0002.A_EntProjElmntDlvbrlDistr": {
+   "kind": "entity",
+   "@cds.external": true,
+   "@cds.persistence.skip": true,
+   "@sap.creatable": "false",
+   "@sap.deletable": "false",
+   "@sap.content.version": "2",
+   "@sap.updatable.path": "Update_mc",
+   "@sap.label": "Project Element Deliverable Distribution",
+   "elements": {
+    "EntProjElmntDlvbrlDistrUUID": {
+     "key": true,
+     "type": "cds.UUID",
+     "@sap.label": "Entity GUID",
+     "@sap.quickinfo": "Entity Guid",
+     "@sap.updatable": "false",
+     "notNull": true
+    },
+    "Update_mc": {
+     "type": "cds.Boolean",
+     "@sap.label": "Dyn. Method Control",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false"
+    },
+    "EntProjElmntDeliverableUUID": {
+     "type": "cds.UUID",
+     "@sap.label": "Entity GUID",
+     "@sap.quickinfo": "Entity Guid",
+     "@sap.updatable": "false"
+    },
+    "ProjectElementUUID": {
+     "type": "cds.UUID",
+     "@sap.label": "Entity GUID",
+     "@sap.quickinfo": "Entity Guid",
+     "@sap.updatable": "false"
+    },
+    "ProjectUUID": {
+     "type": "cds.UUID",
+     "@sap.label": "Entity GUID",
+     "@sap.quickinfo": "Entity Guid",
+     "@sap.updatable": "false"
+    },
+    "EntProjElmntDlvbrlDistrYearVal": {
+     "type": "cds.String",
+     "length": 4,
+     "@sap.display.format": "NonNegative",
+     "@sap.label": "Year of Distribution",
+     "@sap.quickinfo": "Year of a Distribution Period for a Deliverable",
+     "@sap.updatable": "false"
+    },
+    "EntProjElmntDlvbrlDistrPerdVal": {
+     "type": "cds.String",
+     "length": 3,
+     "@sap.display.format": "NonNegative",
+     "@sap.label": "Distribution Period",
+     "@sap.quickinfo": "Period to Which a Deliverable Quantity is Distributed",
+     "@sap.updatable": "false"
+    },
+    "EntProjElmntDlvbrlDistrQty": {
+     "type": "cds.Decimal",
+     "precision": 23,
+     "scale": 2,
+     "@sap.unit": "EntProjElmntDlvbrlDistrQtyUnit",
+     "@sap.label": "Distributed Quantity",
+     "@sap.quickinfo": "Deliverable Quantity Planned for a Distribution Period"
+    },
+    "EntProjElmntDlvbrlDistrQtyUnit": {
+     "type": "cds.String",
+     "length": 3,
+     "@sap.label": "Quantity Unit",
+     "@sap.quickinfo": "Unit of Measure for the Distributed Deliverable Quantity",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.semantics": "unit-of-measure"
+    },
+    "to_EntProjElmntDlvbrl": {
+     "type": "cds.Association",
+     "target": "API_ENTERPRISE_PROJECT_0002.A_EntProjElmntDlvbrl",
+     "keys": []
+    }
+   }
+  },
+  "API_ENTERPRISE_PROJECT_0002.A_EntProjectElmntPublicSector": {
+   "kind": "entity",
+   "@cds.external": true,
+   "@cds.persistence.skip": true,
+   "@sap.creatable": "false",
+   "@sap.deletable": "false",
+   "@sap.content.version": "2",
+   "@sap.updatable.path": "Update_mc",
+   "@sap.label": "Project Element Public Sector",
+   "elements": {
+    "ProjectElementUUID": {
+     "key": true,
+     "type": "cds.UUID",
+     "@sap.label": "Entity GUID",
+     "@sap.quickinfo": "Entity Guid",
+     "@sap.updatable": "false",
+     "notNull": true
+    },
+    "FunctionalAreaIsFixAssigned_fc": {
+     "type": "cds.Integer",
+     "@odata.Type": "Edm.Byte",
+     "@sap.label": "Dyn. Field Control",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false"
+    },
+    "Fund_fc": {
+     "type": "cds.Integer",
+     "@odata.Type": "Edm.Byte",
+     "@sap.label": "Dyn. Field Control",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false"
+    },
+    "FundIsFixAssigned_fc": {
+     "type": "cds.Integer",
+     "@odata.Type": "Edm.Byte",
+     "@sap.label": "Dyn. Field Control",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false"
+    },
+    "GrantID_fc": {
+     "type": "cds.Integer",
+     "@odata.Type": "Edm.Byte",
+     "@sap.label": "Dyn. Field Control",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false"
+    },
+    "GrantIsFixAssigned_fc": {
+     "type": "cds.Integer",
+     "@odata.Type": "Edm.Byte",
+     "@sap.label": "Dyn. Field Control",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false"
+    },
+    "SponsoredProgram_fc": {
+     "type": "cds.Integer",
+     "@odata.Type": "Edm.Byte",
+     "@sap.label": "Dyn. Field Control",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false"
+    },
+    "Update_mc": {
+     "type": "cds.Boolean",
+     "@sap.label": "Dyn. Method Control",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false"
+    },
+    "ProjectUUID": {
+     "type": "cds.UUID",
+     "@sap.label": "Entity GUID",
+     "@sap.quickinfo": "Entity Guid",
+     "@sap.updatable": "false"
+    },
+    "Fund": {
+     "type": "cds.String",
+     "length": 10,
+     "@sap.display.format": "UpperCase",
+     "@sap.field.control": "Fund_fc",
+     "@sap.label": "Fund"
+    },
+    "FundIsFixAssigned": {
+     "type": "cds.Boolean",
+     "@sap.field.control": "FundIsFixAssigned_fc",
+     "@sap.label": "Fund Fixed Assignment",
+     "@sap.quickinfo": "Indicator for Fund with Fixed Assignment"
+    },
+    "FunctionalAreaIsFixAssigned": {
+     "type": "cds.Boolean",
+     "@sap.field.control": "FunctionalAreaIsFixAssigned_fc",
+     "@sap.label": "Functional Area Fixed Assignment",
+     "@sap.quickinfo": "Indicator for Functional Area with Fixed Assignment"
+    },
+    "GrantID": {
+     "type": "cds.String",
+     "length": 20,
+     "@sap.display.format": "UpperCase",
+     "@sap.field.control": "GrantID_fc",
+     "@sap.label": "Grant"
+    },
+    "GrantIsFixAssigned": {
+     "type": "cds.Boolean",
+     "@sap.field.control": "GrantIsFixAssigned_fc",
+     "@sap.label": "Grant Fixed Assignment",
+     "@sap.quickinfo": "Indicator for Grant with Fixed Assignment"
+    },
+    "SponsoredProgram": {
+     "type": "cds.String",
+     "length": 20,
+     "@sap.display.format": "UpperCase",
+     "@sap.field.control": "SponsoredProgram_fc",
+     "@sap.label": "Sponsored Program"
+    },
+    "to_EnterpriseProjectElement": {
+     "type": "cds.Association",
+     "target": "API_ENTERPRISE_PROJECT_0002.A_EnterpriseProjectElement",
+     "keys": []
+    },
+    "to_EnterpriseProject": {
+     "type": "cds.Association",
+     "target": "API_ENTERPRISE_PROJECT_0002.A_EnterpriseProject",
+     "keys": []
+    }
+   }
+  },
+  "API_ENTERPRISE_PROJECT_0002.A_EntProjElmntWorkItem": {
+   "kind": "entity",
+   "@cds.external": true,
+   "@cds.persistence.skip": true,
+   "@sap.creatable": "false",
+   "@sap.content.version": "2",
+   "@sap.deletable.path": "Delete_mc",
+   "@sap.updatable.path": "Update_mc",
+   "@sap.label": "Project Element Work Item",
+   "elements": {
+    "EntProjElmntWorkItemUUID": {
+     "key": true,
+     "type": "cds.UUID",
+     "@sap.label": "Entity GUID",
+     "@sap.quickinfo": "Entity Guid",
+     "@sap.updatable": "false",
+     "notNull": true
+    },
+    "Delete_mc": {
+     "type": "cds.Boolean",
+     "@sap.label": "Dyn. Method Control",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false"
+    },
+    "Update_mc": {
+     "type": "cds.Boolean",
+     "@sap.label": "Dyn. Method Control",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false"
+    },
+    "EntProjElmntWorkItem": {
+     "type": "cds.String",
+     "length": 10,
+     "@sap.display.format": "UpperCase",
+     "@sap.label": "ProjElmnt Work Item",
+     "@sap.quickinfo": "Enterprise Project Element Work Item",
+     "notNull": true
+    },
+    "EntProjElmntWorkItemName": {
+     "type": "cds.String",
+     "length": 40,
+     "@sap.label": "Work Item Name",
+     "@sap.quickinfo": "Enterprise Project Element Work Item Name",
+     "@sap.updatable": "false"
+    },
+    "EntProjElmntWorkItemIsInactive": {
+     "type": "cds.Boolean",
+     "@sap.label": "Inactive Work Item",
+     "@sap.quickinfo": "Enterprise Project Element Work Item is Inactive"
+    },
+    "EntProjElmntWorkItemIsCnfgrd": {
+     "type": "cds.Boolean",
+     "@sap.label": "Work Item Configured",
+     "@sap.quickinfo": "Enterprise Project Element Work Item is Configured",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false"
+    },
+    "ProjectUUID": {
+     "type": "cds.UUID",
+     "@sap.label": "Entity GUID",
+     "@sap.quickinfo": "Entity Guid",
+     "@sap.updatable": "false"
+    },
+    "ProjectElementUUID": {
+     "type": "cds.UUID",
+     "@sap.label": "Entity GUID",
+     "@sap.quickinfo": "Entity Guid",
+     "@sap.updatable": "false"
+    },
+    "EntProjElmntWrkItmLastUpdtSrce": {
+     "type": "cds.String",
+     "length": 1,
+     "@sap.display.format": "UpperCase",
+     "@sap.label": "Source of Update",
+     "@sap.quickinfo": "Enterprise Project Element Work Item - Source of Update",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false"
+    },
+    "EntProjElmntWrkItmCrtedByUsr": {
+     "type": "cds.String",
+     "length": 12,
+     "@sap.label": "Created By",
+     "@sap.quickinfo": "Name of Person Who Created Object",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false"
+    },
+    "EntProjElmntWrkItmCrtnDteTme": {
+     "type": "cds.DateTime",
+     "@odata.Type": "Edm.DateTimeOffset",
+     "@sap.label": "Created On",
+     "@sap.quickinfo": "Timestamp of Object Creation",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false"
+    },
+    "EntProjElmntWrkItmLstChgByUsr": {
+     "type": "cds.String",
+     "length": 12,
+     "@sap.display.format": "UpperCase",
+     "@sap.label": "Changed By",
+     "@sap.quickinfo": "Name of Person Who Changed Object",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false"
+    },
+    "EntProjElmntWrkItmLstChgDteTme": {
+     "type": "cds.DateTime",
+     "@odata.Type": "Edm.DateTimeOffset",
+     "@sap.label": "Changed On",
+     "@sap.quickinfo": "Timestamp of Last Object Change",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false"
+    },
+    "to_EnterpriseProjectElement": {
+     "type": "cds.Association",
+     "target": "API_ENTERPRISE_PROJECT_0002.A_EnterpriseProjectElement",
+     "keys": []
+    },
+    "to_ConfiguredWorkItemText": {
+     "type": "cds.Association",
+     "target": "API_ENTERPRISE_PROJECT_0002.A_EntProjElmntCnfgrdWrkItmTxt",
+     "cardinality": {
+      "max": "*"
+     },
+     "keys": []
+    },
+    "to_EnterpriseProject": {
+     "type": "cds.Association",
+     "target": "API_ENTERPRISE_PROJECT_0002.A_EnterpriseProject",
+     "keys": []
+    }
+   }
+  },
+  "API_ENTERPRISE_PROJECT_0002.A_EntTeamMemberEntitlement": {
+   "kind": "entity",
+   "@cds.external": true,
+   "@cds.persistence.skip": true,
+   "@sap.content.version": "2",
+   "@sap.deletable.path": "Delete_mc",
+   "@sap.updatable.path": "Update_mc",
+   "@sap.label": "Project Entitlement",
+   "elements": {
+    "ProjectEntitlementUUID": {
+     "key": true,
+     "type": "cds.UUID",
+     "@sap.label": "Entitlement",
+     "@sap.quickinfo": "Entitlement Guid",
+     "@sap.updatable": "false",
+     "notNull": true
+    },
+    "Delete_mc": {
+     "type": "cds.Boolean",
+     "@sap.label": "Dyn. Method Control",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false"
+    },
+    "Update_mc": {
+     "type": "cds.Boolean",
+     "@sap.label": "Dyn. Method Control",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false"
+    },
+    "ProjectUUID": {
+     "type": "cds.UUID",
+     "@sap.label": "Project",
+     "@sap.quickinfo": "Project GUID",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false"
+    },
+    "ProjectRoleUUID": {
+     "type": "cds.UUID",
+     "@sap.label": "Role",
+     "@sap.quickinfo": "Role GUID",
+     "@sap.updatable": "false"
+    },
+    "TeamMemberUUID": {
+     "type": "cds.UUID",
+     "@sap.label": "Team Member",
+     "@sap.quickinfo": "Team Member GUID",
+     "@sap.updatable": "false"
+    },
+    "ProjectRoleType": {
+     "type": "cds.String",
+     "length": 15,
+     "@sap.display.format": "UpperCase",
+     "@sap.label": "Role Type"
+    },
+    "CreatedByUser": {
+     "type": "cds.String",
+     "length": 12,
+     "@sap.label": "Created By",
+     "@sap.quickinfo": "Name of Person Who Created Object"
+    },
+    "CreationDateTime": {
+     "type": "cds.DateTime",
+     "@odata.Type": "Edm.DateTimeOffset",
+     "@sap.label": "Created On",
+     "@sap.quickinfo": "Timestamp of Object Creation"
+    },
+    "LastChangedByUser": {
+     "type": "cds.String",
+     "length": 12,
+     "@sap.display.format": "UpperCase",
+     "@sap.label": "Changed By",
+     "@sap.quickinfo": "Name of Person Who Changed Object"
+    },
+    "LastChangeDateTime": {
+     "type": "cds.DateTime",
+     "@odata.Type": "Edm.DateTimeOffset",
+     "@sap.label": "Changed On",
+     "@sap.quickinfo": "Timestamp of Last Object Change"
+    },
+    "to_TeamMember": {
+     "type": "cds.Association",
+     "target": "API_ENTERPRISE_PROJECT_0002.A_EnterpriseProjectTeamMember",
+     "keys": []
+    },
+    "to_EnterpriseProject": {
+     "type": "cds.Association",
+     "target": "API_ENTERPRISE_PROJECT_0002.A_EnterpriseProject",
+     "keys": []
+    },
+    "to_Role": {
+     "type": "cds.Association",
+     "target": "API_ENTERPRISE_PROJECT_0002.A_EnterpriseProjectRole",
+     "keys": []
+    }
+   }
+  }
+ }
+}

@@ -1,0 +1,18 @@
+{
+    "CreditMemoRequestType": "CR",
+    "CreditMemoRequestDate": "/Date(1749590400000)/",
+    "TransactionCurrency": "USD",
+    "SDDocumentReason": "101",
+    "BillingDocumentDate": "/Date(1749590400000)/",
+    "ReferenceSDDocument": "420000714",
+    "ReferenceSDDocumentCategory": "M",
+    "to_Item": {
+      "results": [
+        {
+          "CreditMemoRequestItem": "10",
+          "ReferenceSDDocument": "420000714",
+          "ReferenceSDDocumentItem": "988"
+        }
+      ]
+    }
+  } 

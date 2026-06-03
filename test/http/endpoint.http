@@ -1,0 +1,24 @@
+@svc = http://localhost:4004/odata/v4/monitor
+@default_headers=Content-Type: application/json
+
+### Files Metadata
+GET {{svc}}/$metadata
+
+### Files
+GET {{svc}}/Files
+?$skip=0
+&$top=10
+&$filter=status_code eq '1'
+# ?$filter=ID eq '1025'
+# &$expand=to_SowScInvoice
+
+
+### ProcessFile
+
+POST {{svc}}/processFile
+Content-Type: application/json
+
+{
+  "fileNumber":1025,
+  "records":[]
+}

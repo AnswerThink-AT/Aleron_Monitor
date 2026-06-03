@@ -1,0 +1,329 @@
+{
+ "meta": {
+  "creator": "cds-dk 8.9.2"
+ },
+ "$version": "2.0",
+ "definitions": {
+  "YY1_WORKFORCE_CDS": {
+   "kind": "service",
+   "@cds.external": true,
+   "@m.IsDefaultEntityContainer": "true",
+   "@sap.message.scope.supported": "true",
+   "@sap.supported.formats": "atom json xlsx"
+  },
+  "YY1_WORKFORCE_CDS.YY1_workforce_cds": {
+   "kind": "entity",
+   "@cds.external": true,
+   "@cds.persistence.skip": true,
+   "@sap.creatable": "false",
+   "@sap.updatable": "false",
+   "@sap.deletable": "false",
+   "@sap.content.version": "1",
+   "@sap.label": "workforce_cds",
+   "elements": {
+    "WorkforcePersonExternalID": {
+     "key": true,
+     "type": "cds.String",
+     "length": 100,
+     "@sap.required.in.filter": "false",
+     "@sap.label": "External Person ID",
+     "notNull": true
+    },
+    "FirstName": {
+     "type": "cds.String",
+     "length": 40,
+     "@sap.required.in.filter": "false",
+     "@sap.label": "First Name",
+     "@sap.quickinfo": "First Name of Business Partner (Person)"
+    },
+    "BusinessPartner": {
+     "type": "cds.String",
+     "length": 10,
+     "@sap.display.format": "UpperCase",
+     "@sap.required.in.filter": "false",
+     "@sap.label": "Business Partner",
+     "@sap.quickinfo": "Business Partner Number"
+    },
+    "MiddleName": {
+     "type": "cds.String",
+     "length": 40,
+     "@sap.required.in.filter": "false",
+     "@sap.label": "Middle Name",
+     "@sap.quickinfo": "Middle Name or Second Forename of a Person"
+    },
+    "AuthorizationGroup": {
+     "type": "cds.String",
+     "length": 4,
+     "@sap.display.format": "UpperCase",
+     "@sap.required.in.filter": "false",
+     "@sap.label": "Authorization Group"
+    },
+    "DataController10": {
+     "type": "cds.String",
+     "length": 30,
+     "@sap.display.format": "UpperCase",
+     "@sap.required.in.filter": "false",
+     "@sap.label": "Data Controller",
+     "@sap.quickinfo": "BP: Data Controller (Internal Use Only)"
+    },
+    "DataController8": {
+     "type": "cds.String",
+     "length": 30,
+     "@sap.display.format": "UpperCase",
+     "@sap.required.in.filter": "false",
+     "@sap.label": "Data Controller",
+     "@sap.quickinfo": "BP: Data Controller (Internal Use Only)"
+    },
+    "DataController9": {
+     "type": "cds.String",
+     "length": 30,
+     "@sap.display.format": "UpperCase",
+     "@sap.required.in.filter": "false",
+     "@sap.label": "Data Controller",
+     "@sap.quickinfo": "BP: Data Controller (Internal Use Only)"
+    },
+    "DataController7": {
+     "type": "cds.String",
+     "length": 30,
+     "@sap.display.format": "UpperCase",
+     "@sap.required.in.filter": "false",
+     "@sap.label": "Data Controller",
+     "@sap.quickinfo": "BP: Data Controller (Internal Use Only)"
+    },
+    "DataController6": {
+     "type": "cds.String",
+     "length": 30,
+     "@sap.display.format": "UpperCase",
+     "@sap.required.in.filter": "false",
+     "@sap.label": "Data Controller",
+     "@sap.quickinfo": "BP: Data Controller (Internal Use Only)"
+    },
+    "DataController5": {
+     "type": "cds.String",
+     "length": 30,
+     "@sap.display.format": "UpperCase",
+     "@sap.required.in.filter": "false",
+     "@sap.label": "Data Controller",
+     "@sap.quickinfo": "BP: Data Controller (Internal Use Only)"
+    },
+    "DataController4": {
+     "type": "cds.String",
+     "length": 30,
+     "@sap.display.format": "UpperCase",
+     "@sap.required.in.filter": "false",
+     "@sap.label": "Data Controller",
+     "@sap.quickinfo": "BP: Data Controller (Internal Use Only)"
+    },
+    "DataController3": {
+     "type": "cds.String",
+     "length": 30,
+     "@sap.display.format": "UpperCase",
+     "@sap.required.in.filter": "false",
+     "@sap.label": "Data Controller",
+     "@sap.quickinfo": "BP: Data Controller (Internal Use Only)"
+    },
+    "DataController2": {
+     "type": "cds.String",
+     "length": 30,
+     "@sap.display.format": "UpperCase",
+     "@sap.required.in.filter": "false",
+     "@sap.label": "Data Controller",
+     "@sap.quickinfo": "BP: Data Controller (Internal Use Only)"
+    },
+    "DataController1": {
+     "type": "cds.String",
+     "length": 30,
+     "@sap.display.format": "UpperCase",
+     "@sap.required.in.filter": "false",
+     "@sap.label": "Data Controller",
+     "@sap.quickinfo": "BP: Data Controller (Internal Use Only)"
+    },
+    "DataControllerSet": {
+     "type": "cds.String",
+     "length": 1,
+     "@sap.display.format": "UpperCase",
+     "@sap.required.in.filter": "false",
+     "@sap.label": "Data Ctrlr. Set",
+     "@sap.quickinfo": "BP: Data Controller Set Flag"
+    },
+    "IsBusinessPurposeCompleted": {
+     "type": "cds.String",
+     "length": 1,
+     "@sap.display.format": "UpperCase",
+     "@sap.required.in.filter": "false",
+     "@sap.label": "Purpose Completed",
+     "@sap.quickinfo": "Business Purpose Completed Flag"
+    },
+    "NativePreferredLanguage": {
+     "type": "cds.String",
+     "length": 2,
+     "@sap.required.in.filter": "false",
+     "@sap.label": "Correspondence Lang.",
+     "@sap.quickinfo": "Business Partner: Correspondence Language"
+    },
+    "Initials": {
+     "type": "cds.String",
+     "length": 10,
+     "@sap.display.format": "UpperCase",
+     "@sap.required.in.filter": "false",
+     "@sap.label": "Initials",
+     "@sap.quickinfo": "&quot;Middle Initial&quot; or personal initials"
+    },
+    "BirthName": {
+     "type": "cds.String",
+     "length": 40,
+     "@sap.required.in.filter": "false",
+     "@sap.label": "Name at Birth",
+     "@sap.quickinfo": "Name at birth of business partner"
+    },
+    "FullName": {
+     "type": "cds.String",
+     "length": 80,
+     "@sap.required.in.filter": "false",
+     "@sap.label": "Full Name"
+    },
+    "LastName": {
+     "type": "cds.String",
+     "length": 40,
+     "@sap.required.in.filter": "false",
+     "@sap.label": "Last Name",
+     "@sap.quickinfo": "Last Name of Business Partner (Person)"
+    },
+    "PersonWorkAgreement": {
+     "type": "cds.String",
+     "length": 8,
+     "@sap.display.format": "NonNegative",
+     "@sap.required.in.filter": "false",
+     "@sap.text": "PersonFullName",
+     "@sap.label": "Personnel Number"
+    },
+    "PersonFullName": {
+     "type": "cds.String",
+     "length": 80,
+     "@sap.required.in.filter": "false",
+     "@sap.label": "Full Name"
+    },
+    "WorkAssignmentStartDate": {
+     "type": "cds.Date",
+     "@sap.display.format": "Date",
+     "@sap.required.in.filter": "false",
+     "@sap.label": "Start Date"
+    },
+    "WorkAssignmentEndDate": {
+     "type": "cds.Date",
+     "@sap.display.format": "Date",
+     "@sap.required.in.filter": "false",
+     "@sap.label": "End Date"
+    },
+    "Country2DigitISOCode": {
+     "type": "cds.String",
+     "length": 2,
+     "@sap.display.format": "UpperCase",
+     "@sap.required.in.filter": "false",
+     "@sap.label": "Country/Region",
+     "@sap.quickinfo": "Workforce Country ISO Code"
+    },
+    "CompanyCode": {
+     "type": "cds.String",
+     "length": 4,
+     "@sap.display.format": "UpperCase",
+     "@sap.required.in.filter": "false",
+     "@sap.label": "Company Code"
+    },
+    "CostCenter": {
+     "type": "cds.String",
+     "length": 10,
+     "@sap.display.format": "UpperCase",
+     "@sap.required.in.filter": "false",
+     "@sap.label": "Cost Center"
+    },
+    "WeeklyWorkingHours": {
+     "type": "cds.Decimal",
+     "precision": 5,
+     "scale": 2,
+     "@sap.required.in.filter": "false",
+     "@sap.label": "Working Hours",
+     "@sap.quickinfo": "Working Hours in a Week"
+    },
+    "WeeklyWorkingDays": {
+     "type": "cds.Decimal",
+     "precision": 4,
+     "scale": 2,
+     "@sap.required.in.filter": "false",
+     "@sap.label": "Working Days",
+     "@sap.quickinfo": "Working Days in a Week"
+    },
+    "WorkAssignmentStatus": {
+     "type": "cds.String",
+     "length": 1,
+     "@sap.display.format": "UpperCase",
+     "@sap.required.in.filter": "false",
+     "@sap.label": "Employment Status"
+    },
+    "EmploymentPercent": {
+     "type": "cds.Decimal",
+     "precision": 5,
+     "scale": 2,
+     "@sap.required.in.filter": "false",
+     "@sap.label": "Emplymt Percentage",
+     "@sap.quickinfo": "Employment Percentage"
+    },
+    "IsBlocked": {
+     "type": "cds.Boolean",
+     "@sap.required.in.filter": "false",
+     "@sap.label": "Blocked Indicator"
+    },
+    "SupervisorWorkAssignmentExtID": {
+     "type": "cds.String",
+     "length": 100,
+     "@sap.required.in.filter": "false",
+     "@sap.label": "Manager External ID",
+     "@sap.quickinfo": "Manager Workforce Assignment External ID"
+    },
+    "WorkforcePersonExternalID_1": {
+     "type": "cds.String",
+     "length": 100,
+     "@sap.required.in.filter": "false",
+     "@sap.label": "External Person ID"
+    },
+    "WorkAssignmentExternalID": {
+     "type": "cds.String",
+     "length": 100,
+     "@sap.required.in.filter": "false",
+     "@sap.label": "WFA Ext. ID",
+     "@sap.quickinfo": "Workforce Assignment External ID"
+    },
+    "WorkforcePersonDataSource": {
+     "type": "cds.String",
+     "length": 1,
+     "@sap.display.format": "UpperCase",
+     "@sap.required.in.filter": "false",
+     "@sap.label": "Data Source"
+    },
+    "WorkforcePersonDataSourceText": {
+     "type": "cds.String",
+     "length": 60,
+     "@sap.required.in.filter": "false",
+     "@sap.label": "Data Source Text",
+     "@sap.quickinfo": "Explanatory Short Text"
+    },
+    "Supplier": {
+     "type": "cds.String",
+     "length": 10,
+     "@sap.display.format": "UpperCase",
+     "@sap.required.in.filter": "false",
+     "@sap.label": "Supplier",
+     "@sap.quickinfo": "Account Number of Supplier"
+    },
+    "WorkAssignmentBusinessPartner": {
+     "type": "cds.String",
+     "length": 10,
+     "@sap.display.format": "UpperCase",
+     "@sap.required.in.filter": "false",
+     "@sap.label": "Business Partner (Employee)",
+     "@sap.quickinfo": "Business Partner Number"
+    }
+   }
+  }
+ }
+}

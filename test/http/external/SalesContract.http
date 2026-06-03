@@ -1,0 +1,62 @@
+
+###
+# Environment should be switched by commenting either BAS environment or Local VSCode environment. Make sure to comment the other environment.
+# Region for comment would be - Start to - End
+
+### BAS environment -- Start
+@s4_base_url=http://S4HC_MONITOR_BASIC_AUTH_CUST.dest
+@default_headers=Content-Type: application/json
+### BAS environment -- End
+
+### Local VSCode environment - Start
+# @s4_user={{$dotenv s4_user}}
+# @s4_pass={{$dotenv s4_pass}}
+# @s4_base_url=https://my420210-api.s4hana.cloud.sap
+# @basic_auth=Authorization: Basic {{s4_user}}:{{s4_pass}}
+# @default_headers=Content-Type: application/json\n{{basic_auth}}
+### Local VSCode environment - End
+
+# Service Variables
+@svc_url={{s4_base_url}}/sap/opu/odata4/sap/api_salescontract/srvd_a2x/sap/salescontract/0001
+ 
+### Metadata
+# @name metadata_call
+ 
+GET {{svc_url}}/$metadata
+{{default_headers}}
+X-CSRF-Token: Fetch
+ 
+###
+@csrf_token={{metadata_call.response.headers.X-CSRF-Token}}
+
+### Get SalesContract
+GET {{svc_url}}/SalesContract
+?$format=json
+&$top=50
+# &$select=SalesContract,SalesOrganization,DistributionChannel,OrganizationDivision,SalesOffice,SoldToParty
+# &$expand=_Item
+&$expand=_Item
+&$filter=SalesContract eq '40000174'
+# &$filter=SalesOrganization eq '1100' and PartnerFunction eq 'Z1' and BPCustomerNumber eq '10000' and Customer eq '10000'
+# &$filter=SalesContract eq '40000638' or SalesContract eq '40006017' or SalesContract eq '40000348'
+{{default_headers}}
+
+### Get SalesContract Address
+GET {{svc_url}}/SalesContract
+?$format=json
+&$top=10
+&$select=SalesContract,SalesOrganization,DistributionChannel,OrganizationDivision,SalesOffice
+&$expand=_Item($filter=Product eq '100000459')
+# &$filter=SalesOrganization eq '1100' and PartnerFunction eq 'Z1' and BPCustomerNumber eq '10000' and Customer eq '10000'
+{{default_headers}}
+
+### Get SalesContract Address
+GET {{svc_url}}/SalesContractItem
+?$format=json
+&$top=10
+&$expand=_SalesContract($select=SalesContract,SalesOrganization,DistributionChannel,OrganizationDivision)
+&$filter=SalesContract eq '40000000' and Product eq '100000310'
+# &$select=SalesContract,SalesOrganization,DistributionChannel,OrganizationDivision,SalesOffice
+# &$expand=_Item($filter=Product eq '100000459')
+# &$filter=SalesOrganization eq '1100' and PartnerFunction eq 'Z1' and BPCustomerNumber eq '10000' and Customer eq '10000'
+{{default_headers}}

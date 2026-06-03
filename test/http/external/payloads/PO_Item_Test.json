@@ -1,0 +1,42 @@
+{
+    "PurchaseOrder": "4500003773",
+    "PurchaseOrderItem": "01030",
+    "PurchaseOrderCategory": "F",
+    "CompanyCode": "1200",
+    "Material": "100000333",
+    "Plant": "1200",
+    "PurchaseOrderQuantityUnit": "LAB",
+    "OrderQuantity": 1,
+    "NetPriceQuantity": 1,
+    "OrderPriceUnit": "LAB",
+    "DocumentCurrency": "USD",
+    "YY1_SDDocumentPD_PDI": "2700002223",
+    "NetPriceAmount": 0,
+    "TaxCode": "I0",
+    "TaxJurisdiction": "2600000000",
+    "AccountAssignmentCategory": "Z",
+    "_PurOrdAccountAssignment": [
+        {
+            "PurchaseOrderItem": "01030",
+            "AccountAssignmentNumber": "1",
+            "GLAccount": "615115",
+            "ControllingArea": "A000",
+            "WBSElementExternalID": "90016782",
+            "Quantity": 1,
+            "OrderQuantityUnit": "LAB",
+            "DocumentCurrency": "USD",
+            "PurgDocNetAmount": 0
+        }
+    ],
+    "_DeliveryAddress": {
+        "PurchaseOrder": "4500003773",
+        "PurchaseOrderItem": "01030",
+        "DeliveryAddressID": "30607"
+    },
+    "_PurOrdPricingElement": [
+        {
+            "ConditionType": "ZPAY",
+            "ConditionRateAmount": 0
+        }
+    ]
+}

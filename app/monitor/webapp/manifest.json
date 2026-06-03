@@ -1,0 +1,1305 @@
+{
+  "_version": "1.65.0",
+  "sap.app": {
+    "id": "monitor",
+    "type": "application",
+    "i18n": {
+      "bundleUrl": "i18n/i18n.properties",
+      "supportedLocales": [
+        ""
+      ],
+      "fallbackLocale": ""
+    },
+    "applicationVersion": {
+      "version": "0.0.1"
+    },
+    "title": "{{appTitle}}",
+    "description": "{{appDescription}}",
+    "resources": "resources.json",
+    "sourceTemplate": {
+      "id": "@sap/generator-fiori:lrop",
+      "version": "1.15.7",
+      "toolsId": "a93c5188-b457-407e-818d-186b704b163c"
+    },
+    "dataSources": {
+      "mainService": {
+        "uri": "/odata/v4/monitor/",
+        "type": "OData",
+        "settings": {
+          "annotations": [],
+          "odataVersion": "4.0"
+        }
+      }
+    },
+    "crossNavigation": {
+      "inbounds": {
+        "Interface-monitor": {
+          "semanticObject": "Interface",
+          "action": "monitor",
+          "title": "{{flpTitle}}",
+          "signature": {
+            "parameters": {},
+            "additionalParameters": "allowed"
+          }
+        }
+      }
+    }
+  },
+  "sap.ui": {
+    "technology": "UI5",
+    "icons": {
+      "icon": "",
+      "favIcon": "",
+      "phone": "",
+      "phone@2": "",
+      "tablet": "",
+      "tablet@2": ""
+    },
+    "deviceTypes": {
+      "desktop": true,
+      "tablet": true,
+      "phone": true
+    }
+  },
+  "sap.ui5": {
+    "flexEnabled": false,
+    "dependencies": {
+      "minUI5Version": "1.138.1",
+      "libs": {
+        "sap.m": {},
+        "sap.ui.core": {},
+        "sap.ushell": {},
+        "sap.fe.templates": {}
+      }
+    },
+    "contentDensities": {
+      "compact": true,
+      "cozy": true
+    },
+    "models": {
+      "i18n": {
+        "type": "sap.ui.model.resource.ResourceModel",
+        "settings": {
+          "bundleName": "monitor.i18n.i18n",
+          "supportedLocales": [
+            ""
+          ],
+          "fallbackLocale": ""
+        }
+      },
+      "": {
+        "dataSource": "mainService",
+        "preload": true,
+        "settings": {
+          "operationMode": "Server",
+          "autoExpandSelect": true,
+          "earlyRequests": true
+        }
+      },
+      "@i18n": {
+        "type": "sap.ui.model.resource.ResourceModel",
+        "uri": "i18n/i18n.properties"
+      },
+      "appModel": {
+        "type": "sap.ui.model.json.JSONModel"
+      }
+    },
+    "resources": {
+      "css": [
+        {
+          "uri": "css/style.css"
+        }
+      ]
+    },
+    "routing": {
+      "config": {},
+      "routes": [
+        {
+          "pattern": ":?query:",
+          "name": "FilesList",
+          "target": "FilesList"
+        },
+        {
+          "name": "FilesObjectPage",
+          "pattern": "Files({FilesKey}):?query:",
+          "target": "FilesObjectPage"
+        }
+      ],
+      "targets": {
+        "FilesList": {
+          "type": "Component",
+          "id": "FilesList",
+          "name": "sap.fe.templates.ListReport",
+          "options": {
+            "settings": {
+              "contextPath": "/Files",
+              "variantManagement": "Page",
+              "navigation": {
+                "Files": {
+                  "detail": {
+                    "route": "FilesObjectPage"
+                  }
+                }
+              },
+              "controlConfiguration": {
+                "@com.sap.vocabularies.UI.v1.SelectionFields": {
+                  "filterFields": {
+                    "createdAt": {
+                      "settings": {
+                        "defaultValues": [
+                          {
+                            "operator": "TODAYFROMTO",
+                            "values": [
+                              7,
+                              0
+                            ]
+                          }
+                        ]
+                      }
+                    }
+                  }
+                },
+                "@com.sap.vocabularies.UI.v1.LineItem": {
+                  "tableSettings": {
+                    "type": "ResponsiveTable",
+                    "disableCopyToClipboard": true,
+                    "selectAll": false
+                  },
+                  "actions": {
+                    "miUploadFile": {
+                      "press": ".extension.monitor.ext.controller.ListExt.onPressUpload",
+                      "visible": true,
+                      "enabled": true,
+                      "requiresSelection": false,
+                      "text": "{{uploadFile}}"
+                    }
+                  }
+                }
+              },
+              "initialLoad": "Enabled"
+            }
+          }
+        },
+        "FilesObjectPage": {
+          "type": "Component",
+          "id": "FilesObjectPage",
+          "name": "sap.fe.templates.ObjectPage",
+          "options": {
+            "settings": {
+              "enableSemanticCard": false,
+              "navigation": {},
+              "contextPath": "/Files",
+              "editableHeaderContent": false,
+              "controlConfiguration": {
+                "to_Times/@com.sap.vocabularies.UI.v1.LineItem#Times": {
+                  "tableSettings": {
+                    "disableCopyToClipboard": true,
+                    "enablePaste": false,
+                    "selectAll": false,
+                    "type": "GridTable",
+                    "enableFullScreen": true,
+                    "condensedTableLayout": true,
+                    "selectionMode": "Multi",
+                    "rowCount": 10,
+                    "enableExport": false,
+                    "selectionLimit": 10000
+                  },
+                  "actions": {
+                    "miRefresh": {
+                      "press": ".extension.monitor.ext.controller.ObjectExt.onPressRefresh",
+                      "visible": "{= !${ui>/isEditable}}",
+                      "enabled": "{= !${ui>/isEditable}}",
+                      "requiresSelection": false,
+                      "parameters": {
+                        "icon": "sap-icon://refresh",
+                        "useIconOnly": true,
+                        "type": "Transparent"
+                      }
+                    },
+                    "miProcessRecords": {
+                      "press": "monitor.ext.controller.CustomAction.onPressProcessRecords",
+                      "visible": "{= !${ui>/isEditable}}",
+                      "enabled": "{= !${ui>/isEditable}}",
+                      "requiresSelection": true,
+                      "text": "{{process}}"
+                    },
+                    "miValidate": {
+                      "press": "monitor.ext.controller.CustomAction.onPressValidate",
+                      "visible": "{= !${ui>/isEditable}}",
+                      "enabled": "{= !${ui>/isEditable}}",
+                      "requiresSelection": true,
+                      "text": "{{validate}}"
+                    },
+                    "miReject": {
+                      "press": "monitor.ext.controller.CustomAction.onPressRejectRecords",
+                      "visible": "{= !${ui>/isEditable}}",
+                      "enabled": "{= !${ui>/isEditable}}",
+                      "requiresSelection": true,
+                      "text": "{{reject}}"
+                    },
+                    "miOverrideDate": {
+                      "press": "monitor.ext.controller.CustomAction.onPressOverrideDate",
+                      "visible": "{= !${ui>/isEditable}}",
+                      "enabled": "{= !${ui>/isEditable}}",
+                      "requiresSelection": true,
+                      "text": "{{Override Date}}"
+                    }
+                  },
+                  "columns": {
+                    "DataField::valid": {
+                      "width": "9rem"
+                    },
+                    "ProcessErrors": {
+                      "header": "{{Logs}}",
+                      "position": {
+                        "anchor": "DataField::valid",
+                        "placement": "After"
+                      },
+                      "template": "monitor.ext.fragment.ProcessErrors"
+                    }
+                  }
+                },
+                "to_Times/@com.sap.vocabularies.UI.v1.LineItem#StaffTime": {
+                  "tableSettings": {
+                    "disableCopyToClipboard": true,
+                    "enablePaste": false,
+                    "selectAll": false,
+                    "type": "GridTable",
+                    "enableFullScreen": true,
+                    "condensedTableLayout": true,
+                    "selectionMode": "Multi",
+                    "rowCount": 10,
+                    "enableExport": false,
+                    "selectionLimit": 10000
+                  },
+                  "actions": {
+                    "miRefresh": {
+                      "press": ".extension.monitor.ext.controller.ObjectExt.onPressRefresh",
+                      "visible": "{= !${ui>/isEditable}}",
+                      "enabled": "{= !${ui>/isEditable}}",
+                      "requiresSelection": false,
+                      "parameters": {
+                        "icon": "sap-icon://refresh",
+                        "useIconOnly": true,
+                        "type": "Transparent"
+                      }
+                    },
+                    "miProcessRecords": {
+                      "press": "monitor.ext.controller.CustomAction.onPressProcessRecords",
+                      "visible": "{= !${ui>/isEditable}}",
+                      "enabled": "{= !${ui>/isEditable}}",
+                      "requiresSelection": true,
+                      "text": "{{process}}"
+                    },
+                    "miValidate": {
+                      "press": "monitor.ext.controller.CustomAction.onPressValidate",
+                      "visible": "{= !${ui>/isEditable}}",
+                      "enabled": "{= !${ui>/isEditable}}",
+                      "requiresSelection": true,
+                      "text": "{{validate}}"
+                    },
+                    "miReject": {
+                      "press": "monitor.ext.controller.CustomAction.onPressRejectRecords",
+                      "visible": "{= !${ui>/isEditable}}",
+                      "enabled": "{= !${ui>/isEditable}}",
+                      "requiresSelection": true,
+                      "text": "{{reject}}"
+                    }
+                  },
+                  "columns": {
+                    "DataField::valid": {
+                      "width": "9rem"
+                    },
+                    "ProcessErrors": {
+                      "header": "{{Logs}}",
+                      "position": {
+                        "anchor": "DataField::valid",
+                        "placement": "After"
+                      },
+                      "template": "monitor.ext.fragment.ProcessErrors"
+                    }
+                  }
+                },
+                "to_EmployeeHires/@com.sap.vocabularies.UI.v1.LineItem#EmployeeRecords": {
+                  "tableSettings": {
+                    "type": "GridTable",
+                    "condensedTableLayout": true,
+                    "disableCopyToClipboard": true,
+                    "enableExport": false,
+                    "enableFullScreen": true,
+                    "enablePaste": false,
+                    "selectionMode": "Multi",
+                    "selectAll": false,
+                    "rowCount": 10,
+                    "selectionLimit": 10000
+                  },
+                  "actions": {
+                    "miRefresh": {
+                      "press": ".extension.monitor.ext.controller.ObjectExt.onPressRefresh",
+                      "visible": "{= !${ui>/isEditable}}",
+                      "enabled": "{= !${ui>/isEditable}}",
+                      "requiresSelection": false,
+                      "parameters": {
+                        "icon": "sap-icon://refresh",
+                        "useIconOnly": true,
+                        "type": "Transparent"
+                      }
+                    },
+                    "miProcessRecords": {
+                      "press": "monitor.ext.controller.CustomAction.onPressProcessRecords",
+                      "visible": "{= !${ui>/isEditable}}",
+                      "enabled": "{= !${ui>/isEditable}}",
+                      "requiresSelection": true,
+                      "text": "{{process}}"
+                    },
+                    "miValidate": {
+                      "press": "monitor.ext.controller.CustomAction.onPressValidate",
+                      "visible": "{= !${ui>/isEditable}}",
+                      "enabled": "{= !${ui>/isEditable}}",
+                      "requiresSelection": true,
+                      "text": "{{validate}}"
+                    },
+                    "miReject": {
+                      "press": "monitor.ext.controller.CustomAction.onPressRejectRecords",
+                      "visible": "{= !${ui>/isEditable}}",
+                      "enabled": "{= !${ui>/isEditable}}",
+                      "requiresSelection": true,
+                      "text": "{{reject}}"
+                    }
+                  },
+                  "columns": {
+                    "DataField::valid": {
+                      "width": "9rem"
+                    },
+                    "ProcessErrors": {
+                      "header": "{{Logs}}",
+                      "position": {
+                        "anchor": "DataField::valid",
+                        "placement": "After"
+                      },
+                      "template": "monitor.ext.fragment.ProcessErrors"
+                    }
+                  }
+                },
+                "to_StaffHires/@com.sap.vocabularies.UI.v1.LineItem#StaffRecords": {
+                  "tableSettings": {
+                    "type": "GridTable",
+                    "condensedTableLayout": true,
+                    "disableCopyToClipboard": true,
+                    "enableExport": false,
+                    "enableFullScreen": true,
+                    "enablePaste": false,
+                    "selectionMode": "Multi",
+                    "selectAll": false,
+                    "rowCount": 10,
+                    "selectionLimit": 10000
+                  },
+                  "actions": {
+                    "miRefresh": {
+                      "press": ".extension.monitor.ext.controller.ObjectExt.onPressRefresh",
+                      "visible": "{= !${ui>/isEditable}}",
+                      "enabled": "{= !${ui>/isEditable}}",
+                      "requiresSelection": false,
+                      "parameters": {
+                        "icon": "sap-icon://refresh",
+                        "useIconOnly": true,
+                        "type": "Transparent"
+                      }
+                    },
+                    "miProcessRecords": {
+                      "press": "monitor.ext.controller.CustomAction.onPressProcessRecords",
+                      "visible": "{= !${ui>/isEditable}}",
+                      "enabled": "{= !${ui>/isEditable}}",
+                      "requiresSelection": true,
+                      "text": "{{process}}"
+                    },
+                    "miValidate": {
+                      "press": "monitor.ext.controller.CustomAction.onPressValidate",
+                      "visible": "{= !${ui>/isEditable}}",
+                      "enabled": "{= !${ui>/isEditable}}",
+                      "requiresSelection": true,
+                      "text": "{{validate}}"
+                    },
+                    "miReject": {
+                      "press": "monitor.ext.controller.CustomAction.onPressRejectRecords",
+                      "visible": "{= !${ui>/isEditable}}",
+                      "enabled": "{= !${ui>/isEditable}}",
+                      "requiresSelection": true,
+                      "text": "{{reject}}"
+                    }
+                  },
+                  "columns": {
+                    "DataField::valid": {
+                      "width": "9rem"
+                    },
+                    "ProcessErrors": {
+                      "header": "{{Logs}}",
+                      "position": {
+                        "anchor": "DataField::valid",
+                        "placement": "After"
+                      },
+                      "template": "monitor.ext.fragment.ProcessErrors"
+                    }
+                  }
+                },
+                "to_WorkOrders/@com.sap.vocabularies.UI.v1.LineItem#WorkOrders": {
+                  "tableSettings": {
+                    "disableCopyToClipboard": true,
+                    "enablePaste": false,
+                    "selectAll": false,
+                    "type": "GridTable",
+                    "enableFullScreen": true,
+                    "condensedTableLayout": true,
+                    "selectionMode": "Multi",
+                    "rowCount": 10,
+                    "enableExport": false,
+                    "selectionLimit": 10000
+                  },
+                  "actions": {
+                    "miRefresh": {
+                      "press": ".extension.monitor.ext.controller.ObjectExt.onPressRefresh",
+                      "visible": "{= !${ui>/isEditable}}",
+                      "enabled": "{= !${ui>/isEditable}}",
+                      "requiresSelection": false,
+                      "parameters": {
+                        "icon": "sap-icon://refresh",
+                        "useIconOnly": true,
+                        "type": "Transparent"
+                      }
+                    },
+                    "miProcessRecords": {
+                      "press": "monitor.ext.controller.CustomAction.onPressProcessRecords",
+                      "visible": "{= !${ui>/isEditable}}",
+                      "enabled": "{= !${ui>/isEditable}}",
+                      "requiresSelection": true,
+                      "text": "{{process}}"
+                    },
+                    "miValidate": {
+                      "press": "monitor.ext.controller.CustomAction.onPressValidate",
+                      "visible": "{= !${ui>/isEditable}}",
+                      "enabled": "{= !${ui>/isEditable}}",
+                      "requiresSelection": true,
+                      "text": "{{validate}}"
+                    },
+                    "miReject": {
+                      "press": "monitor.ext.controller.CustomAction.onPressRejectRecords",
+                      "visible": "{= !${ui>/isEditable}}",
+                      "enabled": "{= !${ui>/isEditable}}",
+                      "requiresSelection": true,
+                      "text": "{{reject}}"
+                    }
+                  },
+                  "columns": {
+                    "DataField::valid": {
+                      "width": "9rem"
+                    },
+                    "ProcessErrors": {
+                      "header": "{{Logs}}",
+                      "position": {
+                        "anchor": "DataField::valid",
+                        "placement": "After"
+                      },
+                      "template": "monitor.ext.fragment.ProcessErrors"
+                    }
+                  }
+                },
+                "to_WorkOrders_WN/@com.sap.vocabularies.UI.v1.LineItem#WorkOrdersWN": {
+                  "tableSettings": {
+                    "disableCopyToClipboard": true,
+                    "enablePaste": false,
+                    "selectAll": false,
+                    "type": "GridTable",
+                    "enableFullScreen": true,
+                    "condensedTableLayout": true,
+                    "selectionMode": "Multi",
+                    "rowCount": 10,
+                    "enableExport": false,
+                    "selectionLimit": 10000
+                  },
+                  "actions": {
+                    "miRefresh": {
+                      "press": ".extension.monitor.ext.controller.ObjectExt.onPressRefresh",
+                      "visible": "{= !${ui>/isEditable}}",
+                      "enabled": "{= !${ui>/isEditable}}",
+                      "requiresSelection": false,
+                      "parameters": {
+                        "icon": "sap-icon://refresh",
+                        "useIconOnly": true,
+                        "type": "Transparent"
+                      }
+                    },
+                    "miProcessRecords": {
+                      "press": "monitor.ext.controller.CustomAction.onPressProcessRecords",
+                      "visible": "{= !${ui>/isEditable}}",
+                      "enabled": "{= !${ui>/isEditable}}",
+                      "requiresSelection": true,
+                      "text": "{{process}}"
+                    },
+                    "miValidate": {
+                      "press": "monitor.ext.controller.CustomAction.onPressValidate",
+                      "visible": "{= !${ui>/isEditable}}",
+                      "enabled": "{= !${ui>/isEditable}}",
+                      "requiresSelection": true,
+                      "text": "{{validate}}"
+                    },
+                    "miReject": {
+                      "press": "monitor.ext.controller.CustomAction.onPressRejectRecords",
+                      "visible": "{= !${ui>/isEditable}}",
+                      "enabled": "{= !${ui>/isEditable}}",
+                      "requiresSelection": true,
+                      "text": "{{reject}}"
+                    }
+                  },
+                  "columns": {
+                    "DataField::valid": {
+                      "width": "9rem"
+                    },
+                    "ProcessErrors": {
+                      "header": "{{Logs}}",
+                      "position": {
+                        "anchor": "DataField::valid",
+                        "placement": "After"
+                      },
+                      "template": "monitor.ext.fragment.ProcessErrors"
+                    }
+                  }
+                },
+                "to_WorkOrders_FG/@com.sap.vocabularies.UI.v1.LineItem#WorkOrdersFG": {
+                  "tableSettings": {
+                    "type": "GridTable",
+                    "condensedTableLayout": true,
+                    "disableCopyToClipboard": true,
+                    "enableExport": false,
+                    "enableFullScreen": true,
+                    "enablePaste": false,
+                    "selectionMode": "Multi",
+                    "selectAll": false,
+                    "rowCount": 10,
+                    "selectionLimit": 10000
+                  },
+                  "actions": {
+                    "miRefresh": {
+                      "press": ".extension.monitor.ext.controller.ObjectExt.onPressRefresh",
+                      "visible": "{= !${ui>/isEditable}}",
+                      "enabled": "{= !${ui>/isEditable}}",
+                      "requiresSelection": false,
+                      "parameters": {
+                        "icon": "sap-icon://refresh",
+                        "useIconOnly": true,
+                        "type": "Transparent"
+                      }
+                    },
+                    "miProcessRecords": {
+                      "press": "monitor.ext.controller.CustomAction.onPressProcessRecords",
+                      "visible": "{= !${ui>/isEditable}}",
+                      "enabled": "{= !${ui>/isEditable}}",
+                      "requiresSelection": true,
+                      "text": "{{process}}"
+                    },
+                    "miValidate": {
+                      "press": "monitor.ext.controller.CustomAction.onPressValidate",
+                      "visible": "{= !${ui>/isEditable}}",
+                      "enabled": "{= !${ui>/isEditable}}",
+                      "requiresSelection": true,
+                      "text": "{{validate}}"
+                    },
+                    "miReject": {
+                      "press": "monitor.ext.controller.CustomAction.onPressRejectRecords",
+                      "visible": "{= !${ui>/isEditable}}",
+                      "enabled": "{= !${ui>/isEditable}}",
+                      "requiresSelection": true,
+                      "text": "{{reject}}"
+                    }
+                  },
+                  "columns": {
+                    "DataField::valid": {
+                      "width": "9rem"
+                    },
+                    "ProcessErrors": {
+                      "header": "{{Logs}}",
+                      "position": {
+                        "anchor": "DataField::valid",
+                        "placement": "After"
+                      },
+                      "template": "monitor.ext.fragment.ProcessErrors"
+                    }
+                  }
+                },
+                "to_Terminations/@com.sap.vocabularies.UI.v1.LineItem#Terminations": {
+                  "tableSettings": {
+                    "type": "GridTable",
+                    "condensedTableLayout": true,
+                    "disableCopyToClipboard": true,
+                    "enableExport": false,
+                    "enableFullScreen": true,
+                    "enablePaste": false,
+                    "selectionMode": "Multi",
+                    "selectAll": false,
+                    "rowCount": 10,
+                    "selectionLimit": 10000
+                  },
+                  "actions": {
+                    "miRefresh": {
+                      "press": ".extension.monitor.ext.controller.ObjectExt.onPressRefresh",
+                      "visible": "{= !${ui>/isEditable}}",
+                      "enabled": "{= !${ui>/isEditable}}",
+                      "requiresSelection": false,
+                      "parameters": {
+                        "icon": "sap-icon://refresh",
+                        "useIconOnly": true,
+                        "type": "Transparent"
+                      }
+                    },
+                    "miProcessRecords": {
+                      "press": "monitor.ext.controller.CustomAction.onPressProcessRecords",
+                      "visible": "{= !${ui>/isEditable}}",
+                      "enabled": "{= !${ui>/isEditable}}",
+                      "requiresSelection": true,
+                      "text": "{{process}}"
+                    },
+                    "miValidate": {
+                      "press": "monitor.ext.controller.CustomAction.onPressValidate",
+                      "visible": "{= !${ui>/isEditable}}",
+                      "enabled": "{= !${ui>/isEditable}}",
+                      "requiresSelection": true,
+                      "text": "{{validate}}"
+                    },
+                    "miReject": {
+                      "press": "monitor.ext.controller.CustomAction.onPressRejectRecords",
+                      "visible": "{= !${ui>/isEditable}}",
+                      "enabled": "{= !${ui>/isEditable}}",
+                      "requiresSelection": true,
+                      "text": "{{reject}}"
+                    }
+                  },
+                  "columns": {
+                    "DataField::valid": {
+                      "width": "9rem"
+                    },
+                    "ProcessErrors": {
+                      "header": "{{Logs}}",
+                      "position": {
+                        "anchor": "DataField::valid",
+                        "placement": "After"
+                      },
+                      "template": "monitor.ext.fragment.ProcessErrors"
+                    }
+                  }
+                },
+                "to_Fg_Invoices/@com.sap.vocabularies.UI.v1.LineItem#FgTimeInvoices": {
+                  "tableSettings": {
+                    "type": "GridTable",
+                    "condensedTableLayout": true,
+                    "disableCopyToClipboard": true,
+                    "enableExport": false,
+                    "enableFullScreen": true,
+                    "enablePaste": false,
+                    "selectionMode": "Multi",
+                    "selectAll": false,
+                    "rowCount": 10,
+                    "selectionLimit": 10000
+                  },
+                  "actions": {
+                    "miRefresh": {
+                      "press": ".extension.monitor.ext.controller.ObjectExt.onPressRefresh",
+                      "visible": "{= !${ui>/isEditable}}",
+                      "enabled": "{= !${ui>/isEditable}}",
+                      "requiresSelection": false,
+                      "parameters": {
+                        "icon": "sap-icon://refresh",
+                        "useIconOnly": true,
+                        "type": "Transparent"
+                      }
+                    },
+                    "miProcessRecords": {
+                      "press": "monitor.ext.controller.CustomAction.onPressProcessRecords",
+                      "visible": "{= !${ui>/isEditable}}",
+                      "enabled": "{= !${ui>/isEditable}}",
+                      "requiresSelection": true,
+                      "text": "{{process}}"
+                    },
+                    "miValidate": {
+                      "press": "monitor.ext.controller.CustomAction.onPressValidate",
+                      "visible": "{= !${ui>/isEditable}}",
+                      "enabled": "{= !${ui>/isEditable}}",
+                      "requiresSelection": true,
+                      "text": "{{validate}}"
+                    },
+                    "miReject": {
+                      "press": "monitor.ext.controller.CustomAction.onPressRejectRecords",
+                      "visible": "{= !${ui>/isEditable}}",
+                      "enabled": "{= !${ui>/isEditable}}",
+                      "requiresSelection": true,
+                      "text": "{{reject}}"
+                    }
+                  },
+                  "columns": {
+                    "DataField::valid": {
+                      "width": "9rem"
+                    },
+                    "ProcessErrors": {
+                      "header": "{{Logs}}",
+                      "position": {
+                        "anchor": "DataField::valid",
+                        "placement": "After"
+                      },
+                      "template": "monitor.ext.fragment.ProcessErrors"
+                    }
+                  }
+                },
+                "to_Credit_Rebill/@com.sap.vocabularies.UI.v1.LineItem#Credit_Rebill": {
+                  "tableSettings": {
+                    "type": "GridTable",
+                    "condensedTableLayout": true,
+                    "disableCopyToClipboard": true,
+                    "enableExport": false,
+                    "enableFullScreen": true,
+                    "enablePaste": false,
+                    "selectionMode": "Multi",
+                    "selectAll": false,
+                    "rowCount": 10,
+                    "selectionLimit": 10000
+                  },
+                  "actions": {
+                    "miRefresh": {
+                      "press": ".extension.monitor.ext.controller.ObjectExt.onPressRefresh",
+                      "visible": "{= !${ui>/isEditable}}",
+                      "enabled": "{= !${ui>/isEditable}}",
+                      "requiresSelection": false,
+                      "parameters": {
+                        "icon": "sap-icon://refresh",
+                        "useIconOnly": true,
+                        "type": "Transparent"
+                      }
+                    },
+                    "miProcessRecords": {
+                      "press": "monitor.ext.controller.CustomAction.onPressProcessRecords",
+                      "visible": "{= !${ui>/isEditable}}",
+                      "enabled": "{= !${ui>/isEditable}}",
+                      "requiresSelection": true,
+                      "text": "{{process}}"
+                    },
+                    "miValidate": {
+                      "press": "monitor.ext.controller.CustomAction.onPressValidate",
+                      "visible": "{= !${ui>/isEditable}}",
+                      "enabled": "{= !${ui>/isEditable}}",
+                      "requiresSelection": true,
+                      "text": "{{validate}}"
+                    },
+                    "miReject": {
+                      "press": "monitor.ext.controller.CustomAction.onPressRejectRecords",
+                      "visible": "{= !${ui>/isEditable}}",
+                      "enabled": "{= !${ui>/isEditable}}",
+                      "requiresSelection": true,
+                      "text": "{{reject}}"
+                    }
+                  },
+                  "columns": {
+                    "DataField::valid": {
+                      "width": "9rem"
+                    },
+                    "ProcessErrors": {
+                      "header": "{{Logs}}",
+                      "position": {
+                        "anchor": "DataField::valid",
+                        "placement": "After"
+                      },
+                      "template": "monitor.ext.fragment.ProcessErrors"
+                    }
+                  }
+                },
+                "to_Fg_Credit_Rebill/@com.sap.vocabularies.UI.v1.LineItem#Fg_Credit_Rebill": {
+                  "tableSettings": {
+                    "type": "GridTable",
+                    "condensedTableLayout": true,
+                    "disableCopyToClipboard": true,
+                    "enableExport": false,
+                    "enableFullScreen": true,
+                    "enablePaste": false,
+                    "selectionMode": "Multi",
+                    "selectAll": false,
+                    "rowCount": 10,
+                    "selectionLimit": 10000
+                  },
+                  "actions": {
+                    "miRefresh": {
+                      "press": ".extension.monitor.ext.controller.ObjectExt.onPressRefresh",
+                      "visible": "{= !${ui>/isEditable}}",
+                      "enabled": "{= !${ui>/isEditable}}",
+                      "requiresSelection": false,
+                      "parameters": {
+                        "icon": "sap-icon://refresh",
+                        "useIconOnly": true,
+                        "type": "Transparent"
+                      }
+                    },
+                    "miProcessRecords": {
+                      "press": "monitor.ext.controller.CustomAction.onPressProcessRecords",
+                      "visible": "{= !${ui>/isEditable}}",
+                      "enabled": "{= !${ui>/isEditable}}",
+                      "requiresSelection": true,
+                      "text": "{{process}}"
+                    },
+                    "miValidate": {
+                      "press": "monitor.ext.controller.CustomAction.onPressValidate",
+                      "visible": "{= !${ui>/isEditable}}",
+                      "enabled": "{= !${ui>/isEditable}}",
+                      "requiresSelection": true,
+                      "text": "{{validate}}"
+                    },
+                    "miReject": {
+                      "press": "monitor.ext.controller.CustomAction.onPressRejectRecords",
+                      "visible": "{= !${ui>/isEditable}}",
+                      "enabled": "{= !${ui>/isEditable}}",
+                      "requiresSelection": true,
+                      "text": "{{reject}}"
+                    }
+                  },
+                  "columns": {
+                    "DataField::valid": {
+                      "width": "9rem"
+                    },
+                    "ProcessErrors": {
+                      "header": "{{Logs}}",
+                      "position": {
+                        "anchor": "DataField::valid",
+                        "placement": "After"
+                      },
+                      "template": "monitor.ext.fragment.ProcessErrors"
+                    }
+                  }
+                },
+                "to_OtherBillables/@com.sap.vocabularies.UI.v1.LineItem#OtherBillables": {
+                  "tableSettings": {
+                    "type": "GridTable",
+                    "condensedTableLayout": true,
+                    "disableCopyToClipboard": true,
+                    "enableExport": false,
+                    "enableFullScreen": true,
+                    "enablePaste": false,
+                    "selectionMode": "Multi",
+                    "selectAll": false,
+                    "rowCount": 10,
+                    "selectionLimit": 10000
+                  },
+                  "actions": {
+                    "miRefresh": {
+                      "press": ".extension.monitor.ext.controller.ObjectExt.onPressRefresh",
+                      "visible": "{= !${ui>/isEditable}}",
+                      "enabled": "{= !${ui>/isEditable}}",
+                      "requiresSelection": false,
+                      "parameters": {
+                        "icon": "sap-icon://refresh",
+                        "useIconOnly": true,
+                        "type": "Transparent"
+                      }
+                    },
+                    "miProcessRecords": {
+                      "press": "monitor.ext.controller.CustomAction.onPressProcessRecords",
+                      "visible": "{= !${ui>/isEditable}}",
+                      "enabled": "{= !${ui>/isEditable}}",
+                      "requiresSelection": true,
+                      "text": "{{process}}"
+                    },
+                    "miValidate": {
+                      "press": "monitor.ext.controller.CustomAction.onPressValidate",
+                      "visible": "{= !${ui>/isEditable}}",
+                      "enabled": "{= !${ui>/isEditable}}",
+                      "requiresSelection": true,
+                      "text": "{{validate}}"
+                    },
+                    "miReject": {
+                      "press": "monitor.ext.controller.CustomAction.onPressRejectRecords",
+                      "visible": "{= !${ui>/isEditable}}",
+                      "enabled": "{= !${ui>/isEditable}}",
+                      "requiresSelection": true,
+                      "text": "{{reject}}"
+                    }
+                  },
+                  "columns": {
+                    "DataField::valid": {
+                      "width": "9rem"
+                    },
+                    "ProcessErrors": {
+                      "header": "{{Logs}}",
+                      "position": {
+                        "anchor": "DataField::valid",
+                        "placement": "After"
+                      },
+                      "template": "monitor.ext.fragment.ProcessErrors"
+                    }
+                  }
+                },
+                "to_SowScWo/@com.sap.vocabularies.UI.v1.LineItem#SowScWo": {
+                  "tableSettings": {
+                    "type": "GridTable",
+                    "condensedTableLayout": true,
+                    "disableCopyToClipboard": true,
+                    "enableExport": false,
+                    "enableFullScreen": true,
+                    "enablePaste": false,
+                    "selectionMode": "Multi",
+                    "selectAll": false,
+                    "rowCount": 10,
+                    "selectionLimit": 10000
+                  },
+                  "actions": {
+                    "miRefresh": {
+                      "press": ".extension.monitor.ext.controller.ObjectExt.onPressRefresh",
+                      "visible": "{= !${ui>/isEditable}}",
+                      "enabled": "{= !${ui>/isEditable}}",
+                      "requiresSelection": false,
+                      "parameters": {
+                        "icon": "sap-icon://refresh",
+                        "useIconOnly": true,
+                        "type": "Transparent"
+                      }
+                    },
+                    "miProcessRecords": {
+                      "press": "monitor.ext.controller.CustomAction.onPressProcessRecords",
+                      "visible": "{= !${ui>/isEditable}}",
+                      "enabled": "{= !${ui>/isEditable}}",
+                      "requiresSelection": true,
+                      "text": "{{process}}"
+                    },
+                    "miValidate": {
+                      "press": "monitor.ext.controller.CustomAction.onPressValidate",
+                      "visible": "{= !${ui>/isEditable}}",
+                      "enabled": "{= !${ui>/isEditable}}",
+                      "requiresSelection": true,
+                      "text": "{{validate}}"
+                    },
+                    "miReject": {
+                      "press": "monitor.ext.controller.CustomAction.onPressRejectRecords",
+                      "visible": "{= !${ui>/isEditable}}",
+                      "enabled": "{= !${ui>/isEditable}}",
+                      "requiresSelection": true,
+                      "text": "{{reject}}"
+                    }
+                  },
+                  "columns": {
+                    "DataField::valid": {
+                      "width": "9rem"
+                    },
+                    "ProcessErrors": {
+                      "header": "{{Logs}}",
+                      "position": {
+                        "anchor": "DataField::valid",
+                        "placement": "After"
+                      },
+                      "template": "monitor.ext.fragment.ProcessErrors"
+                    }
+                  }
+                },
+                "to_SowScInvoice/@com.sap.vocabularies.UI.v1.LineItem#SowScInvoice": {
+                  "tableSettings": {
+                    "type": "GridTable",
+                    "condensedTableLayout": true,
+                    "disableCopyToClipboard": true,
+                    "enableExport": false,
+                    "enableFullScreen": true,
+                    "enablePaste": false,
+                    "selectionMode": "Multi",
+                    "selectAll": false,
+                    "rowCount": 10,
+                    "selectionLimit": 10000
+                  },
+                  "actions": {
+                    "miRefresh": {
+                      "press": ".extension.monitor.ext.controller.ObjectExt.onPressRefresh",
+                      "visible": "{= !${ui>/isEditable}}",
+                      "enabled": "{= !${ui>/isEditable}}",
+                      "requiresSelection": false,
+                      "parameters": {
+                        "icon": "sap-icon://refresh",
+                        "useIconOnly": true,
+                        "type": "Transparent"
+                      }
+                    },
+                    "miProcessRecords": {
+                      "press": "monitor.ext.controller.CustomAction.onPressProcessRecords",
+                      "visible": "{= !${ui>/isEditable}}",
+                      "enabled": "{= !${ui>/isEditable}}",
+                      "requiresSelection": true,
+                      "text": "{{process}}"
+                    },
+                    "miValidate": {
+                      "press": "monitor.ext.controller.CustomAction.onPressValidate",
+                      "visible": "{= !${ui>/isEditable}}",
+                      "enabled": "{= !${ui>/isEditable}}",
+                      "requiresSelection": true,
+                      "text": "{{validate}}"
+                    },
+                    "miReject": {
+                      "press": "monitor.ext.controller.CustomAction.onPressRejectRecords",
+                      "visible": "{= !${ui>/isEditable}}",
+                      "enabled": "{= !${ui>/isEditable}}",
+                      "requiresSelection": true,
+                      "text": "{{reject}}"
+                    }
+                  },
+                  "columns": {
+                    "DataField::valid": {
+                      "width": "9rem"
+                    },
+                    "ProcessErrors": {
+                      "header": "{{Logs}}",
+                      "position": {
+                        "anchor": "DataField::valid",
+                        "placement": "After"
+                      },
+                      "template": "monitor.ext.fragment.ProcessErrors"
+                    }
+                  }
+                },
+                "to_Bonus/@com.sap.vocabularies.UI.v1.LineItem#Bonus": {
+                  "tableSettings": {
+                    "type": "GridTable",
+                    "condensedTableLayout": true,
+                    "disableCopyToClipboard": true,
+                    "enableExport": false,
+                    "enableFullScreen": true,
+                    "enablePaste": false,
+                    "selectionMode": "Multi",
+                    "selectAll": false,
+                    "rowCount": 10,
+                    "selectionLimit": 10000
+                  },
+                  "actions": {
+                    "miRefresh": {
+                      "press": ".extension.monitor.ext.controller.ObjectExt.onPressRefresh",
+                      "visible": "{= !${ui>/isEditable}}",
+                      "enabled": "{= !${ui>/isEditable}}",
+                      "requiresSelection": false,
+                      "parameters": {
+                        "icon": "sap-icon://refresh",
+                        "useIconOnly": true,
+                        "type": "Transparent"
+                      }
+                    },
+                    "miProcessRecords": {
+                      "press": "monitor.ext.controller.CustomAction.onPressProcessRecords",
+                      "visible": "{= !${ui>/isEditable}}",
+                      "enabled": "{= !${ui>/isEditable}}",
+                      "requiresSelection": true,
+                      "text": "{{process}}"
+                    },
+                    "miValidate": {
+                      "press": "monitor.ext.controller.CustomAction.onPressValidate",
+                      "visible": "{= !${ui>/isEditable}}",
+                      "enabled": "{= !${ui>/isEditable}}",
+                      "requiresSelection": true,
+                      "text": "{{validate}}"
+                    },
+                    "miReject": {
+                      "press": "monitor.ext.controller.CustomAction.onPressRejectRecords",
+                      "visible": "{= !${ui>/isEditable}}",
+                      "enabled": "{= !${ui>/isEditable}}",
+                      "requiresSelection": true,
+                      "text": "{{reject}}"
+                    }
+                  },
+                  "columns": {
+                    "DataField::valid": {
+                      "width": "9rem"
+                    },
+                    "ProcessErrors": {
+                      "header": "{{Logs}}",
+                      "position": {
+                        "anchor": "DataField::valid",
+                        "placement": "After"
+                      },
+                      "template": "monitor.ext.fragment.ProcessErrors"
+                    }
+                  }
+                },
+                "to_Travel/@com.sap.vocabularies.UI.v1.LineItem#Travel": {
+                  "tableSettings": {
+                    "type": "GridTable",
+                    "condensedTableLayout": true,
+                    "disableCopyToClipboard": true,
+                    "enableExport": false,
+                    "enableFullScreen": true,
+                    "enablePaste": false,
+                    "selectionMode": "Multi",
+                    "selectAll": false,
+                    "rowCount": 10,
+                    "selectionLimit": 10000
+                  },
+                  "actions": {
+                    "miRefresh": {
+                      "press": ".extension.monitor.ext.controller.ObjectExt.onPressRefresh",
+                      "visible": "{= !${ui>/isEditable}}",
+                      "enabled": "{= !${ui>/isEditable}}",
+                      "requiresSelection": false,
+                      "parameters": {
+                        "icon": "sap-icon://refresh",
+                        "useIconOnly": true,
+                        "type": "Transparent"
+                      }
+                    },
+                    "miProcessRecords": {
+                      "press": "monitor.ext.controller.CustomAction.onPressProcessRecords",
+                      "visible": "{= !${ui>/isEditable}}",
+                      "enabled": "{= !${ui>/isEditable}}",
+                      "requiresSelection": true,
+                      "text": "{{process}}"
+                    },
+                    "miValidate": {
+                      "press": "monitor.ext.controller.CustomAction.onPressValidate",
+                      "visible": "{= !${ui>/isEditable}}",
+                      "enabled": "{= !${ui>/isEditable}}",
+                      "requiresSelection": true,
+                      "text": "{{validate}}"
+                    },
+                    "miReject": {
+                      "press": "monitor.ext.controller.CustomAction.onPressRejectRecords",
+                      "visible": "{= !${ui>/isEditable}}",
+                      "enabled": "{= !${ui>/isEditable}}",
+                      "requiresSelection": true,
+                      "text": "{{reject}}"
+                    }
+                  },
+                  "columns": {
+                    "DataField::valid": {
+                      "width": "9rem"
+                    },
+                    "ProcessErrors": {
+                      "header": "{{Logs}}",
+                      "position": {
+                        "anchor": "DataField::valid",
+                        "placement": "After"
+                      },
+                      "template": "monitor.ext.fragment.ProcessErrors"
+                    }
+                  }
+                },
+                "to_Drug_Background_Check/@com.sap.vocabularies.UI.v1.LineItem#Drug_Background_Check": {
+                  "tableSettings": {
+                    "type": "GridTable",
+                    "condensedTableLayout": true,
+                    "disableCopyToClipboard": true,
+                    "enableExport": false,
+                    "enableFullScreen": true,
+                    "enablePaste": false,
+                    "selectionMode": "Multi",
+                    "selectAll": false,
+                    "rowCount": 10,
+                    "selectionLimit": 10000
+                  },
+                  "actions": {
+                    "miRefresh": {
+                      "press": ".extension.monitor.ext.controller.ObjectExt.onPressRefresh",
+                      "visible": "{= !${ui>/isEditable}}",
+                      "enabled": "{= !${ui>/isEditable}}",
+                      "requiresSelection": false,
+                      "parameters": {
+                        "icon": "sap-icon://refresh",
+                        "useIconOnly": true,
+                        "type": "Transparent"
+                      }
+                    },
+                    "miProcessRecords": {
+                      "press": "monitor.ext.controller.CustomAction.onPressProcessRecords",
+                      "visible": "{= !${ui>/isEditable}}",
+                      "enabled": "{= !${ui>/isEditable}}",
+                      "requiresSelection": true,
+                      "text": "{{process}}"
+                    },
+                    "miValidate": {
+                      "press": "monitor.ext.controller.CustomAction.onPressValidate",
+                      "visible": "{= !${ui>/isEditable}}",
+                      "enabled": "{= !${ui>/isEditable}}",
+                      "requiresSelection": true,
+                      "text": "{{validate}}"
+                    },
+                    "miReject": {
+                      "press": "monitor.ext.controller.CustomAction.onPressRejectRecords",
+                      "visible": "{= !${ui>/isEditable}}",
+                      "enabled": "{= !${ui>/isEditable}}",
+                      "requiresSelection": true,
+                      "text": "{{reject}}"
+                    }
+                  },
+                  "columns": {
+                    "DataField::valid": {
+                      "width": "9rem"
+                    },
+                    "ProcessErrors": {
+                      "header": "{{Logs}}",
+                      "position": {
+                        "anchor": "DataField::valid",
+                        "placement": "After"
+                      },
+                      "template": "monitor.ext.fragment.ProcessErrors"
+                    }
+                  }
+                }
+              },
+              "content": {
+                "header": {
+                  "actions": {
+                    "miRejectFile": {
+                      "press": "monitor.ext.controller.CustomAction.onPressRejectFile",
+                      "visible": "{= !${ui>/isEditable}}",
+                      "enabled": "{= !${ui>/isEditable}}",
+                      "text": "{{rejectAll}}",
+                      "position": {
+                        "placement": "Before",
+                        "anchor": "EditAction"
+                      }
+                    },
+                    "miProcessFile": {
+                      "press": "monitor.ext.controller.CustomAction.onPressProcessFile",
+                      "visible": "{= !${ui>/isEditable}}",                      
+                      "enabled": "{= !${ui>/isEditable}}",
+                      "text": "{{processAll}}",
+                      "position": {
+                        "placement": "Before",
+                        "anchor": "miRejectFile"
+                      }
+                    },
+                    "miRefreshFile": {
+                      "press": ".extension.monitor.ext.controller.ObjectExt.onPressRefresh",
+                      "visible": "{= !${ui>/isEditable}}",
+                      "enabled": "{= !${ui>/isEditable}}",
+                      "parameters": {
+                        "icon": "sap-icon://refresh",
+                        "useIconOnly": true,
+                        "type": "Transparent"
+                      },
+                      "position": {
+                        "placement": "Before",
+                        "anchor": "miProcessFile"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "extends": {
+      "extensions": {
+        "sap.ui.controllerExtensions": {
+          "sap.fe.templates.ListReport.ListReportController": {
+            "controllerName": "monitor.ext.controller.ListExt"
+          },
+          "sap.fe.templates.ObjectPage.ObjectPageController": {
+            "controllerName": "monitor.ext.controller.ObjectExt"
+          }
+        }
+      }
+    }
+  },
+  "sap.fiori": {
+    "registrationIds": [],
+    "archeType": "transactional"
+  },
+  "sap.cloud": {
+    "public": true,
+    "service": "monitor"
+  }
+}

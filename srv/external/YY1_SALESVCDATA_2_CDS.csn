@@ -1,0 +1,796 @@
+{
+ "meta": {
+  "creator": "cds-dk 8.9.2"
+ },
+ "$version": "2.0",
+ "definitions": {
+  "YY1_SALESVCDATA_2_CDS": {
+   "kind": "service",
+   "@cds.external": true,
+   "@m.IsDefaultEntityContainer": "true",
+   "@sap.message.scope.supported": "true",
+   "@sap.supported.formats": "atom json xlsx"
+  },
+  "YY1_SALESVCDATA_2_CDS.YY1_SALESVCDATA_2": {
+   "kind": "entity",
+   "@cds.external": true,
+   "@cds.persistence.skip": true,
+   "@sap.searchable": "true",
+   "@sap.content.version": "1",
+   "@sap.label": "SalesVCData_2",
+   "elements": {
+    "SAP_UUID": {
+     "key": true,
+     "type": "cds.UUID",
+     "@sap.label": "UUID",
+     "@sap.quickinfo": "16 Byte UUID in 16 Bytes (Raw Format)",
+     "notNull": true
+    },
+    "Sales_Order_Number": {
+     "type": "cds.Decimal",
+     "precision": 10,
+     "scale": 0,
+     "@sap.label": "Sales Order Number"
+    },
+    "Sales_Order_Item_Num": {
+     "type": "cds.Decimal",
+     "precision": 4,
+     "scale": 0,
+     "@sap.label": "Sales Order Item Num"
+    },
+    "Billing_Document_Number": {
+     "type": "cds.Decimal",
+     "precision": 10,
+     "scale": 0,
+     "@sap.label": "Billing Document Number"
+    },
+    "Billing_Document_Item_Number": {
+     "type": "cds.Decimal",
+     "precision": 4,
+     "scale": 0,
+     "@sap.label": "Billing Document Item Number"
+    },
+    "YY131_DC": {
+     "type": "cds.String",
+     "length": 2,
+     "@sap.label": "Distribution Channel"
+    },
+    "YY132_HW_PAY_VENDOR": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 0,
+     "@sap.label": "H&W Vendor Pay Rate"
+    },
+    "YY133_HW_TOTAL_VENDOR": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 0,
+     "@sap.label": "H&W Total Pay Vendor"
+    },
+    "YY134_DAILY_PAY_VENDOR": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 0,
+     "@sap.label": "Daily Vendor Pay Amount"
+    },
+    "YY135_DAILY_TOTAL_VENDOR": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 0,
+     "@sap.label": "Daily Total Pay Vendor"
+    },
+    "YY136_HOLIDAY_PAY_VENDOR": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 0,
+     "@sap.label": "Holiday Vendor Pay Rate"
+    },
+    "YY137_HOLIDAY_TOTAL_VENDOR": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 0,
+     "@sap.label": "Holiday Total Pay Vendor"
+    },
+    "YY138_ONCALL_PAY_VENDOR": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 0,
+     "@sap.label": "Oncall Vendor Pay Rate"
+    },
+    "YY139_ONCALL_TOTAL_VENDOR": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 0,
+     "@sap.label": "Oncall Total Pay Vendor"
+    },
+    "YY140_VACATION_PAY_VENDOR": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 0,
+     "@sap.label": "Vacation Vendor Pay Rate"
+    },
+    "YY141_VACATION_TOTAL_VENDOR": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 0,
+     "@sap.label": "Vacation Total Pay Vendor"
+    },
+    "YY142_SALARY_PAY_VENDOR": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 0,
+     "@sap.label": "Salary Vendor Pay Amount"
+    },
+    "YY143_DIRECT_PLACEMENT": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 0,
+     "@sap.label": "Direct Placement Fee"
+    },
+    "YY144_WEEKLY_CLOCK_FEE": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 0,
+     "@sap.label": "Weekly Clock Fee"
+    },
+    "YY145_PER_DIEM_DAYS": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 0,
+     "@sap.label": "Per Diem Days"
+    },
+    "YY146_PER_DIEM_TAX_PRICE": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 0,
+     "@sap.label": "Per Diem Tax Price Per Day"
+    },
+    "YY147_PER_DIEM_NOTAX_PRICE": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 0,
+     "@sap.label": "Per Diem No Tax Price Per Day"
+    },
+    "YY148_PER_DIEM_TAX": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 0,
+     "@sap.label": "Per Diem Taxable Total"
+    },
+    "YY149_PER_DIEM_NO_TAX": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 0,
+     "@sap.label": "Per Diem No Tax Total"
+    },
+    "YY150_DAILY_PAY_DAYS": {
+     "type": "cds.Decimal",
+     "precision": 10,
+     "scale": 2,
+     "@sap.label": "Daily Pay Days"
+    },
+    "YY151_DAILY_PRICE": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 0,
+     "@sap.label": "Daily Pay Rate Per Day"
+    },
+    "YY152_DAILY_TOTAL_RATE": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 0,
+     "@sap.label": "Daily"
+    },
+    "YY153_SICK_DAYS": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 0,
+     "@sap.label": "Sick Days"
+    },
+    "YY154_SICK_DAYS_PRICE": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 0,
+     "@sap.label": "Sick Days Price"
+    },
+    "YY155_SICK_TOTAL_DAYS_PRICE": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 0,
+     "@sap.label": "Sick Days Total Price"
+    },
+    "YY156_SICK_HOURS": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 0,
+     "@sap.label": "Sick Hours"
+    },
+    "YY157_SICK_HRS_PRICE": {
+     "type": "cds.Decimal",
+     "precision": 10,
+     "scale": 2,
+     "@sap.label": "Sick Hours Price"
+    },
+    "YY158_SICK_TOTAL_HRS_PRICE": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 0,
+     "@sap.label": "Sick Hours Total Price"
+    },
+    "YY159_MISC": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 0,
+     "@sap.label": "Miscellaneous Amount"
+    },
+    "YY160_BEREAV_DAYS": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 0,
+     "@sap.label": "Bereavement Days"
+    },
+    "YY161_BEREAV_HRS": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 0,
+     "@sap.label": "Bereavement Hours"
+    },
+    "YY162_BEREAV_HRS_RATE": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 0,
+     "@sap.label": "Bereavement Hourly Rate"
+    },
+    "YY163_BEREAV_DAYS_RATE": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 0,
+     "@sap.label": "Bereavement Daily Rate"
+    },
+    "YY164_BEREAV_TOTAL_HRS_RATE": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 0,
+     "@sap.label": "Bereavement Hours Total Price"
+    },
+    "YY165_BEREAV_TOTAL_DAYS_RATE": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 0,
+     "@sap.label": "Bereavement Day Total Price"
+    },
+    "YY166_BONUS_PRICE": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 0,
+     "@sap.label": "Bonus"
+    },
+    "YY167_BONUS_PAY_RATE": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 0,
+     "@sap.label": "Bonus Vendor Pay Amount"
+    },
+    "YY168_COMMISSION_PRICE": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 0,
+     "@sap.label": "Commission"
+    },
+    "YY169_HOL_DAYS": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 0,
+     "@sap.label": "Holiday Days"
+    },
+    "YY170_HOL_HRS": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 0,
+     "@sap.label": "Holiday Hours"
+    },
+    "YY171_HOL_HRS_PRICE": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 0,
+     "@sap.label": "Holiday Hourly Rate"
+    },
+    "YY172_HOL_DAYS_PRICE": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 0,
+     "@sap.label": "Holiday Daily Rate"
+    },
+    "YY173_HOL_TOTAL_HRS_PRICE": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 0,
+     "@sap.label": "Holiday Hourly Total Price"
+    },
+    "YY174_HOL_TOTAL_DAYS_PRICE": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 0,
+     "@sap.label": "Holiday Daily Total Price"
+    },
+    "YY175_HOLIDAY_DATE": {
+     "type": "cds.Date",
+     "@sap.display.format": "Date",
+     "@sap.label": "Holiday Date"
+    },
+    "YY176_HW_HRS": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 0,
+     "@sap.label": "H&W Hours"
+    },
+    "YY177_HW_HRS_PRICE": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 0,
+     "@sap.label": "H&W Rate"
+    },
+    "YY178_HW_TOTAL_PRICE": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 0,
+     "@sap.label": "HW"
+    },
+    "YY179_JURY_DAYS": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 0,
+     "@sap.label": "Jury Duty Days"
+    },
+    "YY180_JURY_HRS": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 0,
+     "@sap.label": "Jury Duty Hours"
+    },
+    "YY181_JURY_HRS_PRICE": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 0,
+     "@sap.label": "Jury Duty HRs Rate"
+    },
+    "YY182_JURY_DAYS_PRICE": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 0,
+     "@sap.label": "Jury Duty Daily Rate"
+    },
+    "YY183_JURY_TOTAL_HRS_PRICE": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 0,
+     "@sap.label": "Jury Duty Total HRs"
+    },
+    "YY184_JURY_TOTAL_DAYS_PRICE": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 0,
+     "@sap.label": "Jury Duty Total Days"
+    },
+    "YY185_LONGEVITY_DAYS": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 0,
+     "@sap.label": "Longevity Days"
+    },
+    "YY186_LONGEVITY_HRS": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 0,
+     "@sap.label": "Longevity Hours"
+    },
+    "YY187_LONGEVITY_HRS_PRICE": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 0,
+     "@sap.label": "Longevity Hours Price"
+    },
+    "YY188_LONGEVITY_DAYS_PRICE": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 0,
+     "@sap.label": "Longevity Days Price"
+    },
+    "YY189_LONGEVITY_TOTAL_HRS_PR": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 0,
+     "@sap.label": "Longevity Total HRs Price"
+    },
+    "YY190_LONGEVITY_TOTAL_DAYS_P": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 0,
+     "@sap.label": "Longevity Total Days Price"
+    },
+    "YY191_ONCALL_DAYS": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 0,
+     "@sap.label": "Oncall Days"
+    },
+    "YY192_ONCALL_HRS": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 0,
+     "@sap.label": "Oncall Hours"
+    },
+    "YY193_ONCALL_HRS_PRICE": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 0,
+     "@sap.label": "Oncall Hours Price"
+    },
+    "YY194_ONCALL_DAYS_PRICE": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 0,
+     "@sap.label": "Oncall Days Price"
+    },
+    "YY195_ONCALL_TOTAL_HRS_PRICE": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 0,
+     "@sap.label": "Oncall Total HRs Price"
+    },
+    "YY196_ONCALL_TOTAL_DAYS_PRIC": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 0,
+     "@sap.label": "Oncall Total Days Price"
+    },
+    "YY197_RETRO_DAYS": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 0,
+     "@sap.label": "Retro Days"
+    },
+    "YY198_RETRO_HRS": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 0,
+     "@sap.label": "Retro Hours"
+    },
+    "YY199_RETRO_DAYS_PRICE": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 0,
+     "@sap.label": "Retro Days Price"
+    },
+    "YY200_RETRO_HRS_PRICE": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 0,
+     "@sap.label": "Retro Hours Price"
+    },
+    "YY201_RETRO_TOTAL_HRS_PRICE": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 0,
+     "@sap.label": "Retro Total HRs Price"
+    },
+    "YY202_RETRO_TOTAL_DAYS_PRICE": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 0,
+     "@sap.label": "Retro Total Days Price"
+    },
+    "YY203_SALARY": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 0,
+     "@sap.label": "Salary"
+    },
+    "YY204_SEV_PAY_DAYS": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 0,
+     "@sap.label": "Severance Pay Days"
+    },
+    "YY205_SEV_PAY_HRS": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 0,
+     "@sap.label": "Severance Pay Hours"
+    },
+    "YY206_SEV_PAY_HRS_PRICE": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 0,
+     "@sap.label": "Severance Pay HRs Price"
+    },
+    "YY207_SEV_PAY_DAYS_PRICE": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 0,
+     "@sap.label": "Severance Pay Days Price"
+    },
+    "YY208_SEV_PAY_TOTAL_HRS_PRIC": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 0,
+     "@sap.label": "Severance Pay Total HRs Price"
+    },
+    "YY209_SEV_PAY_TOTAL_DAYS_PRI": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 0,
+     "@sap.label": "Severance Pay Total Days Price"
+    },
+    "YY210_VAC_BILL_DAYS": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 0,
+     "@sap.label": "Vacation Billable Days"
+    },
+    "YY211_VAC_BILL_HRS": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 0,
+     "@sap.label": "Vacation Billable Hours"
+    },
+    "YY212_VAC_BILL_HRS_PRICE": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 0,
+     "@sap.label": "Vacation Billable Hrs Price"
+    },
+    "YY213_VAC_BILL_DAYS_PRICE": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 0,
+     "@sap.label": "Vacation Billable Days Price"
+    },
+    "YY214_VAC_BILL_TOTAL_HRS_PRI": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 0,
+     "@sap.label": "Vac. Billable Tot Hrs Price"
+    },
+    "YY215_VAC_BILL_TOTAL_DAYS_PR": {
+     "type": "cds.Decimal",
+     "precision": 15,
+     "scale": 0,
+     "@sap.label": "Vac Billable Tot Days Price"
+    },
+    "YY216_CUST_BUSINESS_UNIT": {
+     "type": "cds.String",
+     "length": 30,
+     "@sap.label": "Customer Business Unit",
+     "@sap.quickinfo": "Text of length 30"
+    },
+    "YY217_CUST_CHARGE_NUMBER": {
+     "type": "cds.String",
+     "length": 30,
+     "@sap.label": "Customer Charge Number",
+     "@sap.quickinfo": "Text of length 30"
+    },
+    "YY218_CUST_PROJECT_NUMBER": {
+     "type": "cds.String",
+     "length": 30,
+     "@sap.label": "Project Number",
+     "@sap.quickinfo": "Text of length 30"
+    },
+    "YY219_CUST_COST_CENTER": {
+     "type": "cds.String",
+     "length": 30,
+     "@sap.label": "Customer Cost Center Old",
+     "@sap.quickinfo": "Text of length 30"
+    },
+    "YY220_CUST_COMPANY_CODE": {
+     "type": "cds.String",
+     "length": 30,
+     "@sap.label": "Customer Company Code",
+     "@sap.quickinfo": "Text of length 30"
+    },
+    "YY221_CUST_DEPT_NUMBER": {
+     "type": "cds.String",
+     "length": 30,
+     "@sap.label": "Customer Department Number",
+     "@sap.quickinfo": "Text of length 30"
+    },
+    "YY222_CUST_DOTS_NUMBER": {
+     "type": "cds.String",
+     "length": 30,
+     "@sap.label": "Customer DOTS Number",
+     "@sap.quickinfo": "Text of length 30"
+    },
+    "YY223_CUST_RUI": {
+     "type": "cds.String",
+     "length": 30,
+     "@sap.label": "Customer RUI",
+     "@sap.quickinfo": "Text of length 30"
+    },
+    "YY224_CUST_ACCT_NUMBER": {
+     "type": "cds.String",
+     "length": 30,
+     "@sap.label": "Customer Account Number",
+     "@sap.quickinfo": "Text of length 30"
+    },
+    "YY225_CUST_BUDGET_CENTER": {
+     "type": "cds.String",
+     "length": 30,
+     "@sap.label": "Customer Budget Center",
+     "@sap.quickinfo": "Text of length 30"
+    },
+    "YY226_CUST_CON_NUMBER": {
+     "type": "cds.String",
+     "length": 30,
+     "@sap.label": "Customer Contract Number",
+     "@sap.quickinfo": "Text of length 30"
+    },
+    "YY227_CUST_VENDOR_NUMBER": {
+     "type": "cds.String",
+     "length": 30,
+     "@sap.label": "SG Vendor Number",
+     "@sap.quickinfo": "Text of length 30"
+    },
+    "YY228_CUST_ORG_CODE": {
+     "type": "cds.String",
+     "length": 30,
+     "@sap.label": "Customer Org Code",
+     "@sap.quickinfo": "Text of length 30"
+    },
+    "YY229_CUST_LEGAL_ENTITY": {
+     "type": "cds.String",
+     "length": 30,
+     "@sap.label": "Customer Legal Entity",
+     "@sap.quickinfo": "Text of length 30"
+    },
+    "YY230_CUST_ORACLE_NUMBER": {
+     "type": "cds.String",
+     "length": 30,
+     "@sap.label": "Customer Oracle Number",
+     "@sap.quickinfo": "Text of length 30"
+    },
+    "YY231_CUST_UNIT_STORE_NUMBER": {
+     "type": "cds.String",
+     "length": 30,
+     "@sap.label": "Customer Unit Store Number",
+     "@sap.quickinfo": "Text of length 30"
+    },
+    "YY232_CUST_SVC_DATE": {
+     "type": "cds.Date",
+     "@sap.display.format": "Date",
+     "@sap.label": "Service Date - FOR SDI IBM"
+    },
+    "YY233_CUST_EMPLOYEE_NUMBER": {
+     "type": "cds.String",
+     "length": 30,
+     "@sap.label": "Customer Employee Number",
+     "@sap.quickinfo": "Text of length 30"
+    },
+    "YY234_CUST_AGREE_NUMBER": {
+     "type": "cds.String",
+     "length": 30,
+     "@sap.label": "Customer Agreement Name",
+     "@sap.quickinfo": "Text of length 30"
+    },
+    "YY235_CUST_TASK15": {
+     "type": "cds.String",
+     "length": 30,
+     "@sap.label": "TASK #",
+     "@sap.quickinfo": "Text of length 30"
+    },
+    "YY236_CUST_FEPS_CODE": {
+     "type": "cds.String",
+     "length": 30,
+     "@sap.label": "FEPS Code",
+     "@sap.quickinfo": "Text of length 30"
+    },
+    "YY237_CUST_POSITION": {
+     "type": "cds.String",
+     "length": 30,
+     "@sap.label": "Customer Position",
+     "@sap.quickinfo": "Text of length 30"
+    },
+    "YY238_CUST_GL_CODE": {
+     "type": "cds.String",
+     "length": 30,
+     "@sap.label": "Customer G/L Code",
+     "@sap.quickinfo": "Text of length 30"
+    },
+    "YY239_CUST_PURCHASE_AGREE": {
+     "type": "cds.String",
+     "length": 30,
+     "@sap.label": "Purchase Agreement",
+     "@sap.quickinfo": "Text of length 30"
+    },
+    "YY240_CUST_BB_NUMBER": {
+     "type": "cds.String",
+     "length": 30,
+     "@sap.label": "BB#",
+     "@sap.quickinfo": "Text of length 30"
+    },
+    "YY241_CUST_BGRD_CHECK_DATE": {
+     "type": "cds.Date",
+     "@sap.display.format": "Date",
+     "@sap.label": "Customer Background Check Date"
+    },
+    "YY242_CUST_DIV_UNIT_NUMBER": {
+     "type": "cds.String",
+     "length": 30,
+     "@sap.label": "Customer Division Unit Number",
+     "@sap.quickinfo": "Text of length 30"
+    },
+    "YY243_CUST_POSITION_CODE": {
+     "type": "cds.String",
+     "length": 30,
+     "@sap.label": "Customer Position Code/Job ID",
+     "@sap.quickinfo": "Text of length 30"
+    },
+    "YY244_ITEM_CATEGORY": {
+     "type": "cds.String",
+     "length": 4,
+     "@sap.label": "Sales document item category",
+     "@sap.quickinfo": "Text of length 4"
+    },
+    "YY245_ZSD_WN_INVOICE_VBAP": {
+     "type": "cds.String",
+     "length": 30,
+     "@sap.label": "Custom WN Invoice",
+     "@sap.quickinfo": "Text of length 30"
+    },
+    "YY246_ZSD_WN_INVOICE_VCSD": {
+     "type": "cds.String",
+     "length": 30,
+     "@sap.label": "WN Invoice Number",
+     "@sap.quickinfo": "Text of length 30"
+    },
+    "YY247_ZSD_WN_WORK_ORDER_VCSD": {
+     "type": "cds.String",
+     "length": 10,
+     "@sap.label": "WN Work Order Number",
+     "@sap.quickinfo": "Text of length 10"
+    },
+    "YY248_ZSD_WN_WORK_ORDER_VBAP": {
+     "type": "cds.String",
+     "length": 10,
+     "@sap.label": "Sales and Distribution Document",
+     "@sap.quickinfo": "Text of length 10"
+    },
+    "YY249_CUST_COST_CENTER2_VBAP": {
+     "type": "cds.String",
+     "length": 30,
+     "@sap.label": "Cost Center VBAP",
+     "@sap.quickinfo": "Text of length 30"
+    },
+    "Field124": {
+     "type": "cds.String",
+     "length": 20,
+     "@sap.label": "Text of length 20"
+    },
+    "Field125": {
+     "type": "cds.String",
+     "length": 20,
+     "@sap.label": "Text of length 20"
+    },
+    "Field126": {
+     "type": "cds.String",
+     "length": 20,
+     "@sap.label": "Text of length 20"
+    },
+    "Field127": {
+     "type": "cds.String",
+     "length": 20,
+     "@sap.label": "Text of length 20"
+    },
+    "Field128": {
+     "type": "cds.String",
+     "length": 20,
+     "@sap.label": "Text of length 20"
+    },
+    "Field129": {
+     "type": "cds.String",
+     "length": 20,
+     "@sap.label": "Text of length 20"
+    }
+   }
+  }
+ }
+}

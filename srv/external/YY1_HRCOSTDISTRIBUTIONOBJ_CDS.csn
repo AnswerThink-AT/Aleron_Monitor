@@ -1,0 +1,543 @@
+{
+ "meta": {
+  "creator": "cds-dk 8.9.2"
+ },
+ "$version": "2.0",
+ "definitions": {
+  "YY1_HRCOSTDISTRIBUTIONOBJ_CDS": {
+   "kind": "service",
+   "@cds.external": true,
+   "@m.IsDefaultEntityContainer": "true",
+   "@sap.message.scope.supported": "true",
+   "@sap.supported.formats": "atom json xlsx"
+  },
+  "YY1_HRCOSTDISTRIBUTIONOBJ_CDS.I_CompanyCodeStdVH": {
+   "kind": "entity",
+   "@cds.external": true,
+   "@cds.persistence.skip": true,
+   "@sap.creatable": "false",
+   "@sap.updatable": "false",
+   "@sap.deletable": "false",
+   "@sap.searchable": "true",
+   "@sap.content.version": "1",
+   "@sap.label": "Company Code",
+   "elements": {
+    "CompanyCode": {
+     "key": true,
+     "type": "cds.String",
+     "length": 4,
+     "@sap.display.format": "UpperCase",
+     "@sap.text": "CompanyCodeName",
+     "@sap.label": "Company Code",
+     "notNull": true
+    },
+    "CompanyCodeName": {
+     "type": "cds.String",
+     "length": 25,
+     "@sap.label": "Company Name",
+     "@sap.quickinfo": "Name of Company Code or Company"
+    }
+   }
+  },
+  "YY1_HRCOSTDISTRIBUTIONOBJ_CDS.I_Scbo_ILM_Status_Text": {
+   "kind": "entity",
+   "@cds.external": true,
+   "@cds.persistence.skip": true,
+   "@sap.creatable": "false",
+   "@sap.updatable": "false",
+   "@sap.deletable": "false",
+   "@sap.content.version": "1",
+   "@sap.label": "Text for ILM Status",
+   "elements": {
+    "language": {
+     "key": true,
+     "type": "cds.String",
+     "length": 2,
+     "@sap.label": "Lang.",
+     "@sap.quickinfo": "Language Key",
+     "notNull": true
+    },
+    "code": {
+     "key": true,
+     "type": "cds.String",
+     "length": 10,
+     "@sap.display.format": "UpperCase",
+     "@sap.text": "description",
+     "@sap.label": "Lower Value",
+     "@sap.quickinfo": "Values for Domains: Single Value/Lower Limit",
+     "notNull": true
+    },
+    "description": {
+     "type": "cds.String",
+     "length": 60,
+     "@sap.label": "Short Description",
+     "@sap.quickinfo": "Short Text for Fixed Values"
+    }
+   }
+  },
+  "YY1_HRCOSTDISTRIBUTIONOBJ_CDS.P_Scbo_User": {
+   "kind": "entity",
+   "@cds.external": true,
+   "@cds.persistence.skip": true,
+   "@sap.creatable": "false",
+   "@sap.updatable": "false",
+   "@sap.deletable": "false",
+   "@sap.addressable": "false",
+   "@sap.content.version": "1",
+   "@sap.label": "User",
+   "elements": {
+    "name": {
+     "key": true,
+     "type": "cds.String",
+     "length": 12,
+     "@sap.display.format": "UpperCase",
+     "@sap.label": "User",
+     "@sap.quickinfo": "User Name in User Master Record",
+     "notNull": true
+    },
+    "description": {
+     "type": "cds.String",
+     "length": 80,
+     "@sap.label": "Description",
+     "@sap.quickinfo": "Description of the Technical User Account"
+    }
+   }
+  },
+  "YY1_HRCOSTDISTRIBUTIONOBJ_CDS.YY1_HRCOSTDISTRIBUTIONOBJ": {
+   "kind": "entity",
+   "@cds.external": true,
+   "@cds.persistence.skip": true,
+   "@sap.searchable": "true",
+   "@sap.content.version": "1",
+   "@sap.label": "HR Cost Distribution Obj",
+   "elements": {
+    "SAP_UUID": {
+     "key": true,
+     "type": "cds.UUID",
+     "@sap.label": "UUID",
+     "@sap.quickinfo": "16 Byte UUID in 16 Bytes (Raw Format)",
+     "notNull": true
+    },
+    "SAP_Description": {
+     "type": "cds.String",
+     "length": 80,
+     "@sap.label": "Description"
+    },
+    "WorkerID": {
+     "type": "cds.String",
+     "length": 20,
+     "@sap.label": "WorkerID"
+    },
+    "StartDate": {
+     "type": "cds.Date",
+     "@sap.display.format": "Date",
+     "@sap.label": "Start Date"
+    },
+    "EndDate": {
+     "type": "cds.Date",
+     "@sap.display.format": "Date",
+     "@sap.label": "End Date"
+    },
+    "CompanyCode1": {
+     "type": "cds.String",
+     "length": 4,
+     "@sap.display.format": "UpperCase",
+     "@sap.text": "CompanyCode1_Text",
+     "@sap.label": "Company Code 1",
+     "@sap.value.list": "standard"
+    },
+    "CompanyCode1_Text": {
+     "type": "cds.String",
+     "length": 25,
+     "@sap.label": "Company Name",
+     "@sap.quickinfo": "Name of Company Code or Company",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false"
+    },
+    "Project1": {
+     "type": "cds.String",
+     "length": 20,
+     "@sap.label": "Project 1"
+    },
+    "Percentage1": {
+     "type": "cds.Decimal",
+     "precision": 5,
+     "scale": 2,
+     "@sap.label": "Percentage 1"
+    },
+    "CompanyCode2": {
+     "type": "cds.String",
+     "length": 4,
+     "@sap.display.format": "UpperCase",
+     "@sap.text": "CompanyCode2_Text",
+     "@sap.label": "Company Code 2",
+     "@sap.value.list": "standard"
+    },
+    "CompanyCode2_Text": {
+     "type": "cds.String",
+     "length": 25,
+     "@sap.label": "Company Name",
+     "@sap.quickinfo": "Name of Company Code or Company",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false"
+    },
+    "Project2": {
+     "type": "cds.String",
+     "length": 20,
+     "@sap.label": "Project 2"
+    },
+    "Percentage2": {
+     "type": "cds.Decimal",
+     "precision": 5,
+     "scale": 2,
+     "@sap.label": "Percentage 2"
+    },
+    "CompanyCode3": {
+     "type": "cds.String",
+     "length": 4,
+     "@sap.display.format": "UpperCase",
+     "@sap.text": "CompanyCode3_Text",
+     "@sap.label": "Company Code 3",
+     "@sap.value.list": "standard"
+    },
+    "CompanyCode3_Text": {
+     "type": "cds.String",
+     "length": 25,
+     "@sap.label": "Company Name",
+     "@sap.quickinfo": "Name of Company Code or Company",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false"
+    },
+    "Project3": {
+     "type": "cds.String",
+     "length": 20,
+     "@sap.label": "Project 3"
+    },
+    "Percentage3": {
+     "type": "cds.Decimal",
+     "precision": 5,
+     "scale": 2,
+     "@sap.label": "Percentage 3"
+    },
+    "CompanyCode4": {
+     "type": "cds.String",
+     "length": 4,
+     "@sap.display.format": "UpperCase",
+     "@sap.text": "CompanyCode4_Text",
+     "@sap.label": "Company Code 4",
+     "@sap.value.list": "standard"
+    },
+    "CompanyCode4_Text": {
+     "type": "cds.String",
+     "length": 25,
+     "@sap.label": "Company Name",
+     "@sap.quickinfo": "Name of Company Code or Company",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false"
+    },
+    "Project4": {
+     "type": "cds.String",
+     "length": 20,
+     "@sap.label": "Project 4"
+    },
+    "Percentage4": {
+     "type": "cds.Decimal",
+     "precision": 5,
+     "scale": 2,
+     "@sap.label": "Percentage 4"
+    },
+    "CompanyCode5": {
+     "type": "cds.String",
+     "length": 4,
+     "@sap.display.format": "UpperCase",
+     "@sap.text": "CompanyCode5_Text",
+     "@sap.label": "Company Code 5",
+     "@sap.value.list": "standard"
+    },
+    "CompanyCode5_Text": {
+     "type": "cds.String",
+     "length": 25,
+     "@sap.label": "Company Name",
+     "@sap.quickinfo": "Name of Company Code or Company",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false"
+    },
+    "Project5": {
+     "type": "cds.String",
+     "length": 20,
+     "@sap.label": "Project 5"
+    },
+    "Percentage5": {
+     "type": "cds.Decimal",
+     "precision": 5,
+     "scale": 2,
+     "@sap.label": "Percentage 5"
+    },
+    "CompanyCode6": {
+     "type": "cds.String",
+     "length": 4,
+     "@sap.display.format": "UpperCase",
+     "@sap.text": "CompanyCode6_Text",
+     "@sap.label": "Company Code 6",
+     "@sap.value.list": "standard"
+    },
+    "CompanyCode6_Text": {
+     "type": "cds.String",
+     "length": 25,
+     "@sap.label": "Company Name",
+     "@sap.quickinfo": "Name of Company Code or Company",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false"
+    },
+    "Project6": {
+     "type": "cds.String",
+     "length": 20,
+     "@sap.label": "Project 6"
+    },
+    "Percentage6": {
+     "type": "cds.Decimal",
+     "precision": 5,
+     "scale": 2,
+     "@sap.label": "Percentage 6"
+    },
+    "SAP_LifecycleStatus": {
+     "type": "cds.String",
+     "length": 1,
+     "@sap.display.format": "UpperCase",
+     "@sap.text": "SAP_LifecycleStatus_Text",
+     "@sap.label": "Lifecycle Status",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false"
+    },
+    "SAP_LifecycleStatus_Text": {
+     "type": "cds.String",
+     "length": 60,
+     "@sap.label": "Short Description",
+     "@sap.quickinfo": "Short Text for Fixed Values",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false"
+    },
+    "SAP_CreatedDateTime": {
+     "type": "cds.Timestamp",
+     "@odata.Type": "Edm.DateTimeOffset",
+     "@odata.Precision": 7,
+     "@sap.label": "Created On",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false"
+    },
+    "SAP_CreatedByUser": {
+     "type": "cds.String",
+     "length": 12,
+     "@sap.display.format": "UpperCase",
+     "@sap.text": "SAP_CreatedByUser_Text",
+     "@sap.label": "Created By",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false"
+    },
+    "SAP_CreatedByUser_Text": {
+     "type": "cds.String",
+     "length": 80,
+     "@sap.label": "Description",
+     "@sap.quickinfo": "Description of the Technical User Account",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false"
+    },
+    "SAP_LastChangedDateTime": {
+     "type": "cds.Timestamp",
+     "@odata.Type": "Edm.DateTimeOffset",
+     "@odata.Precision": 7,
+     "@sap.label": "Last Changed On",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false"
+    },
+    "SAP_LastChangedByUser": {
+     "type": "cds.String",
+     "length": 12,
+     "@sap.display.format": "UpperCase",
+     "@sap.text": "SAP_LastChangedByUser_Text",
+     "@sap.label": "Last Changed By",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false"
+    },
+    "SAP_LastChangedByUser_Text": {
+     "type": "cds.String",
+     "length": 80,
+     "@sap.label": "Description",
+     "@sap.quickinfo": "Description of the Technical User Account",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false"
+    },
+    "to_CompanyCode1": {
+     "type": "cds.Association",
+     "target": "YY1_HRCOSTDISTRIBUTIONOBJ_CDS.I_CompanyCodeStdVH",
+     "keys": []
+    },
+    "to_CompanyCode2": {
+     "type": "cds.Association",
+     "target": "YY1_HRCOSTDISTRIBUTIONOBJ_CDS.I_CompanyCodeStdVH",
+     "keys": []
+    },
+    "to_CompanyCode3": {
+     "type": "cds.Association",
+     "target": "YY1_HRCOSTDISTRIBUTIONOBJ_CDS.I_CompanyCodeStdVH",
+     "keys": []
+    },
+    "to_CompanyCode4": {
+     "type": "cds.Association",
+     "target": "YY1_HRCOSTDISTRIBUTIONOBJ_CDS.I_CompanyCodeStdVH",
+     "keys": []
+    },
+    "to_CompanyCode5": {
+     "type": "cds.Association",
+     "target": "YY1_HRCOSTDISTRIBUTIONOBJ_CDS.I_CompanyCodeStdVH",
+     "keys": []
+    },
+    "to_CompanyCode6": {
+     "type": "cds.Association",
+     "target": "YY1_HRCOSTDISTRIBUTIONOBJ_CDS.I_CompanyCodeStdVH",
+     "keys": []
+    },
+    "to_ILM_Status_Text": {
+     "type": "cds.Association",
+     "target": "YY1_HRCOSTDISTRIBUTIONOBJ_CDS.I_Scbo_ILM_Status_Text",
+     "keys": []
+    },
+    "to_SAPSysAdminDataChangeUser": {
+     "type": "cds.Association",
+     "target": "YY1_HRCOSTDISTRIBUTIONOBJ_CDS.P_Scbo_User",
+     "keys": []
+    },
+    "to_SAPSysAdminDataCreateUser": {
+     "type": "cds.Association",
+     "target": "YY1_HRCOSTDISTRIBUTIONOBJ_CDS.P_Scbo_User",
+     "keys": []
+    }
+   }
+  },
+  "YY1_HRCOSTDISTRIBUTIONOBJ_CDS.YY1_HRCOSTDISTRIBUTIONOBJSap_upsert": {
+   "kind": "action",
+   "@cds.external": true,
+   "params": {
+    "SAP_Description": {
+     "type": "cds.String",
+     "length": 80,
+     "@sap.label": "Text of length 80"
+    },
+    "WorkerID": {
+     "type": "cds.String",
+     "length": 20,
+     "@sap.label": "Text of length 20"
+    },
+    "StartDate": {
+     "type": "cds.Date",
+     "@sap.label": "Start Date",
+     "@sap.display.format": "Date"
+    },
+    "EndDate": {
+     "type": "cds.Date",
+     "@sap.label": "End Date",
+     "@sap.display.format": "Date"
+    },
+    "CompanyCode1": {
+     "type": "cds.String",
+     "length": 4,
+     "@sap.label": "CompanyCode1"
+    },
+    "Project1": {
+     "type": "cds.String",
+     "length": 20,
+     "@sap.label": "Text of length 20"
+    },
+    "Percentage1": {
+     "type": "cds.Decimal",
+     "precision": 5,
+     "scale": 2,
+     "@sap.label": "Percentage 1"
+    },
+    "CompanyCode2": {
+     "type": "cds.String",
+     "length": 4,
+     "@sap.label": "CompanyCode2"
+    },
+    "Project2": {
+     "type": "cds.String",
+     "length": 20,
+     "@sap.label": "Text of length 20"
+    },
+    "Percentage2": {
+     "type": "cds.Decimal",
+     "precision": 5,
+     "scale": 2,
+     "@sap.label": "Percentage 2"
+    },
+    "CompanyCode3": {
+     "type": "cds.String",
+     "length": 4,
+     "@sap.label": "CompanyCode3"
+    },
+    "Project3": {
+     "type": "cds.String",
+     "length": 20,
+     "@sap.label": "Text of length 20"
+    },
+    "Percentage3": {
+     "type": "cds.Decimal",
+     "precision": 5,
+     "scale": 2,
+     "@sap.label": "Percentage 3"
+    },
+    "CompanyCode4": {
+     "type": "cds.String",
+     "length": 4,
+     "@sap.label": "CompanyCode4"
+    },
+    "Project4": {
+     "type": "cds.String",
+     "length": 20,
+     "@sap.label": "Text of length 20"
+    },
+    "Percentage4": {
+     "type": "cds.Decimal",
+     "precision": 5,
+     "scale": 2,
+     "@sap.label": "Percentage 4"
+    },
+    "CompanyCode5": {
+     "type": "cds.String",
+     "length": 4,
+     "@sap.label": "CompanyCode5"
+    },
+    "Project5": {
+     "type": "cds.String",
+     "length": 20,
+     "@sap.label": "Text of length 20"
+    },
+    "Percentage5": {
+     "type": "cds.Decimal",
+     "precision": 5,
+     "scale": 2,
+     "@sap.label": "Percentage 5"
+    },
+    "CompanyCode6": {
+     "type": "cds.String",
+     "length": 4,
+     "@sap.label": "CompanyCode6"
+    },
+    "Project6": {
+     "type": "cds.String",
+     "length": 20,
+     "@sap.label": "Text of length 20"
+    },
+    "Percentage6": {
+     "type": "cds.Decimal",
+     "precision": 5,
+     "scale": 2,
+     "@sap.label": "Percentage 6"
+    }
+   },
+   "returns": {
+    "type": "YY1_HRCOSTDISTRIBUTIONOBJ_CDS.YY1_HRCOSTDISTRIBUTIONOBJ"
+   }
+  }
+ }
+}

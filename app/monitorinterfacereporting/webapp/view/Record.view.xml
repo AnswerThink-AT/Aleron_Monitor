@@ -1,0 +1,114 @@
+<mvc:View
+  controllerName="monitorinterfacereporting.controller.Record"
+  xmlns:mvc="sap.ui.core.mvc"
+  xmlns="sap.uxap"
+  xmlns:m="sap.m"
+  xmlns:core="sap.ui.core"
+  xmlns:t="sap.ui.table"
+  xmlns:rowmodes="sap.ui.table.rowmodes"
+  height="100%">
+
+  <!-- Object Page Shell -->
+  <ObjectPageLayout id="recordOPL"
+      upperCaseAnchorBar="false"
+      isChildPage="false"
+      showTitleInHeaderContent="true">
+
+    <!-- Dynamic Header Title -->
+    <headerTitle>
+      <ObjectPageDynamicHeaderTitle id="_IDGenObjectPageDynamicHeaderTitle">
+
+        <!-- Expanded (large) title -->
+        <expandedHeading>
+          <m:Title id="_IDGenTitle1"
+            level="H3"
+            text="{= 'Interface: ' + ${recHdr>/set} }"/>
+        </expandedHeading>
+
+        <!-- Snapped (compact) title -->
+        <snappedHeading>
+          <m:HBox id="_IDGenHBox" renderType="Bare" alignItems="Center">
+            <m:Title id="_IDGenTitle2"
+              level="H4"
+              text="{= 'Set ' + ${recHdr>/set} }"
+              class="sapUiTinyMarginEnd"/>
+            <!-- show all selected steps -->
+            <m:ObjectStatus id="_IDGenObjectStatus2"
+              text="{ path: 'recHdr>/processLevels', formatter: '.fmtProcessLevelsText' }"
+              state="Information"
+              class="sapUiTinyMarginBegin"/>
+          </m:HBox>
+        </snappedHeading>
+
+        <actions/>
+      </ObjectPageDynamicHeaderTitle>
+    </headerTitle>
+
+    <!-- Header content (key facts) -->
+    <headerContent>
+      <m:FlexBox id="_IDGenFlexBox" wrap="Wrap" fitContainer="true">
+
+        <m:VBox id="_IDGenVBox7" class="sapUiLargeMarginEnd sapUiSmallMarginBottom">
+          <m:Label id="_IDGenLabel20" text="Process Level" class="sapUiTinyMarginBottom"/>
+          <!-- show all selected steps -->
+          <m:ObjectStatus id="_IDGenObjectStatus3"
+            text="{ path: 'recHdr>/processLevels', formatter: '.fmtProcessLevelsText' }"
+            state="Information"/>
+        </m:VBox>
+
+        <m:VBox id="_IDGenVBox8" class="sapUiLargeMarginEnd sapUiSmallMarginBottom">
+          <m:Label id="_IDGenLabel21" text="Valid" class="sapUiTinyMarginBottom"/>
+          <!-- Yes / No / Yes & No -->
+          <m:ObjectStatus id="_IDGenObjectStatus4"
+            text="{ path: 'recHdr>/valid', formatter: '.fmtValidText' }"
+            state="{= ${recHdr>/valid} === true ? 'Success' : ${recHdr>/valid} === false ? 'Error' : 'None' }"/>
+        </m:VBox>
+
+        <m:VBox id="_IDGenVBox10" class="sapUiLargeMarginEnd sapUiSmallMarginBottom">
+          <m:Label id="_IDGenLabel22" text="No of Records" class="sapUiTinyMarginBottom"/>
+          <m:ObjectNumber id="_IDGenObjectNumber2" number="{rec>/total}" emphasized="true"/>
+        </m:VBox>
+
+      </m:FlexBox>
+    </headerContent>
+
+    <!-- Sections -->
+    <sections>
+      <ObjectPageSection id="_IDGenObjectPageSection" titleUppercase="false" title="Records">
+        <subSections>
+          <ObjectPageSubSection id="_IDGenObjectPageSubSection" showTitle="false">
+            <blocks>
+              <m:VBox id="_IDGenVBox9" class="sapUiSmallMarginTop sapUiSmallMarginBottom">
+                <m:HBox id="_IDGenHBox1" justifyContent="SpaceBetween" alignItems="Center"
+                        class="sapUiSmallMarginBottom sapUiSmallMarginTop">
+                  <!-- merged across files -->
+                  <m:Title
+                    id="_IDGenTitle3"
+                    level="H3"
+                    text="{= 'Merged Files (' + ${rec>/fileCount} + ' files)'}"/>
+                  <m:Button id="_IDGenButton8" text="Export These Records"
+                            type="Emphasized" press=".onExportCurrentRecords"/>
+                </m:HBox>
+
+                <!-- Detail table -->
+                <t:Table
+                  id="recTable12"
+                  rows="{rec>/rows}"
+                  selectionMode="MultiToggle"
+                  enableColumnReordering="true"
+                  columnHeaderVisible="true"
+                  width="100%"
+                  class="sapUiSizeCompact fullWidthTable">
+                  <t:rowMode>
+                    <rowmodes:Auto id="autoRowMode" minRowCount="20" rowContentHeight="32"/>
+                  </t:rowMode>
+                </t:Table>
+              </m:VBox>
+            </blocks>
+          </ObjectPageSubSection>
+        </subSections>
+      </ObjectPageSection>
+    </sections>
+
+  </ObjectPageLayout>
+</mvc:View>

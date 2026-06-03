@@ -1,0 +1,298 @@
+<mvc:View
+  controllerName="monitorinterfacereporting.controller.View1"
+  xmlns:mvc="sap.ui.core.mvc"
+  xmlns="sap.m"
+  xmlns:f="sap.f"
+  xmlns:t="sap.ui.table"
+  xmlns:core="sap.ui.core"
+  xmlns:viz="sap.viz.ui5.controls"
+  xmlns:vizData="sap.viz.ui5.data"
+  xmlns:vizFeeds="sap.viz.ui5.controls.common.feeds"
+  xmlns:fb="sap.ui.comp.filterbar"
+  xmlns:svm="sap.ui.comp.smartvariants"
+  xmlns:form="sap.ui.layout.form">
+
+  <App id="app1">
+    <pages>
+      <Page id="page" title="Interface Analytics" enableScrolling="false">
+        <f:DynamicPage id="dp" headerExpanded="true">
+          <f:title>
+            <f:DynamicPageTitle id="_IDGenDynamicPageTitle">
+              <f:heading>
+                <svm:SmartVariantManagement
+                  id="vm"
+                  persistencyKey="IFACE_ANALYTICS_VM"
+                  showExecuteOnSelection="true"
+                  showShare="true"/>
+              </f:heading>
+              <f:expandedContent>
+                <Label id="expandedLabel" text="No filters active"/>
+              </f:expandedContent>
+              <f:snappedContent>
+                <Label id="snappedLabel" text="No filters active"/>
+              </f:snappedContent>
+            </f:DynamicPageTitle>
+          </f:title>
+
+          <f:header>
+            <f:DynamicPageHeader id="_IDGenDynamicPageHeader">
+              <f:content>
+                <!-- Filters -->
+                <fb:FilterBar
+                  id="fb"
+                  useToolbar="false"
+                  persistencyKey="IFACE_ANALYTICS_VM"
+                  showGoOnFB="true"
+                  showClearOnFB="true"
+                  search=".onSearchFB"
+                  assignedFiltersChanged=".onAssignedFiltersChanged">
+
+                  <fb:filterGroupItems>
+                    <fb:FilterGroupItem id="_IDGenFilterGroupItem"
+                      groupName="_BASIC" name="IFACE" label="Interface"
+                      visibleInFilterBar="true" partOfCurrentVariant="true">
+                      <fb:control>
+                        <ComboBox id="iface" width="28rem" placeholder="All"
+                                  items="{
+                                    path: '/VH_InterfaceTypes',
+                                    parameters: { $select: 'ID,name', $orderby: 'name' }
+                                  }">
+                          <core:Item id="_IDGenItem" key="{ID}" text="{name}" />
+                        </ComboBox>
+                      </fb:control>
+                    </fb:FilterGroupItem>
+
+                    <fb:FilterGroupItem id="_IDGenFilterGroupItem1"
+                      groupName="_BASIC" name="DATE" label="Uploaded On"
+                      visibleInFilterBar="true" partOfCurrentVariant="true">
+                      <fb:control>
+                        <DateRangeSelection id="drs" displayFormat="medium" valueFormat="yyyy-MM-dd'T'HH:mm:ss'Z'"/>
+                      </fb:control>
+                    </fb:FilterGroupItem>
+
+                    <fb:FilterGroupItem id="_IDGenFilterGroupItem2"
+                      groupName="_BASIC" name="STEPS" label="Steps"
+                      visibleInFilterBar="true" partOfCurrentVariant="true">
+                      <fb:control>
+                        <MultiComboBox id="stepMCB" width="22rem" items="{steps>/items}">
+                          <core:Item id="_IDGenItem1" key="{steps>code}" text="{steps>text}" />
+                        </MultiComboBox>
+                      </fb:control>
+                    </fb:FilterGroupItem>
+
+                    <fb:FilterGroupItem id="_IDGenFilterGroupItem3"
+                      groupName="_BASIC" name="VALID" label="Validity"
+                      visibleInFilterBar="true" partOfCurrentVariant="true">
+                      <fb:control>
+                        <Select id="validSelect" width="12rem" selectedKey="all">
+                          <core:Item id="_IDGenItem2" key="all"     text="All"/>
+                          <core:Item id="_IDGenItem3" key="valid"   text="Valid only"/>
+                          <core:Item id="_IDGenItem4" key="invalid" text="Invalid only"/>
+                        </Select>
+                      </fb:control>
+                    </fb:FilterGroupItem>
+
+                    <fb:FilterGroupItem id="_IDGenFilterGroupItem4" groupName="_BASIC" name="FILEID" label="File ID"
+                                        visibleInFilterBar="true" partOfCurrentVariant="true">
+                      <fb:control>
+                        <Input id="fileIdInput" width="14rem" placeholder="Enter File ID"/>
+                      </fb:control>
+                    </fb:FilterGroupItem>
+
+                  </fb:filterGroupItems>
+                </fb:FilterBar>
+                <!-- /Filters -->
+              </f:content>
+            </f:DynamicPageHeader>
+          </f:header>
+
+          <f:content>
+            <VBox id="_IDGenVBox" class="sapUiContentPadding" width="100%" height="100%">
+
+              <!-- CHART HEADER + ACTIONS -->
+              <OverflowToolbar id="_IDGenOverflowToolbar">
+                <Title id="chartTitle" level="H3" text="Records by Step (Valid vs Invalid)"/>
+                <ToolbarSpacer id="_IDGenToolbarSpacer"/>
+                <SegmentedButton id="chartType" selectedKey="column" selectionChange=".onChartTypeChange">
+                  <items>
+                    <SegmentedButtonItem id="_IDGenSegmentedButtonItem" key="column" icon="sap-icon://bar-chart" text="Bar"/>
+                    <SegmentedButtonItem id="_IDGenSegmentedButtonItem1" key="pie"    icon="sap-icon://pie-chart" text="Pie"/>
+                  </items>
+                </SegmentedButton>
+                <ToggleButton id="btnShowTable" icon="sap-icon://table-view" pressed="true" press=".onToggleTable"/>
+                <Button id="_IDGenButton" icon="sap-icon://zoom-out"  press=".onZoomOut"/>
+                <Button id="_IDGenButton1" icon="sap-icon://zoom-in"   press=".onZoomIn"/>
+                <ToggleButton id="btnFull" icon="sap-icon://full-screen" press=".onToggleChartFullScreen"/>
+                <Button id="_IDGenButton2" icon="sap-icon://filter-facets" text="Clear Selection" press=".onClearChartSelection"/>
+              </OverflowToolbar>
+
+              <!-- CHART -->
+              <viz:VizFrame id="chart" width="100%" height="360px" vizType="column" selectData=".onChartSelect">
+                <viz:dataset>
+                  <vizData:FlattenedDataset id="_IDGenFlattenedDataset" data="{chart>/rows}">
+                    <vizData:dimensions>
+                      <vizData:DimensionDefinition id="_IDGenDimensionDefinition" name="Step"  value="{chart>Step}" displayValue="{chart>StepLabel}"/>
+                      <vizData:DimensionDefinition id="_IDGenDimensionDefinition1" name="Valid" value="{chart>Valid}"/>
+                    </vizData:dimensions>
+                    <vizData:measures>
+                      <vizData:MeasureDefinition id="_IDGenMeasureDefinition" name="Records" value="{chart>Records}"/>
+                    </vizData:measures>
+                  </vizData:FlattenedDataset>
+                </viz:dataset>
+                <viz:feeds>
+                  <vizFeeds:FeedItem id="_IDGenFeedItem" uid="categoryAxis" type="Dimension" values="Step"/>
+                  <vizFeeds:FeedItem id="_IDGenFeedItem1" uid="color"        type="Dimension" values="Valid"/>
+                  <vizFeeds:FeedItem id="_IDGenFeedItem2" uid="valueAxis"    type="Measure"   values="Records"/>
+                </viz:feeds>
+              </viz:VizFrame>
+
+              <!-- TABLE -->
+              <VBox id="tableContainer" width="100%" height="100%">
+                <OverflowToolbar id="_IDGenOverflowToolbar1" class="sapUiTinyMarginTop sapUiTinyMarginBottom">
+                  <Title id="_IDGenTitle" text="Per File / Step" level="H3"/>
+                  <ToolbarSpacer id="_IDGenToolbarSpacer1"/>
+                  <BusyIndicator id="busyTbl" visible="false"/>
+                  <Button id="btnGo" text="GO" type="Emphasized" enabled="false" press=".onGoSelectedRows"/>
+                  <Button id="_IDGenButton3" icon="sap-icon://excel-attachment" text="Export" press=".onExport"/>
+                </OverflowToolbar>
+
+                <t:Table id="tbl" rows="{tbl>/rows}" selectionMode="MultiToggle" enableColumnReordering="true" rowActionCount="1" width="100%">
+                  <t:rowActionTemplate>
+                    <t:RowAction id="_IDGenRowAction">
+                      <t:RowActionItem id="_IDGenRowActionItem" icon="sap-icon://navigation-right-arrow" text="Open Records" press=".onOpenRecords"/>
+                    </t:RowAction>
+                  </t:rowActionTemplate>
+                  <t:columns>
+                    <t:Column id="_IDGenColumn" width="16rem">
+                      <Label id="_IDGenLabel" text="Interface"/>
+                      <t:template><Text id="_IDGenText" text="{tbl>interfaceName}" wrapping="false"/></t:template>
+                    </t:Column>
+
+                    <!-- File ID (link) -->
+                    <!-- <t:Column id="_IDGenColumn2" width="9rem">
+                      <Label id="_IDGenLabel1" text="File ID"/>
+                      <t:template>
+                        <Link id="_IDGenLink" text="{tbl>fileId}" press=".onOpenFileApp"/>
+                      </t:template>
+                    </t:Column> -->
+
+                    <!-- File (link) -->
+                    <!-- <t:Column id="_IDGenColumn1" width="22rem">
+                      <Label id="_IDGenLabel2" text="File"/>
+                      <t:template>
+                        <Link id="_IDGenLink1" text="{tbl>fileName}" tooltip="{tbl>fileName}" press=".onOpenFileApp"/>
+                      </t:template>
+                    </t:Column> -->
+
+                    <!-- <t:Column id="_IDGenColumn3" width="7rem">
+                      <Label id="_IDGenLabel3" text="Status"/>
+                      <t:template><ObjectStatus id="_IDGenObjectStatus" text="{tbl>fileStatus}"/></t:template>
+                    </t:Column> -->
+
+                    <!-- <t:Column id="_IDGenColumn4" width="14rem">
+                      <Label id="_IDGenLabel4" text="Uploaded At"/>
+                      <t:template>
+                        <Text id="_IDGenText1" text="{ path:'tbl>uploadedAt', type:'sap.ui.model.odata.type.DateTimeOffset', constraints:{nullable:true}, formatOptions:{style:'medium'} }"/>
+                      </t:template>
+                    </t:Column> -->
+
+                    <t:Column id="_IDGenColumn5" width="8rem">
+                      <Label id="_IDGenLabel5" text="Step Code"/>
+                      <t:template><Text id="_IDGenText2" text="{tbl>processLevel}"/></t:template>
+                    </t:Column>
+
+                    <t:Column id="_IDGenColumn6" width="14rem">
+                      <Label id="_IDGenLabel6" text="Step Name"/>
+                      <t:template><Text id="_IDGenText3" text="{ path: 'tbl>processLevel', formatter: '.fmtStep'}"/></t:template>
+                    </t:Column>
+
+                    <t:Column id="_IDGenColumn7" width="7rem">
+                      <Label id="_IDGenLabel7" text="Valid?"/>
+                      <t:template>
+                        <ObjectStatus id="_IDGenObjectStatus" text="{path: 'tbl>valid', formatter: '.formatValidText'}" state="{path: 'tbl>valid', formatter: '.formatValidState'}"/>
+                      </t:template>
+                    </t:Column>
+
+                    <!-- Records (link) -->
+                    <t:Column id="_IDGenColumn8" width="10rem" hAlign="End">
+                      <Label id="_IDGenLabel8" text="Records"/>
+                      <t:template>
+                        <Link id="_IDGenLink2" text="{tbl>recordCount}" press=".onOpenRecords"/>
+                      </t:template>
+                    </t:Column>
+                  </t:columns>
+                </t:Table>
+              </VBox>
+            </VBox>
+          </f:content>
+        </f:DynamicPage>
+      </Page>
+    </pages>
+  </App>
+
+  <!-- Records dialog -->
+  <Dialog id="dlgRecords" title="Records" contentWidth="1200px" contentHeight="75%">
+    <VBox id="_IDGenVBox1" width="100%" height="100%">
+      <Toolbar id="_IDGenToolbar">
+        <Title id="recTitle" text=""/>
+        <ToolbarSpacer id="_IDGenToolbarSpacer2"/>
+        <Button id="_IDGenButton4" text="Export These Records" icon="sap-icon://excel-attachment" press=".onExportCurrentRecords"/>
+      </Toolbar>
+
+      <!-- Records table with a row action to view the full entity record -->
+      <t:Table id="recTable" width="100%" selectionMode="None" rowActionCount="1">
+        <t:rowActionTemplate>
+          <t:RowAction id="_IDGenRowAction1">
+            <t:RowActionItem id="_IDGenRowActionItem1" icon="sap-icon://show" text="View Full Record" press=".onOpenFullRecord"/>
+          </t:RowAction>
+        </t:rowActionTemplate>
+
+        <t:columns>
+          <t:Column id="_IDGenColumn9" width="12rem"><Label id="_IDGenLabel9" text="Record ID"/><t:template><Text id="_IDGenText4" text="{recordId}"/></t:template></t:Column>
+          <t:Column id="_IDGenColumn10" width="10rem"><Label id="_IDGenLabel10" text="File ID"/><t:template><Text id="_IDGenText5" text="{fileId}"/></t:template></t:Column>
+          <t:Column id="_IDGenColumn11" width="16rem"><Label id="_IDGenLabel11" text="Interface"/><t:template><Text id="_IDGenText6" text="{interfaceName}"/></t:template></t:Column>
+          <t:Column id="_IDGenColumn12" width="20rem"><Label id="_IDGenLabel12" text="File Name"/><t:template><Text id="_IDGenText7" text="{fileName}"/></t:template></t:Column>
+          <t:Column id="_IDGenColumn13" width="8rem"><Label id="_IDGenLabel13" text="Status"/><t:template><Text id="_IDGenText8" text="{fileStatus}"/></t:template></t:Column>
+          <t:Column id="_IDGenColumn14" width="8rem"><Label id="_IDGenLabel14" text="Source"/><t:template><Text id="_IDGenText9" text="{source}"/></t:template></t:Column>
+          <t:Column id="_IDGenColumn15" width="10rem"><Label id="_IDGenLabel15" text="Step"/><t:template><Text id="_IDGenText10" text="{processLevel}"/></t:template></t:Column>
+          <t:Column id="_IDGenColumn16" width="8rem"><Label id="_IDGenLabel16" text="Valid"/><t:template><Text id="_IDGenText11" text="{= ${valid} ? 'Yes' : 'No'}"/></t:template></t:Column>
+          <t:Column id="_IDGenColumn17" width="14rem">
+            <Label id="_IDGenLabel17" text="Uploaded At"/>
+            <t:template>
+              <Text id="_IDGenText12" text="{ path:'uploadedAt', type:'sap.ui.model.odata.type.DateTimeOffset', constraints:{nullable:true}, formatOptions:{style:'medium'} }"/>
+            </t:template>
+          </t:Column>
+        </t:columns>
+      </t:Table>
+    </VBox>
+    <endButton><Button id="_IDGenButton5" text="Close" press=".onCloseRecords"/></endButton>
+  </Dialog>
+
+  <!-- Full record details dialog (dynamic fields) -->
+  <Dialog id="dlgFullRecord" title="Record Details" contentWidth="900px" contentHeight="70%">
+    <VBox id="_IDGenVBox2" width="100%" height="100%">
+      <Toolbar id="_IDGenToolbar1">
+        <Title id="fullRecTitle" text=""/>
+        <ToolbarSpacer id="_IDGenToolbarSpacer3"/>
+        <Button id="_IDGenButton6" icon="sap-icon://excel-attachment" text="Export as XLSX" press=".onExportFullRecord"/>
+      </Toolbar>
+      <ScrollContainer id="_IDGenScrollContainer" width="100%" height="100%">
+        <form:SimpleForm id="recForm"
+                         editable="false"
+                         layout="ResponsiveGridLayout"
+                         columnsL="2" columnsM="1"
+                         labelSpanL="4" labelSpanM="4"/>
+      </ScrollContainer>
+    </VBox>
+    <endButton><Button id="_IDGenButton7" text="Close" press=".onCloseFullRecord"/></endButton>
+  </Dialog>
+
+  <!-- Export progress dialog -->
+  <Dialog id="dlgProgress" title="Exporting..." type="Message" state="Information" contentWidth="20rem" contentHeight="8rem">
+    <VBox id="_IDGenVBox3" class="sapUiContentPadding">
+      <BusyIndicator id="_IDGenBusyIndicator1" size="2.5rem"/>
+      <Text id="progText" text="Starting..." class="sapUiTinyMarginTop"/>
+    </VBox>
+  </Dialog>
+
+</mvc:View>

@@ -1,0 +1,65 @@
+{
+    "SalesOrderType": "TA",
+    "SoldToParty": "10362",
+    "SalesOrganization": "1200",
+    "DistributionChannel": "MS",
+    "OrganizationDivision": "01",
+    "PurchaseOrderByShipToParty": "100",
+    "SDDocumentReason": "",
+    "PricingDate": "/Date(1742313750594)/",
+    "IncotermsClassification": "DAP",
+    "IncotermsLocation1": "1",
+    "CustomerPaymentTerms": "NT65",
+    "YY1_CustomSalesOrder_SDH": "ZWCP",
+    "AdditionalCustomerGroup1": "",
+    "AdditionalCustomerGroup2": "ZWN",
+    "AdditionalCustomerGroup3": "",
+    "ReferenceSDDocument": "40000006",
+    "ReferenceSDDocumentCategory": "G",
+    "to_Item": [
+        {
+            "SalesOrderItemCategory": "TADN",
+            "Material": "100000310",
+            "RequestedQuantity": "1",
+            "RequestedQuantityUnit": "LAB",
+            "RequestedQuantitySAPUnit": "LAB",
+            "RequestedQuantityISOUnit": "_01",
+            "TransactionCurrency": "USD",
+            "ReferenceSDDocument": "40000006",
+            "ReferenceSDDocumentItem": "20",
+            "PurchaseOrderByCustomer": "12",
+            "WBSElement": "400259755",
+            "to_ScheduleLine": [
+                {
+                    "RequestedDeliveryDate": "/Date(1742313750594)/",
+                    "ScheduleLineOrderQuantity": "1",
+                    "OrderQuantityUnit": "LAB",
+                    "OrderQuantitySAPUnit": "LAB",
+                    "OrderQuantityISOUnit": "_01"
+                }
+            ]
+        }
+    ],
+    "to_Partner": [
+        {
+            "PartnerFunction": "SH",
+            "Customer": "10362",
+            "Supplier": "",
+            "Personnel": "0",
+            "to_Address": [
+                {
+                    "PartnerFunction": "SH",
+                    "CorrespondenceLanguage": "EN",
+                    "StreetName": "My street",
+                    "CityName": "Hartsville",
+                    "HouseNumber": "123",
+                    "Country": "US",
+                    "Region": "SC",
+                    "PostalCode": "29550",
+                    "DistrictName": "",
+                    "TaxJurisdiction": ""
+                }
+            ]
+        }
+    ]
+}

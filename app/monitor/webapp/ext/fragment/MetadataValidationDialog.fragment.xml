@@ -1,0 +1,64 @@
+<core:FragmentDefinition xmlns="sap.m" xmlns:core="sap.ui.core" xmlns:table="sap.ui.table">
+    <Dialog title="Data Validation Errors" class="sapUiContentPadding" resizable="true" draggable="true" contentWidth="800px" contentHeight="600px">
+        <content>
+            <VBox class="sapUiMediumMargin">
+                <Text text="The following validation errors were found in your uploaded file:" class="sapUiMediumMarginBottom"/>
+                
+                <table:Table 
+                    rows="{validation>/errors}" 
+                    selectionMode="None" 
+                    visibleRowCount="10"
+                    class="sapUiSizeCompact">
+                    <table:columns>
+                        <table:Column width="80px">
+                            <Label text="Record #"/>
+                            <table:template>
+                                <Text text="{validation>recordIndex}"/>
+                            </table:template>
+                        </table:Column>
+                        
+                        <table:Column width="150px">
+                            <Label text="Field"/>
+                            <table:template>
+                                <Text text="{validation>field}"/>
+                            </table:template>
+                        </table:Column>
+                        
+                        <table:Column width="100px">
+                            <Label text="Severity"/>
+                            <table:template>
+                                <ObjectStatus 
+                                    text="{validation>severity}" 
+                                    state="{= ${validation>severity} === 'error' ? 'Error' : 'Warning'}"/>
+                            </table:template>
+                        </table:Column>
+                        
+                        <table:Column>
+                            <Label text="Error Message"/>
+                            <table:template>
+                                <Text text="{validation>message}"/>
+                            </table:template>
+                        </table:Column>
+                        
+                        <table:Column width="100px">
+                            <Label text="Value"/>
+                            <table:template>
+                                <Text text="{validation>value}" wrapping="true"/>
+                            </table:template>
+                        </table:Column>
+                    </table:columns>
+                </table:Table>
+                
+                <HBox class="sapUiMediumMarginTop">
+                    <Text text="Total Errors: {validation>/errorCount}" class="sapUiMediumMarginEnd"/>
+                    <Text text="Total Records: {validation>/recordCount}"/>
+                </HBox>
+            </VBox>
+        </content>
+        
+        <buttons>
+            <Button text="Download Error Report" press="onDownloadErrorReport" type="Emphasized"/>
+            <Button text="Close" press="onCloseValidationDialog" type="Default"/>
+        </buttons>
+    </Dialog>
+</core:FragmentDefinition>
