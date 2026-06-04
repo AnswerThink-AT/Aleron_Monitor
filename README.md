@@ -16,7 +16,7 @@ Allows user to test single record & also reprocess in case of any errors
 ### Clone the Repo
 
 ```sh
-$ git clone https://github.com/qubittron/Monitor.git
+$ git clone https://github.com/AnswerThink-AT/Aleron_Monitor.git
 ```
 
 ### Install Dependencies
