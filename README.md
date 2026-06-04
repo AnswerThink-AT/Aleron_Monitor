@@ -19,7 +19,7 @@ Allows user to test single record & also reprocess in case of any errors
 $ git clone https://github.com/AnswerThink-AT/Aleron_Monitor.git
 ```
 
-### Install Dependencie
+### Install Dependencies
 
 Install the dependencies for the project. This is one-time task after clone
 
