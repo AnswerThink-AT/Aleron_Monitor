@@ -1,6 +1,7 @@
 const cds = require('@sap/cds');
 // const moment = require('moment');
 const LOG = cds.log('monitor-service');
+const constant = require('../utils/constant');
 // Utilities
 const SequenceHelper = require('../lib/SequenceHelper');
 const { attachUploadSequenceHook } = require('../lib/UploadSequence'); // NEW
@@ -100,9 +101,9 @@ class MonitorService extends cds.ApplicationService {
     this.OtherBillablesInterface = OtherBillables;
 
 
-
     this.before(['CREATE'], [Files, Files.drafts], this._onBeforeFilesCreate);
     this.on('processFile', this._onProcessFile);
+    this.on('uploadInterfaceData', this._uploadInterfaceData);
     this.on('rejectFile', this._onRejectFile);
     this.on('validateFile', this._onValidateFile);
     this.on('updateRecords', this._onUpdateRecords);
@@ -898,17 +899,94 @@ class MonitorService extends cds.ApplicationService {
     }
   }
 
-  _trimFieldsForZeros(oRecord) {
-    // Trim the fields for zeros
-    const aFieldsToTrimForZeros = ['contractNo', 'soldToParty', 'billToParty', 'material'];
-    for (const sField of aFieldsToTrimForZeros) {
-      if (oRecord[sField]) {
-        oRecord[sField] = oRecord[sField].replace(/^0+/, '');
-      }
-    }
-    return oRecord;
-  }
+  
+  async _uploadInterfaceData(req) {
+  let {
+    fileID,
+    interfaceID,
+    csvString
+} = req.data;
 
+
+csvString =
+    Buffer
+        .from(csvString, 'base64')
+        .toString('utf8');
+
+  try {
+
+    LOG.info(`Starting upload for interface ${interfaceID}`);
+
+    /*
+     * Parse CSV
+     * Reuse your existing parsing logic here.
+     * Ideally move the code from UI _parseCSV()
+     */
+    const records = this._parseCSV(csvString, interfaceID);
+
+    if (!records || records.length === 0) {
+      return req.reject(400, 'No valid records found');
+    }
+
+    /*
+     * Create File Header
+     */
+    const tx = cds.tx(req);
+
+    LOG.info(`File created successfully: ${fileID}`);
+
+    /*
+     * Determine entity
+     */
+    const entityName = interfaceTypeIdToEntityName[interfaceID];
+
+    if (!entityName) {
+      return req.reject(400, `No entity mapping found for interface ${interfaceID}`);
+    }
+
+    /*
+     * Add common fields
+     */
+    records.forEach(record => {
+      record.file_ID = fileID;
+      record.valid = true;
+      record.processLevel_code = '0';
+
+      delete record.ID;
+      delete record.file;
+    });
+
+    /*
+     * Bulk insert in chunks
+     */
+    const CHUNK_SIZE = 1000;
+
+    for (let i = 0; i < records.length; i += CHUNK_SIZE) {
+
+      const chunk = records.slice(i, i + CHUNK_SIZE);
+
+      await tx.run(
+        INSERT.into(this.entities[entityName]).entries(chunk)
+      );
+
+      LOG.info(
+        `Inserted ${Math.min(i + CHUNK_SIZE, records.length)} of ${records.length}`
+      );
+    }
+    LOG.info(`Upload completed successfully for file ${fileID}`);
+
+    return fileID;
+
+  } catch (error) {
+
+    LOG.error('Upload failed', error);
+
+    return req.reject(
+      500,
+      `Upload failed: ${error.message}`
+    );
+  }
+}
   async _test() {
     const BusinessPartner = new BusinessPartnerComm();
 
@@ -924,6 +1002,243 @@ class MonitorService extends cds.ApplicationService {
         }),
     );
   }
+  _parseCSV (sCSV, interfaceID) {
+
+        let columnMappings = {
+          "1": "aWNWorkOrdersColumns",
+          "C": "aTimesColumns",
+          "3": "aTimesColumns",
+          "T": "aEmployRecordsColumns",
+          "U": "aStaffColumns",
+          "S": "aVNWorkOrdersColumns",
+          "M": "aWorkOrdersFGColumns",
+          "4": "aTerminationsColumns", // term 4 interface
+          "D": "aCredit_Rebill", // Credit_Rebill D interface
+          "Q": "aFg_Credit_Rebill", // FQ Credit_Rebill Q interface
+          "O": "aOtherBillablesColumns",
+          "E": "aSowScWoColumns", //Interface E
+          "F": "aSowScInvoiceColumns", //Interface F
+          "N": "aFgTimeInvoicesColumns", //interface N FG Time Invoices
+          "G": "aBonusColumns", // Bonus G interface
+          "2": "aTravelColumns", //Interface 2
+          "A": "aDrug_Background_CheckColumns" //Interface A
+        };
+
+        let columnMappingsBoolean = {
+          "1": "aWNWorkOrdersColumnsBoolean",
+          "C": "aTimesColumnsBoolean",
+          "3": "aTimesColumnsBoolean",
+          "T": "aEmployRecordsColumnsBoolean",
+          "U": "aStaffColumnsBoolean",
+          "S": "aVNWorkOrdersColumnsBoolean",
+          "M": "aWorkOrdersFGColumnsBoolean",
+          "4": "aTerminationsColumnsBoolean", // term 4 Interface
+          "D": "aCreditRebillColumnsBoolean",
+          "Q": "aFg_Credit_Rebill", // FQ Credit_Rebill Q interface
+          "O": "aOtherBillablesColumnsBoolean",
+          "E": "aSowScWoColumnsBoolean", //Interface E
+          "F": "aSowScInvoiceColumnsBoolean", //Interface F
+          "N": "aFgTimeInvoicesColumnsBoolean", //Interface N FG Time Invoices
+          "Q": "aFg_Credit_RebillColumnsBoolean",
+          "G": "aBonusColumnsBoolean", // Bonus G interface
+          "2": "aTravelColumnsBoolean", //Interface 2
+          "A": "aDrug_Background_CheckColumnsBoolean" //Interface A
+        };
+
+        let columnMappingsMarital = {
+          "T": "aEmployRecordsColumnsMarital",
+        }
+
+        if (!columnMappings[interfaceID]) {
+          console.error("Invalid Interface ID:", interfaceID);
+          return;
+        }
+
+        let objectColumns = constant[columnMappings[interfaceID]];
+
+        // let aLines = sCSV.split('\n');
+        let aLines = sCSV.split(/\r?\n/);
+        let aResults = [];
+
+        // let aHeaders = aLines[0].split(',');
+
+        // for (let i = 0; i < aLines.length; i++) {
+        //   let aCols = aLines[i].split(',');
+        //   if(aCols.length <= 1) continue;
+        //   let oRecord = {};
+        //   objectColumns.forEach((column, colIndex) => {
+        //     if (!aCols[colIndex]) {
+        //       return;
+        //     }
+            
+        //     // oRecord[column] = aCols[colIndex].trim();
+        //     let value = aCols[colIndex].trim();
+        //     if (interfaceID === "M" && colIndex === 30 ) {
+        //       if(value.includes(" - ")){
+        //       value = value.split(" - ")[0].trim();
+        //       }else {
+        //         value = value.substring(0,10);
+        //       }
+        //     }
+        //     if (interfaceID === "M" && colIndex === 24 && value) {
+        //       value = value.toUpperCase();
+        //     }
+        //      oRecord[column] = value;
+        //   });
+        //   this.convertToBoolean(oRecord, constant[columnMappingsBoolean[interfaceID]]);
+        //   oRecord.valid = true;
+        //   oRecord.processLevel_code = "0";
+        //   // if (oRecord.hasOwnProperty('country') && oRecord.country === 'US') {
+        //   //   oRecord.country = 'USA';
+        //   // }
+        //   aResults.push(oRecord);
+        // }
+        const interfacesWithHeaders = ["M", "N", "Q"];
+        const startIndex = interfacesWithHeaders.includes(interfaceID) ? 1 : 0;
+        // for (let i = 0; i < aLines.length; i++) {
+        for (let i = startIndex; i < aLines.length; i++) {
+          if (!aLines[i].trim()) continue;
+          
+          let aCols = [];
+          let currentCol = '';
+          let inQuotes = false;
+          
+          try {
+            
+            for (let j = 0; j < aLines[i].length; j++) {
+              let char = aLines[i][j];
+              
+              if (char === '"') {
+                if (j + 1 < aLines[i].length && aLines[i][j + 1] === '"') {
+                  currentCol += '"';
+                  j++;
+                } else {
+                  inQuotes = !inQuotes;
+                }
+              } else if (char === ',' && !inQuotes) {
+                aCols.push(currentCol.trim());
+                currentCol = '';
+              } else {
+                currentCol += char;
+              }
+            }
+            
+            aCols.push(currentCol.trim());
+            
+            if (aCols.length <= 1) continue;
+            
+            // Validate number of columns matches expected columns
+            // if (aCols.length !== objectColumns.length) {
+            //   throw new Error(`Invalid number of columns in row ${i + 1}. Expected ${objectColumns.length}, got ${aCols.length}`);
+            // }
+                        
+            let oRecord = {};
+            objectColumns.forEach((column, colIndex) => {
+              if (!aCols[colIndex]) {
+                return;
+              }
+              let value = aCols[colIndex];
+              if (value.startsWith('"') && value.endsWith('"')) {
+                value = value.slice(1, -1);
+              }
+               // Custom logic for interfaceID M
+               
+               if (interfaceID === "M" && colIndex === 30) {
+                if (value.includes(" - ")) {
+                  value = value.split(" - ")[0].trim();
+                } else {
+                  value = value.substring(0, 10);
+                }
+              }
+              if (interfaceID === "M" && colIndex === 24 && value) {
+                value = value.toUpperCase();
+              }
+              oRecord[column] = value;
+            });
+
+            if(interfaceID === 'T' || interfaceID === 'U'){
+              if(oRecord.maritalStatus === '0'){
+                oRecord.maritalStatus = 'S';
+              }else if(oRecord.maritalStatus === '1'){
+                oRecord.maritalStatus = 'M';                
+              }
+              if(oRecord.recruiterEmployeeNo.length == 7 )
+              {
+                oRecord.recruiterEmployeeNo = '0'+ oRecord.recruiterEmployeeNo
+              }
+              if(oRecord.employeeResponsible.length == 7)
+              {
+                oRecord.employeeResponsible = '0'+ oRecord.employeeResponsible
+              }
+              this._trimFieldsForZeros(oRecord);
+            }
+
+            if(interfaceID === '3'){
+              if(oRecord.additionalDayOfWork && oRecord.additionalDayOfWork.trim() !== ''){
+                oRecord.additionalDayOfWork = 'X';
+              }
+            }
+
+            //  if(interfaceID === 'S' || interfaceID === '1'|| interfaceID === 'M' || interfaceID === 'E' || interfaceID === 'F' || interfaceID === 'C' || interfaceID === '3'){
+              this._trimFieldsForZeros(oRecord);
+            // }
+            
+            this.convertToBoolean(oRecord, constant[columnMappingsBoolean[interfaceID]]);
+            oRecord.valid = true;
+            oRecord.processLevel_code = "0";
+            aResults.push(oRecord);
+          } catch (error) {
+            throw new Error(`Error processing row ${i + 1}: ${error.message}`);
+          }
+        }
+
+        if (aResults.length === 0) {
+          throw new Error('No valid records found in CSV file');
+        }
+
+        return aResults;
+      }
+
+       _trimFieldsForZeros (oRecord) {
+        // Trim the fields for zeros
+        // const aFieldsToTrimForZeros = ['contractNo', 'soldToParty', 'billToParty', 'material','wnContract'];
+        const aFieldsToTrimForZeros = [
+          'contractNo',       // Interfaces: C, 3, T, U, S, 1, E, 4, O, G, 2, F, A
+          'contractNoSS',     // Interface: N (Fg_Invoices)
+          'contractNoWN',     // Interface: N (Fg_Invoices)
+          'soldToParty',      // Interfaces: S, 1, T, U, E
+          'soldTo',           // Interface: M
+          'billToParty',      // Interfaces: S, 1, T, U, E
+          'billTo',           // Interface: M
+          'material',         // Interfaces: T, U
+          'materialNo',       // Interfaces: S, 1, E, F
+          'matnr',            // Interface: M
+          'wnContract',       // Interface: M
+          'project',          // Interface: A (Drug_Background_Check)
+          'projectNo',        // Interfaces: T, U (Employee/Staff Hires)
+          'orderNo',          // Interfaces: C, 3, N (Times, Fg_Invoices)
+          'internalOrder'     // Interfaces: F, O, G, 2 (SowScInvoice, OtherBillables, Bonus, Travel)
+        ];
+        for (const sField of aFieldsToTrimForZeros) {
+          if (oRecord[sField]) {
+            oRecord[sField] = oRecord[sField].replace(/^0+/, '');
+          }
+        }
+        return oRecord;
+      }
+
+     convertToBoolean (obj, keys) {
+
+        if (!Array.isArray(keys) || keys.length === 0) {
+          return;
+        }
+
+        keys.forEach(key => {
+          if (obj.hasOwnProperty(key)) {
+            obj[key] = obj[key] === "X"; 
+          }
+        });
+      }
 
   async testFunction(req) {
     const SalesOrderAPI = new SalesOrderComm();
