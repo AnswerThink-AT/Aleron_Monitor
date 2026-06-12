@@ -43,19 +43,21 @@ sap.ui.define(
         const oAppModel = this.base.getExtensionAPI().getModel("appModel");
         oAppModel.setProperty("/isUploadBusy", false);
         if (this._oUploadDialog) {
-            this._oUploadDialog.close();
+          this._oUploadDialog.close();
         }
         const oTable = this.base.byId("fe::table::Files::LineItem");
         if (oTable) {
-            const oRowBinding = oTable.getRowBinding();
-            if (oRowBinding) {
-                oRowBinding.refresh();
-            }
+          const oRowBinding = oTable.getRowBinding();
+          if (oRowBinding) {
+            oRowBinding.refresh();
+          }
         }
       },
 
       // on File Upload
       onFileBrowse: function (oEvent) {
+        this._startTime = performance.now();
+        console.log("Upload process started...");
         let interfaceID = oEvent.getSource().getParent().getContent()[1].getSelectedKey();
 
         if (!interfaceID) {
@@ -78,8 +80,16 @@ sap.ui.define(
         var reader = new FileReader();
 
         reader.onload = async (e) => {
+          //(rohit- 11/06)const aSubItemsPayload = this.aSubItemsPayload = await this._parseCSVWithValidation(sContent, interfaceID);
           var sContent = e.target.result;
-          const aSubItemsPayload = this.aSubItemsPayload = await this._parseCSVWithValidation(sContent, interfaceID);
+
+          this._csvContent = sContent;
+
+          this.aSubItemsPayload =
+            await this._parseCSVWithValidation(
+              sContent,
+              interfaceID
+            );
         };
 
         reader.readAsText(oFile);
@@ -153,7 +163,7 @@ sap.ui.define(
         //     if (!aCols[colIndex]) {
         //       return;
         //     }
-            
+
         //     // oRecord[column] = aCols[colIndex].trim();
         //     let value = aCols[colIndex].trim();
         //     if (interfaceID === "M" && colIndex === 30 ) {
@@ -181,16 +191,16 @@ sap.ui.define(
         // for (let i = 0; i < aLines.length; i++) {
         for (let i = startIndex; i < aLines.length; i++) {
           if (!aLines[i].trim()) continue;
-          
+
           let aCols = [];
           let currentCol = '';
           let inQuotes = false;
-          
+
           try {
-            
+
             for (let j = 0; j < aLines[i].length; j++) {
               let char = aLines[i][j];
-              
+
               if (char === '"') {
                 if (j + 1 < aLines[i].length && aLines[i][j + 1] === '"') {
                   currentCol += '"';
@@ -205,16 +215,16 @@ sap.ui.define(
                 currentCol += char;
               }
             }
-            
+
             aCols.push(currentCol.trim());
-            
+
             if (aCols.length <= 1) continue;
-            
+
             // Validate number of columns matches expected columns
             // if (aCols.length !== objectColumns.length) {
             //   throw new Error(`Invalid number of columns in row ${i + 1}. Expected ${objectColumns.length}, got ${aCols.length}`);
             // }
-                        
+
             let oRecord = {};
             objectColumns.forEach((column, colIndex) => {
               if (!aCols[colIndex]) {
@@ -224,9 +234,9 @@ sap.ui.define(
               if (value.startsWith('"') && value.endsWith('"')) {
                 value = value.slice(1, -1);
               }
-               // Custom logic for interfaceID M
-               
-               if (interfaceID === "M" && colIndex === 30) {
+              // Custom logic for interfaceID M
+
+              if (interfaceID === "M" && colIndex === 30) {
                 if (value.includes(" - ")) {
                   value = value.split(" - ")[0].trim();
                 } else {
@@ -239,33 +249,31 @@ sap.ui.define(
               oRecord[column] = value;
             });
 
-            if(interfaceID === 'T' || interfaceID === 'U'){
-              if(oRecord.maritalStatus === '0'){
+            if (interfaceID === 'T' || interfaceID === 'U') {
+              if (oRecord.maritalStatus === '0') {
                 oRecord.maritalStatus = 'S';
-              }else if(oRecord.maritalStatus === '1'){
-                oRecord.maritalStatus = 'M';                
+              } else if (oRecord.maritalStatus === '1') {
+                oRecord.maritalStatus = 'M';
               }
-              if(oRecord.recruiterEmployeeNo.length == 7 )
-              {
-                oRecord.recruiterEmployeeNo = '0'+ oRecord.recruiterEmployeeNo
+              if (oRecord.recruiterEmployeeNo.length == 7) {
+                oRecord.recruiterEmployeeNo = '0' + oRecord.recruiterEmployeeNo
               }
-              if(oRecord.employeeResponsible.length == 7)
-              {
-                oRecord.employeeResponsible = '0'+ oRecord.employeeResponsible
+              if (oRecord.employeeResponsible.length == 7) {
+                oRecord.employeeResponsible = '0' + oRecord.employeeResponsible
               }
               this._trimFieldsForZeros(oRecord);
             }
 
-            if(interfaceID === '3'){
-              if(oRecord.additionalDayOfWork && oRecord.additionalDayOfWork.trim() !== ''){
+            if (interfaceID === '3') {
+              if (oRecord.additionalDayOfWork && oRecord.additionalDayOfWork.trim() !== '') {
                 oRecord.additionalDayOfWork = 'X';
               }
             }
 
             //  if(interfaceID === 'S' || interfaceID === '1'|| interfaceID === 'M' || interfaceID === 'E' || interfaceID === 'F' || interfaceID === 'C' || interfaceID === '3'){
-              this._trimFieldsForZeros(oRecord);
+            this._trimFieldsForZeros(oRecord);
             // }
-            
+
             this.convertToBoolean(oRecord, constant[columnMappingsBoolean[interfaceID]]);
             oRecord.valid = true;
             oRecord.processLevel_code = "0";
@@ -318,7 +326,7 @@ sap.ui.define(
 
         keys.forEach(key => {
           if (obj.hasOwnProperty(key)) {
-            obj[key] = obj[key] === "X"; 
+            obj[key] = obj[key] === "X";
           }
         });
       },
@@ -379,19 +387,19 @@ sap.ui.define(
         };
 
         // if (interfaceID === 'A') {
-        
+
         //   delete oFile.to_Drug_Background_Check;
         //   this._pendingDrugRecords = aSubItemsPayload; // Store for later
         // } else {
         //   oFile[columnMappings[interfaceID]] = aSubItemsPayload;
         // }
 
-        
+
         // const interfacesWithFileAssociation = [
         //  "A"
         // ];
 
-        
+
         // if (interfacesWithFileAssociation.includes(interfaceID)) {
         //   aSubItemsPayload = aSubItemsPayload.map(record => ({
         //     ...record,
@@ -406,6 +414,7 @@ sap.ui.define(
 
         const oAppModel = this.base.getExtensionAPI().getModel('appModel');
         const oModel = this.base.getExtensionAPI().getModel();
+        console.log("Update Group:", oModel.getUpdateGroupId());
         // this._pendingDrugRecords = interfaceID === 'A' ? aSubItemsPayload : null;
         const oFilesListBinding = oModel.bindList('/Files');
         const oNewFileCtx = oFilesListBinding.create(oFile);
@@ -414,7 +423,7 @@ sap.ui.define(
         oNewFileCtx.created().then(
           async () => {
             const oNewlyCreatedFile = oNewFileCtx.getObject();
-            console.log('File created successfully:', oNewlyCreatedFile);            
+            console.log('File created successfully:', oNewlyCreatedFile);
             // if (interfaceID === 'A' && this._pendingDrugRecords) {
             //   console.log('Manually creating Drug Background Check records');
             //   await this._createDrugRecordsManually(oNewlyCreatedFile.ID, this._pendingDrugRecords);
@@ -424,7 +433,39 @@ sap.ui.define(
             if (this._pendingRecords) {
               console.log('Manually creating records for interface:', interfaceID);
               try {
-                await this._createRecordsManually(oNewlyCreatedFile.ID, this._pendingRecords, interfaceID);
+                //(rohit- 11/06) await this._createRecordsManually(oNewlyCreatedFile.ID, this._pendingRecords, interfaceID);
+                const csvBase64 =
+                  btoa(
+                    unescape(
+                      encodeURIComponent(this._csvContent)
+                    )
+                  );
+
+                await this.base.getExtensionAPI()
+                  .editFlow.invokeAction(
+                    'MonitorService.EntityContainer/uploadInterfaceData',
+                    {
+                      model: oModel,
+                      skipParameterDialog: true,
+                      parameterValues: [
+                        {
+                          name: 'fileID',
+                          value: oNewlyCreatedFile.ID
+                        },
+                        {
+                          name: 'interfaceID',
+                          value: interfaceID
+                        },
+                        {
+                          name: 'csvString',
+                          value: csvBase64
+                        }
+                      ]
+                    }
+                  ); this._endTime = performance.now();
+                const duration = (this._endTime - this._startTime) / 1000; // in seconds
+                console.log(`Total operation took: ${duration.toFixed(2)} seconds`);
+                MessageToast.show(`Operation completed in ${duration.toFixed(2)} seconds`);
                 console.log('Records created successfully');
                 this._pendingRecords = null; // Clear the pending records
               } catch (error) {
@@ -452,7 +493,7 @@ sap.ui.define(
             } else {
               // Handle different types of errors
               let sErrorMessage = "";
-              
+
               if (oErr.statusCode === 400) {
                 // Handle validation errors
                 if (oErr.response && oErr.response.body) {
@@ -460,7 +501,7 @@ sap.ui.define(
                     const oErrorDetails = JSON.parse(oErr.response.body);
                     if (oErrorDetails.error && oErrorDetails.error.innererror) {
                       const oInnerError = oErrorDetails.error.innererror;
-                      
+
                       // Handle specific validation errors
                       if (oInnerError.errordetails) {
                         const aErrorDetails = oInnerError.errordetails;
@@ -516,41 +557,45 @@ sap.ui.define(
 
         // Batch
         oAppModel.setProperty('/isUploadBusy', true);
-        oModel.submitBatch(oModel.getUpdateGroupId()).then(
-          () => {
-            // Success case is handled in oNewFileCtx.created()
-          },
-          (oErr) => {
-            oAppModel.setProperty('/isUploadBusy', false);
-            oNewFileCtx.delete();
-            
-            // Handle batch submission errors
-            let sErrorMessage = this.getResourceModel().getText('batchError');
-            if (oErr.response && oErr.response.body) {
-              try {
-                const oErrorDetails = JSON.parse(oErr.response.body);
-                if (oErrorDetails.error && oErrorDetails.error.message) {
-                  sErrorMessage = oErrorDetails.error.message;
-                }
-              } catch (parseError) {
-                console.error("Error parsing batch error response:", parseError);
-              }
-            }
-
-            MessageToast.show(sErrorMessage, {
-              duration: 5000,
-              width: "auto",
-              closeOnBrowserNavigation: false
-            });
-
-            console.error("Batch submission error:", oErr);
-          },
-        );
+        /* oModel.submitBatch(oModel.getUpdateGroupId()).then(
+           () => {
+               console.log("CREATED")
+             // Success case is handled in oNewFileCtx.created()
+             
+           },
+           (oErr) => {
+             this._endTime = performance.now();
+             console.log(`Process failed after: ${((this._endTime - this._startTime) / 1000).toFixed(2)} seconds`);
+             oAppModel.setProperty('/isUploadBusy', false);
+             oNewFileCtx.delete();
+             
+             // Handle batch submission errors
+             let sErrorMessage = this.getResourceModel().getText('batchError');
+             if (oErr.response && oErr.response.body) {
+               try {
+                 const oErrorDetails = JSON.parse(oErr.response.body);
+                 if (oErrorDetails.error && oErrorDetails.error.message) {
+                   sErrorMessage = oErrorDetails.error.message;
+                 }
+               } catch (parseError) {
+                 console.error("Error parsing batch error response:", parseError);
+               }
+             }
+ 
+             MessageToast.show(sErrorMessage, {
+               duration: 5000,
+               width: "auto",
+               closeOnBrowserNavigation: false
+             });
+ 
+             console.error("Batch submission error:", oErr);
+           },
+         );*/
       },
       // _createDrugRecordsManually: async function(fileID, records) {
       //   try {
       //     console.log('Creating Drug Background Check records manually for file:', fileID);
-          
+
       //     const oModel = this.getView().getModel();
       //     const drugRecords = records.map(record => ({
       //       ...record,
@@ -561,34 +606,34 @@ sap.ui.define(
       //       valid: record.valid || true,
       //       processLevel_code: record.processLevel_code || "0"
       //     }));
-          
+
       //     console.log('Drug records to create:', drugRecords);
 
-          
+
       //     // Create records using the model
       //     const drugBinding = oModel.bindList('/Drug_Background_Check');
       //     const createdRecords = [];
-          
+
       //     for (const record of drugRecords) {
       //       // Remove any ID field to let the server generate it automatically
       //       delete record.ID;
-            
+
       //       const context = drugBinding.create(record);
       //       await context.created();
       //       createdRecords.push(context.getObject());
       //     }
-          
+
       //     console.log('Successfully created', createdRecords.length, 'Drug Background Check records');
-          
+
       //   } catch (error) {
       //     console.error('Error creating Drug Background Check records:', error);
       //     MessageBox.error('Error creating records: ' + error.message);
       //   }
       // },
-      _createRecordsManually: async function(fileID, records, interfaceType) {
+      _createRecordsManually: async function (fileID, records, interfaceType) {
         try {
           console.log('Creating records manually for file:', fileID, 'interface:', interfaceType);
-          
+
           // Map interface types to entity names
           const entityMappings = {
             "1": "WorkOrders_WN",
@@ -609,14 +654,14 @@ sap.ui.define(
             "2": "Travel",
             "A": "Drug_Background_Check"
           };
-          
+
           const entityName = entityMappings[interfaceType];
           if (!entityName) {
             throw new Error('Unknown interface type: ' + interfaceType);
           }
-          
+
           console.log('Using entity:', entityName);
-          
+
           const oModel = this.getView().getModel();
           const processedRecords = records.map(record => ({
             ...record,
@@ -626,33 +671,33 @@ sap.ui.define(
             valid: record.valid || true,
             processLevel_code: record.processLevel_code || "0"
           }));
-          
+
           console.log('Records to create:', processedRecords.length);
           console.log('First record:', processedRecords[0]);
-          
+
           // Create records using the model
           const entityBinding = oModel.bindList('/' + entityName);
           const createdRecords = [];
-          
+
           for (const record of processedRecords) {
             // Remove any ID field to let the server generate it automatically
             delete record.ID;
             // Remove file_ID if it exists to avoid conflicts
             delete record.file_ID;
-            
+
             console.log('Creating record with file association:', record.file);
-            
+
             const context = entityBinding.create(record);
             await context.created();
             const createdRecord = context.getObject();
             createdRecords.push(createdRecord);
-            
+
             console.log('Record created successfully:', createdRecord);
           }
-          
+
           console.log('Successfully created', createdRecords.length, 'records for interface', interfaceType);
           return createdRecords;
-          
+
         } catch (error) {
           console.error('Error creating records for interface', interfaceType, ':', error);
           throw error;
@@ -661,21 +706,21 @@ sap.ui.define(
 
       // start
       // Enhanced CSV parsing with metadata validation using backend service
-      _parseCSVWithValidation: async function(sCSV, interfaceID) {
+      _parseCSVWithValidation: async function (sCSV, interfaceID) {
         const aResults = this._parseCSV(sCSV, interfaceID);
-        
+
         if (aResults.length === 0) {
           return aResults;
         }
 
         try {
-           const metadata = await this._getEntityMetadataFromBackend(interfaceID);
+          const metadata = await this._getEntityMetadataFromBackend(interfaceID);
           if (metadata) {
             this._applyStringLengthConstraints(aResults, metadata);
           }
           // Call backend validation service
           const validationResult = await this._validateRecordsViaBackend(interfaceID, aResults);
-          
+
           if (!validationResult.isValid) {
             const validationErrors = JSON.parse(validationResult.errors);
             this._showMetadataValidationErrors(validationErrors);
@@ -691,32 +736,32 @@ sap.ui.define(
       },
 
       // Call backend validation service
-      _validateRecordsViaBackend: async function(interfaceID, records) {
+      _validateRecordsViaBackend: async function (interfaceID, records) {
         const oModel = this.base.getExtensionAPI().getModel();
-        
+
         // Convert records to JSON strings for backend processing
         const recordStrings = records.map(record => JSON.stringify(record));
-        
+
         // Call the backend validateRecords action
         // const response = await oModel.invokeFunction('/validateRecords', {
         //   interfaceId: interfaceID,
         //   records: recordStrings
         // });
         const response = await this.base.getExtensionAPI().editFlow.invokeAction('MonitorService.EntityContainer/validateRecords', {
-            model: oModel,
-            skipParameterDialog: true,
-            parameterValues: [
-              {
-                name: 'interfaceId',
-                value: interfaceID
-              },
-              {
-                name: 'records',
-                value: recordStrings
-              }
-            ]
-          });
-        
+          model: oModel,
+          skipParameterDialog: true,
+          parameterValues: [
+            {
+              name: 'interfaceId',
+              value: interfaceID
+            },
+            {
+              name: 'records',
+              value: recordStrings
+            }
+          ]
+        });
+
         // return response.getObject();
         return (response && typeof response.getObject === 'function') ? response.getObject() : response;
       },
@@ -724,12 +769,12 @@ sap.ui.define(
       // Get entity metadata from backend (for future use)
       // _getEntityMetadataFromBackend: async function(interfaceID) {
       //   const oModel = this.base.getExtensionAPI().getModel();
-        
+
       //   try {
       //     const response = await oModel.invokeFunction('/getEntityMetadata', {
       //       interfaceId: interfaceID
       //     });
-          
+
       //     return {
       //       entityName: response.entityName,
       //       fields: JSON.parse(response.fields),
@@ -742,7 +787,7 @@ sap.ui.define(
       //   }
       // },
 
-       _getEntityMetadataFromBackend: async function(interfaceID) {
+      _getEntityMetadataFromBackend: async function (interfaceID) {
         if (!interfaceID) {
           return null;
         }
@@ -755,7 +800,7 @@ sap.ui.define(
         }
 
         const oModel = this.base.getExtensionAPI().getModel();
-        
+
         try {
           const response = await this.base.getExtensionAPI().editFlow.invokeAction(
             'MonitorService.EntityContainer/getEntityMetadata',
@@ -779,7 +824,7 @@ sap.ui.define(
             return null;
           }
 
-          var parseJSON = function(value, fallback) {
+          var parseJSON = function (value, fallback) {
             if (!value) {
               return fallback;
             }
@@ -806,7 +851,7 @@ sap.ui.define(
         }
       },
 
-      _applyStringLengthConstraints: function(records, metadata) {
+      _applyStringLengthConstraints: function (records, metadata) {
         if (!Array.isArray(records) || !metadata) {
           return;
         }
@@ -842,7 +887,7 @@ sap.ui.define(
       },
 
       // Show metadata validation errors
-      _showMetadataValidationErrors: async function(validationErrors) {
+      _showMetadataValidationErrors: async function (validationErrors) {
         try {
           // Create or get the validation errors dialog
           this._MetadataValidationDialog ??= await this.loadFragment({
@@ -882,18 +927,18 @@ sap.ui.define(
       },
 
       // Download error report
-      onDownloadErrorReport: function() {
+      onDownloadErrorReport: function () {
         const oValidationModel = this._MetadataValidationDialog.getModel('validation');
         const aErrors = oValidationModel.getProperty('/errors');
-        
+
         // Create CSV content
         const csvHeader = 'Record Index,Field,Severity,Error Message,Value\n';
-        const csvContent = aErrors.map(error => 
+        const csvContent = aErrors.map(error =>
           `${error.recordIndex},"${error.field}","${error.severity}","${error.message}","${error.value || ''}"`
         ).join('\n');
-        
+
         const fullCsv = csvHeader + csvContent;
-        
+
         // Create and download file
         const blob = new Blob([fullCsv], { type: 'text/csv' });
         const url = window.URL.createObjectURL(blob);
@@ -907,7 +952,7 @@ sap.ui.define(
       },
 
       // Close validation dialog
-      onCloseValidationDialog: function() {
+      onCloseValidationDialog: function () {
         this._MetadataValidationDialog.close();
       },
     });

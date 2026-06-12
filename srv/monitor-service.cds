@@ -124,5 +124,9 @@ service MonitorService {
     action createOtherBillables(otherBillables: array of OtherBillables) returns many OtherBillables; // Interface O
     action createDrug_Background_Check(drug_Background_Check: array of Drug_Background_Check) returns many Drug_Background_Check;
     
-    
+    action uploadInterfaceData(
+    fileID : String,
+    interfaceID : String,
+    csvString : LargeString
+) returns String;
 }
