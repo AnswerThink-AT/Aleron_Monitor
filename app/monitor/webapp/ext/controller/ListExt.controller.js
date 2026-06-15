@@ -345,6 +345,36 @@ sap.ui.define(
         }
       },
       // 
+      async _uploadInterfaceData(fileID, interfaceID, oModel) {
+    const csvBase64 = btoa(
+        unescape(
+            encodeURIComponent(this._csvContent)
+        )
+    );
+
+    await this.base.getExtensionAPI()
+        .editFlow.invokeAction(
+            "MonitorService.EntityContainer/uploadInterfaceData",
+            {
+                model: oModel,
+                skipParameterDialog: true,
+                parameterValues: [
+                    {
+                        name: "fileID",
+                        value: fileID
+                    },
+                    {
+                        name: "interfaceID",
+                        value: interfaceID
+                    },
+                    {
+                        name: "csvString",
+                        value: csvBase64
+                    }
+                ]
+            }
+        );
+},
       _createMonitorFile: async function (aSubItemsPayload, interfaceID) {
         console.log('Creating file with interface ID:', interfaceID);
         console.log('Payload data:', aSubItemsPayload);
@@ -434,35 +464,8 @@ sap.ui.define(
               console.log('Manually creating records for interface:', interfaceID);
               try {
                 //(rohit- 11/06) await this._createRecordsManually(oNewlyCreatedFile.ID, this._pendingRecords, interfaceID);
-                const csvBase64 =
-                  btoa(
-                    unescape(
-                      encodeURIComponent(this._csvContent)
-                    )
-                  );
-
-                await this.base.getExtensionAPI()
-                  .editFlow.invokeAction(
-                    'MonitorService.EntityContainer/uploadInterfaceData',
-                    {
-                      model: oModel,
-                      skipParameterDialog: true,
-                      parameterValues: [
-                        {
-                          name: 'fileID',
-                          value: oNewlyCreatedFile.ID
-                        },
-                        {
-                          name: 'interfaceID',
-                          value: interfaceID
-                        },
-                        {
-                          name: 'csvString',
-                          value: csvBase64
-                        }
-                      ]
-                    }
-                  ); this._endTime = performance.now();
+                await this._uploadInterfaceData(oNewlyCreatedFile.ID, interfaceID, oModel);
+                this._endTime = performance.now();
                 const duration = (this._endTime - this._startTime) / 1000; // in seconds
                 console.log(`Total operation took: ${duration.toFixed(2)} seconds`);
                 MessageToast.show(`Operation completed in ${duration.toFixed(2)} seconds`);
