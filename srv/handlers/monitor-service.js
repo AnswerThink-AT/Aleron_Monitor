@@ -56,27 +56,27 @@ const mInterfaceTypes = Object.freeze({
   OtherBillables: 'O'
 });
 const interfaceTypeIdToEntityName = {
-    '1': 'WorkOrders_WN',
-    'S': 'WorkOrders',
-    '3': 'Times',
-    'T': 'EmployeeHires',
-    'U': 'StaffHires',
-    'E': 'SowScWo',
-    'F': 'SowScInvoice',
-    '2': 'Travel',
-    'G': 'Bonus',
-    'O': 'OtherBillables',
-    'N': 'Fg_Invoices',
-    'M': 'WorkOrders_FG',
-    'A': 'Drug_Background_Check',
-    'D': 'Credit_Rebill',
-    'Q': 'Fg_Credit_Rebill',
-    'C': 'Times'
+  '1': 'WorkOrders_WN',
+  'S': 'WorkOrders',
+  '3': 'Times',
+  'T': 'EmployeeHires',
+  'U': 'StaffHires',
+  'E': 'SowScWo',
+  'F': 'SowScInvoice',
+  '2': 'Travel',
+  'G': 'Bonus',
+  'O': 'OtherBillables',
+  'N': 'Fg_Invoices',
+  'M': 'WorkOrders_FG',
+  'A': 'Drug_Background_Check',
+  'D': 'Credit_Rebill',
+  'Q': 'Fg_Credit_Rebill',
+  'C': 'Times'
 };
 
 // Entities
 // const { EmployeeHires, ProcessLogs, StaffHires, WorkOrders_WN, WorkOrders, SowScWo, SowScInvoice, Bonus } = cds.entities('com.aleron.monitor');
-const { EmployeeHires, ProcessLogs, StaffHires, WorkOrders_WN, WorkOrders, SowScWo, SowScInvoice, Bonus, Travel,Fg_Credit_Rebill, Credit_Rebill, Fg_Invoices, Terminations, Times,Drug_Background_Check } = cds.entities('com.aleron.monitor');
+const { EmployeeHires, ProcessLogs, StaffHires, WorkOrders_WN, WorkOrders, SowScWo, SowScInvoice, Bonus, Travel, Fg_Credit_Rebill, Credit_Rebill, Fg_Invoices, Terminations, Times, Drug_Background_Check } = cds.entities('com.aleron.monitor');
 class MonitorService extends cds.ApplicationService {
   init() {
     const { Files } = this.entities;
@@ -109,12 +109,13 @@ class MonitorService extends cds.ApplicationService {
     this.on('updateRecords', this._onUpdateRecords);
     this.on('addLogs', this._addLogs);
     this.on('updateLogs', this._updateLogs);
-            // Handle metadata validation actions
+    this.on('deletediscardedRecords', this._onDeleteDiscardedRecords);
+    // Handle metadata validation actions
     this.on('getEntityMetadata', async (req) => {
       try {
         const { interfaceId } = req.data;
         const metadata = await this.metadataService.getInterfaceEntityMetadata(interfaceId);
-        
+
         return {
           entityName: metadata.entityName,
           fields: JSON.stringify(metadata.fields),
@@ -125,7 +126,7 @@ class MonitorService extends cds.ApplicationService {
         req.error(400, error.message);
       }
     });
-    this.after('READ', [this.entities.Files,this.entities.Files.drafts], async (files, req) => {
+    this.after('READ', [this.entities.Files, this.entities.Files.drafts], async (files, req) => {
       if (!Array.isArray(files)) files = [files];
 
       for (const file of files) {
@@ -193,48 +194,48 @@ class MonitorService extends cds.ApplicationService {
 
         file.processLevelCounts = parts.length > 0 ? parts.join(' | ') : 'No process levels found';
 
-        file.showFacet_M  = true;
-        file.showFacet_1  = true;
-        file.showFacet_S  = true;
-        file.showFacet_3  = true;
-        file.showFacet_T  = true;
-        file.showFacet_U  = true;
-        file.showFacet_E  = true;
-        file.showFacet_F  = true;
-        file.showFacet_2  = true;
-        file.showFacet_G  = true;
-        file.showFacet_O  = true;
-        file.showFacet_N  = true;
-        file.showFacet_A  = true;
-        file.showFacet_D  = true;
-        file.showFacet_Q  = true;
-        file.showFacet_C  = true;
-        file.showFacet_4  = true;
-        
-        if (key === 'M')  file.showFacet_M  = false;
-        if (key === '1')  file.showFacet_1  = false;
-        if (key === 'S')  file.showFacet_S  = false;
-        if (key === '3')  file.showFacet_3  = false;
-        if (key === 'T')  file.showFacet_T  = false;
-        if (key === 'U')  file.showFacet_U  = false;
-        if (key === 'E')  file.showFacet_E  = false;
-        if (key === 'F')  file.showFacet_F  = false;
-        if (key === '2')  file.showFacet_2  = false;
-        if (key === 'G')  file.showFacet_G  = false;
-        if (key === 'O')  file.showFacet_O  = false;
-        if (key === 'N')  file.showFacet_N  = false;
-        if (key === 'A')  file.showFacet_A  = false;
-        if (key === 'D')  file.showFacet_D  = false;
-        if (key === 'Q')  file.showFacet_Q  = false;
-        if (key === 'C')  file.showFacet_C  = false;
-        if (key === '4')  file.showFacet_4  = false;
+        file.showFacet_M = true;
+        file.showFacet_1 = true;
+        file.showFacet_S = true;
+        file.showFacet_3 = true;
+        file.showFacet_T = true;
+        file.showFacet_U = true;
+        file.showFacet_E = true;
+        file.showFacet_F = true;
+        file.showFacet_2 = true;
+        file.showFacet_G = true;
+        file.showFacet_O = true;
+        file.showFacet_N = true;
+        file.showFacet_A = true;
+        file.showFacet_D = true;
+        file.showFacet_Q = true;
+        file.showFacet_C = true;
+        file.showFacet_4 = true;
+
+        if (key === 'M') file.showFacet_M = false;
+        if (key === '1') file.showFacet_1 = false;
+        if (key === 'S') file.showFacet_S = false;
+        if (key === '3') file.showFacet_3 = false;
+        if (key === 'T') file.showFacet_T = false;
+        if (key === 'U') file.showFacet_U = false;
+        if (key === 'E') file.showFacet_E = false;
+        if (key === 'F') file.showFacet_F = false;
+        if (key === '2') file.showFacet_2 = false;
+        if (key === 'G') file.showFacet_G = false;
+        if (key === 'O') file.showFacet_O = false;
+        if (key === 'N') file.showFacet_N = false;
+        if (key === 'A') file.showFacet_A = false;
+        if (key === 'D') file.showFacet_D = false;
+        if (key === 'Q') file.showFacet_Q = false;
+        if (key === 'C') file.showFacet_C = false;
+        if (key === '4') file.showFacet_4 = false;
       }
     });
     // this.on('validateRecords', async (req) => {
     //   try {
     //     const { interfaceId, records } = req.data;
     //     const metadata = await this.metadataService.getInterfaceEntityMetadata(interfaceId);
-        
+
     //     const allErrors = [];
     //     records.forEach((recordJson, index) => {
     //       try {
@@ -266,9 +267,9 @@ class MonitorService extends cds.ApplicationService {
       try {
         const { interfaceId, records } = req.data;
         const metadata = await this.metadataService.getInterfaceEntityMetadata(interfaceId);
-        
+
         const allErrors = [];
-        
+
         // Process records sequentially to handle async validation
         for (let index = 0; index < records.length; index++) {
           const recordJson = records[index];
@@ -305,7 +306,7 @@ class MonitorService extends cds.ApplicationService {
       try {
         var that = this;
         const results = await Promise.all(
-          employeeHiresArray.map(function(emp){
+          employeeHiresArray.map(function (emp) {
             // Marital status logic
             if (emp.maritalStatus === '0') {
               emp.maritalStatus = 'S';
@@ -386,7 +387,7 @@ class MonitorService extends cds.ApplicationService {
       try {
         var that = this;
         const results = await Promise.all(
-          staffHiresArray.map(function(staff) {
+          staffHiresArray.map(function (staff) {
             // Leading Zerod removal function
             staff = that._trimFieldsForZeros(staff);
             return INSERT.into(StaffHires).entries(staff)
@@ -723,7 +724,7 @@ class MonitorService extends cds.ApplicationService {
       O: 'OtherBillables',
       N: 'Fg_Invoices',
       M: 'WorkOrders_FG',
-      A:'Drug_Background_Check',
+      A: 'Drug_Background_Check',
       D: 'Credit_Rebill',
       Q: 'Fg_Credit_Rebill',
       O: 'OtherBillables'
@@ -758,7 +759,7 @@ class MonitorService extends cds.ApplicationService {
     const { Files } = this.entities;
     const { fileNumber, records: recordIDs } = req.data;
 
-    
+
     const file = await SELECT.one.from(Files).where({ ID: fileNumber });
     const processor = new this[InterfaceMapping[file.interfaceType_ID]]({
       file,
@@ -843,7 +844,7 @@ class MonitorService extends cds.ApplicationService {
   //       // }
   //        await db.run(DELETE.from(ProcessLogs).where({ record_ID: sRecordID }));
   //     }      
-      
+
   //     // if (aLogs && aLogs.length > 0) {
   //     //   await INSERT.into(ProcessLogs).entries(aLogs);
   //     // }
@@ -862,25 +863,25 @@ class MonitorService extends cds.ApplicationService {
   //   }
   // }
 
-   async _updateLogs(req) {
+  async _updateLogs(req) {
     const { logs: aLogs, record_ID: sRecordID } = req.data;
     try {
       // Get database connection
       const db = await cds.connect.to('db');
-      
+
       // Always remove existing logs for the specific record before inserting new ones
       if (sRecordID) {
         // First check what logs exist
         const existingLogsQuery = `SELECT ID FROM COM_ALERON_MONITOR_PROCESSLOGS WHERE RECORD_ID = ?`;
         const existingLogs = await db.run(existingLogsQuery, [sRecordID]);
         LOG._info && LOG.info(`Found ${existingLogs.length} existing logs (including all entities) for record_ID: ${sRecordID}`);
-        
+
         // Delete using raw SQL to ensure all logs are deleted
         const deleteQuery = `DELETE FROM COM_ALERON_MONITOR_PROCESSLOGS WHERE RECORD_ID = ?`;
         const deleteResult = await db.run(deleteQuery, [sRecordID]);
         LOG._info && LOG.info(`Delete result: ${deleteResult} rows deleted`);
       }
-      
+
       // Insert new logs (strip IDs since we're creating new ones)
       if (aLogs && aLogs.length > 0) {
         // Remove ID and other managed fields from logs to ensure fresh insert
@@ -891,7 +892,7 @@ class MonitorService extends cds.ApplicationService {
         await db.run(INSERT.into('com.aleron.monitor.ProcessLogs').entries(logsWithoutIds));
         LOG._info && LOG.info(`Inserted ${logsWithoutIds.length} new logs`);
       }
-      
+
       return { success: true, message: 'Logs updated successfully' };
     } catch (err) {
       LOG._error && LOG.error('Error in _updateLogs:', err.message);
@@ -899,94 +900,114 @@ class MonitorService extends cds.ApplicationService {
     }
   }
 
-  
+
   async _uploadInterfaceData(req) {
-  let {
-    fileID,
-    interfaceID,
-    csvString
-} = req.data;
+    let {
+      fileID,
+      interfaceID,
+      csvString
+    } = req.data;
 
 
-csvString =
-    Buffer
+    csvString =
+      Buffer
         .from(csvString, 'base64')
         .toString('utf8');
 
-  try {
+    try {
 
-    LOG.info(`Starting upload for interface ${interfaceID}`);
+      LOG.info(`Starting upload for interface ${interfaceID}`);
 
-    /*
-     * Parse CSV
-     * Reuse your existing parsing logic here.
-     * Ideally move the code from UI _parseCSV()
-     */
-    const records = this._parseCSV(csvString, interfaceID);
+      /*
+       * Parse CSV
+       * Reuse your existing parsing logic here.
+       * Ideally move the code from UI _parseCSV()
+       */
+      const records = this._parseCSV(csvString, interfaceID);
 
-    if (!records || records.length === 0) {
-      return req.reject(400, 'No valid records found');
+      if (!records || records.length === 0) {
+        return req.reject(400, 'No valid records found');
+      }
+
+      /*
+       * Create File Header
+       */
+      const tx = cds.tx(req);
+
+      LOG.info(`File created successfully: ${fileID}`);
+
+      /*
+       * Determine entity
+       */
+      const entityName = interfaceTypeIdToEntityName[interfaceID];
+
+      if (!entityName) {
+        return req.reject(400, `No entity mapping found for interface ${interfaceID}`);
+      }
+
+      /*
+       * Add common fields
+       */
+      records.forEach(record => {
+        record.file_ID = fileID;
+        record.valid = true;
+        record.processLevel_code = '0';
+
+        delete record.ID;
+        delete record.file;
+      });
+
+      /*
+       * Bulk insert in chunks
+       */
+      const CHUNK_SIZE = 1000;
+
+      for (let i = 0; i < records.length; i += CHUNK_SIZE) {
+
+        const chunk = records.slice(i, i + CHUNK_SIZE);
+
+        await tx.run(
+          INSERT.into(this.entities[entityName]).entries(chunk)
+        );
+
+        LOG.info(
+          `Inserted ${Math.min(i + CHUNK_SIZE, records.length)} of ${records.length}`
+        );
+      }
+      LOG.info(`Upload completed successfully for file ${fileID}`);
+
+      return fileID;
+
+    } catch (error) {
+
+      LOG.error('Upload failed', error);
+
+      return req.reject(
+        500,
+        `Upload failed: ${error.message}`
+      );
     }
-
-    /*
-     * Create File Header
-     */
-    const tx = cds.tx(req);
-
-    LOG.info(`File created successfully: ${fileID}`);
-
-    /*
-     * Determine entity
-     */
+  }
+  async _onDeleteDiscardedRecords(req) {
+    const { fileID, interfaceID } = req.data;
     const entityName = interfaceTypeIdToEntityName[interfaceID];
 
     if (!entityName) {
       return req.reject(400, `No entity mapping found for interface ${interfaceID}`);
     }
 
-    /*
-     * Add common fields
-     */
-    records.forEach(record => {
-      record.file_ID = fileID;
-      record.valid = true;
-      record.processLevel_code = '0';
-
-      delete record.ID;
-      delete record.file;
-    });
-
-    /*
-     * Bulk insert in chunks
-     */
-    const CHUNK_SIZE = 1000;
-
-    for (let i = 0; i < records.length; i += CHUNK_SIZE) {
-
-      const chunk = records.slice(i, i + CHUNK_SIZE);
-
+    try {
+      const tx = cds.tx(req);
       await tx.run(
-        INSERT.into(this.entities[entityName]).entries(chunk)
+        DELETE.from(this.entities[entityName]).where({ file_ID: fileID })
       );
-
-      LOG.info(
-        `Inserted ${Math.min(i + CHUNK_SIZE, records.length)} of ${records.length}`
-      );
+      LOG.info(`Deleted discarded records for file ${fileID} and interface ${interfaceID}`);
+      return { success: true, message: `Deleted discarded records for file ${fileID} and interface ${interfaceID}` };
+    } catch (error) {
+      LOG.error('Failed to delete discarded records', error);
+      return req.reject(500, `Failed to delete discarded records: ${error.message}`);
     }
-    LOG.info(`Upload completed successfully for file ${fileID}`);
-
-    return fileID;
-
-  } catch (error) {
-
-    LOG.error('Upload failed', error);
-
-    return req.reject(
-      500,
-      `Upload failed: ${error.message}`
-    );
   }
-}
   async _test() {
     const BusinessPartner = new BusinessPartnerComm();
 
@@ -1002,243 +1023,241 @@ csvString =
         }),
     );
   }
-  _parseCSV (sCSV, interfaceID) {
+  _parseCSV(sCSV, interfaceID) {
 
-        let columnMappings = {
-          "1": "aWNWorkOrdersColumns",
-          "C": "aTimesColumns",
-          "3": "aTimesColumns",
-          "T": "aEmployRecordsColumns",
-          "U": "aStaffColumns",
-          "S": "aVNWorkOrdersColumns",
-          "M": "aWorkOrdersFGColumns",
-          "4": "aTerminationsColumns", // term 4 interface
-          "D": "aCredit_Rebill", // Credit_Rebill D interface
-          "Q": "aFg_Credit_Rebill", // FQ Credit_Rebill Q interface
-          "O": "aOtherBillablesColumns",
-          "E": "aSowScWoColumns", //Interface E
-          "F": "aSowScInvoiceColumns", //Interface F
-          "N": "aFgTimeInvoicesColumns", //interface N FG Time Invoices
-          "G": "aBonusColumns", // Bonus G interface
-          "2": "aTravelColumns", //Interface 2
-          "A": "aDrug_Background_CheckColumns" //Interface A
-        };
+    let columnMappings = {
+      "1": "aWNWorkOrdersColumns",
+      "C": "aTimesColumns",
+      "3": "aTimesColumns",
+      "T": "aEmployRecordsColumns",
+      "U": "aStaffColumns",
+      "S": "aVNWorkOrdersColumns",
+      "M": "aWorkOrdersFGColumns",
+      "4": "aTerminationsColumns", // term 4 interface
+      "D": "aCredit_Rebill", // Credit_Rebill D interface
+      "Q": "aFg_Credit_Rebill", // FQ Credit_Rebill Q interface
+      "O": "aOtherBillablesColumns",
+      "E": "aSowScWoColumns", //Interface E
+      "F": "aSowScInvoiceColumns", //Interface F
+      "N": "aFgTimeInvoicesColumns", //interface N FG Time Invoices
+      "G": "aBonusColumns", // Bonus G interface
+      "2": "aTravelColumns", //Interface 2
+      "A": "aDrug_Background_CheckColumns" //Interface A
+    };
 
-        let columnMappingsBoolean = {
-          "1": "aWNWorkOrdersColumnsBoolean",
-          "C": "aTimesColumnsBoolean",
-          "3": "aTimesColumnsBoolean",
-          "T": "aEmployRecordsColumnsBoolean",
-          "U": "aStaffColumnsBoolean",
-          "S": "aVNWorkOrdersColumnsBoolean",
-          "M": "aWorkOrdersFGColumnsBoolean",
-          "4": "aTerminationsColumnsBoolean", // term 4 Interface
-          "D": "aCreditRebillColumnsBoolean",
-          "Q": "aFg_Credit_Rebill", // FQ Credit_Rebill Q interface
-          "O": "aOtherBillablesColumnsBoolean",
-          "E": "aSowScWoColumnsBoolean", //Interface E
-          "F": "aSowScInvoiceColumnsBoolean", //Interface F
-          "N": "aFgTimeInvoicesColumnsBoolean", //Interface N FG Time Invoices
-          "Q": "aFg_Credit_RebillColumnsBoolean",
-          "G": "aBonusColumnsBoolean", // Bonus G interface
-          "2": "aTravelColumnsBoolean", //Interface 2
-          "A": "aDrug_Background_CheckColumnsBoolean" //Interface A
-        };
+    let columnMappingsBoolean = {
+      "1": "aWNWorkOrdersColumnsBoolean",
+      "C": "aTimesColumnsBoolean",
+      "3": "aTimesColumnsBoolean",
+      "T": "aEmployRecordsColumnsBoolean",
+      "U": "aStaffColumnsBoolean",
+      "S": "aVNWorkOrdersColumnsBoolean",
+      "M": "aWorkOrdersFGColumnsBoolean",
+      "4": "aTerminationsColumnsBoolean", // term 4 Interface
+      "D": "aCreditRebillColumnsBoolean",
+      "Q": "aFg_Credit_Rebill", // FQ Credit_Rebill Q interface
+      "O": "aOtherBillablesColumnsBoolean",
+      "E": "aSowScWoColumnsBoolean", //Interface E
+      "F": "aSowScInvoiceColumnsBoolean", //Interface F
+      "N": "aFgTimeInvoicesColumnsBoolean", //Interface N FG Time Invoices
+      "Q": "aFg_Credit_RebillColumnsBoolean",
+      "G": "aBonusColumnsBoolean", // Bonus G interface
+      "2": "aTravelColumnsBoolean", //Interface 2
+      "A": "aDrug_Background_CheckColumnsBoolean" //Interface A
+    };
 
-        let columnMappingsMarital = {
-          "T": "aEmployRecordsColumnsMarital",
-        }
+    let columnMappingsMarital = {
+      "T": "aEmployRecordsColumnsMarital",
+    }
 
-        if (!columnMappings[interfaceID]) {
-          console.error("Invalid Interface ID:", interfaceID);
-          return;
-        }
+    if (!columnMappings[interfaceID]) {
+      console.error("Invalid Interface ID:", interfaceID);
+      return;
+    }
 
-        let objectColumns = constant[columnMappings[interfaceID]];
+    let objectColumns = constant[columnMappings[interfaceID]];
 
-        // let aLines = sCSV.split('\n');
-        let aLines = sCSV.split(/\r?\n/);
-        let aResults = [];
+    // let aLines = sCSV.split('\n');
+    let aLines = sCSV.split(/\r?\n/);
+    let aResults = [];
 
-        // let aHeaders = aLines[0].split(',');
+    // let aHeaders = aLines[0].split(',');
 
-        // for (let i = 0; i < aLines.length; i++) {
-        //   let aCols = aLines[i].split(',');
-        //   if(aCols.length <= 1) continue;
-        //   let oRecord = {};
-        //   objectColumns.forEach((column, colIndex) => {
-        //     if (!aCols[colIndex]) {
-        //       return;
-        //     }
-            
-        //     // oRecord[column] = aCols[colIndex].trim();
-        //     let value = aCols[colIndex].trim();
-        //     if (interfaceID === "M" && colIndex === 30 ) {
-        //       if(value.includes(" - ")){
-        //       value = value.split(" - ")[0].trim();
-        //       }else {
-        //         value = value.substring(0,10);
-        //       }
-        //     }
-        //     if (interfaceID === "M" && colIndex === 24 && value) {
-        //       value = value.toUpperCase();
-        //     }
-        //      oRecord[column] = value;
-        //   });
-        //   this.convertToBoolean(oRecord, constant[columnMappingsBoolean[interfaceID]]);
-        //   oRecord.valid = true;
-        //   oRecord.processLevel_code = "0";
-        //   // if (oRecord.hasOwnProperty('country') && oRecord.country === 'US') {
-        //   //   oRecord.country = 'USA';
-        //   // }
-        //   aResults.push(oRecord);
-        // }
-        const interfacesWithHeaders = ["M", "N", "Q"];
-        const startIndex = interfacesWithHeaders.includes(interfaceID) ? 1 : 0;
-        // for (let i = 0; i < aLines.length; i++) {
-        for (let i = startIndex; i < aLines.length; i++) {
-          if (!aLines[i].trim()) continue;
-          
-          let aCols = [];
-          let currentCol = '';
-          let inQuotes = false;
-          
-          try {
-            
-            for (let j = 0; j < aLines[i].length; j++) {
-              let char = aLines[i][j];
-              
-              if (char === '"') {
-                if (j + 1 < aLines[i].length && aLines[i][j + 1] === '"') {
-                  currentCol += '"';
-                  j++;
-                } else {
-                  inQuotes = !inQuotes;
-                }
-              } else if (char === ',' && !inQuotes) {
-                aCols.push(currentCol.trim());
-                currentCol = '';
-              } else {
-                currentCol += char;
-              }
+    // for (let i = 0; i < aLines.length; i++) {
+    //   let aCols = aLines[i].split(',');
+    //   if(aCols.length <= 1) continue;
+    //   let oRecord = {};
+    //   objectColumns.forEach((column, colIndex) => {
+    //     if (!aCols[colIndex]) {
+    //       return;
+    //     }
+
+    //     // oRecord[column] = aCols[colIndex].trim();
+    //     let value = aCols[colIndex].trim();
+    //     if (interfaceID === "M" && colIndex === 30 ) {
+    //       if(value.includes(" - ")){
+    //       value = value.split(" - ")[0].trim();
+    //       }else {
+    //         value = value.substring(0,10);
+    //       }
+    //     }
+    //     if (interfaceID === "M" && colIndex === 24 && value) {
+    //       value = value.toUpperCase();
+    //     }
+    //      oRecord[column] = value;
+    //   });
+    //   this.convertToBoolean(oRecord, constant[columnMappingsBoolean[interfaceID]]);
+    //   oRecord.valid = true;
+    //   oRecord.processLevel_code = "0";
+    //   // if (oRecord.hasOwnProperty('country') && oRecord.country === 'US') {
+    //   //   oRecord.country = 'USA';
+    //   // }
+    //   aResults.push(oRecord);
+    // }
+    const interfacesWithHeaders = ["M", "N", "Q"];
+    const startIndex = interfacesWithHeaders.includes(interfaceID) ? 1 : 0;
+    // for (let i = 0; i < aLines.length; i++) {
+    for (let i = startIndex; i < aLines.length; i++) {
+      if (!aLines[i].trim()) continue;
+
+      let aCols = [];
+      let currentCol = '';
+      let inQuotes = false;
+
+      try {
+
+        for (let j = 0; j < aLines[i].length; j++) {
+          let char = aLines[i][j];
+
+          if (char === '"') {
+            if (j + 1 < aLines[i].length && aLines[i][j + 1] === '"') {
+              currentCol += '"';
+              j++;
+            } else {
+              inQuotes = !inQuotes;
             }
-            
+          } else if (char === ',' && !inQuotes) {
             aCols.push(currentCol.trim());
-            
-            if (aCols.length <= 1) continue;
-            
-            // Validate number of columns matches expected columns
-            // if (aCols.length !== objectColumns.length) {
-            //   throw new Error(`Invalid number of columns in row ${i + 1}. Expected ${objectColumns.length}, got ${aCols.length}`);
-            // }
-                        
-            let oRecord = {};
-            objectColumns.forEach((column, colIndex) => {
-              if (!aCols[colIndex]) {
-                return;
-              }
-              let value = aCols[colIndex];
-              if (value.startsWith('"') && value.endsWith('"')) {
-                value = value.slice(1, -1);
-              }
-               // Custom logic for interfaceID M
-               
-               if (interfaceID === "M" && colIndex === 30) {
-                if (value.includes(" - ")) {
-                  value = value.split(" - ")[0].trim();
-                } else {
-                  value = value.substring(0, 10);
-                }
-              }
-              if (interfaceID === "M" && colIndex === 24 && value) {
-                value = value.toUpperCase();
-              }
-              oRecord[column] = value;
-            });
+            currentCol = '';
+          } else {
+            currentCol += char;
+          }
+        }
 
-            if(interfaceID === 'T' || interfaceID === 'U'){
-              if(oRecord.maritalStatus === '0'){
-                oRecord.maritalStatus = 'S';
-              }else if(oRecord.maritalStatus === '1'){
-                oRecord.maritalStatus = 'M';                
-              }
-              if(oRecord.recruiterEmployeeNo.length == 7 )
-              {
-                oRecord.recruiterEmployeeNo = '0'+ oRecord.recruiterEmployeeNo
-              }
-              if(oRecord.employeeResponsible.length == 7)
-              {
-                oRecord.employeeResponsible = '0'+ oRecord.employeeResponsible
-              }
-              this._trimFieldsForZeros(oRecord);
+        aCols.push(currentCol.trim());
+
+        if (aCols.length <= 1) continue;
+
+        // Validate number of columns matches expected columns
+        // if (aCols.length !== objectColumns.length) {
+        //   throw new Error(`Invalid number of columns in row ${i + 1}. Expected ${objectColumns.length}, got ${aCols.length}`);
+        // }
+
+        let oRecord = {};
+        objectColumns.forEach((column, colIndex) => {
+          if (!aCols[colIndex]) {
+            return;
+          }
+          let value = aCols[colIndex];
+          if (value.startsWith('"') && value.endsWith('"')) {
+            value = value.slice(1, -1);
+          }
+          // Custom logic for interfaceID M
+
+          if (interfaceID === "M" && colIndex === 30) {
+            if (value.includes(" - ")) {
+              value = value.split(" - ")[0].trim();
+            } else {
+              value = value.substring(0, 10);
             }
-
-            if(interfaceID === '3'){
-              if(oRecord.additionalDayOfWork && oRecord.additionalDayOfWork.trim() !== ''){
-                oRecord.additionalDayOfWork = 'X';
-              }
-            }
-
-            //  if(interfaceID === 'S' || interfaceID === '1'|| interfaceID === 'M' || interfaceID === 'E' || interfaceID === 'F' || interfaceID === 'C' || interfaceID === '3'){
-              this._trimFieldsForZeros(oRecord);
-            // }
-            
-            this.convertToBoolean(oRecord, constant[columnMappingsBoolean[interfaceID]]);
-            oRecord.valid = true;
-            oRecord.processLevel_code = "0";
-            aResults.push(oRecord);
-          } catch (error) {
-            throw new Error(`Error processing row ${i + 1}: ${error.message}`);
           }
-        }
-
-        if (aResults.length === 0) {
-          throw new Error('No valid records found in CSV file');
-        }
-
-        return aResults;
-      }
-
-       _trimFieldsForZeros (oRecord) {
-        // Trim the fields for zeros
-        // const aFieldsToTrimForZeros = ['contractNo', 'soldToParty', 'billToParty', 'material','wnContract'];
-        const aFieldsToTrimForZeros = [
-          'contractNo',       // Interfaces: C, 3, T, U, S, 1, E, 4, O, G, 2, F, A
-          'contractNoSS',     // Interface: N (Fg_Invoices)
-          'contractNoWN',     // Interface: N (Fg_Invoices)
-          'soldToParty',      // Interfaces: S, 1, T, U, E
-          'soldTo',           // Interface: M
-          'billToParty',      // Interfaces: S, 1, T, U, E
-          'billTo',           // Interface: M
-          'material',         // Interfaces: T, U
-          'materialNo',       // Interfaces: S, 1, E, F
-          'matnr',            // Interface: M
-          'wnContract',       // Interface: M
-          'project',          // Interface: A (Drug_Background_Check)
-          'projectNo',        // Interfaces: T, U (Employee/Staff Hires)
-          'orderNo',          // Interfaces: C, 3, N (Times, Fg_Invoices)
-          'internalOrder'     // Interfaces: F, O, G, 2 (SowScInvoice, OtherBillables, Bonus, Travel)
-        ];
-        for (const sField of aFieldsToTrimForZeros) {
-          if (oRecord[sField]) {
-            oRecord[sField] = oRecord[sField].replace(/^0+/, '');
+          if (interfaceID === "M" && colIndex === 24 && value) {
+            value = value.toUpperCase();
           }
-        }
-        return oRecord;
-      }
-
-     convertToBoolean (obj, keys) {
-
-        if (!Array.isArray(keys) || keys.length === 0) {
-          return;
-        }
-
-        keys.forEach(key => {
-          if (obj.hasOwnProperty(key)) {
-            obj[key] = obj[key] === "X"; 
-          }
+          oRecord[column] = value;
         });
+
+        if (interfaceID === 'T' || interfaceID === 'U') {
+          if (oRecord.maritalStatus === '0') {
+            oRecord.maritalStatus = 'S';
+          } else if (oRecord.maritalStatus === '1') {
+            oRecord.maritalStatus = 'M';
+          }
+          if (oRecord.recruiterEmployeeNo.length == 7) {
+            oRecord.recruiterEmployeeNo = '0' + oRecord.recruiterEmployeeNo
+          }
+          if (oRecord.employeeResponsible.length == 7) {
+            oRecord.employeeResponsible = '0' + oRecord.employeeResponsible
+          }
+          this._trimFieldsForZeros(oRecord);
+        }
+
+        if (interfaceID === '3') {
+          if (oRecord.additionalDayOfWork && oRecord.additionalDayOfWork.trim() !== '') {
+            oRecord.additionalDayOfWork = 'X';
+          }
+        }
+
+        //  if(interfaceID === 'S' || interfaceID === '1'|| interfaceID === 'M' || interfaceID === 'E' || interfaceID === 'F' || interfaceID === 'C' || interfaceID === '3'){
+        this._trimFieldsForZeros(oRecord);
+        // }
+
+        this.convertToBoolean(oRecord, constant[columnMappingsBoolean[interfaceID]]);
+        oRecord.valid = true;
+        oRecord.processLevel_code = "0";
+        aResults.push(oRecord);
+      } catch (error) {
+        throw new Error(`Error processing row ${i + 1}: ${error.message}`);
       }
+    }
+
+    if (aResults.length === 0) {
+      throw new Error('No valid records found in CSV file');
+    }
+
+    return aResults;
+  }
+
+  _trimFieldsForZeros(oRecord) {
+    // Trim the fields for zeros
+    // const aFieldsToTrimForZeros = ['contractNo', 'soldToParty', 'billToParty', 'material','wnContract'];
+    const aFieldsToTrimForZeros = [
+      'contractNo',       // Interfaces: C, 3, T, U, S, 1, E, 4, O, G, 2, F, A
+      'contractNoSS',     // Interface: N (Fg_Invoices)
+      'contractNoWN',     // Interface: N (Fg_Invoices)
+      'soldToParty',      // Interfaces: S, 1, T, U, E
+      'soldTo',           // Interface: M
+      'billToParty',      // Interfaces: S, 1, T, U, E
+      'billTo',           // Interface: M
+      'material',         // Interfaces: T, U
+      'materialNo',       // Interfaces: S, 1, E, F
+      'matnr',            // Interface: M
+      'wnContract',       // Interface: M
+      'project',          // Interface: A (Drug_Background_Check)
+      'projectNo',        // Interfaces: T, U (Employee/Staff Hires)
+      'orderNo',          // Interfaces: C, 3, N (Times, Fg_Invoices)
+      'internalOrder'     // Interfaces: F, O, G, 2 (SowScInvoice, OtherBillables, Bonus, Travel)
+    ];
+    for (const sField of aFieldsToTrimForZeros) {
+      if (oRecord[sField]) {
+        oRecord[sField] = oRecord[sField].replace(/^0+/, '');
+      }
+    }
+    return oRecord;
+  }
+
+  convertToBoolean(obj, keys) {
+
+    if (!Array.isArray(keys) || keys.length === 0) {
+      return;
+    }
+
+    keys.forEach(key => {
+      if (obj.hasOwnProperty(key)) {
+        obj[key] = obj[key] === "X";
+      }
+    });
+  }
 
   async testFunction(req) {
     const SalesOrderAPI = new SalesOrderComm();
