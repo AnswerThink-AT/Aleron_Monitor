@@ -346,35 +346,35 @@ sap.ui.define(
       },
       // 
       async _uploadInterfaceData(fileID, interfaceID, oModel) {
-    const csvBase64 = btoa(
-        unescape(
+        const csvBase64 = btoa(
+          unescape(
             encodeURIComponent(this._csvContent)
-        )
-    );
+          )
+        );
 
-    await this.base.getExtensionAPI()
-        .editFlow.invokeAction(
+        await this.base.getExtensionAPI()
+          .editFlow.invokeAction(
             "MonitorService.EntityContainer/uploadInterfaceData",
             {
-                model: oModel,
-                skipParameterDialog: true,
-                parameterValues: [
-                    {
-                        name: "fileID",
-                        value: fileID
-                    },
-                    {
-                        name: "interfaceID",
-                        value: interfaceID
-                    },
-                    {
-                        name: "csvString",
-                        value: csvBase64
-                    }
-                ]
+              model: oModel,
+              skipParameterDialog: true,
+              parameterValues: [
+                {
+                  name: "fileID",
+                  value: fileID
+                },
+                {
+                  name: "interfaceID",
+                  value: interfaceID
+                },
+                {
+                  name: "csvString",
+                  value: csvBase64
+                }
+              ]
             }
-        );
-},
+          );
+      },
       _createMonitorFile: async function (aSubItemsPayload, interfaceID) {
         console.log('Creating file with interface ID:', interfaceID);
         console.log('Payload data:', aSubItemsPayload);

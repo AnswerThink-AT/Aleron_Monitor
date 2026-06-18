@@ -4,6 +4,8 @@ sap.ui.define(['sap/ui/core/mvc/ControllerExtension'], function (ControllerExten
 	return ControllerExtension.extend('monitor.ext.controller.ObjectExt', {
 		aPersistedFilters: [], // Store filters globally
 		_bDelegateAdded: false,
+		aFileId: null,
+		aInterfaceType: null,
 		// this section allows to extend lifecycle hooks or hooks provided by Fiori elements
 		override: {
 			/**
@@ -13,7 +15,17 @@ sap.ui.define(['sap/ui/core/mvc/ControllerExtension'], function (ControllerExten
 			 */
 			onInit: function () {
 				// you can access the Fiori elements extensionAPI via this.base.getExtensionAPI
-				var oModel = this.base.getExtensionAPI().getModel();
+				this.getView().attachModelContextChange(function () {
+					var oContext = this.getView().getBindingContext();
+					if (oContext && !this.aFileId) {
+						oContext.requestObject().then(function (oData) {
+							this.aFileId = oData.ID;
+							this.aInterfaceType = oData.interfaceType.ID;
+							console.log(oData.interfaceType.ID);
+							console.log("Captured ID:", oData.ID);
+						}.bind(this));
+					}
+				}.bind(this));
 				let oTable = this.getView().byId("monitor::FilesObjectPage--fe::table::to_Times::LineItem::Times")
 				// if (oTable) {
 				// 	oTable.getColumns()[0].setProperty("hAlign", "Center");
@@ -32,6 +44,21 @@ sap.ui.define(['sap/ui/core/mvc/ControllerExtension'], function (ControllerExten
 					}
 				}
 
+			},
+			editFlow: {
+				onAfterDiscard: async function () {
+					const oExtensionAPI = this.base.getExtensionAPI();
+					const oView = this.getView();
+
+					// Get the current binding context of the Object Page
+					const oContext = oView.getBindingContext();
+
+					if (!oExtensionAPI.getModel() || !oContext) {
+						await this._onDeleteDiscardedRecords(this.aFileId, this.aInterfaceType, oExtensionAPI.getModel());
+						console.log(this.aFileId);
+						return;
+					}
+				}
 			}
 		},
 
@@ -65,7 +92,7 @@ sap.ui.define(['sap/ui/core/mvc/ControllerExtension'], function (ControllerExten
 
 			if (JSON.stringify(aNewFilters) !== JSON.stringify(this.aPersistedFilters)) {
 				this.aPersistedFilters = aNewFilters;
-				oBinding.filter(aNewFilters);	
+				oBinding.filter(aNewFilters);
 			}
 		},
 
@@ -78,6 +105,26 @@ sap.ui.define(['sap/ui/core/mvc/ControllerExtension'], function (ControllerExten
 		onPressRefresh: function () {
 			const oExtensionAPI = this.base.getExtensionAPI();
 			oExtensionAPI.refresh();
-		}
+		},
+		_onDeleteDiscardedRecords : async function (fileID, interfaceID, oModel) {
+			await this.base.getExtensionAPI()
+				.editFlow.invokeAction(
+					"MonitorService.EntityContainer/deletediscardedRecords",
+					{
+						model: oModel,
+						skipParameterDialog: true,
+						parameterValues: [
+							{
+								name: "fileID",
+								value: fileID
+							},
+							{
+								name: "interfaceID",
+								value: interfaceID
+							}
+						]
+					}
+				);
+		},
 	});
 });
