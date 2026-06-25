@@ -125,6 +125,7 @@ class SalesOrder {
             }));
         } catch (err) {
             LOG._error && LOG.error(cds.i18n.messages.at('ERR_SALESORDER_CREATE', [err.message]));
+            throw err; // Rethrow the error to be handled by the caller
         }
 
         return aFinalRes;

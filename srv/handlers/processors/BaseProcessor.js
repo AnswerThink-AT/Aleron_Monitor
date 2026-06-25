@@ -232,7 +232,7 @@ class Processor {
         );
         if (hasError) {
           // This step encountered any error, it will stop further execution
-          // break;
+          break;
         }
       } catch (err) {
         this.LOG._error && this.LOG.error(`${oStep.name}: ${err.message}`);
