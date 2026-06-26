@@ -50,9 +50,10 @@ entity LogType : CodeList {
         };
 }
 
-entity ProcessLogs : cuid {
+entity ProcessLogs : cuid, managed {
     record_ID : String;
     type      : Association to LogType;
+    process_code: String(1);
     message   : String @title: '{i18n>errorMessage}';
 }
 

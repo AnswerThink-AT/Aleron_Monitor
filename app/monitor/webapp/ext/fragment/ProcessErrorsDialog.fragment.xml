@@ -7,19 +7,44 @@
 		contentHeight="150px"
 		contentWidth="600px">
 		<content>
-			<List id="idList" items="{/ProcessLogs}">
-				<CustomListItem>
-					<VBox class="customMessageBox">
+		<Table
+			id="idProcessLogsTable"
+			items="{/ProcessLogs}"
+			inset="false">
+
+			<columns>
+				<Column>
+					<Text text="Process Code"/>
+				</Column>
+				<Column>
+					<Text text="Status"/>
+				</Column>
+				<Column>
+					<Text text="Message"/>
+				</Column>
+			</columns>
+
+			<items>
+				<ColumnListItem>
+					<cells>
+						<Text text="{process_code}"/>
+
+						<ObjectStatus
+							text="{path: 'type_code', formatter: 'handler.formatTypeLabel'}"
+							state="{path: 'type_code', formatter: 'handler.formatTypeState'}"
+						/>
+
 						<Text text="{message}" wrapping="true"/>
-					</VBox>
-				</CustomListItem>
-			</List>
+					</cells>
+				</ColumnListItem>
+			</items>
+
+		</Table>
 		</content>
 		<beginButton>
 			<Button text="Ok"
 				type="Default"
-				press="handler.onProcessErrorsOK"
-				></Button>
+				press="handler.onProcessErrorsOK"/>
 		</beginButton>
 	</Dialog>
 </core:FragmentDefinition>
