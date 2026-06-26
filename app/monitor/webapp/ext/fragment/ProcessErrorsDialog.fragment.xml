@@ -5,7 +5,7 @@
 		title="Process Errors"
 		verticalScrolling="true"
 		contentHeight="150px"
-		contentWidth="600px">
+		contentWidth="1600px">
 		<content>
 		<Table
 			id="idProcessLogsTable"
@@ -17,7 +17,7 @@
 					<Text text="Process Code"/>
 				</Column>
 				<Column>
-					<Text text="Status"/>
+					<Text text="Status" />
 				</Column>
 				<Column>
 					<Text text="Message"/>
@@ -29,7 +29,7 @@
 					<cells>
 						<Text text="{process_code}"/>
 
-						<ObjectStatus
+						<ObjectStatus 
 							text="{path: 'type_code', formatter: 'handler.formatTypeLabel'}"
 							state="{path: 'type_code', formatter: 'handler.formatTypeState'}"
 						/>

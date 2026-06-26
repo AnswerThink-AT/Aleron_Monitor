@@ -4,15 +4,15 @@ sap.ui.define(
     'use strict';
 
     return {
-      formatTypeLabel: function(sValue) {
-    var map = { 0: "Info", 1: "Error", 2: "Warning", 3: "Success", 5: "Debug" };
-    return map[sValue] !== undefined ? map[sValue] : sValue;
-},
+      formatTypeLabel: function (sValue) {
+        var map = { 0: "Info", 1: "Error", 2: "Warning", 3: "Success", 5: "Debug" };
+        return map[sValue] !== undefined ? map[sValue] : sValue;
+      },
 
-formatTypeState: function(sValue) {
-    var map = { 0: "Information", 1: "Error", 2: "Warning", 3: "Success", 5: "None" };
-    return map[sValue] !== undefined ? map[sValue] : "None";
-},
+      formatTypeState: function (sValue) {
+        var map = { 0: "Information", 1: "Error", 2: "Warning", 3: "Success", 5: "None" };
+        return map[sValue] !== undefined ? map[sValue] : "None";
+      },
       onPressProcessRecords: async function (oCtx, aSelectedRecordCtx, oEvent) {
         const sFileNumber = oCtx.getProperty('ID');
         const oModel = this.getModel();
