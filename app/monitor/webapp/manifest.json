@@ -1251,7 +1251,7 @@
                     },
                     "miProcessFile": {
                       "press": "monitor.ext.controller.CustomAction.onPressProcessFile",
-                      "visible": "{= !${ui>/isEditable}}",                      
+                      "visible": "{= !${ui>/isEditable}}",
                       "enabled": "{= !${ui>/isEditable}}",
                       "text": "{{processAll}}",
                       "position": {
@@ -1275,7 +1275,8 @@
                     }
                   }
                 }
-              }
+              },
+              "variantManagement": "Control"
             }
           }
         }

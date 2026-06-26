@@ -4,7 +4,16 @@ sap.ui.define(
     'use strict';
 
     return {
-      onPressProcessRecords: async function (oCtx, aSelectedRecordCtx,oEvent) {
+      formatTypeLabel: function(sValue) {
+    var map = { 0: "Info", 1: "Error", 2: "Warning", 3: "Success", 5: "Debug" };
+    return map[sValue] !== undefined ? map[sValue] : sValue;
+},
+
+formatTypeState: function(sValue) {
+    var map = { 0: "Information", 1: "Error", 2: "Warning", 3: "Success", 5: "None" };
+    return map[sValue] !== undefined ? map[sValue] : "None";
+},
+      onPressProcessRecords: async function (oCtx, aSelectedRecordCtx, oEvent) {
         const sFileNumber = oCtx.getProperty('ID');
         const oModel = this.getModel();
         const aRecords = aSelectedRecordCtx.map((oRecordCtx) => oRecordCtx.getProperty('ID'));
@@ -24,7 +33,7 @@ sap.ui.define(
         }
 
         const sFrom = firstCode;
-        const sTo = "";        
+        const sTo = "";
         let sTableId = oEvent.sPath;
 
         this.editFlow
@@ -61,15 +70,15 @@ sap.ui.define(
           });
       },
 
-      onPressProcessFile: async function (oCtx,oEvent) {
+      onPressProcessFile: async function (oCtx, oEvent) {
         const sFileNumber = oCtx.getProperty('ID');
         let sTableId = oEvent.sPath;
-         // Disable the Process All button by setting isEditable to true
+        // Disable the Process All button by setting isEditable to true
         // const oUIModel = this.getModel("ui");
         // if (oUIModel) {
         //   oUIModel.setProperty("/isProcessingFile", true);
         // }
-        
+
         this.editFlow
           .invokeAction('MonitorService.EntityContainer/processFile', {
             model: this.getModel(),
@@ -102,28 +111,28 @@ sap.ui.define(
             this.showMessages([new Message({ type: MessageType.Success, message: oResult.message })]);
             this.refresh();
           })
-          // .catch((oError) => {
-          //   // Re-enable the button on error
-          //   if (oUIModel) {
-          //     oUIModel.setProperty("/isProcessingFile", false);
-          //   }
-          //   console.error("Process File error:", oError);
-          // })
-          // .finally(() => {
-          //   // Re-enable the button when operation completes (success or error)
-          //   if (oUIModel) {
-          //     oUIModel.setProperty("/isProcessingFile", false);
-          //   }
-          // });
+        // .catch((oError) => {
+        //   // Re-enable the button on error
+        //   if (oUIModel) {
+        //     oUIModel.setProperty("/isProcessingFile", false);
+        //   }
+        //   console.error("Process File error:", oError);
+        // })
+        // .finally(() => {
+        //   // Re-enable the button when operation completes (success or error)
+        //   if (oUIModel) {
+        //     oUIModel.setProperty("/isProcessingFile", false);
+        //   }
+        // });
       },
 
-      onPressValidate: function (oCtx, aSelectedRecordCtx , oEvent) {
+      onPressValidate: function (oCtx, aSelectedRecordCtx, oEvent) {
         const sFileNumber = oCtx.getProperty('ID');
         const oModel = this.getModel();
         const aRecords = aSelectedRecordCtx.map((oRecordCtx) => oRecordCtx.getProperty('ID'));
 
-        let sTableId = oEvent.sPath;        
-      
+        let sTableId = oEvent.sPath;
+
         this.editFlow
           .invokeAction('MonitorService.EntityContainer/validateFile', {
             model: this.getModel(),
@@ -144,8 +153,8 @@ sap.ui.define(
             ],
           }).then((oActionCtx) => {
             const oResult = oActionCtx.getObject();
-             // this.showMessages([new Message({ type: MessageType.Success, message:oResult.message })]);
-             oResult.success === true ? MessageBox.success(oResult.message) : MessageBox.error(oResult.message );
+            // this.showMessages([new Message({ type: MessageType.Success, message:oResult.message })]);
+            oResult.success === true ? MessageBox.success(oResult.message) : MessageBox.error(oResult.message);
             this.refresh();
           });
       },
@@ -229,20 +238,24 @@ sap.ui.define(
       onPressProcessError: async function (oEvent) {
         var oModel = this.getModel();
         // open upload dialog
+
         this._ProcessErrorDialog ??= await this.loadFragment({
           id: 'processErrorDialog',
           name: 'monitor.ext.fragment.ProcessErrorsDialog',
         });
-
-        
-
-        var oList = sap.ui.core.Fragment.byId("processErrorDialog", "idList");
-        let sRecordID = oEvent.getSource().getParent().getBindingContext().getProperty("ID")
-        var oBinding = oList.getBinding("items");
-        if (oBinding.isA("sap.ui.model.odata.v4.ODataListBinding")) {
+        var oTable = sap.ui.core.Fragment.byId("processErrorDialog", "idProcessLogsTable");
+        let sRecordID = oEvent.getSource().getParent().getBindingContext().getProperty("ID");
+        var oBinding = oTable.getBinding("items");
+        if (oBinding && oBinding.isA("sap.ui.model.odata.v4.ODataListBinding")) {
           oBinding.refresh();
         }
-        var aFilters = [new sap.ui.model.Filter("record_ID", sap.ui.model.FilterOperator.EQ, sRecordID)];
+        var aFilters = [
+          new sap.ui.model.Filter(
+            "record_ID",
+            sap.ui.model.FilterOperator.EQ,
+            sRecordID
+          )
+        ];
 
         oBinding.filter(aFilters);
 
