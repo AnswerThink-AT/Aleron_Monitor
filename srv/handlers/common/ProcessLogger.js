@@ -35,6 +35,7 @@ async function addLogs(anyLogs) {
             record_ID: oLog.record_ID,
             message: oLog.message,
             type_code: oLog.type ?? mLogTypeEnum.error.val,
+            process_code: oLog.process_code ?? null,
           },
         ];
       }
@@ -45,6 +46,7 @@ async function addLogs(anyLogs) {
       record_ID: anyLogs.record_ID,
       message: anyLogs.message,
       type_code: anyLogs.type ?? mLogTypeEnum.error.val,
+      process_code: anyLogs.process_code ?? null,
     });
   } else {
     LOG._error && LOG.error('Invalid logs');

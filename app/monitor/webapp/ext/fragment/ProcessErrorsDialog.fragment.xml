@@ -27,7 +27,13 @@
 			<items>
 				<ColumnListItem>
 					<cells>
-						<Text text="{process_code}"/>
+						<Text text="{
+  parts: [
+    { path: 'process_code' },
+    { path: 'ui>/interfaceTypeId' }
+  ],
+  formatter: 'handler.formatProcessCodeLabel'
+}"/>
 
 						<ObjectStatus 
 							text="{path: 'type_code', formatter: 'handler.formatTypeLabel'}"
