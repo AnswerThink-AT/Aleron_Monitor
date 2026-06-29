@@ -302,6 +302,7 @@ class Bonus_G extends Processor {
             // Field validations
             const oFieldValidationRes = this._validateFieldValidations({ stMandatoryFields, stBlankFields, oRecord });
             if (oFieldValidationRes.hasError) {
+                oFieldValidationRes.errors = oFieldValidationRes.errors.map(err => ({ ...err, process_code: sProcessCode }));
                 LOG.info(`[VAL] record ${oRecord.ID} field validations failed; errs=${oFieldValidationRes.errors.length}`);
                 aErrorLogs.push(...oFieldValidationRes.errors);
                 aFailedRecordIDs.push(oRecord.ID);
@@ -314,6 +315,7 @@ class Bonus_G extends Processor {
             const oSalesContractRes = this._validateSalesContract(oRecord, aSalesContracts || []);
             if (oSalesContractRes.hasError) {
                 LOG.info(`[VAL] record ${oRecord.ID} sales contract failed; errs=${oSalesContractRes.errors.length}`);
+                oSalesContractRes.errors = oSalesContractRes.errors.map(err => ({ ...err, process_code: sProcessCode }));
                 aErrorLogs.push(...oSalesContractRes.errors);
                 aFailedRecordIDs.push(oRecord.ID);
                 hasRecordFailed = true;
@@ -356,6 +358,7 @@ class Bonus_G extends Processor {
 
             if (Array.isArray(oSalesOrderItemCheck) && oSalesOrderItemCheck.length > 0) {
                 LOG.info(`[VAL] record ${oRecord.ID} duplicate lines found: ${oSalesOrderItemCheck.length}`);
+                oSalesOrderItemCheck = oSalesOrderItemCheck.map(err => ({ ...err, process_code: sProcessCode }));
                 aErrorLogs.push({ record_ID: oRecord.ID, message: cds.i18n.messages.at('ERR_DUPLICATE_LINES') });
                 aFailedRecordIDs.push(oRecord.ID);
                 hasRecordFailed = true;
@@ -1687,6 +1690,7 @@ class Bonus_G extends Processor {
     if (!oRecord.woType || !['SC','MS','IC','CP','CR'].includes(oRecord.woType)) {
       aErrors.push({ record_ID: oRecord.ID, message: cds.i18n.messages.at('ERR_SALES_DOCUMENT_TYPE') });
       aFailedRecordIDs.push(oRecord.ID);
+      aErrors = aErrors.map(err => ({ ...err, process_code: sProcessCode }));
       aErrorLogs.push(...aErrors);
       log(this.LOG, 'warn', 'record:invalid-woType', recCtx);
       continue;
@@ -1731,6 +1735,7 @@ class Bonus_G extends Processor {
     if (!oSalesOrder) {
       aErrors.push({ record_ID: oRecord.ID, message: cds.i18n.messages.at('ERR_SALES_ORDER_NOT_EXIST') });
       aFailedRecordIDs.push(oRecord.ID);
+      aErrors = aErrors.map(err => ({ ...err, process_code: sProcessCode }));
       aErrorLogs.push(...aErrors);
       log(this.LOG, 'warn', 'record:no-sales-order', recCtx);
       continue;
@@ -1781,6 +1786,7 @@ class Bonus_G extends Processor {
     if (!firstSOItem?.WBSElement || firstSOItem.WBSElement !== oRecord.internalOrder) {
       aErrors.push({ record_ID: oRecord.ID, message: cds.i18n.messages.at('ERR_PROJECT_NUMBER_MISSING') });
       aFailedRecordIDs.push(oRecord.ID);
+      aErrors = aErrors.map(err => ({ ...err, process_code: sProcessCode }));
       aErrorLogs.push(...aErrors);
       log(this.LOG, 'warn', 'record:wbs-mismatch', { ...recCtx, firstWBSElement: firstSOItem?.WBSElement, internalOrder: oRecord.internalOrder });
       continue;
@@ -1791,6 +1797,7 @@ class Bonus_G extends Processor {
       if (!firstSOItem?.YY1_PurchasingDoc_SD_SDI) {
         aErrors.push({ record_ID: oRecord.ID, message: cds.i18n.messages.at('ERR_CREATE_PO') });
         aFailedRecordIDs.push(oRecord.ID);
+        aErrors = aErrors.map(err => ({ ...err, process_code: sProcessCode }));
         aErrorLogs.push(...aErrors);
         log(this.LOG, 'warn', 'record:po-missing-on-item10', { ...recCtx });
         continue;
@@ -1811,7 +1818,7 @@ class Bonus_G extends Processor {
 
     if (oRecord.wnInvoiceNo === oSalesOrder.YY1_WNInvoice_SD_SDI) {
       aFailedRecordIDs.push(oRecord.ID);
-      aErrorLogs.push({ record_ID: oRecord.ID, message: cds.i18n.messages.at('ERR_DUPLICATE_LINES') });
+      aErrorLogs.push({ record_ID: oRecord.ID, message: cds.i18n.messages.at('ERR_DUPLICATE_LINES'), process_code: sProcessCode });
       log(this.LOG, 'warn', 'record:duplicate-invoice', { ...recCtx, invoice: oRecord.wnInvoiceNo });
       continue;
     }
@@ -1840,7 +1847,7 @@ class Bonus_G extends Processor {
       log(this.LOG, 'info', 'record:payload-prepared', { ...recCtx, hasErrors: !!oPayload?.errors, itemHint: lastSOItem?.SalesOrderItem });
     } catch (e) {
       aFailedRecordIDs.push(oRecord.ID);
-      aErrorLogs.push({ record_ID: oRecord.ID, message: `Payload build failed: ${e.message}` });
+      aErrorLogs.push({ record_ID: oRecord.ID, message: `Payload build failed: ${e.message}`, process_code: sProcessCode });
       log(this.LOG, 'error', 'record:payload-exception', { ...recCtx, reason: e.message });
       continue;
     }
@@ -1882,9 +1889,10 @@ class Bonus_G extends Processor {
       } else {
         aFailedRecordIDs.push(sRecordID);
         if (Array.isArray(oResult.reason)) {
-          oResult.reason.forEach((err) => aErrorLogs.push({ record_ID: sRecordID, ...err }));
+          
+          oResult.reason.forEach((err) => aErrorLogs.push({ record_ID: sRecordID, ...err, process_code: sProcessCode }));
         } else {
-          aErrorLogs.push({ record_ID: sRecordID, message: cds.i18n.messages.at('ERR_SALES_ORDER_ITEM_CREATION_FAILED', [oResult.reason]) });
+          aErrorLogs.push({ record_ID: sRecordID, message: cds.i18n.messages.at('ERR_SALES_ORDER_ITEM_CREATION_FAILED', [oResult.reason]), process_code: sProcessCode });
         }
         mPayloadMap.delete(sRecordID);
         log(this.LOG, 'warn', 'createSOItems:failed', { ...recCtx, reason: safe(oResult.reason) });
@@ -2119,13 +2127,13 @@ async _prepareVCData({
       if (insertedSalesVCData1?.message) {
         aErrorLogs.push({
           record_ID: aPayloadsSalesVCData[i][2],
-          message: `${insertedSalesVCData1.message}`,
+          message: `${insertedSalesVCData1.message}`, process_code: sProcessCode
         });
       }
       if (insertedSalesVCData2?.message) {
         aErrorLogs.push({
           record_ID: aPayloadsSalesVCData[i][2],
-          message: `${insertedSalesVCData2.message}`,
+          message: `${insertedSalesVCData2.message}`, process_code: sProcessCode
         });
       }
 
@@ -2382,6 +2390,7 @@ async _prepareVCData({
                     message: cds.i18n.messages.at('ERR_SALES_ORDER_NOT_EXIST'),
                 });
                 aFailedRecordIDs.push(oRecord.ID);
+                aErrors = aErrors.map(err => ({ ...err, process_code: sProcessCode }));
                 aErrorLogs.push(...aErrors);
                 continue; // Skip this record
             }
@@ -2390,6 +2399,7 @@ async _prepareVCData({
                 aErrors.push({
                     record_ID: oRecord.ID,
                     message: cds.i18n.messages.at('ERR_DIST_IC'),
+                    process_code: sProcessCode
                 });
                 aFailedRecordIDs.push(oRecord.ID);
                 aErrorLogs.push(...aErrors);
@@ -2423,6 +2433,7 @@ async _prepareVCData({
       message: cds.i18n.messages.at?.('ERR_PURCHASE_ORDER_MISSING') || 'Purchase Order missing on SO item 10.',
     });
     aFailedRecordIDs.push(oRecord.ID);
+    aErrors = aErrors.map(err => ({ ...err, process_code: sProcessCode }));
     aErrorLogs.push(...aErrors);
     continue; // stop this record
   }
@@ -2436,6 +2447,7 @@ async _prepareVCData({
         || `No PO items found for PO ${poNumber}`,
     });
     aFailedRecordIDs.push(oRecord.ID);
+    aErrors = aErrors.map(err => ({ ...err, process_code: sProcessCode }));
     aErrorLogs.push(...aErrors);
     continue; // stop this record
   }
@@ -2457,6 +2469,7 @@ async _prepareVCData({
                     message: cds.i18n.messages.at('ERR_PROJECT_NUMBER_MISSING'),
                 });
                 aFailedRecordIDs.push(oRecord.ID);
+                aErrors = aErrors.map(err => ({ ...err, process_code: sProcessCode }));
                 aErrorLogs.push(...aErrors);
                 continue; // Skip this record
             }
@@ -2466,8 +2479,10 @@ async _prepareVCData({
                     aErrorLogs.push({
                         record_ID: oRecord.ID,
                         message: cds.i18n.messages.at('ERR_DUPLICATE_LINES'),
+                        process_code: sProcessCode
                     });
                     aFailedRecordIDs.push(oRecord.ID);
+                    aErrors = aErrors.map(err => ({ ...err, process_code: sProcessCode }));
                     aErrorLogs.push(...aErrors);
                     continue; // Skip this record
                 }
@@ -2477,8 +2492,10 @@ async _prepareVCData({
                 aErrorLogs.push({
                     record_ID: oRecord.ID,
                     message: cds.i18n.messages.at('ERR_DUPLICATE_LINES'),
+                    process_code: sProcessCode
                 });
                 aFailedRecordIDs.push(oRecord.ID);
+                aErrors = aErrors.map(err => ({ ...err, process_code: sProcessCode }));
                 aErrorLogs.push(...aErrors);
                 continue; // Skip this record
             }
@@ -2537,12 +2554,14 @@ async _prepareVCData({
                             aErrorLogs.push({
                                 record_ID: sRecordID,
                                 ...oError,
+                                process_code: sProcessCode
                             });
                         });
                     } else {
                         aErrorLogs.push({
                             record_ID: sRecordID,
                             message: cds.i18n.messages.at('ERR_SALES_ORDER_ITEM_CREATION_FAILED', [oResult.reason]),
+                            process_code: sProcessCode
                         });
                     }
 
@@ -2806,13 +2825,13 @@ async _prepareVCData({
                 if (insertedSalesVCData1?.message) {
                     aErrorLogs.push({
                         record_ID: aPayloadsSalesVCData[i][2],
-                        message: `${insertedSalesVCData1.message}`,
+                        message: `${insertedSalesVCData1.message}`, process_code: sProcessCode
                     });
                 }
                 if (insertedSalesVCData2?.message) {
                     aErrorLogs.push({
                         record_ID: aPayloadsSalesVCData[i][2],
-                        message: `${insertedSalesVCData2.message}`,
+                        message: `${insertedSalesVCData2.message}`, process_code: sProcessCode
                     });
                 }
 
@@ -3873,6 +3892,7 @@ async processPurchaseOrder(sProcessCode, bBreakExecution) {
 
     if (aErrors.length) {
       aFailedRecordIDs.push(oRecord.ID);
+      aErrors = aErrors.map(err => ({ ...err, process_code: sProcessCode }));
       aErrorLogs.push(...aErrors);
       continue;
     }
@@ -3919,7 +3939,7 @@ async processPurchaseOrder(sProcessCode, bBreakExecution) {
 
     if (oPurchaseOrderItemResults?.error) {
       aFailedRecordIDs.push(oRecord.ID);
-      aErrorLogs.push({ record_ID: oRecord.ID, message: `${oPurchaseOrderItemResults.error}` });
+      aErrorLogs.push({ record_ID: oRecord.ID, message: `${oPurchaseOrderItemResults.error}`, process_code: sProcessCode });
       this.LOG._error && this.LOG.error(`PO item create failed for record ${oRecord.ID}: ${oPurchaseOrderItemResults.error}`);
       continue;
     }
@@ -4561,6 +4581,7 @@ async processSupplierInvoice(sProcessCode, bBreakExecution) {
 
       if (aErrors.length) {
         aFailedRecordIDs.push(oRecord.ID);
+        aErrors = aErrors.map(err => ({ ...err, process_code: sProcessCode }));
         aErrorLogs.push(...aErrors);
         continue; // next record
       }
@@ -4615,7 +4636,7 @@ async processSupplierInvoice(sProcessCode, bBreakExecution) {
 
         aPassedRecordIDs.push(oRecord.ID);
       } else {
-        aErrorLogs.push({ record_ID: oRecord.ID, message: `${result?.error || 'Unknown MIRO error'}` });
+        aErrorLogs.push({ record_ID: oRecord.ID, message: `${result?.error || 'Unknown MIRO error'}`, process_code: sProcessCode });
         aFailedRecordIDs.push(oRecord.ID);
         this.LOG._error && this.LOG.error(`Error processing record ID ${oRecord.ID}: ${result?.error || 'Unknown MIRO error'}`);
       }
@@ -4626,7 +4647,7 @@ async processSupplierInvoice(sProcessCode, bBreakExecution) {
     for (const rec of aRecordsForProcessing) {
       if (!aFailedRecordIDs.includes(rec.ID) && !aPassedRecordIDs.includes(rec.ID)) {
         aFailedRecordIDs.push(rec.ID);
-        aErrorLogs.push({ record_ID: rec.ID, message: `MIRO critical error: ${error.message}` });
+        aErrorLogs.push({ record_ID: rec.ID, message: `MIRO critical error: ${error.message}`,process_code: sProcessCode });
       }
     }
   }

@@ -1,5 +1,6 @@
 // processors/FgtimeInvoice.js
 
+
 const moment = require('moment');
 const cds = require('@sap/cds');
 const {

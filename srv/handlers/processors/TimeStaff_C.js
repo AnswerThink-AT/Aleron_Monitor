@@ -157,7 +157,7 @@ class TimeStaff_C extends Processor {
         if (!oRecord.employeeNo) {
           aErrorLogs.push({
             record_ID: oRecord.ID,
-            message: cds.i18n.messages.at('ERR_EMP_NUMBER_MISSING'),
+            message: cds.i18n.messages.at('ERR_EMP_NUMBER_MISSING'), process_code: sProcessCode
           });
           aFailedRecordIDs.push(oRecord.ID);
           hasRecordFailed = true; 
@@ -328,6 +328,9 @@ class TimeStaff_C extends Processor {
 
         const oSalesContractRes = await this._validateSalesContract(oRecord, mSalesContracts);
         if (oSalesContractRes.hasError) {
+          oSalesContractRes.errors.forEach((error) => {
+                    error.process_code = sProcessCode;
+                });
           aRecordErrors.push(...oSalesContractRes.errors);
           aFailedRecordIDs.push(oRecord.ID);
           aErrorLogs.push(...aRecordErrors);
@@ -343,7 +346,7 @@ class TimeStaff_C extends Processor {
           // aRecordErrors.push({
           aRecordErrors.push({
             record_ID: oRecord.ID,
-            message: cds.i18n.messages.at('ERR_SALES_CONTRACT_NOT_FOUND'),
+            message: cds.i18n.messages.at('ERR_SALES_CONTRACT_NOT_FOUND'), process_code: sProcessCode
           });
           aFailedRecordIDs.push(oRecord.ID);
           aErrorLogs.push(...aRecordErrors);
@@ -355,7 +358,7 @@ class TimeStaff_C extends Processor {
           // aRecordErrors.push({
           aRecordErrors.push({
             record_ID: oRecord.ID,
-            message: cds.i18n.messages.at('ERR_PROJ_NO_MISSING'),
+            message: cds.i18n.messages.at('ERR_PROJ_NO_MISSING'), process_code: sProcessCode
           });
           aFailedRecordIDs.push(oRecord.ID);
           aErrorLogs.push(...aRecordErrors);
@@ -389,7 +392,7 @@ class TimeStaff_C extends Processor {
             } else {
               aErrorLogs.push({
                 record_ID: recordID,
-                message: `${aEmpTimeDataResults?.message || 'Unknown error'}`,
+                message: `${aEmpTimeDataResults?.message || 'Unknown error'}`, process_code: sProcessCode
               });
         
               if (!aFailedRecordIDs.includes(recordID)) {
@@ -404,7 +407,7 @@ class TimeStaff_C extends Processor {
             const recordID = aRecordsForProcessing[i].ID;
             aErrorLogs.push({
               record_ID: recordID,
-              message: `Database insert failed: ${err.message}`,
+              message: `Database insert failed: ${err.message}`, process_code: sProcessCode
             });
     
             if (!aFailedRecordIDs.includes(recordID)) {

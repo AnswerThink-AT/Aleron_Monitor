@@ -286,6 +286,9 @@ class SOWscInvoice extends Processor {
                 oRecord,
             });
             if (oFieldValidationRes.hasError) {
+                oFieldValidationRes.errors.forEach((err) => {
+                    err.process_code = sProcessCode;
+                });
                 aErrorLogs.push(...oFieldValidationRes.errors);
                 aFailedRecordIDs.push(oRecord.ID);
                 hasRecordFailed = true;
@@ -294,6 +297,9 @@ class SOWscInvoice extends Processor {
             // Check sales contract
             const oSalesContractRes = await this._validateSalesContract(oRecord, aSalesContracts);
             if (oSalesContractRes.hasError) {
+                oSalesContractRes.errors.forEach((err) => {
+                    err.process_code = sProcessCode;
+                });
                 aErrorLogs.push(...oSalesContractRes.errors);
                 aFailedRecordIDs.push(oRecord.ID);
                 hasRecordFailed = true;
@@ -305,7 +311,7 @@ class SOWscInvoice extends Processor {
             if (oRecord?.vendorPayRate && !oRecord.vendorTotal) {
                 aErrorLogs.push({
                     record_ID: oRecord.ID,
-                    message: cds.i18n.messages.at('ERR_VENDOR_TOTAL'),
+                    message: cds.i18n.messages.at('ERR_VENDOR_TOTAL'), process_code: sProcessCode
                 });
                 aFailedRecordIDs.push(oRecord.ID);
                 hasRecordFailed = true;
@@ -314,7 +320,7 @@ class SOWscInvoice extends Processor {
             if (oRecord?.vendorTotal && !oRecord.vendorPayRate) {
                 aErrorLogs.push({
                     record_ID: oRecord.ID,
-                    message: cds.i18n.messages.at('ERR_VENDOR_PAY_RATE'),
+                    message: cds.i18n.messages.at('ERR_VENDOR_PAY_RATE'), process_code: sProcessCode
                 });
                 aFailedRecordIDs.push(oRecord.ID);
                 hasRecordFailed = true;
@@ -421,14 +427,14 @@ class SOWscInvoice extends Processor {
                 hasError = true;
                 aErrorLogs.push({
                     record_ID: oRecord.ID,
-                    message: cds.i18n.messages.at('ERR_MANDT_FIELD', [anyField]),
+                    message: cds.i18n.messages.at('ERR_MANDT_FIELD', [anyField]), process_code: sProcessCode
                 });
             }
             if (stBlankFields.has(anyField) && oRecord[anyField]) {
                 hasError = true;
                 aErrorLogs.push({
                     record_ID: oRecord.ID,
-                    message: cds.i18n.messages.at('ERR_BLANK_FIELD', [anyField]),
+                    message: cds.i18n.messages.at('ERR_BLANK_FIELD', [anyField]), process_code: sProcessCode
                 });
             }
         }
@@ -843,7 +849,7 @@ class SOWscInvoice extends Processor {
                 this.LOG._info && this.LOG.info(`[SO] [Build] ID=${oRecord.ID} firstSOItem=${_s(firstSOItem)}`);
 
                 if (!firstSOItem?.WBSElement) {
-                    aErrors.push({ record_ID: oRecord.ID, message: cds.i18n.messages.at('ERR_PROJECT_NUMBER_MISSING') });
+                    aErrors.push({ record_ID: oRecord.ID, message: cds.i18n.messages.at('ERR_PROJECT_NUMBER_MISSING'), process_code: sProcessCode });
                     aFailedRecordIDs.push(oRecord.ID);
                     aErrorLogs.push(...aErrors);
                     this.LOG._info && this.LOG.info(`[SO] [Build] ID=${oRecord.ID} fail: WBSElement missing`);
@@ -864,7 +870,7 @@ class SOWscInvoice extends Processor {
                         this.LOG._info && this.LOG.info(`[SO] [Build] ID=${oRecord.ID} PORequired: set purchaseDocumentItemSAP=20`);
                     } else {
                         if (!soItemMax.YY1_PurchasingDoc_SD_SDI || !firstSOItem.YY1_PurchasingDoc_SD_SDI) {
-                            aErrors.push({ record_ID: oRecord.ID, message: cds.i18n.messages.at('ERR_CREATE_PO') });
+                            aErrors.push({ record_ID: oRecord.ID, message: cds.i18n.messages.at('ERR_CREATE_PO'), process_code: sProcessCode });
                             aFailedRecordIDs.push(oRecord.ID);
                             aErrorLogs.push(...aErrors);
                             this.LOG._info && this.LOG.info(`[SO] [Build] ID=${oRecord.ID} fail: Missing PurchasingDoc on SO items for PO requirement`);
@@ -883,13 +889,13 @@ class SOWscInvoice extends Processor {
                 }
 
                 if (!uoM && ['SC_EXPENSE', 'SC_EXPENSE_NT'].includes(oRecord.materialNo)) {
-                    aErrors.push({ record_ID: oRecord.ID, message: cds.i18n.messages.at('ERR_EXPENSE_SCON') });
+                    aErrors.push({ record_ID: oRecord.ID, message: cds.i18n.messages.at('ERR_EXPENSE_SCON'), process_code: sProcessCode });
                     aFailedRecordIDs.push(oRecord.ID);
                     aErrorLogs.push(...aErrors);
                     this.LOG._info && this.LOG.info(`[SO] [Build] ID=${oRecord.ID} fail: UoM missing for expense material`);
                     continue;
                 } else if (!uoM) {
-                    aErrors.push({ record_ID: oRecord.ID, message: cds.i18n.messages.at('ERR_LABOR_SCON') });
+                    aErrors.push({ record_ID: oRecord.ID, message: cds.i18n.messages.at('ERR_LABOR_SCON'), process_code: sProcessCode });
                     aFailedRecordIDs.push(oRecord.ID);
                     aErrorLogs.push(...aErrors);
                     this.LOG._info && this.LOG.info(`[SO] [Build] ID=${oRecord.ID} fail: UoM missing for labor material`);
@@ -900,7 +906,7 @@ class SOWscInvoice extends Processor {
                     oCustomerFieldNameValue?.customerFieldValue !== '00.00' &&
                     oCustomerFieldNameValue?.customerFieldValue !== '0.00') {
                     if (['SC_EXPENSE', 'SC_EXPENSE_NT'].includes(oRecord.materialNo)) {
-                        aErrors.push({ record_ID: oRecord.ID, message: cds.i18n.messages.at('ERR_ACCELERATED_PAYMENT_FEE') });
+                        aErrors.push({ record_ID: oRecord.ID, message: cds.i18n.messages.at('ERR_ACCELERATED_PAYMENT_FEE'), process_code: sProcessCode });
                         aFailedRecordIDs.push(oRecord.ID);
                         aErrorLogs.push(...aErrors);
                         this.LOG._info && this.LOG.info(`[SO] [Build] ID=${oRecord.ID} fail: Z42 not allowed on expense`);
@@ -982,12 +988,13 @@ class SOWscInvoice extends Processor {
                     aFailedRecordIDs.push(sRecordID);
                     if (Array.isArray(oResult.reason)) {
                         oResult.reason.forEach((oError) => {
-                            aErrorLogs.push({ record_ID: sRecordID, ...oError });
+                            aErrorLogs.push({ record_ID: sRecordID, ...oError, process_code: sProcessCode });
                         });
                         this.LOG._info && this.LOG.info(`[SO] [CreateResult] FAIL recordID=${sRecordID} errors=${_s(oResult.reason)}`);
                     } else {
                         aErrorLogs.push({
                             record_ID: sRecordID,
+                            process_code: sProcessCode,
                             message: cds.i18n.messages.at('ERR_SALES_ORDER_ITEM_CREATION_FAILED', [oResult.reason]),
                         });
                         this.LOG._info && this.LOG.info(`[SO] [CreateResult] FAIL recordID=${sRecordID} error=${_s(oResult.reason)}`);
@@ -1324,13 +1331,13 @@ class SOWscInvoice extends Processor {
                 if (insertedSalesVCData1?.message) {
                     aErrorLogs.push({
                         record_ID: aPayloadsSalesVCData[i][2],
-                        message: `${insertedSalesVCData1.message}`,
+                        message: `${insertedSalesVCData1.message}`, process_code: sProcessCode
                     });
                 }
                 if (insertedSalesVCData2?.message) {
                     aErrorLogs.push({
                         record_ID: aPayloadsSalesVCData[i][2],
-                        message: `${insertedSalesVCData2.message}`,
+                        message: `${insertedSalesVCData2.message}`, process_code: sProcessCode
                     });
                 }
 
@@ -1624,7 +1631,7 @@ class SOWscInvoice extends Processor {
             if (!oSalesOrderItem?.SalesOrder) {
                 aErrors.push({
                     record_ID: oRecord.ID,
-                    message: cds.i18n.messages.at('ERR_SALES_ORDER_NOT_EXIST'),
+                    message: cds.i18n.messages.at('ERR_SALES_ORDER_NOT_EXIST'), process_code: sProcessCode
                 });
                 aFailedRecordIDs.push(oRecord.ID);
                 aErrorLogs.push(...aErrors);
@@ -1633,7 +1640,7 @@ class SOWscInvoice extends Processor {
             if (oSalesOrder.SalesOrderType === 'ZWSC') {
                 aErrors.push({
                     record_ID: oRecord.ID,
-                    message: cds.i18n.messages.at('ERR_SALES_ORDER_TYPE'),
+                    message: cds.i18n.messages.at('ERR_SALES_ORDER_TYPE'), process_code: sProcessCode
                 });
                 aFailedRecordIDs.push(oRecord.ID);
                 aErrorLogs.push(...aErrors);
@@ -1642,7 +1649,7 @@ class SOWscInvoice extends Processor {
             if (!oSalesOrderFirstItem?.WBSElement) {
                 aErrors.push({
                     record_ID: oRecord.ID,
-                    message: cds.i18n.messages.at('ERR_PROJECT_NUMBER_MISSING'),
+                    message: cds.i18n.messages.at('ERR_PROJECT_NUMBER_MISSING'), process_code: sProcessCode
                 });
                 aFailedRecordIDs.push(oRecord.ID);
                 aErrorLogs.push(...aErrors);
@@ -1651,7 +1658,7 @@ class SOWscInvoice extends Processor {
             if (oSalesOrder.SalesOrganization !== '2500' && !oSalesOrderPartner) {
                 aErrors.push({
                     record_ID: oRecord.ID,
-                    message: cds.i18n.messages.at('ERR_SHIP_TO_ADDRESS_NOT_FOUND'),
+                    message: cds.i18n.messages.at('ERR_SHIP_TO_ADDRESS_NOT_FOUND'), process_code: sProcessCode
                 });
                 aFailedRecordIDs.push(oRecord.ID);
                 aErrorLogs.push(...aErrors);
@@ -1673,7 +1680,7 @@ class SOWscInvoice extends Processor {
             if (oSalesOrder.SalesOrganization === '2500' && !oBusinessPartner) {
                 aErrors.push({
                     record_ID: oRecord.ID,
-                    message: cds.i18n.messages.at('ERR_BP_SDICA_NOT_FOUND'),
+                    message: cds.i18n.messages.at('ERR_BP_SDICA_NOT_FOUND'), process_code: sProcessCode
                 });
                 aFailedRecordIDs.push(oRecord.ID);
                 aErrorLogs.push(...aErrors);
@@ -1727,7 +1734,7 @@ class SOWscInvoice extends Processor {
                 } else if (oPurchaseOrderResults.error) {
                     aErrorLogs.push({
                         record_ID: oRecord.ID,
-                        message: `${oPurchaseOrderResults.error}`,
+                        message: `${oPurchaseOrderResults.error}`, process_code: sProcessCode
                     });
                     aFailedRecordIDs.push(oRecord.ID);
                     LOG.error(
@@ -1778,7 +1785,7 @@ class SOWscInvoice extends Processor {
                 } else if (oPurchaseOrderItemResults.error) {
                     aErrorLogs.push({
                         record_ID: oRecord.ID,
-                        message: `${oPurchaseOrderItemResults.error}`,
+                        message: `${oPurchaseOrderItemResults.error}`, process_code: sProcessCode
                     });
                     aFailedRecordIDs.push(oRecord.ID);
                     LOG.error(
@@ -2166,7 +2173,7 @@ class SOWscInvoice extends Processor {
                 } else {
                     aErrorLogs.push({
                         record_ID: oRecord.ID,
-                        message: `${result.error}`,
+                        message: `${result.error}`, process_code: sProcessCode
                     });
                     aFailedRecordIDs.push(oRecord.ID);
                     LOG.error(

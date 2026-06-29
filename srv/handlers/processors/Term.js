@@ -76,14 +76,14 @@ class Term extends Processor {
         // Step 1: AUART check
         if (!AUART) {
           LOG.warn(`[${ID}] Missing AUART`);
-          aErrorLogs.push({ record_ID: ID, message: 'WO type is missing.' });
+          aErrorLogs.push({ record_ID: ID, message: 'WO type is missing.', process_code: sProcessCode });
           aFailedRecordIDs.push(ID);
           continue;
         }
 
         if (!['SC', 'MS', 'IC', 'CP'].includes(AUART)) {
           LOG.warn(`[${ID}] Invalid AUART value: ${AUART}`);
-          aErrorLogs.push({ record_ID: ID, message: `WO type '${AUART}' is not supported.` });
+          aErrorLogs.push({ record_ID: ID, message: `WO type '${AUART}' is not supported.`, process_code: sProcessCode });
           aFailedRecordIDs.push(ID);
           continue;
         }
@@ -94,7 +94,7 @@ class Term extends Processor {
 
         if (!soData) {
           LOG.error(`[${ID}] Sales Order not found for VBELN=${VBELN} and Contract=${CONTRACT}`);
-          aErrorLogs.push({ record_ID: ID, message: `Sales Order ${VBELN} not found for contract ${CONTRACT}.` });
+          aErrorLogs.push({ record_ID: ID, message: `Sales Order ${VBELN} not found for contract ${CONTRACT}.`, process_code: sProcessCode });
           aFailedRecordIDs.push(ID);
           continue;
         }
@@ -114,14 +114,14 @@ class Term extends Processor {
         // Step 3: Contract type logic
         if (VAR_CON_DOC_TYP === 'ZCCP') {
           LOG.warn(`[${ID}] Contract type ZCCP is not eligible for termination`);
-          aErrorLogs.push({ record_ID: ID, message: 'Termination only applies to Managed services and Sub contracting.' });
+          aErrorLogs.push({ record_ID: ID, message: 'Termination only applies to Managed services and Sub contracting.', process_code: sProcessCode });
           aFailedRecordIDs.push(ID);
           continue;
         }
 
         if (!['ZWMS', 'ZWSC'].includes(VAR_CON_DOC_TYP)) {
           LOG.warn(`[${ID}] Unsupported contract type: ${VAR_CON_DOC_TYP}`);
-          aErrorLogs.push({ record_ID: ID, message: `Unsupported contract type ${VAR_CON_DOC_TYP}.` });
+          aErrorLogs.push({ record_ID: ID, message: `Unsupported contract type ${VAR_CON_DOC_TYP}.`, process_code: sProcessCode });
           aFailedRecordIDs.push(ID);
           continue;
         }
@@ -132,7 +132,7 @@ class Term extends Processor {
 
         if (FKSAK === 'C') {
           LOG.warn(`[${ID}] FKSAK = C — No open line items, will not update`);
-          aErrorLogs.push({ record_ID: ID, message: 'No open line item. Cannot block.' });
+          aErrorLogs.push({ record_ID: ID, message: 'No open line item. Cannot block.' , process_code: sProcessCode});
         }
 
         // Step 5: Update SO if billing not complete
@@ -158,7 +158,7 @@ class Term extends Processor {
           } else {
             const msg = updateResult?.message || 'Unknown error';
             LOG.error(`[${ID}] Update failed: ${msg}`);
-            aErrorLogs.push({ record_ID: ID, message: `Update failed: ${msg}` });
+            aErrorLogs.push({ record_ID: ID, message: `Update failed: ${msg}`, process_code: sProcessCode });
             aFailedRecordIDs.push(ID);
           }
         } else {
@@ -172,7 +172,7 @@ class Term extends Processor {
 
       } catch (err) {
         LOG.error(`[${ID}] EXCEPTION: ${err.message}`);
-        aErrorLogs.push({ record_ID: ID, message: `Exception: ${err.message}` });
+        aErrorLogs.push({ record_ID: ID, message: `Exception: ${err.message}`, process_code: sProcessCode });
         aFailedRecordIDs.push(ID);
       }
     }

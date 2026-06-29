@@ -191,6 +191,7 @@ class DrugBackgroundCheckProcessor extends Processor {
 
             if (fieldValidationResult.hasError) {
                 aErrorLogs.push(...fieldValidationResult.errors);
+                aErrorLogs[aErrorLogs.length - 1].process_code = sProcessCode;
                 aFailedRecordIDs.push(record.ID);
                 hasRecordFailed = true;
             }
@@ -220,6 +221,7 @@ class DrugBackgroundCheckProcessor extends Processor {
                     aErrorLogs.push({
                         record_ID: record.ID,
                         message: 'Work order is required'
+                        , process_code: sProcessCode
                     });
                     aFailedRecordIDs.push(record.ID);
                     hasRecordFailed = true;
@@ -230,7 +232,7 @@ class DrugBackgroundCheckProcessor extends Processor {
                     if (!['MS', 'CP'].includes(record.salesDocumentType)) {
                         aErrorLogs.push({
                             record_ID: record.ID,
-                            message: 'Record Type must be "MS" or "CP"'
+                            message: 'Record Type must be "MS" or "CP"', process_code: sProcessCode
                         });
                         aFailedRecordIDs.push(record.ID);
                         hasRecordFailed = true;
@@ -242,7 +244,7 @@ class DrugBackgroundCheckProcessor extends Processor {
                     if (!['BACK', 'DRUG', 'NON'].includes(record.expenseType)) {
                         aErrorLogs.push({
                             record_ID: record.ID,
-                            message: 'Expense type must be "DRUG" or "BACK" or "NON"'
+                            message: 'Expense type must be "DRUG" or "BACK" or "NON"', process_code: sProcessCode
                         });
                         aFailedRecordIDs.push(record.ID);
                         hasRecordFailed = true;
@@ -258,7 +260,7 @@ class DrugBackgroundCheckProcessor extends Processor {
                         if (!salesOrderResult.success) {
                             aErrorLogs.push({
                                 record_ID: record.ID,
-                                message: `Failed to get SalesOrder for workorder ${record.workOrderWN}: ${salesOrderResult.message}`
+                                message: `Failed to get SalesOrder for workorder ${record.workOrderWN}: ${salesOrderResult.message}`, process_code: sProcessCode
                             });
                             aFailedRecordIDs.push(record.ID);
                             hasRecordFailed = true;
@@ -271,7 +273,7 @@ class DrugBackgroundCheckProcessor extends Processor {
                             if (!headerResult.success) {
                                 aErrorLogs.push({
                                     record_ID: record.ID,
-                                    message: `Failed to get SalesOrder header for ${salesOrder.SalesOrder}: ${headerResult.message}`
+                                    message: `Failed to get SalesOrder header for ${salesOrder.SalesOrder}: ${headerResult.message}`, process_code: sProcessCode
                                 });
                                 aFailedRecordIDs.push(record.ID);
                                 hasRecordFailed = true;
@@ -293,14 +295,14 @@ class DrugBackgroundCheckProcessor extends Processor {
                                 if (!duplicateCheckResult.success) {
                                     aErrorLogs.push({
                                         record_ID: record.ID,
-                                        message: `Failed to check duplicate invoice lines: ${duplicateCheckResult.message}`
+                                        message: `Failed to check duplicate invoice lines: ${duplicateCheckResult.message}`, process_code: sProcessCode
                                     });
                                     aFailedRecordIDs.push(record.ID);
                                     hasRecordFailed = true;
                                 } else if (duplicateCheckResult.hasDuplicates) {
                                     aErrorLogs.push({
                                         record_ID: record.ID,
-                                        message: `Duplicate lines not allowed for invoice ${wnInvoice} in SalesOrder ${salesOrder.SalesOrder}`
+                                        message: `Duplicate lines not allowed for invoice ${wnInvoice} in SalesOrder ${salesOrder.SalesOrder}`, process_code: sProcessCode
                                     });
                                     aFailedRecordIDs.push(record.ID);
                                     hasRecordFailed = true;
@@ -310,7 +312,7 @@ class DrugBackgroundCheckProcessor extends Processor {
                     } catch (err) {
                         aErrorLogs.push({
                             record_ID: record.ID,
-                            message: `Error during workorder validation: ${err.message}`
+                            message: `Error during workorder validation: ${err.message}`, process_code: sProcessCode
                         });
                         aFailedRecordIDs.push(record.ID);
                         hasRecordFailed = true;
@@ -1515,8 +1517,10 @@ class DrugBackgroundCheckProcessor extends Processor {
                     aErrors.push({
                         record_ID: oRecord.ID,
                         message: cds.i18n.messages.at('ERR_SALES_DOCUMENT_TYPE'),
+                        process_code: sProcessCode
                     });
                     aFailedRecordIDs.push(oRecord.ID);
+                    
                     aErrorLogs.push(...aErrors);
                     continue; // Skip this record
                 }
@@ -1528,6 +1532,7 @@ class DrugBackgroundCheckProcessor extends Processor {
                             aErrors.push({
                                 record_ID: oRecord.ID,
                                 message: cds.i18n.messages.at('ERR_SALES_ORDER_PAYROLL'),
+                                process_code: sProcessCode
                             });
                             aFailedRecordIDs.push(oRecord.ID);
                             aErrorLogs.push(...aErrors);
@@ -1573,7 +1578,7 @@ class DrugBackgroundCheckProcessor extends Processor {
                 if (!oSalesOrder) {                    
                     aErrors.push({
                         record_ID: oRecord.ID,
-                        message: cds.i18n.messages.at('ERR_SALES_ORDER_NOT_EXIST'),
+                        message: cds.i18n.messages.at('ERR_SALES_ORDER_NOT_EXIST'), process_code: sProcessCode
                     });
                     aFailedRecordIDs.push(oRecord.ID);
                     aErrorLogs.push(...aErrors);
@@ -1609,7 +1614,7 @@ class DrugBackgroundCheckProcessor extends Processor {
                 if (!firstSOItem.WBSElement || firstSOItem.WBSElement !== oRecord.project) {                    
                     aErrors.push({
                         record_ID: oRecord.ID,
-                        message: cds.i18n.messages.at('ERR_PROJECT_NUMBER_MISSING'),
+                        message: cds.i18n.messages.at('ERR_PROJECT_NUMBER_MISSING'), process_code: sProcessCode
                     });
                     aFailedRecordIDs.push(oRecord.ID);
                     aErrorLogs.push(...aErrors);
@@ -1620,7 +1625,7 @@ class DrugBackgroundCheckProcessor extends Processor {
                     if (!firstSOItem.YY1_PurchasingDoc_SD_SDI) {
                         aErrors.push({
                             record_ID: oRecord.ID,
-                            message: cds.i18n.messages.at('ERR_CREATE_PO'),
+                            message: cds.i18n.messages.at('ERR_CREATE_PO'), process_code: sProcessCode
                         });
                         aFailedRecordIDs.push(oRecord.ID);
                         aErrorLogs.push(...aErrors);
@@ -1640,7 +1645,7 @@ class DrugBackgroundCheckProcessor extends Processor {
                 if (oRecord.wnInvoiceNo === oSalesOrder.YY1_WNInvoice_SD_SDI) {
                     aErrorLogs.push({
                         record_ID: oRecord.ID,
-                        message: cds.i18n.messages.at('ERR_DUPLICATE_LINES'),
+                        message: cds.i18n.messages.at('ERR_DUPLICATE_LINES'), process_code: sProcessCode
                     });
                     aFailedRecordIDs.push(oRecord.ID);
                     aErrorLogs.push(...aErrors);
@@ -1703,13 +1708,14 @@ class DrugBackgroundCheckProcessor extends Processor {
                             oResult.reason.forEach((oError) => {
                                 aErrorLogs.push({
                                     record_ID: sRecordID,
+                                 process_code: sProcessCode,
                                     ...oError,
                                 });
                             });
                         } else {
                             aErrorLogs.push({
                                 record_ID: sRecordID,
-                                message: cds.i18n.messages.at('ERR_SALES_ORDER_ITEM_CREATION_FAILED', [oResult.reason]),
+                                message: cds.i18n.messages.at('ERR_SALES_ORDER_ITEM_CREATION_FAILED', [oResult.reason]), process_code: sProcessCode
                             });
                         }
     
@@ -3690,7 +3696,7 @@ class DrugBackgroundCheckProcessor extends Processor {
                 if (!salesOrder) {
                     aErrors.push({
                         record_ID: oRecord.ID,
-                        message: cds.i18n.messages.at('ERR_SALES_ORDER_NOT_EXIST'),
+                        message: cds.i18n.messages.at('ERR_SALES_ORDER_NOT_EXIST'), process_code: sProcessCode
                     });
                     aFailedRecordIDs.push(oRecord.ID);
                     aErrorLogs.push(...aErrors);
@@ -3700,7 +3706,7 @@ class DrugBackgroundCheckProcessor extends Processor {
                 if (salesOrder.DistributionChannel !== 'IC') {
                     aErrors.push({
                         record_ID: oRecord.ID,
-                        message: cds.i18n.messages.at('ERR_DIST_IC'),
+                        message: cds.i18n.messages.at('ERR_DIST_IC'), process_code: sProcessCode
                     });
                     aFailedRecordIDs.push(oRecord.ID);
                     aErrorLogs.push(...aErrors);
@@ -3728,7 +3734,7 @@ class DrugBackgroundCheckProcessor extends Processor {
                 if (!firstSOItem.WBSElement) {
                     aErrors.push({
                         record_ID: oRecord.ID,
-                        message: cds.i18n.messages.at('ERR_PROJECT_NUMBER_MISSING'),
+                        message: cds.i18n.messages.at('ERR_PROJECT_NUMBER_MISSING'), process_code: sProcessCode
                     });
                     aFailedRecordIDs.push(oRecord.ID);
                     aErrorLogs.push(...aErrors);
@@ -3739,7 +3745,7 @@ class DrugBackgroundCheckProcessor extends Processor {
                     if (oRecord.wnInvoiceNo + 'IC' === salesOrder.YY1_WNInvoice_SD_SDI) {
                         aErrorLogs.push({
                             record_ID: oRecord.ID,
-                            message: cds.i18n.messages.at('ERR_DUPLICATE_LINES'),
+                            message: cds.i18n.messages.at('ERR_DUPLICATE_LINES'), process_code: sProcessCode
                         });
                         aFailedRecordIDs.push(oRecord.ID);
                         aErrorLogs.push(...aErrors);
@@ -3750,7 +3756,7 @@ class DrugBackgroundCheckProcessor extends Processor {
                 if (oRecord.wnInvoiceNo === salesOrder.YY1_WNInvoice_SD_SDI) {
                     aErrorLogs.push({
                         record_ID: oRecord.ID,
-                        message: cds.i18n.messages.at('ERR_DUPLICATE_LINES'),
+                        message: cds.i18n.messages.at('ERR_DUPLICATE_LINES'), process_code: sProcessCode
                     });
                     aFailedRecordIDs.push(oRecord.ID);
                     aErrorLogs.push(...aErrors);
@@ -3810,13 +3816,13 @@ class DrugBackgroundCheckProcessor extends Processor {
                             oResult.reason.forEach((oError) => {
                                 aErrorLogs.push({
                                     record_ID: sRecordID,
-                                    ...oError,
+                                    ...oError, process_code: sProcessCode
                                 });
                             });
                         } else {
                             aErrorLogs.push({
                                 record_ID: sRecordID,
-                                message: cds.i18n.messages.at('ERR_SALES_ORDER_ITEM_CREATION_FAILED', [oResult.reason]),
+                                message: cds.i18n.messages.at('ERR_SALES_ORDER_ITEM_CREATION_FAILED', [oResult.reason]), process_code: sProcessCode
                             });
                         }
     
@@ -4076,13 +4082,13 @@ class DrugBackgroundCheckProcessor extends Processor {
                     if (insertedSalesVCData1?.message) {
                         aErrorLogs.push({
                             record_ID: aPayloadsSalesVCData[i][2],
-                            message: `${insertedSalesVCData1.message}`,
+                            message: `${insertedSalesVCData1.message}`, process_code: sProcessCode
                         });
                     }
                     if (insertedSalesVCData2?.message) {
                         aErrorLogs.push({
                             record_ID: aPayloadsSalesVCData[i][2],
-                            message: `${insertedSalesVCData2.message}`,
+                            message: `${insertedSalesVCData2.message}`, process_code: sProcessCode
                         });
                     }
     
@@ -4328,7 +4334,7 @@ class DrugBackgroundCheckProcessor extends Processor {
             if (!oRecord.purchaseDocumentNoSAP) {
                 aErrors.push({
                     record_ID: oRecord.ID,
-                    message: 'Purchase order missing - PO must exist from previous SalesOrder processing',
+                    message: 'Purchase order missing - PO must exist from previous SalesOrder processing', process_code: sProcessCode
                 });
                 aFailedRecordIDs.push(oRecord.ID);
                 aErrorLogs.push(...aErrors);
@@ -4338,7 +4344,7 @@ class DrugBackgroundCheckProcessor extends Processor {
             if (!oSalesOrder.SalesOrder) {
                 aErrors.push({
                     record_ID: oRecord.ID,
-                    message: 'Sales order not found',
+                    message: 'Sales order not found', process_code: sProcessCode
                 });
                 aFailedRecordIDs.push(oRecord.ID);
                 aErrorLogs.push(...aErrors);
@@ -4348,7 +4354,7 @@ class DrugBackgroundCheckProcessor extends Processor {
             if (oSalesOrder.YY1_CustomSalesOrder_SDH !== 'ZWMS') {
                 aErrors.push({
                     record_ID: oRecord.ID,
-                    message: 'Sales order type must be ZWMS',
+                    message: 'Sales order type must be ZWMS', process_code: sProcessCode
                 });
                 aFailedRecordIDs.push(oRecord.ID);
                 aErrorLogs.push(...aErrors);
@@ -4358,7 +4364,7 @@ class DrugBackgroundCheckProcessor extends Processor {
             if (!firstSOItem.WBSElement) {
                 aErrors.push({
                     record_ID: oRecord.ID,
-                    message: 'Project not found on dummy line 00010',
+                    message: 'Project not found on dummy line 00010', process_code: sProcessCode
                 });
                 aFailedRecordIDs.push(oRecord.ID);
                 aErrorLogs.push(...aErrors);
@@ -4368,7 +4374,7 @@ class DrugBackgroundCheckProcessor extends Processor {
             if (!oSalesOrderPartnerSH.Customer) {
                 aErrors.push({
                     record_ID: oRecord.ID,
-                    message: 'Ship-to partner SH missing',
+                    message: 'Ship-to partner SH missing', process_code: sProcessCode
                 });
                 aFailedRecordIDs.push(oRecord.ID);
                 aErrorLogs.push(...aErrors);
@@ -4399,7 +4405,7 @@ class DrugBackgroundCheckProcessor extends Processor {
             if (oPurchaseOrderItemResults.error) {
                 aErrorLogs.push({
                     record_ID: oRecord.ID,
-                    message: `${oPurchaseOrderItemResults.error}`,
+                    message: `${oPurchaseOrderItemResults.error}`, process_code: sProcessCode
                 });
                 aFailedRecordIDs.push(oRecord.ID);
                 LOG.error(
@@ -4702,7 +4708,7 @@ class DrugBackgroundCheckProcessor extends Processor {
                         } else {
                             aErrorLogs.push({
                                 record_ID: record.ID,
-                                message: `Error rejecting sales order item: ${patchResult.error}`
+                                message: `Error rejecting sales order item: ${patchResult.error}`, process_code: sProcessCode
                             });
                             aFailedRecordIDs.push(record.ID);
                         }
@@ -4713,7 +4719,7 @@ class DrugBackgroundCheckProcessor extends Processor {
                 } catch (err) {
                     aErrorLogs.push({
                         record_ID: record.ID,
-                        message: `Error rejecting sales order: ${err.message}`
+                        message: `Error rejecting sales order: ${err.message}`, process_code: sProcessCode
                     });
                     aFailedRecordIDs.push(record.ID);
                 }
@@ -4843,13 +4849,13 @@ class DrugBackgroundCheckProcessor extends Processor {
                 if (insertedSalesVCData1?.message) {
                     aErrorLogs.push({
                         record_ID: aPayloadsSalesVCData[i][2],
-                        message: `${insertedSalesVCData1.message}`,
+                        message: `${insertedSalesVCData1.message}`, process_code: sProcessCode
                     });
                 }
                 if (insertedSalesVCData2?.message) {
                     aErrorLogs.push({
                         record_ID: aPayloadsSalesVCData[i][2],
-                        message: `${insertedSalesVCData2.message}`,
+                        message: `${insertedSalesVCData2.message}`, process_code: sProcessCode
                     });
                 }
 
@@ -5053,7 +5059,7 @@ async CreditMIRO(sProcessCode, bBreakExecution) {
                 if (!oEmpCustInfo) {
                     aErrors.push({
                         record_ID: oRecord.ID,
-                        message: cds.i18n.messages.at('ERR_EMP_NO_MISSING_INFOTYPE'),
+                        message: cds.i18n.messages.at('ERR_EMP_NO_MISSING_INFOTYPE'), process_code: sProcessCode
                     });
                     aFailedRecordIDs.push(oRecord.ID);
                     aErrorLogs.push(...aErrors);
@@ -5106,7 +5112,7 @@ try {
                 } else {
                     aErrorLogs.push({
                         record_ID: oRecord.ID,
-                        message: `${result.error}`,
+                        message: `${result.error}`, process_code: sProcessCode
                     });
                     aFailedRecordIDs.push(oRecord.ID);
                     LOG.error(

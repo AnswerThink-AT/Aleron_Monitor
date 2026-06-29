@@ -372,7 +372,7 @@ class WorkOrdersFG extends Processor {
       if (isWnValid && isSsValid) {
         aErrorLogs.push({
           record_ID: record.ID,
-          message: "Only one contract must be provided — WN_CONTRACT or SS_CONTRACT, not both.",
+          message: "Only one contract must be provided — WN_CONTRACT or SS_CONTRACT, not both.",process_code: sProcessCode
         });
         aFailedRecordIDs.push(record.ID);
         hasRecordFailed = true;
@@ -381,7 +381,7 @@ class WorkOrdersFG extends Processor {
       if (!isWnValid && !isSsValid) {
         aErrorLogs.push({
           record_ID: record.ID,
-          message: "At least one contract must be provided — WN_CONTRACT or SS_CONTRACT.",
+          message: "At least one contract must be provided — WN_CONTRACT or SS_CONTRACT.",process_code: sProcessCode
         });
         aFailedRecordIDs.push(record.ID);
         hasRecordFailed = true;
@@ -389,74 +389,74 @@ class WorkOrdersFG extends Processor {
 
       if (isWnValid) {
         if (!record.securityId) {
-          aErrorLogs.push({ record_ID: record.ID, message: "FG Worker Security ID is blank" });
+          aErrorLogs.push({ record_ID: record.ID, message: "FG Worker Security ID is blank", process_code: sProcessCode });
           aFailedRecordIDs.push(record.ID);
           hasRecordFailed = true;
         }
 
         if (!record.firstName) {
-          aErrorLogs.push({ record_ID: record.ID, message: "First Name is blank" });
+          aErrorLogs.push({ record_ID: record.ID, message: "First Name is blank", process_code: sProcessCode });
           aFailedRecordIDs.push(record.ID);
           hasRecordFailed = true;
         }
 
         if (!record.lastName) {
-          aErrorLogs.push({ record_ID: record.ID, message: "Last Name is blank" });
+          aErrorLogs.push({ record_ID: record.ID, message: "Last Name is blank", process_code: sProcessCode });
           aFailedRecordIDs.push(record.ID);
           hasRecordFailed = true;
         }
 
         if (!record.workOrderId) {
-          aErrorLogs.push({ record_ID: record.ID, message: "FG Workorder is blank" });
+          aErrorLogs.push({ record_ID: record.ID, message: "FG Workorder is blank", process_code: sProcessCode });
           aFailedRecordIDs.push(record.ID);
           hasRecordFailed = true;
         }
 
         if (!record.siteCode) {
-          aErrorLogs.push({ record_ID: record.ID, message: "FG Site Code is blank" });
+          aErrorLogs.push({ record_ID: record.ID, message: "FG Site Code is blank", process_code: sProcessCode });
           aFailedRecordIDs.push(record.ID);
           hasRecordFailed = true;
         } else {
           const siteDetails = await this._checkSiteCodeExists(record.siteCode);
           if (!siteDetails) {
-            aErrorLogs.push({ record_ID: record.ID, message: `Site Code ${record.siteCode} is not maintained in table FGSiteCodeToAddressMapping` });
+            aErrorLogs.push({ record_ID: record.ID, message: `Site Code ${record.siteCode} is not maintained in table FGSiteCodeToAddressMapping`, process_code: sProcessCode });
             aFailedRecordIDs.push(record.ID);
             hasRecordFailed = true;
           }
         }
 
         if (!record.companyCode) {
-          aErrorLogs.push({ record_ID: record.ID, message: "Company Code is required" });
+          aErrorLogs.push({ record_ID: record.ID, message: "Company Code is required", process_code: sProcessCode });
           aFailedRecordIDs.push(record.ID);
           hasRecordFailed = true;
         }
 
         if (!record.billTo) {
-          aErrorLogs.push({ record_ID: record.ID, message: "BILL_TO is required field" });
+          aErrorLogs.push({ record_ID: record.ID, message: "BILL_TO is required field", process_code: sProcessCode });
           aFailedRecordIDs.push(record.ID);
           hasRecordFailed = true;
         }
 
         if (!record.soldTo) {
-          aErrorLogs.push({ record_ID: record.ID, message: "Sold TO is required field" });
+          aErrorLogs.push({ record_ID: record.ID, message: "Sold TO is required field", process_code: sProcessCode });
           aFailedRecordIDs.push(record.ID);
           hasRecordFailed = true;
         }
 
         if (!record.salesOffice) {
-          aErrorLogs.push({ record_ID: record.ID, message: "Sales Office is required" });
+          aErrorLogs.push({ record_ID: record.ID, message: "Sales Office is required", process_code: sProcessCode });
           aFailedRecordIDs.push(record.ID);
           hasRecordFailed = true;
         }
 
         if (!record.matnr) {
-          aErrorLogs.push({ record_ID: record.ID, message: "Material is required field" });
+          aErrorLogs.push({ record_ID: record.ID, message: "Material is required field", process_code: sProcessCode });
           aFailedRecordIDs.push(record.ID);
           hasRecordFailed = true;
         }
 
         if (!record.vendorCode) {
-          aErrorLogs.push({ record_ID: record.ID, message: "Vendor Code is required" });
+          aErrorLogs.push({ record_ID: record.ID, message: "Vendor Code is required", process_code: sProcessCode });
           aFailedRecordIDs.push(record.ID);
           hasRecordFailed = true;
         }
@@ -514,13 +514,17 @@ class WorkOrdersFG extends Processor {
             } catch (updateError) {
               aErrorLogs.push({
                 record_ID: record.ID,
-                message: `Error updating alphanumeric sales order: ${updateError.message}`
+                message: `Error updating alphanumeric sales order: ${updateError.message}`, process_code: sProcessCode
+
               });
               aFailedRecordIDs.push(record.ID);
               hasRecordFailed = true;
             }
           } else {
             // Error is from normal record validation - existing logic
+            oSalesOrderRes.errors.forEach((error) => {
+                    error.process_code = sProcessCode;
+                });
             aErrorLogs.push(...oSalesOrderRes.errors);
             aFailedRecordIDs.push(record.ID);
             hasRecordFailed = true;
@@ -531,6 +535,9 @@ class WorkOrdersFG extends Processor {
         // Check Sales Contract Header
         const oSalesContHeaderRes = await this._validateSalesContHeader(record, aSalesContractHeaders);
         if (oSalesContHeaderRes.hasError) {
+          oSalesContHeaderRes.errors.forEach((error) => {
+                    error.process_code = sProcessCode;
+                });
           aErrorLogs.push(...oSalesContHeaderRes.errors);
 
           
@@ -549,6 +556,9 @@ class WorkOrdersFG extends Processor {
         // Check Sales Contract Item
         const oSalesContItemRes = this._validateSalesContItem(record, aSalesContractItems);
         if (oSalesContItemRes.hasError) {
+          oSalesContItemRes.errors.forEach((error) => {
+                    error.process_code = sProcessCode;
+                });
           aErrorLogs.push(...oSalesContItemRes.errors);
           aFailedRecordIDs.push(record.ID);
           hasRecordFailed = true;
@@ -583,7 +593,7 @@ class WorkOrdersFG extends Processor {
           if (!salesOrderHeader) {
             aErrorLogs.push({
               record_ID: record.ID,
-              message: `CP/CR is not loaded in SAP for FG WO`
+              message: `CP/CR is not loaded in SAP for FG WO`, process_code: sProcessCode
             });
             aFailedRecordIDs.push(record.ID);
             hasRecordFailed = true;
@@ -616,7 +626,7 @@ class WorkOrdersFG extends Processor {
               } catch (updateError) {
                 aErrorLogs.push({
                   record_ID: record.ID,
-                  message: `Error updating record fields: ${updateError.message}`
+                  message: `Error updating record fields: ${updateError.message}`, process_code: sProcessCode
                 });
                 aFailedRecordIDs.push(record.ID);
                 hasRecordFailed = true;
@@ -626,7 +636,7 @@ class WorkOrdersFG extends Processor {
         } catch (error) {
           aErrorLogs.push({
             record_ID: record.ID,
-            message: `Error validating SS contract: ${error.message}`
+            message: `Error validating SS contract: ${error.message}`, process_code: sProcessCode
           });
           aFailedRecordIDs.push(record.ID);
           hasRecordFailed = true;
@@ -953,7 +963,7 @@ const aFailedRecordIDsFiltered = aFailedRecordIDs.filter(id => !aRejectedRecordI
             } else {
               aErrorLogs.push({
                 record_ID: recordsWithoutSSContract[i].ID,
-                message: `${insertedProject.message}`,
+                message: `${insertedProject.message}`, process_code: sProcessCode
               });
               aFailedRecordIDs.push(recordsWithoutSSContract[i].ID);
               LOG.error(`Error processing record ID ${recordsWithoutSSContract[i].ID}: ${insertedProject.message}`);
@@ -989,7 +999,7 @@ const aFailedRecordIDsFiltered = aFailedRecordIDs.filter(id => !aRejectedRecordI
         if (updatedProject.message) {
           aErrorLogs.push({
             record_ID: aRecordsForProcessing[i].ID,
-            message: `${updatedProject.message}`,
+            message: `${updatedProject.message}`, process_code: sProcessCode
           });
           aFailedRecordIDs.push(aRecordsForProcessing[i].ID);
           LOG.error(
@@ -998,7 +1008,7 @@ const aFailedRecordIDsFiltered = aFailedRecordIDs.filter(id => !aRejectedRecordI
         }else if(releaseProject.message){
           aErrorLogs.push({
             record_ID: aRecordsForProcessing[i].ID,
-            message: `${releaseProject.message}`,
+            message: `${releaseProject.message}`, process_code: sProcessCode
           });
           aFailedRecordIDs.push(aRecordsForProcessing[i].ID);
           LOG.error(
@@ -1410,7 +1420,7 @@ const aFailedRecordIDsFiltered = aFailedRecordIDs.filter(id => !aRejectedRecordI
       if (!oSalesContract) {
         aErrors.push({
           record_ID: oRecord.ID,
-          message: cds.i18n.messages.at('ERR_SALES_CONTRACT_NOT_FOUND'),
+          message: cds.i18n.messages.at('ERR_SALES_CONTRACT_NOT_FOUND'), process_code: sProcessCode
         });
         aFailedRecordIDs.push(oRecord.ID);
         aErrorLogs.push(...aErrors);
@@ -1424,7 +1434,7 @@ const aFailedRecordIDsFiltered = aFailedRecordIDs.filter(id => !aRejectedRecordI
       catch (insertError) {
         aErrors.push({
           record_ID: oRecord.ID,
-          message: `Maintain Z3 Employee In Config Table`
+          message: `Maintain Z3 Employee In Config Table`, process_code: sProcessCode
         });
         aFailedRecordIDs.push(oRecord.ID);
         aErrorLogs.push(...aErrors);
@@ -1453,7 +1463,7 @@ const aFailedRecordIDsFiltered = aFailedRecordIDs.filter(id => !aRejectedRecordI
           } catch (insertError) {
             aErrors.push({
               record_ID: oRecord.ID,
-              message: `Please maintain business unit ${oRecord.businessUnitCode} in table ZFG_BU`
+              message: `Please maintain business unit ${oRecord.businessUnitCode} in table ZFG_BU`, process_code: sProcessCode
             });
             aFailedRecordIDs.push(oRecord.ID);
             aErrorLogs.push(...aErrors);
@@ -1463,7 +1473,7 @@ const aFailedRecordIDsFiltered = aFailedRecordIDs.filter(id => !aRejectedRecordI
       } catch (error) {
         aErrors.push({
           record_ID: oRecord.ID,
-          message: `Error checking business unit: ${error.message}`
+          message: `Error checking business unit: ${error.message}`, process_code: sProcessCode
         });
         aFailedRecordIDs.push(oRecord.ID);
         aErrorLogs.push(...aErrors);
@@ -1490,7 +1500,7 @@ const aFailedRecordIDsFiltered = aFailedRecordIDs.filter(id => !aRejectedRecordI
           } catch (insertError) {
             aErrors.push({
               record_ID: oRecord.ID,
-              message: `Please maintain cost center ${oRecord.costCenterCode} in table ZFG_COST_CENTER`
+              message: `Please maintain cost center ${oRecord.costCenterCode} in table ZFG_COST_CENTER`, process_code: sProcessCode
             });
             aFailedRecordIDs.push(oRecord.ID);
             aErrorLogs.push(...aErrors);
@@ -1500,7 +1510,7 @@ const aFailedRecordIDsFiltered = aFailedRecordIDs.filter(id => !aRejectedRecordI
       } catch (error) {
         aErrors.push({
           record_ID: oRecord.ID,
-          message: `Error checking cost center: ${error.message}`
+          message: `Error checking cost center: ${error.message}`, process_code: sProcessCode
         });
         aFailedRecordIDs.push(oRecord.ID);
         aErrorLogs.push(...aErrors);
@@ -1522,7 +1532,7 @@ const aFailedRecordIDsFiltered = aFailedRecordIDs.filter(id => !aRejectedRecordI
         if (!salesContractItem) {
           aErrors.push({
             record_ID: oRecord.ID,
-            message: `Material ${oRecord.matnr} not present in contract ${oRecord.wnContract}`
+            message: `Material ${oRecord.matnr} not present in contract ${oRecord.wnContract}`, process_code: sProcessCode
           });
           aFailedRecordIDs.push(oRecord.ID);
           aErrorLogs.push(...aErrors);
@@ -1531,7 +1541,7 @@ const aFailedRecordIDsFiltered = aFailedRecordIDs.filter(id => !aRejectedRecordI
       } catch (error) {
         aErrors.push({
           record_ID: oRecord.ID,
-          message: `Error checking sales contract item: ${error.message}`
+          message: `Error checking sales contract item: ${error.message}`, process_code: sProcessCode
         });
         aFailedRecordIDs.push(oRecord.ID);
         aErrorLogs.push(...aErrors);
@@ -1542,7 +1552,7 @@ const aFailedRecordIDsFiltered = aFailedRecordIDs.filter(id => !aRejectedRecordI
       if (!oRecord.wnContract || oRecord.wnContract === '0' || oRecord.wnContract.trim() === '') {
         aErrors.push({
           record_ID: oRecord.ID,
-          message: 'WN_CONTRACT cannot be empty or 0'
+          message: 'WN_CONTRACT cannot be empty or 0', process_code: sProcessCode
         });
         aFailedRecordIDs.push(oRecord.ID);
         aErrorLogs.push(...aErrors);
@@ -1563,7 +1573,7 @@ const aFailedRecordIDsFiltered = aFailedRecordIDs.filter(id => !aRejectedRecordI
       } catch (error) {
         aErrors.push({
           record_ID: oRecord.ID,
-          message: `Error checking skip interfaces: ${error.message}`
+          message: `Error checking skip interfaces: ${error.message}`, process_code: sProcessCode
         });
         aFailedRecordIDs.push(oRecord.ID);
         aErrorLogs.push(...aErrors);
@@ -1583,7 +1593,7 @@ const aFailedRecordIDsFiltered = aFailedRecordIDs.filter(id => !aRejectedRecordI
         if (!contractData) {
           aErrors.push({
             record_ID: oRecord.ID,
-            message: `Contract ${oRecord.wnContract} not found`
+            message: `Contract ${oRecord.wnContract} not found`, process_code: sProcessCode
           });
           aFailedRecordIDs.push(oRecord.ID);
           aErrorLogs.push(...aErrors);
@@ -1607,7 +1617,7 @@ const aFailedRecordIDsFiltered = aFailedRecordIDs.filter(id => !aRejectedRecordI
           if (!existingICSO) {
             aErrors.push({
               record_ID: oRecord.ID,
-              message: `Cannot find IC SO tied to FG WO ${oRecord.workOrderId}`
+              message: `Cannot find IC SO tied to FG WO ${oRecord.workOrderId}`, process_code: sProcessCode
             });
             aFailedRecordIDs.push(oRecord.ID);
             aErrorLogs.push(...aErrors);
@@ -1630,7 +1640,7 @@ const aFailedRecordIDsFiltered = aFailedRecordIDs.filter(id => !aRejectedRecordI
             if (!icSOEmployee) {
               aErrors.push({
                 record_ID: oRecord.ID,
-                message: `No Z3 partner function found in IC Sales Order ${existingICSO.SalesOrder}`
+                message: `No Z3 partner function found in IC Sales Order ${existingICSO.SalesOrder}`, process_code: sProcessCode
               });
               aFailedRecordIDs.push(oRecord.ID);
               aErrorLogs.push(...aErrors);
@@ -1641,7 +1651,7 @@ const aFailedRecordIDsFiltered = aFailedRecordIDs.filter(id => !aRejectedRecordI
           } catch (error) {
             aErrors.push({
               record_ID: oRecord.ID,
-              message: `Error checking IC Sales Order partner: ${error.message}`
+              message: `Error checking IC Sales Order partner: ${error.message}`, process_code: sProcessCode
             });
             aFailedRecordIDs.push(oRecord.ID);
             aErrorLogs.push(...aErrors);
@@ -1651,7 +1661,7 @@ const aFailedRecordIDsFiltered = aFailedRecordIDs.filter(id => !aRejectedRecordI
           if (contractData.DistributionChannel === 'CP') {
             aErrors.push({
               record_ID: oRecord.ID,
-              message: `Interface will process only Managed Services and Subcontracting scenarios `
+              message: `Interface will process only Managed Services and Subcontracting scenarios `, process_code: sProcessCode
             });
             aFailedRecordIDs.push(oRecord.ID);
             aErrorLogs.push(...aErrors);
@@ -1687,7 +1697,7 @@ const aFailedRecordIDsFiltered = aFailedRecordIDs.filter(id => !aRejectedRecordI
       } catch (error) {
         aErrors.push({
           record_ID: oRecord.ID,
-          message: `Error checking contract data: ${error.message}`
+          message: `Error checking contract data: ${error.message}`, process_code: sProcessCode
         });
         aFailedRecordIDs.push(oRecord.ID);
         aErrorLogs.push(...aErrors);
@@ -1708,7 +1718,7 @@ const aFailedRecordIDsFiltered = aFailedRecordIDs.filter(id => !aRejectedRecordI
       if (!billiType) {
         aErrors.push({
           record_ID: oRecord.ID,
-          message: `Billing Type not found for Sales Order Type ${SalesOrderDocType}`
+          message: `Billing Type not found for Sales Order Type ${SalesOrderDocType}`, process_code: sProcessCode
         });
         aFailedRecordIDs.push(oRecord.ID);
         aErrorLogs.push(...aErrors);
@@ -1797,13 +1807,13 @@ const aFailedRecordIDsFiltered = aFailedRecordIDs.filter(id => !aRejectedRecordI
           oResult.reason.forEach((oError) => {
             aErrorLogs.push({
               record_ID: sRecordID,
-              ...oError,
+              ...oError, process_code: sProcessCode
             });
           });
         } else {
           aErrorLogs.push({
             record_ID: sRecordID,
-            message: cds.i18n.messages.at('ERR_SALES_ORDER_CREATION_FAILED', [oResult.reason]),
+            message: cds.i18n.messages.at('ERR_SALES_ORDER_CREATION_FAILED', [oResult.reason]), process_code: sProcessCode
           });
         }
 
@@ -2232,14 +2242,14 @@ const aFailedRecordIDsFiltered = aFailedRecordIDs.filter(id => !aRejectedRecordI
         } else {
           aErrors.push({
             record_ID: record.ID,
-            message: 'Default Z3 employee not found'
+            message: 'Default Z3 employee not found', process_code: sProcessCode
           });
         }
 
       } catch (error) {
         aErrors.push({
           record_ID: record.ID,
-          message: `Error getting default Z3 employee: ${error.message}`
+          message: `Error getting default Z3 employee: ${error.message}`, process_code: sProcessCode
         });
       }
     } else {
@@ -2267,7 +2277,7 @@ const aFailedRecordIDsFiltered = aFailedRecordIDs.filter(id => !aRejectedRecordI
       if (!vendorMaster) {
         aErrors.push({
           record_ID: record.ID,
-          message: 'Vendor does not exist'
+          message: 'Vendor does not exist', process_code: sProcessCode
         });
       } else {
         // Set partner function based on account group
@@ -2286,7 +2296,7 @@ const aFailedRecordIDsFiltered = aFailedRecordIDs.filter(id => !aRejectedRecordI
     } catch (error) {
       aErrors.push({
         record_ID: record.ID,
-        message: `Error checking vendor master: ${error.message}`
+        message: `Error checking vendor master: ${error.message}`, process_code: sProcessCode
       });
     }
 
@@ -2316,7 +2326,7 @@ const aFailedRecordIDsFiltered = aFailedRecordIDs.filter(id => !aRejectedRecordI
         if (!siteDetails) {
           aErrors.push({
             record_ID: record.ID,
-            message: 'Site code not maintained in table SITE_CODE'
+            message: 'Site code not maintained in table SITE_CODE', process_code: sProcessCode
           });
         } else {
           aPartnerFunctions.push({
@@ -2385,7 +2395,7 @@ const aFailedRecordIDsFiltered = aFailedRecordIDs.filter(id => !aRejectedRecordI
           } else {
             aErrors.push({
               record_ID: record.ID,
-              message: 'Site details not found for Z4 partner'
+              message: 'Site details not found for Z4 partner', process_code: sProcessCode
             });
           }
         } else {
@@ -2445,13 +2455,13 @@ const aFailedRecordIDsFiltered = aFailedRecordIDs.filter(id => !aRejectedRecordI
               console.error('Error adding ZF partner:', pushError);
               aErrors.push({
                 record_ID: record.ID,
-                message: `Error adding ZF partner: ${pushError.message}`
+                message: `Error adding ZF partner: ${pushError.message}`, process_code: sProcessCode
               });
             }
           } else {
             aErrors.push({
               record_ID: record.ID,
-              message: 'Site details not found for ZF partner '
+              message: 'Site details not found for ZF partner ', process_code: sProcessCode
             });
           }
         } else {
@@ -2515,7 +2525,7 @@ const aFailedRecordIDsFiltered = aFailedRecordIDs.filter(id => !aRejectedRecordI
         if (!salesOrder) {
           aErrorLogs.push({
             record_ID: record.ID,
-            message: `Sales Order ${record.salesDocumentNoSAP} not found`
+            message: `Sales Order ${record.salesDocumentNoSAP} not found`, process_code: sProcessCode
           });
           aFailedRecordIDs.push(record.ID);
           continue;
@@ -2560,7 +2570,7 @@ const aFailedRecordIDsFiltered = aFailedRecordIDs.filter(id => !aRejectedRecordI
         if (updateResult.hasError) {
           aErrorLogs.push({
             record_ID: record.ID,
-            message: `Failed to update Sales Order: ${updateResult.reason}`
+            message: `Failed to update Sales Order: ${updateResult.reason}`, process_code: sProcessCode
           });
           aFailedRecordIDs.push(record.ID);
         } else {
@@ -2570,7 +2580,7 @@ const aFailedRecordIDsFiltered = aFailedRecordIDs.filter(id => !aRejectedRecordI
       } catch (error) {
         aErrorLogs.push({
           record_ID: record.ID,
-          message: `Error updating Sales Order: ${error.message}`
+          message: `Error updating Sales Order: ${error.message}`, process_code: sProcessCode
         });
         aFailedRecordIDs.push(record.ID);
       }
@@ -2663,7 +2673,7 @@ const aFailedRecordIDsFiltered = aFailedRecordIDs.filter(id => !aRejectedRecordI
         if (!salesOrder) {
           aErrorLogs.push({
             record_ID: record.ID,
-            message: `Sales Order ${record.salesDocumentNoSAP} not found`
+            message: `Sales Order ${record.salesDocumentNoSAP} not found`, process_code: sProcessCode
           });
           aFailedRecordIDs.push(record.ID);
           continue;
@@ -2698,7 +2708,7 @@ const aFailedRecordIDsFiltered = aFailedRecordIDs.filter(id => !aRejectedRecordI
         if (!zrPartner) {
           aErrorLogs.push({
             record_ID: record.ID,
-            message: 'ZR partner function not found in sales order'
+            message: 'ZR partner function not found in sales order', process_code: sProcessCode
           });
           aFailedRecordIDs.push(record.ID);
           continue;
@@ -2718,7 +2728,7 @@ const aFailedRecordIDsFiltered = aFailedRecordIDs.filter(id => !aRejectedRecordI
         if (!vendorPartner) {
           aErrorLogs.push({
             record_ID: record.ID,
-            message: 'Vendor not found in partner function table'
+            message: 'Vendor not found in partner function table', process_code: sProcessCode
           });
           aFailedRecordIDs.push(record.ID);
           continue;
@@ -2893,7 +2903,7 @@ const aFailedRecordIDsFiltered = aFailedRecordIDs.filter(id => !aRejectedRecordI
         if (poResult.hasError) {
           aErrorLogs.push({
             record_ID: record.ID,
-            message: `Failed to create Purchase Order: ${poResult.reason}`
+            message: `Failed to create Purchase Order: ${poResult.reason}`, process_code: sProcessCode
           });
           aFailedRecordIDs.push(record.ID);
         } else {
@@ -2914,7 +2924,7 @@ const aFailedRecordIDsFiltered = aFailedRecordIDs.filter(id => !aRejectedRecordI
           } catch (updateError) {
             aErrorLogs.push({
               record_ID: record.ID,
-              message: `Failed to update purchaseDocumentNo: ${updateError.message}`
+              message: `Failed to update purchaseDocumentNo: ${updateError.message}`, process_code: sProcessCode
             });
             aFailedRecordIDs.push(record.ID);
           }
@@ -2924,7 +2934,7 @@ const aFailedRecordIDsFiltered = aFailedRecordIDs.filter(id => !aRejectedRecordI
       } catch (error) {
         aErrorLogs.push({
           record_ID: record.ID,
-          message: `Error creating Purchase Order: ${error.message}`
+          message: `Error creating Purchase Order: ${error.message}`, process_code: sProcessCode
         });
         aFailedRecordIDs.push(record.ID);
       }
@@ -3640,6 +3650,9 @@ Z36:{target:'YY232_CUST_SVC_DATE',vc:2},
       validateFormats(salesVC1, DECIMAL_VC1, DATE_VC1, 'VC1', record.ID, localErrs);
       validateFormats(salesVC2, DECIMAL_VC2, DATE_VC2, 'VC2', record.ID, localErrs);
       if (localErrs.length) {
+        localErrs.forEach((err) => {
+          err.process_code = sProcessCode;
+        });
         aErrorLogs.push(...localErrs);
         aFailedRecordIDs.push(record.ID);
         const idx = aPassedRecordIDs.indexOf(record.ID);
@@ -3695,14 +3708,14 @@ Z36:{target:'YY232_CUST_SVC_DATE',vc:2},
       }
     } catch (e) {
       LOG.info(`[VC] VC1 INSERT exception recID=${recID}: ${e?.message}`);
-      aErrorLogs.push({ record_ID: recID, message: e?.message || 'VC1 INSERT exception' });
+      aErrorLogs.push({ record_ID: recID, message: e?.message || 'VC1 INSERT exception', process_code: sProcessCode });
       aFailedRecordIDs.push(recID);
       const idx = aPassedRecordIDs.indexOf(recID);
       if (idx !== -1) aPassedRecordIDs.splice(idx, 1);
       continue;
     }
     if (insertedSalesVCData1?.message) {
-      aErrorLogs.push({ record_ID: recID, message: insertedSalesVCData1.message });
+      aErrorLogs.push({ record_ID: recID, message: insertedSalesVCData1.message, process_code: sProcessCode });
       aFailedRecordIDs.push(recID);
       const idx = aPassedRecordIDs.indexOf(recID);
       if (idx !== -1) aPassedRecordIDs.splice(idx, 1);
@@ -3720,14 +3733,14 @@ Z36:{target:'YY232_CUST_SVC_DATE',vc:2},
       }
     } catch (e) {
       LOG.info(`[VC] VC2 INSERT exception recID=${recID}: ${e?.message}`);
-      aErrorLogs.push({ record_ID: recID, message: e?.message || 'VC2 INSERT exception' });
+      aErrorLogs.push({ record_ID: recID, message: e?.message || 'VC2 INSERT exception', process_code: sProcessCode });
       aFailedRecordIDs.push(recID);
       const idx = aPassedRecordIDs.indexOf(recID);
       if (idx !== -1) aPassedRecordIDs.splice(idx, 1);
       continue;
     }
     if (insertedSalesVCData2?.message) {
-      aErrorLogs.push({ record_ID: recID, message: insertedSalesVCData2.message });
+      aErrorLogs.push({ record_ID: recID, message: insertedSalesVCData2.message , process_code: sProcessCode});
       aFailedRecordIDs.push(recID);
       const idx = aPassedRecordIDs.indexOf(recID);
       if (idx !== -1) aPassedRecordIDs.splice(idx, 1);
