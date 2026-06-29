@@ -23,6 +23,12 @@ sap.ui.define(['sap/ui/core/mvc/ControllerExtension'], function (ControllerExten
 							this.aInterfaceType = oData.interfaceType.ID;
 							console.log(oData.interfaceType.ID);
 							console.log("Captured ID:", oData.ID);
+							var oUIModel = this.getView().getModel("ui");
+							if (!oUIModel) {
+								oUIModel = new sap.ui.model.json.JSONModel();
+								this.getView().setModel(oUIModel, "ui");
+							}
+							oUIModel.setProperty("/interfaceTypeId", oData.interfaceType.ID);
 						}.bind(this));
 					}
 				}.bind(this));
@@ -106,7 +112,7 @@ sap.ui.define(['sap/ui/core/mvc/ControllerExtension'], function (ControllerExten
 			const oExtensionAPI = this.base.getExtensionAPI();
 			oExtensionAPI.refresh();
 		},
-		_onDeleteDiscardedRecords : async function (fileID, interfaceID, oModel) {
+		_onDeleteDiscardedRecords: async function (fileID, interfaceID, oModel) {
 			await this.base.getExtensionAPI()
 				.editFlow.invokeAction(
 					"MonitorService.EntityContainer/deletediscardedRecords",
