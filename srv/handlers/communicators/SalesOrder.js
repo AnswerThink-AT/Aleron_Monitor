@@ -124,9 +124,9 @@ class SalesOrder {
                 reason: oResult.status === 'rejected' ? oResult.reason : null,
             }));
         } catch (err) {
-            LOG._error && LOG.error(cds.i18n.messages.at('ERR_SALESORDER_CREATE', [err.message]));
+            LOG._error && LOG.error(cds.i18n.messages.at('ERR_SALESORDER_CREATE',[err?.cause?.cause?.response?.statusText || err.message]));
              // Rethrow the error to be handled by the caller
-            const sErrMsg = cds.i18n.messages.at('ERR_SALESORDER_CREATE', [err.message]);
+            const sErrMsg = cds.i18n.messages.at('ERR_SALESORDER_CREATE', [err?.cause?.cause?.response?.statusText || err.message]);
             aFinalRes = aPayloads.map(() => ({
             hasError: true,
             value: null,
