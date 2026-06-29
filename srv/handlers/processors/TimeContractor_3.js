@@ -702,7 +702,7 @@ class TimeContractor_3 extends Processor {
                         for (const r of grp) {
                             aErrorLogs.push({
                                 record_ID: r.ID,
-                                message: msg
+                                message: msg, process_code: sProcessCode
                             });
                             if (!aFailedRecordIDs.includes(r.ID)) aFailedRecordIDs.push(r.ID);
                         }
@@ -745,7 +745,7 @@ class TimeContractor_3 extends Processor {
                     for (const r of grp) {
                         aErrorLogs.push({
                             record_ID: r.ID,
-                            message: msg
+                            message: msg, process_code: sProcessCode
                         });
                         if (!aFailedRecordIDs.includes(r.ID)) aFailedRecordIDs.push(r.ID);
                     }
@@ -770,7 +770,7 @@ class TimeContractor_3 extends Processor {
                     for (const r of grp) {
                         aErrorLogs.push({
                             record_ID: r.ID,
-                            message: msg
+                            message: msg, process_code: sProcessCode
                         });
                         if (!aFailedRecordIDs.includes(r.ID)) aFailedRecordIDs.push(r.ID);
                     }
@@ -823,7 +823,7 @@ class TimeContractor_3 extends Processor {
                     for (const r of grp) {
                         aErrorLogs.push({
                             record_ID: r.ID,
-                            message: msg
+                            message: msg, process_code: sProcessCode
                         });
                         if (!aFailedRecordIDs.includes(r.ID)) aFailedRecordIDs.push(r.ID);
                     }
@@ -886,7 +886,7 @@ class TimeContractor_3 extends Processor {
                     LOG.error(`STEP C FAILED → ${msg}`);
                     aErrorLogs.push({
                         record_ID: r.ID,
-                        message: msg
+                        message: msg, process_code: sProcessCode
                     });
                     if (!aFailedRecordIDs.includes(r.ID)) aFailedRecordIDs.push(r.ID);
                     groupFailedIds.add(r.ID);
@@ -921,7 +921,7 @@ class TimeContractor_3 extends Processor {
                     LOG.error(`STEP D FAILED → ${msg}`);
                     aErrorLogs.push({
                         record_ID: r.ID,
-                        message: msg
+                        message: msg, process_code: sProcessCode
                     });
                     if (!aFailedRecordIDs.includes(r.ID)) aFailedRecordIDs.push(r.ID);
                     groupFailedIds.add(r.ID);
@@ -940,7 +940,7 @@ class TimeContractor_3 extends Processor {
                     for (const msg of groupFailMsgs) {
                         aErrorLogs.push({
                             record_ID: r.ID,
-                            message: msg
+                            message: msg, process_code: sProcessCode
                         });
                     }
                     if (!aFailedRecordIDs.includes(r.ID)) aFailedRecordIDs.push(r.ID);
@@ -1047,7 +1047,7 @@ class TimeContractor_3 extends Processor {
                     for (const r of grp) {
                         aErrorLogs.push({
                             record_ID: r.ID,
-                            message: msg
+                            message: msg, process_code: sProcessCode
                         });
                         if (!aFailedRecordIDs.includes(r.ID)) aFailedRecordIDs.push(r.ID);
                     }
@@ -1064,7 +1064,7 @@ class TimeContractor_3 extends Processor {
                     for (const r of grp) {
                         aErrorLogs.push({
                             record_ID: r.ID,
-                            message: msg
+                            message: msg, process_code: sProcessCode
                         });
                         if (!aFailedRecordIDs.includes(r.ID)) aFailedRecordIDs.push(r.ID);
                     }

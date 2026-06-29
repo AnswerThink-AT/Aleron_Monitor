@@ -370,7 +370,7 @@ if (contractType === '1' && rec.wnWorkOrder) {
                     const msg = `No CP/CR order for '${lead.wnWorkOrder}'`;
                     LOG.error(`Group ${key} → STEP 1.2 FAILED: ${msg}`);
                     group.forEach(r => {
-                        aErrorLogs.push({ record_ID: r.ID, message: msg });
+                        aErrorLogs.push({ record_ID: r.ID, message: msg, process_code: sProcessCode });
                         aFailedRecordIDs.push(r.ID);
                     });
                     dupFailed = true;
@@ -397,7 +397,7 @@ if (contractType === '1' && rec.wnWorkOrder) {
                         const msg = `Duplicate WN_INV='${invoiceKey}' on item ${dupItems[0].SalesOrderItem}`;
                         LOG.error(`Group ${key} → STEP 1.2 FAILED: ${msg}`);
                         group.forEach(r => {
-                            aErrorLogs.push({ record_ID: r.ID, message: msg });
+                            aErrorLogs.push({ record_ID: r.ID, message: msg,  process_code: sProcessCode });
                             aFailedRecordIDs.push(r.ID);
                         });
                         dupFailed = true;
@@ -415,7 +415,7 @@ if (contractType === '1' && rec.wnWorkOrder) {
                     const msg = `Duplicate WN_INV='${lead.wnInvoiceNo}' on item ${dupItems[0].SalesOrderItem}`;
                     LOG.error(`Group ${key} → STEP 1.2 FAILED: ${msg}`);
                     group.forEach(r => {
-                        aErrorLogs.push({ record_ID: r.ID, message: msg });
+                        aErrorLogs.push({ record_ID: r.ID, message: msg , process_code: sProcessCode});
                         aFailedRecordIDs.push(r.ID);
                     });
                     dupFailed = true;
@@ -456,7 +456,7 @@ if (contractType === '1' && rec.wnWorkOrder) {
                 const msg = `No SAP SalesOrder found for WN='${lead.wnWorkOrder}'`;
                 LOG.error(`Group ${key} → STEP 1.3 FAILED: ${msg}`);
                 group.forEach(r => {
-                    aErrorLogs.push({ record_ID: r.ID, message: msg });
+                    aErrorLogs.push({ record_ID: r.ID, message: msg , process_code: sProcessCode});
                     aFailedRecordIDs.push(r.ID);
                 });
                 LOG.info(`Group ${key} → STEP 1.3 END: FAILED`);
@@ -479,7 +479,7 @@ if (contractType === '1' && rec.wnWorkOrder) {
                 const msg = `No dummy item 00010 for SalesOrder='${realSO}'`;
                 LOG.error(`Group ${key} → STEP 1.3 FAILED: ${msg}`);
                 group.forEach(r => {
-                    aErrorLogs.push({ record_ID: r.ID, message: msg });
+                    aErrorLogs.push({ record_ID: r.ID, message: msg, process_code: sProcessCode });
                     aFailedRecordIDs.push(r.ID);
                 });
                 continue;
@@ -493,7 +493,7 @@ if (contractType === '1' && rec.wnWorkOrder) {
                 const msg = `Duplicate week-end in dummy item for SalesOrder='${realSO}', weekEnd='${lead.weekEndDate}'`;
                 LOG.error(`Group ${key} → STEP 1.3 FAILED: ${msg}`);
                 group.forEach(r => {
-                    aErrorLogs.push({ record_ID: r.ID, message: msg });
+                    aErrorLogs.push({ record_ID: r.ID, message: msg , process_code: sProcessCode});
                     aFailedRecordIDs.push(r.ID);
                 });
                 continue;
@@ -516,7 +516,7 @@ if (contractType === '1' && rec.wnWorkOrder) {
                 const msg = `Duplicate week-end in items [${ids}] for SalesOrder='${realSO}'`;
                 LOG.error(`Group ${key} → STEP 1.3 FAILED: ${msg}`);
                 group.forEach(r => {
-                    aErrorLogs.push({ record_ID: r.ID, message: msg });
+                    aErrorLogs.push({ record_ID: r.ID, message: msg , process_code: sProcessCode});
                     aFailedRecordIDs.push(r.ID);
                 });
                 continue;
@@ -632,7 +632,7 @@ if (contractType === '1' && rec.wnWorkOrder) {
         const msg = `Not all records at processLevel='${sProcessCode}'`;
         LOG.error(`Group ${key} → STEP 3.2 FAILED: ${msg}`);
         group.forEach(r => {
-            aErrorLogs.push({ record_ID: r.ID, message: msg });
+            aErrorLogs.push({ record_ID: r.ID, message: msg, process_code: sProcessCode });
             aFailedRecordIDs.push(r.ID);
         });
         continue;
@@ -650,13 +650,13 @@ if (contractType === '1' && rec.wnWorkOrder) {
         if (!lead.woType) {
         const msg = `woType is blank`;
         LOG.error(`Group ${key} → STEP 3.4 FAILED: ${msg}`);
-        group.forEach(r => { aErrorLogs.push({ record_ID: r.ID, message: msg }); aFailedRecordIDs.push(r.ID); });
+        group.forEach(r => { aErrorLogs.push({ record_ID: r.ID, message: msg , process_code: sProcessCode}); aFailedRecordIDs.push(r.ID); });
         continue;
         }
         if (!['CP','CR','MS','SC','IC'].includes(lead.woType)) {
         const msg = `Invalid woType='${lead.woType}'`;
         LOG.error(`Group ${key} → STEP 3.4 FAILED: ${msg}`);
-        group.forEach(r => { aErrorLogs.push({ record_ID: r.ID, message: msg }); aFailedRecordIDs.push(r.ID); });
+        group.forEach(r => { aErrorLogs.push({ record_ID: r.ID, message: msg, process_code: sProcessCode }); aFailedRecordIDs.push(r.ID); });
         continue;
         }
         LOG.info(`Group ${key} → STEP 3.4 PASSED: woType='${lead.woType}'`);
@@ -715,7 +715,7 @@ if (contractType === '1' && rec.wnWorkOrder) {
         if (!soNumber) {
             const msg = `Cannot resolve SalesOrder for VBELN/WorkOrder='${lead.wnWorkOrder}' (CP/CR)`;
             LOG.error(`Group ${key} → STEP 3.6 FAILED: ${msg}`);
-            group.forEach(r => { aErrorLogs.push({ record_ID: r.ID, message: msg }); aFailedRecordIDs.push(r.ID); });
+            group.forEach(r => { aErrorLogs.push({ record_ID: r.ID, message: msg , process_code: sProcessCode}); aFailedRecordIDs.push(r.ID); });
             continue;
         }
         LOG.info(`Group ${key} → STEP 3.6.2: resolved SO='${soNumber}' via ${resolvedBy}`);
@@ -732,7 +732,7 @@ if (contractType === '1' && rec.wnWorkOrder) {
         if (!fullHdr) {
             const msg = `Cannot fetch header for SO='${soNumber}'`;
             LOG.error(`Group ${key} → STEP 3.6 FAILED: ${msg}`);
-            group.forEach(r => { aErrorLogs.push({ record_ID: r.ID, message: msg }); aFailedRecordIDs.push(r.ID); });
+            group.forEach(r => { aErrorLogs.push({ record_ID: r.ID, message: msg, process_code: sProcessCode }); aFailedRecordIDs.push(r.ID); });
             continue;
         }
 
@@ -753,7 +753,7 @@ if (contractType === '1' && rec.wnWorkOrder) {
         if (!itemRec?.SalesOrder) {
             const msg = `Cannot fetch SalesOrder for WorkOrder='${lead.wnWorkOrder}'`;
             LOG.error(`Group ${key} → STEP 3.7 FAILED: ${msg}`);
-            group.forEach(r => { aErrorLogs.push({ record_ID: r.ID, message: msg }); aFailedRecordIDs.push(r.ID); });
+            group.forEach(r => { aErrorLogs.push({ record_ID: r.ID, message: msg , process_code: sProcessCode}); aFailedRecordIDs.push(r.ID); });
             continue;
         }
         const soNumber = itemRec.SalesOrder;
@@ -769,7 +769,7 @@ if (contractType === '1' && rec.wnWorkOrder) {
         if (!fullHdr) {
             const msg = `Cannot fetch header for SO='${soNumber}'`;
             LOG.error(`Group ${key} → STEP 3.7 FAILED: ${msg}`);
-            group.forEach(r => { aErrorLogs.push({ record_ID: r.ID, message: msg }); aFailedRecordIDs.push(r.ID); });
+            group.forEach(r => { aErrorLogs.push({ record_ID: r.ID, message: msg , process_code: sProcessCode}); aFailedRecordIDs.push(r.ID); });
             continue;
         }
 
@@ -877,7 +877,7 @@ if (contractType === '1' && rec.wnWorkOrder) {
         if (existingItem) {
         const msg = `Duplicate invoice '${dupInvoice}' on SalesOrder '${vbeln}'`;
         LOG.error(`Group ${key} → STEP 3.8.x FAILED: ${msg}`);
-        group.forEach(r => { aErrorLogs.push({ record_ID: r.ID, message: msg }); aFailedRecordIDs.push(r.ID); });
+        group.forEach(r => { aErrorLogs.push({ record_ID: r.ID, message: msg, process_code: sProcessCode }); aFailedRecordIDs.push(r.ID); });
         continue; // skip this group entirely
         }
 
@@ -920,7 +920,7 @@ if (contractType === '1' && rec.wnWorkOrder) {
         if (!dummy.WBSElement) {
         const msg = `Project Number is missing`;
         LOG.error(`Group ${key} → STEP 3.9 FAILED: ${msg}`);
-        group.forEach(r => { aErrorLogs.push({ record_ID: r.ID, message: msg }); aFailedRecordIDs.push(r.ID); });
+        group.forEach(r => { aErrorLogs.push({ record_ID: r.ID, message: msg, process_code: sProcessCode }); aFailedRecordIDs.push(r.ID); });
         continue;
         }
 
@@ -996,7 +996,7 @@ if (contractType === '1' && rec.wnWorkOrder) {
         const errMsg = Array.isArray(createRes.reason)
             ? createRes.reason.map(e => e.message || JSON.stringify(e)).join(' • ')
             : (createRes.reason.message || String(createRes.reason));
-        group.forEach(r => { aErrorLogs.push({ record_ID: r.ID, message: errMsg }); aFailedRecordIDs.push(r.ID); });
+        group.forEach(r => { aErrorLogs.push({ record_ID: r.ID, message: errMsg, process_code: sProcessCode }); aFailedRecordIDs.push(r.ID); });
         await ProcessLogger.addLogs(aErrorLogs);
         await this.markRecordsValid(sProcessCode, aFailedRecordIDs, false);
         continue;
@@ -1185,7 +1185,7 @@ if (contractType === '1' && rec.wnWorkOrder) {
                 group.forEach(r => {
                     aErrorLogs.push({
                         record_ID: r.ID,
-                        message: msg
+                        message: msg, process_code: sProcessCode
                     });
                     aFailedRecordIDs.push(r.ID);
                 });
@@ -1212,7 +1212,7 @@ if (contractType === '1' && rec.wnWorkOrder) {
                 group.forEach(r => {
                     aErrorLogs.push({
                         record_ID: r.ID,
-                        message: msg
+                        message: msg, process_code: sProcessCode
                     });
                     aFailedRecordIDs.push(r.ID);
                 });
@@ -1226,7 +1226,7 @@ if (contractType === '1' && rec.wnWorkOrder) {
                 group.forEach(r => {
                     aErrorLogs.push({
                         record_ID: r.ID,
-                        message: msg
+                        message: msg, process_code: sProcessCode
                     });
                     aFailedRecordIDs.push(r.ID);
                 });
@@ -1277,7 +1277,7 @@ if (contractType === '1' && rec.wnWorkOrder) {
                 group.forEach(r => {
                     aErrorLogs.push({
                         record_ID: r.ID,
-                        message: msg
+                        message: msg, process_code: sProcessCode
                     });
                     aFailedRecordIDs.push(r.ID);
                 });
@@ -1291,7 +1291,7 @@ if (contractType === '1' && rec.wnWorkOrder) {
                 group.forEach(r => {
                     aErrorLogs.push({
                         record_ID: r.ID,
-                        message: msg
+                        message: msg, process_code: sProcessCode
                     });
                     aFailedRecordIDs.push(r.ID);
                 });
@@ -1349,7 +1349,7 @@ if (contractType === '1' && rec.wnWorkOrder) {
                 group.forEach(r => {
                     aErrorLogs.push({
                         record_ID: r.ID,
-                        message: msg
+                        message: msg, process_code: sProcessCode
                     });
                     aFailedRecordIDs.push(r.ID);
                 });
@@ -1404,7 +1404,7 @@ if (contractType === '1' && rec.wnWorkOrder) {
                 group.forEach(r => {
                     aErrorLogs.push({
                         record_ID: r.ID,
-                        message: msg
+                        message: msg, process_code: sProcessCode
                     });
                     aFailedRecordIDs.push(r.ID);
                 });

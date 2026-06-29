@@ -344,6 +344,9 @@ class EmployeeStaff extends Processor {
         oRecord,
       });
       if (oFieldValidationRes.hasError) {
+        oFieldValidationRes.errors.forEach((err) => {
+          err.process_code = sProcessCode;
+        });
         aErrorLogs.push(...oFieldValidationRes.errors);
         aFailedRecordIDs.push(oRecord.ID);
         hasRecordFailed = true;
@@ -351,6 +354,9 @@ class EmployeeStaff extends Processor {
       // Check Rates Validation
       const oRateValidationRes = this._validateRates(oRecord);
       if (oRateValidationRes.hasError) {
+        oRateValidationRes.errors.forEach((err) => {
+          err.process_code = sProcessCode;
+        });
         aErrorLogs.push(...oRateValidationRes.errors);
         aFailedRecordIDs.push(oRecord.ID);
         hasRecordFailed = true;
@@ -358,6 +364,9 @@ class EmployeeStaff extends Processor {
       // Check Work Nexus Deploymentt
       const oWNDeploymentRes = this._validateWorkNexusDeployment(oRecord);
       if (oWNDeploymentRes.hasError) {
+        oWNDeploymentRes.errors.forEach((err) => {
+          err.process_code = sProcessCode;
+        });
         aErrorLogs.push(...oWNDeploymentRes.errors);
         aFailedRecordIDs.push(oRecord.ID);
         hasRecordFailed = true;
@@ -386,6 +395,9 @@ class EmployeeStaff extends Processor {
       // Check Tax area
       const oTaxAreaRes = this._validateTaxArea(oRecord);
       if (oTaxAreaRes.hasError) {
+        oTaxAreaRes.errors.forEach((err) => {
+          err.process_code = sProcessCode;
+        });
         aErrorLogs.push(...oTaxAreaRes.errors);
         aFailedRecordIDs.push(oRecord.ID);
         hasRecordFailed = true;
@@ -1046,14 +1058,14 @@ async employeeHire(sProcessCode, bBreakExecution) {
         hasError = true;
         aErrorLogs.push({
           record_ID: oRecord.ID,
-          message: cds.i18n.messages.at('ERR_MANDT_FIELD', [anyField]),
+          message: cds.i18n.messages.at('ERR_MANDT_FIELD', [anyField]), process_code: sProcessCode
         });
       }
       if (stBlankFields.has(anyField) && oRecord[anyField]) {
         hasError = true;
         aErrorLogs.push({
           record_ID: oRecord.ID,
-          message: cds.i18n.messages.at('ERR_BLANK_FIELD', [anyField]),
+          message: cds.i18n.messages.at('ERR_BLANK_FIELD', [anyField]), process_code: sProcessCode
         });
       }
     }
@@ -1386,7 +1398,7 @@ async Hiredinsuccessfactors(sProcessCode, bBreakExecution) {
           }
           toFill.forEach(x => aErrorLogs.push({
             record_ID: x.id,
-            message: `Employee number ${x.emp} copied from leader (S step; ssn match).`
+            message: `Employee number ${x.emp} copied from leader (S step; ssn match).`, process_code: sProcessCode
           }));
           aPassedRecordIDs.push(...toFill.map(x => x.id));
           LOG.info(`[StaffHires][S] Filled personnelNoSAP for ${toFill.length} selected duplicate row(s) (by ssn).`);
@@ -1443,7 +1455,7 @@ async Hiredinsuccessfactors(sProcessCode, bBreakExecution) {
               }
               toFillECI.forEach(x => aErrorLogs.push({
                 record_ID: x.id,
-                message: `Employee number ${x.emp} copied from EmpCustInfo (S step; ssn).`
+                message: `Employee number ${x.emp} copied from EmpCustInfo (S step; ssn).`, process_code: sProcessCode
               }));
               aPassedRecordIDs.push(...toFillECI.map(x => x.id));
               LOG.info(`[StaffHires][S] Filled personnelNoSAP for ${toFillECI.length} selected row(s) from EmpCustInfo.`);
@@ -1466,7 +1478,7 @@ async Hiredinsuccessfactors(sProcessCode, bBreakExecution) {
             .set({ valid: false })
             .where({ ID: rec.ID, processLevel_code: sProcessCode }); // stay at S
           aFailedRecordIDs.push(rec.ID);
-          aErrorLogs.push({ record_ID: rec.ID, message: 'Employee not yet created in S/4 (no personnel number found).' });
+          aErrorLogs.push({ record_ID: rec.ID, message: 'Employee not yet created in S/4 (no personnel number found).',process_code: sProcessCode });
           continue;
         }
 
@@ -1487,7 +1499,7 @@ async Hiredinsuccessfactors(sProcessCode, bBreakExecution) {
             .set({ valid: false })
             .where({ ID: rec.ID, processLevel_code: sProcessCode }); // stay at S
           aFailedRecordIDs.push(rec.ID);
-          aErrorLogs.push({ record_ID: rec.ID, message: 'Employee not Replicated In S/4' });
+          aErrorLogs.push({ record_ID: rec.ID, message: 'Employee not Replicated In S/4', process_code: sProcessCode });
         }
       } catch (e) {
         // transport/service error → keep S/false, no demotion
@@ -1497,7 +1509,7 @@ async Hiredinsuccessfactors(sProcessCode, bBreakExecution) {
             .where({ ID: rec.ID, processLevel_code: sProcessCode }); // stay at S
         } catch (_) {}
         aFailedRecordIDs.push(rec.ID);
-        aErrorLogs.push({ record_ID: rec.ID, message: `S/4 replication check failed: ${e.message}` });
+        aErrorLogs.push({ record_ID: rec.ID, message: `S/4 replication check failed: ${e.message}`, process_code: sProcessCode });
         LOG.error(`[StaffHires][S] check error for ${rec.ID}: ${e.message}`);
       }
     }
@@ -1619,7 +1631,7 @@ async Hiredinsuccessfactors(sProcessCode, bBreakExecution) {
             if (releaseProject.error || releaseProject.message) {
               aErrorLogs.push({
                 record_ID: aRecordsForProcessing[i].ID,
-                message: `Project created but release failed: ${releaseProject.message || 'Unknown error'}`,
+                message: `Project created but release failed: ${releaseProject.message || 'Unknown error'}`, process_code: sProcessCode
               });
               aFailedRecordIDs.push(aRecordsForProcessing[i].ID);
               LOG.error(
@@ -1641,7 +1653,7 @@ async Hiredinsuccessfactors(sProcessCode, bBreakExecution) {
           } else {
             aErrorLogs.push({
               record_ID: aRecordsForProcessing[i].ID,
-              message: `${insertedProject.message}`,
+              message: `${insertedProject.message}`, process_code: sProcessCode
             });
             aFailedRecordIDs.push(aRecordsForProcessing[i].ID);
             LOG.error(
@@ -1661,7 +1673,7 @@ async Hiredinsuccessfactors(sProcessCode, bBreakExecution) {
         if (updatedProject.message) {
           aErrorLogs.push({
             record_ID: this.records[i].ID,
-            message: `${updatedProject.message}`,
+            message: `${updatedProject.message}`, process_code: sProcessCode
           });
           aFailedRecordIDs.push(this.records[i].ID);
           LOG.error(`Error processing record ID ${this.records[i].ID}: ${updatedProject.message}`);
@@ -1838,7 +1850,7 @@ async Hiredinsuccessfactors(sProcessCode, bBreakExecution) {
       } else {
         aErrorLogs.push({
           record_ID: aRecordsForProcessing[i].ID,
-          message: `${CustomerInfo.message}`,
+          message: `${CustomerInfo.message}`, process_code: sProcessCode
         });
         aFailedRecordIDs.push(aRecordsForProcessing[i].ID);
         LOG.error(
@@ -2210,7 +2222,7 @@ async Hiredinsuccessfactors(sProcessCode, bBreakExecution) {
 
           aErrorLogs.push({
             record_ID: rec.ID,
-            message: errorMessage.trim(),
+            message: errorMessage.trim(), process_code: sProcessCode
           });
           aFailedRecordIDs.push(rec.ID);
 
@@ -2219,7 +2231,7 @@ async Hiredinsuccessfactors(sProcessCode, bBreakExecution) {
       } catch (err) {
         aErrorLogs.push({
           record_ID: rec.ID,
-          message: `Exception in processHrCostDistObj: ${err.message}`,
+          message: `Exception in processHrCostDistObj: ${err.message}`, process_code: sProcessCode
         });
         aFailedRecordIDs.push(rec.ID);
         this.LOG._error && this.LOG.error(`Exception processing record ID ${rec.ID}: ${err.message}`);

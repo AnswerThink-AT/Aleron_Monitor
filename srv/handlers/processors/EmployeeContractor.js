@@ -330,7 +330,7 @@ class EmployeeContractor extends Processor {
 
         // Queue error (first wins, later is error)
         const msg = cds.i18n.messages.at('ERR_DUPLICATE_IN_FILE_SSN_AI', [ssn, aiUpper]);
-        aErrorLogs.push({ record_ID: rec.ID, message: msg });
+        aErrorLogs.push({ record_ID: rec.ID, message: msg, process_code: sProcessCode});
         aFailedRecordIDs.push(rec.ID);
         dupeIds.push(rec.ID);
 
@@ -492,7 +492,7 @@ class EmployeeContractor extends Processor {
       if (mZipCodeValidation.size > 0 && oRecord.country_code !== 'CA' && oZipCode?.valid === false) {
         aErrorLogs.push({
           record_ID: oRecord.ID,
-          message: cds.i18n.messages.at('ERR_ZIPCODE_NOT_VALID'),
+          message: cds.i18n.messages.at('ERR_ZIPCODE_NOT_VALID'), process_code: sProcessCode
         });
         aFailedRecordIDs.push(oRecord.ID);
         hasRecordFailed = true;
@@ -505,6 +505,9 @@ class EmployeeContractor extends Processor {
         oRecord,
       });
       if (oFieldValidationRes.hasError) {
+        oFieldValidationRes.errors.forEach((error) => {
+          error.process_code = sProcessCode;
+        });
         aErrorLogs.push(...oFieldValidationRes.errors);
         aFailedRecordIDs.push(oRecord.ID);
         hasRecordFailed = true;
@@ -519,6 +522,9 @@ class EmployeeContractor extends Processor {
       // Check Work Nexus Deployment
       const oWNDeploymentRes = this._validateWorkNexusDeployment(oRecord);
       if (oWNDeploymentRes.hasError) {
+        oWNDeploymentRes.errors.forEach((error) => {
+          error.process_code = sProcessCode;
+        });
         aErrorLogs.push(...oWNDeploymentRes.errors);
         aFailedRecordIDs.push(oRecord.ID);
         hasRecordFailed = true;
@@ -527,6 +533,9 @@ class EmployeeContractor extends Processor {
       // Check sales contract
       const oSalesContractRes = await this._validateSalesContract(oRecord, aSalesContracts);
       if (oSalesContractRes.hasError) {
+        oSalesContractRes.errors.forEach((error) => {
+          error.process_code = sProcessCode;
+        });
         aErrorLogs.push(...oSalesContractRes.errors);
         aFailedRecordIDs.push(oRecord.ID);
         hasRecordFailed = true;
@@ -538,6 +547,9 @@ class EmployeeContractor extends Processor {
       // Check bill-to
       const oPartnerFunctionRes = this._validatePartnerFunction(oRecord, aPartnerFunctions);
       if (oPartnerFunctionRes.hasError) {
+        oPartnerFunctionRes.errors.forEach((error) => {
+          error.process_code = sProcessCode;
+        });
         aErrorLogs.push(...oPartnerFunctionRes.errors);
         aFailedRecordIDs.push(oRecord.ID);
         hasRecordFailed = true;
@@ -548,6 +560,9 @@ class EmployeeContractor extends Processor {
       // Check Tax area
       const oTaxAreaRes = this._validateTaxArea(oRecord);
       if (oTaxAreaRes.hasError) {
+        oTaxAreaRes.errors.forEach((error) => {
+          error.process_code = sProcessCode;
+        });
         aErrorLogs.push(...oTaxAreaRes.errors);
         aFailedRecordIDs.push(oRecord.ID);
         hasRecordFailed = true;
@@ -561,7 +576,7 @@ class EmployeeContractor extends Processor {
           message: cds.i18n.messages.at('ERR_SALES_ORDER_EXIST_WORKORDER', [
             oSalesOrderItem.SalesOrder,
             oRecord.workOrderDoc
-          ]),
+          ]), process_code: sProcessCode
         });
         aFailedRecordIDs.push(oRecord.ID);
         hasRecordFailed = true;
@@ -711,14 +726,14 @@ class EmployeeContractor extends Processor {
         hasError = true;
         aErrorLogs.push({
           record_ID: oRecord.ID,
-          message: cds.i18n.messages.at('ERR_MANDT_FIELD', [anyField]),
+          message: cds.i18n.messages.at('ERR_MANDT_FIELD', [anyField]), process_code: sProcessCode
         });
       }
       if (stBlankFields.has(anyField) && oRecord[anyField]) {
         hasError = true;
         aErrorLogs.push({
           record_ID: oRecord.ID,
-          message: cds.i18n.messages.at('ERR_BLANK_FIELD', [anyField]),
+          message: cds.i18n.messages.at('ERR_BLANK_FIELD', [anyField]), process_code: sProcessCode
         });
       }
     }
@@ -1350,7 +1365,7 @@ class EmployeeContractor extends Processor {
 
             toFill.forEach(x => aErrorLogs.push({
               record_ID: x.id,
-              message: `Employee number ${x.emp} copied from leader (S step; ssn match).`
+              message: `Employee number ${x.emp} copied from leader (S step; ssn match).`, process_code: sProcessCode
             }));
             aPassedRecordIDs.push(...toFill.map(x => x.id));
             LOG.info(`[S] Filled personnelNoSAP on ${toFill.length} selected duplicate row(s) (by ssn).`);
@@ -1410,7 +1425,7 @@ class EmployeeContractor extends Processor {
 
                 toFillECI.forEach(x => aErrorLogs.push({
                   record_ID: x.id,
-                  message: `Employee number ${x.emp} copied from EmpCustInfo (S step; ssn).`
+                  message: `Employee number ${x.emp} copied from EmpCustInfo (S step; ssn).`, process_code: sProcessCode
                 }));
                 aPassedRecordIDs.push(...toFillECI.map(x => x.id));
                 LOG.info(`[S] Filled personnelNoSAP on ${toFillECI.length} selected row(s) from EmpCustInfo (ssn).`);
@@ -1433,7 +1448,7 @@ class EmployeeContractor extends Processor {
               .set({ valid: false })
               .where({ ID: rec.ID, processLevel_code: sProcessCode });   // stay at S
             aFailedRecordIDs.push(rec.ID);
-            aErrorLogs.push({ record_ID: rec.ID, message: 'Employee not yet created in S/4 (no personnel number found).' });
+            aErrorLogs.push({ record_ID: rec.ID, message: 'Employee not yet created in S/4 (no personnel number found).',process_code: sProcessCode });
             continue;
           }
           const res = await this.workforceAPI.executeQuery(
@@ -1453,7 +1468,7 @@ class EmployeeContractor extends Processor {
               .set({ valid: false })
               .where({ ID: rec.ID, processLevel_code: sProcessCode }); // stay at S
             aFailedRecordIDs.push(rec.ID);
-            aErrorLogs.push({ record_ID: rec.ID, message: 'Employee not Replicated In S/4' });
+            aErrorLogs.push({ record_ID: rec.ID, message: 'Employee not Replicated In S/4',process_code: sProcessCode });
           }
         } catch (e) {
           try {
@@ -1462,7 +1477,7 @@ class EmployeeContractor extends Processor {
               .where({ ID: rec.ID, processLevel_code: sProcessCode });   // stay at S
           } catch (_) {}
           aFailedRecordIDs.push(rec.ID);
-          aErrorLogs.push({ record_ID: rec.ID, message: `S/4 replication check failed: ${e.message}` });
+          aErrorLogs.push({ record_ID: rec.ID, message: `S/4 replication check failed: ${e.message}`,process_code: sProcessCode });
           LOG.error(`S check error for ${rec.ID}: ${e.message}`);
         }
       }
@@ -1788,7 +1803,7 @@ class EmployeeContractor extends Processor {
       if (!oRecord.projectNumberSAP) {
         aErrors.push({
           record_ID: oRecord.ID,
-          message: cds.i18n.messages.at('ERR_PROJECT_NUMBER_MISSING'),
+          message: cds.i18n.messages.at('ERR_PROJECT_NUMBER_MISSING'), process_code: sProcessCode
         });
         aFailedRecordIDs.push(oRecord.ID);
         aErrorLogs.push(...aErrors);
@@ -1836,7 +1851,7 @@ class EmployeeContractor extends Processor {
             oRecord.country_code,
             oRecord.county,
             oRecord.region,
-          ]),
+          ]), process_code: sProcessCode
         });
         aFailedRecordIDs.push(oRecord.ID);
         aErrorLogs.push(...aErrors);
@@ -1847,7 +1862,7 @@ class EmployeeContractor extends Processor {
       if (!oSalesContract) {
         aErrors.push({
           record_ID: oRecord.ID,
-          message: cds.i18n.messages.at('ERR_SALES_CONTRACT_NOT_FOUND'),
+          message: cds.i18n.messages.at('ERR_SALES_CONTRACT_NOT_FOUND'), process_code: sProcessCode
         });
         aFailedRecordIDs.push(oRecord.ID);
         aErrorLogs.push(...aErrors);
@@ -1864,7 +1879,7 @@ class EmployeeContractor extends Processor {
       if (!personnelNoSAP) {
         aErrors.push({
           record_ID: oRecord.ID,
-          message: cds.i18n.messages.at('ERR_PERSONAL_NO'),
+          message: cds.i18n.messages.at('ERR_PERSONAL_NO'), process_code: sProcessCode
         });
         aFailedRecordIDs.push(oRecord.ID);
         aErrorLogs.push(...aErrors);
@@ -1877,7 +1892,7 @@ class EmployeeContractor extends Processor {
           message: cds.i18n.messages.at('ERR_MATERIAL_NOT_FOUND', [
             oRecord.material,
             oRecord.contractNo
-          ]),
+          ]), process_code: sProcessCode
         });
         aFailedRecordIDs.push(oRecord.ID);
         aErrorLogs.push(...aErrors);
@@ -1935,13 +1950,13 @@ class EmployeeContractor extends Processor {
           oResult.reason.forEach((oError) => {
             aErrorLogs.push({
               record_ID: sRecordID,
-              ...oError,
+              ...oError, process_code: sProcessCode
             });
           });
         } else {
           aErrorLogs.push({
             record_ID: sRecordID,
-            message: cds.i18n.messages.at('ERR_SALES_ORDER_CREATION_FAILED', [oResult.reason]),
+            message: cds.i18n.messages.at('ERR_SALES_ORDER_CREATION_FAILED', [oResult.reason]), process_code: sProcessCode
           });
         }
 
@@ -2104,15 +2119,15 @@ class EmployeeContractor extends Processor {
               oResult.reason.forEach((oError) => {
                 aErrorLogs.push({
                   record_ID: sRecordID,
-                  ...oError,
+                  ...oError, process_code: sProcessCode
                 });
               });
             } else {
               aErrorLogs.push({
                 record_ID: sRecordID,
                 message: cds.i18n.messages.at('ERR_SALES_ORDER_PARTNER_DELETION_FAILED', [
-                  oResult.reason,
-                ]),
+                  oResult.reason
+                ]), process_code: sProcessCode
               });
             }
           }
@@ -3110,6 +3125,9 @@ Z38:{target:'CUST_COMMODITY_CODE2',vc:2},    // SERVICE DATE - FOR SDI IBM
         validateFormats(salesVC1, DECIMAL_VC1, DATE_VC1, 'VC1', record.ID, localErrs);
         validateFormats(salesVC2, DECIMAL_VC2, DATE_VC2, 'VC2', record.ID, localErrs);
         if (localErrs.length) {
+          localErrs.forEach(err => {
+            err.process_code = sProcessCode;
+          });
           aErrorLogs.push(...localErrs);
           aFailedRecordIDs.push(record.ID);
           const idx = aPassedRecordIDs.indexOf(record.ID);
@@ -3152,7 +3170,7 @@ Z38:{target:'CUST_COMMODITY_CODE2',vc:2},    // SERVICE DATE - FOR SDI IBM
         }
       } catch (e) {
         LOG.info(`[VC] VC1 INSERT exception recID=${recID}: ${e?.message}`);
-        aErrorLogs.push({ record_ID: recID, message: e?.message || 'VC1 INSERT exception' });
+        aErrorLogs.push({ record_ID: recID, message: e?.message || 'VC1 INSERT exception', process_code: sProcessCode });
         aFailedRecordIDs.push(recID);
         const idx = aPassedRecordIDs.indexOf(recID);
         if (idx !== -1) aPassedRecordIDs.splice(idx, 1);
@@ -3161,7 +3179,7 @@ Z38:{target:'CUST_COMMODITY_CODE2',vc:2},    // SERVICE DATE - FOR SDI IBM
       }
       if (insertedSalesVCData1?.message) {
         LOG.info(`[VC] VC1 service error recID=${recID}: ${insertedSalesVCData1.message}`);
-        aErrorLogs.push({ record_ID: recID, message: insertedSalesVCData1.message });
+        aErrorLogs.push({ record_ID: recID, message: insertedSalesVCData1.message, process_code: sProcessCode });
         aFailedRecordIDs.push(recID);
         const idx = aPassedRecordIDs.indexOf(recID);
         if (idx !== -1) aPassedRecordIDs.splice(idx, 1);
@@ -3179,7 +3197,7 @@ Z38:{target:'CUST_COMMODITY_CODE2',vc:2},    // SERVICE DATE - FOR SDI IBM
         }
       } catch (e) {
         LOG.info(`[VC] VC2 INSERT exception recID=${recID}: ${e?.message}`);
-        aErrorLogs.push({ record_ID: recID, message: e?.message || 'VC2 INSERT exception' });
+        aErrorLogs.push({ record_ID: recID, message: e?.message || 'VC2 INSERT exception' , process_code: sProcessCode});
         aFailedRecordIDs.push(recID);
         const idx = aPassedRecordIDs.indexOf(recID);
         if (idx !== -1) aPassedRecordIDs.splice(idx, 1);
@@ -3187,7 +3205,7 @@ Z38:{target:'CUST_COMMODITY_CODE2',vc:2},    // SERVICE DATE - FOR SDI IBM
       }
       if (insertedSalesVCData2?.message) {
         LOG.info(`[VC] VC2 service error recID=${recID}: ${insertedSalesVCData2.message}`);
-        aErrorLogs.push({ record_ID: recID, message: insertedSalesVCData2.message });
+        aErrorLogs.push({ record_ID: recID, message: insertedSalesVCData2.message , process_code: sProcessCode});
         aFailedRecordIDs.push(recID);
         const idx = aPassedRecordIDs.indexOf(recID);
         if (idx !== -1) aPassedRecordIDs.splice(idx, 1);
@@ -3625,7 +3643,7 @@ Z38:{target:'CUST_COMMODITY_CODE2',vc:2},    // SERVICE DATE - FOR SDI IBM
           if (!aRecordsForProcessing[i].personnelNoSAP) {
             aErrorLogs.push({
               record_ID: aRecordsForProcessing[i].ID,
-              message: cds.i18n.messages.at('ERR_EMP_NUMBER_MISSING'),
+              message: cds.i18n.messages.at('ERR_EMP_NUMBER_MISSING'), process_code: sProcessCode
             });
             aFailedRecordIDs.push(aRecordsForProcessing[i].ID);
             continue; // Skip this record
@@ -3657,7 +3675,7 @@ Z38:{target:'CUST_COMMODITY_CODE2',vc:2},    // SERVICE DATE - FOR SDI IBM
           } else {
             aErrorLogs.push({
               record_ID: aRecordsForProcessing[i].ID,
-              message: `${insertedProject.message}`,
+              message: `${insertedProject.message}`, process_code: sProcessCode
             });
             aFailedRecordIDs.push(aRecordsForProcessing[i].ID);
             LOG.error(
@@ -3681,7 +3699,7 @@ Z38:{target:'CUST_COMMODITY_CODE2',vc:2},    // SERVICE DATE - FOR SDI IBM
         if (updatedProject.message) {
           aErrorLogs.push({
             record_ID: aRecordsForProcessing[i].ID,
-            message: `${updatedProject.message}`,
+            message: `${updatedProject.message}`, process_code: sProcessCode
           });
           aFailedRecordIDs.push(aRecordsForProcessing[i].ID);
           LOG.error(
@@ -3690,7 +3708,7 @@ Z38:{target:'CUST_COMMODITY_CODE2',vc:2},    // SERVICE DATE - FOR SDI IBM
         } else if (releaseProject.message) {
           aErrorLogs.push({
             record_ID: aRecordsForProcessing[i].ID,
-            message: `${releaseProject.message}`,
+            message: `${releaseProject.message}`, process_code: sProcessCode
           });
           aFailedRecordIDs.push(aRecordsForProcessing[i].ID);
           LOG.error(
@@ -3865,7 +3883,7 @@ Z38:{target:'CUST_COMMODITY_CODE2',vc:2},    // SERVICE DATE - FOR SDI IBM
       } else {
         aErrorLogs.push({
           record_ID: aRecordsForProcessing[i].ID,
-          message: `${CustomerInfo.message}`,
+          message: `${CustomerInfo.message}`, process_code: sProcessCode
         });
         aFailedRecordIDs.push(aRecordsForProcessing[i].ID);
         LOG.error(
@@ -4584,7 +4602,7 @@ Z38:{target:'CUST_COMMODITY_CODE2',vc:2},    // SERVICE DATE - FOR SDI IBM
 
           aErrorLogs.push({
             record_ID: rec.ID,
-            message: errorMessage.trim(),
+            message: errorMessage.trim(),process_code: sProcessCode
           });
           aFailedRecordIDs.push(rec.ID);
 
@@ -4593,7 +4611,7 @@ Z38:{target:'CUST_COMMODITY_CODE2',vc:2},    // SERVICE DATE - FOR SDI IBM
       } catch (err) {
         aErrorLogs.push({
           record_ID: rec.ID,
-          message: `Exception in processHrCostDistObj: ${err.message}`,
+          message: `Exception in processHrCostDistObj: ${err.message}`, process_code: sProcessCode,
         });
         aFailedRecordIDs.push(rec.ID);
         this.LOG._error && this.LOG.error(`Exception processing record ID ${rec.ID}: ${err.message}`);

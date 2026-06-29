@@ -911,7 +911,7 @@ async validateRecords(sProcessCode, bBreakExecution) {
             if (!record.woType || !['SC', 'MS', 'IC', 'CP'].includes(record.woType)) {
                 const msg = cds.i18n.messages.at('ERR_SALES_DOCUMENT_TYPE');
                 LOG.error(`   ERR_SALES_DOCUMENT_TYPE: ${msg}`);
-                aErrors.push({ record_ID: record.ID, message: msg });
+                aErrors.push({ record_ID: record.ID, message: msg , process_code: sProcessCode});
                 aFailedRecordIDs.push(record.ID);
                 aErrorLogs.push(...aErrors);
                 continue;
@@ -926,7 +926,7 @@ async validateRecords(sProcessCode, bBreakExecution) {
                     if (!['CP', 'CR'].includes(so.DistributionChannel)) {
                         const msg = cds.i18n.messages.at('ERR_SALES_ORDER_PAYROLL');
                         LOG.error(`     ERR_SALES_ORDER_PAYROLL: ${msg}`);
-                        aErrors.push({ record_ID: record.ID, message: msg });
+                        aErrors.push({ record_ID: record.ID, message: msg, process_code: sProcessCode });
                         aFailedRecordIDs.push(record.ID);
                         aErrorLogs.push(...aErrors);
                         continue;
@@ -971,7 +971,7 @@ async validateRecords(sProcessCode, bBreakExecution) {
             if (!oSalesOrder) {
                 const msg = cds.i18n.messages.at('ERR_SALES_ORDER_NOT_EXIST');
                 LOG.error(`   ERR_SALES_ORDER_NOT_EXIST: ${msg}`);
-                aErrors.push({ record_ID: record.ID, message: msg });
+                aErrors.push({ record_ID: record.ID, message: msg, process_code: sProcessCode });
                 aFailedRecordIDs.push(record.ID);
                 aErrorLogs.push(...aErrors);
                 continue;
@@ -1008,7 +1008,7 @@ async validateRecords(sProcessCode, bBreakExecution) {
             if (!firstSOItem.WBSElement || firstSOItem.WBSElement !== record.internalOrder) {
                 const msg = cds.i18n.messages.at('ERR_PROJECT_NUMBER_MISSING');
                 LOG.error(`   ERR_PROJECT_NUMBER_MISSING: ${msg} (expected '${record.internalOrder}', got '${firstSOItem.WBSElement}')`);
-                aErrors.push({ record_ID: record.ID, message: msg });
+                aErrors.push({ record_ID: record.ID, message: msg, process_code: sProcessCode });
                 aFailedRecordIDs.push(record.ID);
                 aErrorLogs.push(...aErrors);
                 continue;
@@ -1020,7 +1020,7 @@ async validateRecords(sProcessCode, bBreakExecution) {
                 if (!firstSOItem.YY1_PurchasingDoc_SD_SDI) {
                     const msg = cds.i18n.messages.at('ERR_CREATE_PO');
                     LOG.error(`   ERR_CREATE_PO: ${msg}`);
-                    aErrors.push({ record_ID: record.ID, message: msg });
+                    aErrors.push({ record_ID: record.ID, message: msg, process_code: sProcessCode });
                     aFailedRecordIDs.push(record.ID);
                     aErrorLogs.push(...aErrors);
                     continue;
@@ -1044,7 +1044,7 @@ async validateRecords(sProcessCode, bBreakExecution) {
             if (record.wnInvoiceNo === oSalesOrder.YY1_WNInvoice_SD_SDI) {
                 const msg = cds.i18n.messages.at('ERR_DUPLICATE_LINES');
                 LOG.error(`   ERR_DUPLICATE_LINES: ${msg}`);
-                aErrorLogs.push({ record_ID: record.ID, message: msg });
+                aErrorLogs.push({ record_ID: record.ID, message: msg, process_code: sProcessCode });
                 aFailedRecordIDs.push(record.ID);
                 continue;
             }
@@ -1147,11 +1147,11 @@ async validateRecords(sProcessCode, bBreakExecution) {
                     LOG.error(`     Error for payload[${i}] → record ID=${recID}:`, res.reason);
                     aFailedRecordIDs.push(recID);
                     if (Array.isArray(res.reason)) {
-                        res.reason.forEach(err => aErrorLogs.push({ record_ID: recID, ...err }));
+                        res.reason.forEach(err => aErrorLogs.push({ record_ID: recID, ...err, process_code: sProcessCode }));
                     } else {
                         aErrorLogs.push({
                             record_ID: recID,
-                            message: cds.i18n.messages.at('ERR_SALES_ORDER_ITEM_CREATION_FAILED', [res.reason])
+                            message: cds.i18n.messages.at('ERR_SALES_ORDER_ITEM_CREATION_FAILED', [res.reason]), process_code: sProcessCode
                         });
                     }
                     mPayloadMap.delete(recID);
@@ -1236,11 +1236,11 @@ async validateRecords(sProcessCode, bBreakExecution) {
                 }
                 if (inserted1?.message) {
                     LOG.error(`     VC1 error message: ${inserted1.message}`);
-                    aErrorLogs.push({ record_ID: record.ID, message: inserted1.message });
+                    aErrorLogs.push({ record_ID: record.ID, message: inserted1.message, process_code: sProcessCode });
                 }
                 if (inserted2?.message) {
                     LOG.error(`     VC2 error message: ${inserted2.message}`);
-                    aErrorLogs.push({ record_ID: record.ID, message: inserted2.message });
+                    aErrorLogs.push({ record_ID: record.ID, message: inserted2.message, process_code: sProcessCode });
                 }
                 if (inserted1?.message || inserted2?.message) {
                     aFailedRecordIDs.push(record.ID);
@@ -1373,7 +1373,7 @@ async validateRecords(sProcessCode, bBreakExecution) {
             if (!VAR_VBELN_SO) {
                 aErrorLogs.push({
                     record_ID: rec.ID,
-                    message: 'IC Sales order not found'
+                    message: 'IC Sales order not found', process_code: sProcessCode
                 });
                 aFailedRecordIDs.push(rec.ID);
                 LOG.error('3.1 → VAR_VBELN_SO blank → fail');
@@ -1398,7 +1398,7 @@ async validateRecords(sProcessCode, bBreakExecution) {
             if (!hdr) {
                 aErrorLogs.push({
                     record_ID: rec.ID,
-                    message: 'IC SO header not found'
+                    message: 'IC SO header not found', process_code: sProcessCode
                 });
                 aFailedRecordIDs.push(rec.ID);
                 LOG.error('3.1.3 → header missing → fail');
@@ -1407,7 +1407,7 @@ async validateRecords(sProcessCode, bBreakExecution) {
             if (hdr.DistributionChannel !== 'IC') {
                 aErrorLogs.push({
                     record_ID: rec.ID,
-                    message: 'IC SO has wrong distribution channel'
+                    message: 'IC SO has wrong distribution channel', process_code: sProcessCode
                 });
                 aFailedRecordIDs.push(rec.ID);
                 LOG.error(`3.1.3 → DistChannel='${hdr.DistributionChannel}' ≠ IC → fail`);
@@ -1499,7 +1499,7 @@ async validateRecords(sProcessCode, bBreakExecution) {
             if (!zdum) {
                 aErrorLogs.push({
                     record_ID: rec.ID,
-                    message: 'ZDUM item missing'
+                    message: 'ZDUM item missing', process_code: sProcessCode
                 });
                 aFailedRecordIDs.push(rec.ID);
                 LOG.error('3.1.7 → ZDUM missing → fail');
@@ -1561,7 +1561,7 @@ async validateRecords(sProcessCode, bBreakExecution) {
             if (dupErr) {
                 aErrorLogs.push({
                     record_ID: rec.ID,
-                    message: dupErr
+                    message: dupErr, process_code: sProcessCode
                 });
                 aFailedRecordIDs.push(rec.ID);
                 LOG.error(`3.1.11 → duplicate → ${dupErr}`);
@@ -1656,7 +1656,7 @@ async validateRecords(sProcessCode, bBreakExecution) {
             } catch (e) {
                 aErrorLogs.push({
                     record_ID: rec.ID,
-                    message: `IC line change failed: ${e.message}`
+                    message: `IC line change failed: ${e.message}`, process_code: sProcessCode
                 });
                 aFailedRecordIDs.push(rec.ID);
                 LOG.error(`3.1.12 → error on change: ${e.message}`);
@@ -1675,7 +1675,7 @@ async validateRecords(sProcessCode, bBreakExecution) {
             } else {
                 aErrorLogs.push({
                     record_ID: rec.ID,
-                    message: res[0].reason
+                    message: res[0].reason, process_code: sProcessCode
                 });
                 aFailedRecordIDs.push(rec.ID);
                 LOG.error(`3.1.13 → API reported error: ${JSON.stringify(res[0].reason)}`);

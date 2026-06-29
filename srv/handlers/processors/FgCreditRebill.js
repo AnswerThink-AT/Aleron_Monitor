@@ -241,7 +241,7 @@ class FgCreditRebill extends Processor {
                     const errorMsg = 'Original FG Invoice ID is Missing';
                     aErrorLogs.push({
                         record_ID: record.ID,
-                        message: errorMsg
+                        message: errorMsg,process_code: sProcessCode
                     });
                     aFailedRecordIDs.push(record.ID);
                     hasRecordFailed = true;
@@ -300,7 +300,7 @@ class FgCreditRebill extends Processor {
                                 if (existingCreditInvoiceResult && existingCreditInvoiceResult.length > 0) {
                                     aErrorLogs.push({
                                         record_ID: record.ID,
-                                        message: 'Credit Invoice already exist.'
+                                        message: 'Credit Invoice already exist.',process_code: sProcessCode
                                     });
                                     aFailedRecordIDs.push(record.ID);
                                     hasRecordFailed = true;
@@ -347,7 +347,7 @@ class FgCreditRebill extends Processor {
                                             const errorMsg = 'MBEWBE Expense. Please credit manually.';
                                             aErrorLogs.push({
                                                 record_ID: record.ID,
-                                                message: errorMsg
+                                                message: errorMsg,process_code: sProcessCode
                                             });
                                             aFailedRecordIDs.push(record.ID);
                                             hasRecordFailed = true;
@@ -358,7 +358,7 @@ class FgCreditRebill extends Processor {
                                                 const errorMsg = `SO ${record.salesDocumentNoSAP} Line item ${record.salesItemNoSAP} already rejected.`;
                                                 aErrorLogs.push({
                                                     record_ID: record.ID,
-                                                    message: errorMsg
+                                                    message: errorMsg, process_code: sProcessCode
                                                 });
                                                 aFailedRecordIDs.push(record.ID);
                                                 hasRecordFailed = true;
@@ -381,7 +381,7 @@ class FgCreditRebill extends Processor {
                                                 const errorMsg = `Invoice ID ${record.fgInvoiceOrgID} is already invalidated once.`;
                                                 aErrorLogs.push({
                                                     record_ID: record.ID,
-                                                    message: errorMsg
+                                                    message: errorMsg,process_code: sProcessCode
                                                 });
                                                 aFailedRecordIDs.push(record.ID);
                                                 hasRecordFailed = true;
@@ -418,7 +418,7 @@ class FgCreditRebill extends Processor {
                                         const errorMsg = `WN Invoice number ${record.fgInvoiceOrgID} does not exist in SO ${record.salesDocumentNoSAP}. Possible Legacy Invoice`;
                                         aErrorLogs.push({
                                             record_ID: record.ID,
-                                            message: errorMsg
+                                            message: errorMsg, process_code: sProcessCode
                                         });
                                         aFailedRecordIDs.push(record.ID);
                                         hasRecordFailed = true;
@@ -428,7 +428,7 @@ class FgCreditRebill extends Processor {
                                     hasRecordFailed = true;
                                     aErrorLogs.push({
                                         record_ID: record.ID,
-                                        message: `Error querying order details: ${error.message}`
+                                        message: `Error querying order details: ${error.message}`, process_code: sProcessCode
                                     });
                                     aFailedRecordIDs.push(record.ID);
                                 }
@@ -516,7 +516,7 @@ class FgCreditRebill extends Processor {
                                                 const errorMsg = 'More than two remit to vendor found.';
                                                 aErrorLogs.push({
                                                     record_ID: record.ID,
-                                                    message: errorMsg
+                                                    message: errorMsg, process_code: sProcessCode
                                                 });
                                                 aFailedRecordIDs.push(record.ID);
                                                 hasRecordFailed = true;
@@ -531,7 +531,7 @@ class FgCreditRebill extends Processor {
                                                     const errorMsg = `SO ${record.salesOrderICSAP} Line item ${record.salesItemNoICSAP} already rejected.`;
                                                     aErrorLogs.push({
                                                         record_ID: record.ID,
-                                                        message: errorMsg
+                                                        message: errorMsg, process_code: sProcessCode
                                                     });
                                                     aFailedRecordIDs.push(record.ID);
                                                     hasRecordFailed = true;
@@ -556,14 +556,14 @@ class FgCreditRebill extends Processor {
                                                     record.salesItemNoICSAP = icSalesOrderItem;
                                                 } else {
                                                     const errorMsg = `CP/CR WO for IC WO (${record.fgWorkOrderID}) is not loaded in SAP.`;
-                                                    aErrorLogs.push({ record_ID: record.ID, message: errorMsg });
+                                                    aErrorLogs.push({ record_ID: record.ID, message: errorMsg, process_code: sProcessCode });
                                                     aFailedRecordIDs.push(record.ID);
                                                     hasRecordFailed = true;
                                                 }
                                             }
                                         } else {
                                             const errorMsg = `Original IC Invoice ID ${originalInvoiceIdIC} not found in any Sales Order Item.`;
-                                            aErrorLogs.push({ record_ID: record.ID, message: errorMsg });
+                                            aErrorLogs.push({ record_ID: record.ID, message: errorMsg, process_code: sProcessCode });
                                             aFailedRecordIDs.push(record.ID);
                                             hasRecordFailed = true;
                                         }
@@ -572,7 +572,7 @@ class FgCreditRebill extends Processor {
                                         hasRecordFailed = true;
                                         aErrorLogs.push({
                                             record_ID: record.ID,
-                                            message: `Error querying Intercompany Sales Order: ${error.message}`
+                                            message: `Error querying Intercompany Sales Order: ${error.message}`, process_code: sProcessCode
                                         });
                                         aFailedRecordIDs.push(record.ID);
                                     }
@@ -583,7 +583,7 @@ class FgCreditRebill extends Processor {
                             const errorMsg = `WorkOrder_ID ${record.fgWorkOrderID} not loaded to SAP`;
                             aErrorLogs.push({
                                 record_ID: record.ID,
-                                message: errorMsg
+                                message: errorMsg, process_code: sProcessCode
                             });
                             aFailedRecordIDs.push(record.ID);
                             hasRecordFailed = true;
@@ -593,7 +593,7 @@ class FgCreditRebill extends Processor {
                         hasRecordFailed = true;
                         aErrorLogs.push({
                             record_ID: record.ID,
-                            message: `Error querying Sales Order: ${error.message}`
+                            message: `Error querying Sales Order: ${error.message}`, process_code: sProcessCode
                         });
                         aFailedRecordIDs.push(record.ID);
                     }
@@ -803,7 +803,7 @@ class FgCreditRebill extends Processor {
                             uniqueGroupMessages.forEach(message => {
                                 additionalErrorLogs.push({
                                     record_ID: record.ID,
-                                    message
+                                    message, process_code: sProcessCode
                                 });
                             });
                         }
@@ -816,6 +816,7 @@ class FgCreditRebill extends Processor {
                     aErrorLogs.map(log => `${log.record_ID}|${log.message}`)
                 );
                 for (const logEntry of additionalErrorLogs) {
+
                     const key = `${logEntry.record_ID}|${logEntry.message}`;
                     if (!existingLogKeys.has(key)) {
                         aErrorLogs.push(logEntry);
@@ -952,7 +953,7 @@ class FgCreditRebill extends Processor {
                             for (const record of recordsInGroup) {
                                 aErrorLogs.push({
                                     record_ID: record.ID,
-                                    message: `Error rejecting sales order item: ${patchResult.error}`
+                                    message: `Error rejecting sales order item: ${patchResult.error}`, process_code: sProcessCode
                                 });
                                 aFailedRecordIDs.push(record.ID);
                             }
@@ -963,7 +964,7 @@ class FgCreditRebill extends Processor {
                     for (const record of recordsInGroup) {
                         aErrorLogs.push({
                             record_ID: record.ID,
-                            message: `Error rejecting sales order: ${err.message}`
+                            message: `Error rejecting sales order: ${err.message}`,process_code: sProcessCode
                         });
                         aFailedRecordIDs.push(record.ID);
                     }
@@ -1020,7 +1021,7 @@ class FgCreditRebill extends Processor {
                     aFailedRecordIDs.push(recordID);
                     aErrorLogs.push({
                         record_ID: recordID,
-                        message: `Database update failed: ${updateError.message}`
+                        message: `Database update failed: ${updateError.message}`, process_code: sProcessCode
                     });
                 }
                 // Clear the passed records since update failed
@@ -1080,7 +1081,7 @@ class FgCreditRebill extends Processor {
                 } catch (err) {
                     aErrorLogs.push({
                         record_ID: record.ID,
-                        message: `Error rejecting intercompany sales order: ${err.message}`
+                        message: `Error rejecting intercompany sales order: ${err.message}`,process_code: sProcessCode
                     });
                     aFailedRecordIDs.push(record.ID);
                 }
@@ -1223,7 +1224,8 @@ class FgCreditRebill extends Processor {
                         for (const record of recordsInGroup) {
                             aErrorLogs.push({
                                 record_ID: record.ID,
-                                message: `No supplier invoice found for purchase order ${representativeRecord.purchaseDocumentNoSAP} and item ${representativeRecord.purchaseDocumentItemSAP}`
+                                message: `No supplier invoice found for purchase order ${representativeRecord.purchaseDocumentNoSAP} and item ${representativeRecord.purchaseDocumentItemSAP}`,
+                                process_code: sProcessCode
                             });
                             aFailedRecordIDs.push(record.ID);
                         }
@@ -1263,7 +1265,7 @@ class FgCreditRebill extends Processor {
                         for (const record of recordsInGroup) {
                             aErrorLogs.push({
                                 record_ID: record.ID,
-                                message: `Error canceling MIRO: ${cancelResult.message}`
+                                message: `Error canceling MIRO: ${cancelResult.message}`, process_code: sProcessCode
                             });
                             aFailedRecordIDs.push(record.ID);
                         }
@@ -1273,7 +1275,7 @@ class FgCreditRebill extends Processor {
                     for (const record of recordsInGroup) {
                         aErrorLogs.push({
                             record_ID: record.ID,
-                            message: `Error canceling MIRO: ${err.message}`
+                            message: `Error canceling MIRO: ${err.message}`, process_code: sProcessCode
                         });
                         aFailedRecordIDs.push(record.ID);
                     }
@@ -1405,6 +1407,7 @@ class FgCreditRebill extends Processor {
                         for (const record of recordsInGroup) {
                             aErrorLogs.push({
                                 record_ID: record.ID,
+                                process_code: sProcessCode,
                                 message: `Purchase order details not found in record for invoice ${representativeRecord.fgInvoiceOrgID}`
                             });
                             aFailedRecordIDs.push(record.ID);
@@ -1430,7 +1433,7 @@ class FgCreditRebill extends Processor {
                         for (const record of recordsInGroup) {
                             aErrorLogs.push({
                                 record_ID: record.ID,
-                                message: `Error marking purchase order item for deletion: ${updateResult.message}`
+                                message: `Error marking purchase order item for deletion: ${updateResult.message}`,process_code: sProcessCode
                             });
                             aFailedRecordIDs.push(record.ID);
                         }
@@ -1440,7 +1443,7 @@ class FgCreditRebill extends Processor {
                     for (const record of recordsInGroup) {
                         aErrorLogs.push({
                             record_ID: record.ID,
-                            message: `Error canceling purchase order: ${err.message}`
+                            message: `Error canceling purchase order: ${err.message}`, process_code: sProcessCode
                         });
                         aFailedRecordIDs.push(record.ID);
                     }
@@ -1571,7 +1574,7 @@ class FgCreditRebill extends Processor {
                         for (const record of recordsInGroup) {
                             aErrorLogs.push({
                                 record_ID: record.ID,
-                                message: 'SO missing.'
+                                message: 'SO missing.',process_code: sProcessCode
                             });
                             aFailedRecordIDs.push(record.ID);
                         }
@@ -1583,7 +1586,7 @@ class FgCreditRebill extends Processor {
                         for (const record of recordsInGroup) {
                             aErrorLogs.push({
                                 record_ID: record.ID,
-                                message: 'WN Invoice Number is missing.'
+                                message: 'WN Invoice Number is missing.', process_code: sProcessCode
                             });
                             aFailedRecordIDs.push(record.ID);
                         }
@@ -1602,7 +1605,7 @@ class FgCreditRebill extends Processor {
                         for (const record of recordsInGroup) {
                             aErrorLogs.push({
                                 record_ID: record.ID,
-                                message: `No sales order item found for invoice ${representativeRecord.wnInvoiceNo}`
+                                message: `No sales order item found for invoice ${representativeRecord.wnInvoiceNo}`, process_code: sProcessCode
                             });
                             aFailedRecordIDs.push(record.ID);
                         }
@@ -1627,7 +1630,7 @@ class FgCreditRebill extends Processor {
                         for (const record of recordsInGroup) {
                             aErrorLogs.push({
                                 record_ID: record.ID,
-                                message: `No sales order found for ${VAR_VBELN}`
+                                message: `No sales order found for ${VAR_VBELN}`,process_code: sProcessCode
                             });
                             aFailedRecordIDs.push(record.ID);
                         }
@@ -1654,7 +1657,7 @@ class FgCreditRebill extends Processor {
                         for (const record of recordsInGroup) {
                             aErrorLogs.push({
                                 record_ID: record.ID,
-                                message: 'Credit WN inv # cannot exceed 15 chars. Process entry manually.'
+                                message: 'Credit WN inv # cannot exceed 15 chars. Process entry manually.', process_code: sProcessCode
                             });
                             aFailedRecordIDs.push(record.ID);
                         }
@@ -1670,7 +1673,7 @@ class FgCreditRebill extends Processor {
                     for (const record of recordsInGroup) {
                         aErrorLogs.push({
                             record_ID: record.ID,
-                            message: `Error creating credit memo: ${err.message}`
+                            message: `Error creating credit memo: ${err.message}`, process_code: sProcessCode
                         });
                         aFailedRecordIDs.push(record.ID);
                     }
@@ -1766,7 +1769,7 @@ class FgCreditRebill extends Processor {
             } catch (err) {
                 aErrorLogs.push({
                     record_ID: record.ID,
-                    message: `Error creating intercompany credit memo: ${err.message}`
+                    message: `Error creating intercompany credit memo: ${err.message}`, process_code: sProcessCode
                 });
                 aFailedRecordIDs.push(record.ID);
             }
@@ -1890,6 +1893,7 @@ class FgCreditRebill extends Processor {
                         for (const record of recordsInGroup) {
                             aErrorLogs.push({
                                 record_ID: record.ID,
+                                process_code: sProcessCode,
                                 message: `No supplier invoice found for purchase order ${record.purchaseDocumentNoSAP} and item ${record.purchaseDocumentItemSAP}`
                             });
                             aFailedRecordIDs.push(record.ID);
@@ -1946,7 +1950,8 @@ class FgCreditRebill extends Processor {
                         for (const record of recordsInGroup) {
                             aErrorLogs.push({
                                 record_ID: record.ID,
-                                message: `No details found for supplier invoice ${supplierInvoice}`
+                                message: `No details found for supplier invoice ${supplierInvoice}`,
+                                process_code: sProcessCode
                             });
                             aFailedRecordIDs.push(record.ID);
                         }
@@ -1998,7 +2003,8 @@ class FgCreditRebill extends Processor {
                         for (const record of recordsInGroup) {
                             aErrorLogs.push({
                                 record_ID: record.ID,
-                                message: `Error creating credit MIRO: ${createResult.message}`
+                                message: `Error creating credit MIRO: ${createResult.message}`,
+                                process_code: sProcessCode
                             });
                             aFailedRecordIDs.push(record.ID);
                         }
@@ -2008,7 +2014,7 @@ class FgCreditRebill extends Processor {
                     for (const record of recordsInGroup) {
                         aErrorLogs.push({
                             record_ID: record.ID,
-                            message: `Error creating credit MIRO: ${err.message}`
+                            message: `Error creating credit MIRO: ${err.message}`,process_code: sProcessCode
                         });
                         aFailedRecordIDs.push(record.ID);
                     }
@@ -2148,7 +2154,7 @@ class FgCreditRebill extends Processor {
                         for (const record of recordsInGroup) {
                             aErrorLogs.push({
                                 record_ID: record.ID,
-                                message: `Sales Order ${VAR_SO} not found`
+                                message: `Sales Order ${VAR_SO} not found`, process_code: sProcessCode
                             });
                             aFailedRecordIDs.push(record.ID);
                         }
@@ -2169,7 +2175,7 @@ class FgCreditRebill extends Processor {
                         for (const record of recordsInGroup) {
                             aErrorLogs.push({
                                 record_ID: record.ID,
-                                message: `Customer ${customerNumber} not found`
+                                message: `Customer ${customerNumber} not found`, process_code: sProcessCode
                             });
                             aFailedRecordIDs.push(record.ID);
                         }
@@ -2206,6 +2212,7 @@ class FgCreditRebill extends Processor {
                                     for (const record of recordsInGroup) {
                                         aErrorLogs.push({
                                             record_ID: record.ID,
+                                            process_code: sProcessCode,
                                             message: `Failed to remove employee partner function: ${deleteEmployeeResult?.[0]?.reason || 'Unknown error'}`
                                         });
                                         aFailedRecordIDs.push(record.ID);
@@ -2217,6 +2224,7 @@ class FgCreditRebill extends Processor {
                                 for (const record of recordsInGroup) {
                                     aErrorLogs.push({
                                         record_ID: record.ID,
+                                        process_code: sProcessCode,
                                         message: `Error removing employee partner function: ${deleteErr.message}`
                                     });
                                     aFailedRecordIDs.push(record.ID);
@@ -2253,6 +2261,7 @@ class FgCreditRebill extends Processor {
                                             for (const record of recordsInGroup) {
                                                 aErrorLogs.push({
                                                     record_ID: record.ID,
+                                                    process_code: sProcessCode,
                                                     message: `Failed to remove vendor partner function: ${deletePartnerResult?.[0]?.reason || 'Unknown error'}`
                                                 });
                                                 aFailedRecordIDs.push(record.ID);
@@ -2264,6 +2273,7 @@ class FgCreditRebill extends Processor {
                                         for (const record of recordsInGroup) {
                                             aErrorLogs.push({
                                                 record_ID: record.ID,
+                                                process_code: sProcessCode,
                                                 message: `Error removing vendor partner function: ${deleteErr.message}`
                                             });
                                             aFailedRecordIDs.push(record.ID);
@@ -2314,7 +2324,8 @@ class FgCreditRebill extends Processor {
                     for (const record of recordsInGroup) {
                         aErrorLogs.push({
                             record_ID: record.ID,
-                            message: `Error in DeletePF: ${err.message}`
+                            message: `Error in DeletePF: ${err.message}`,
+                            process_code: sProcessCode
                         });
                         aFailedRecordIDs.push(record.ID);
                     }

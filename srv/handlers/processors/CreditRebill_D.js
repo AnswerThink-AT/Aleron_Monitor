@@ -292,7 +292,9 @@ class CreditFG extends Processor {
                 oRecord: record
             });
             if (oFieldValidationRes.hasError) {
+                
                 aErrorLogs.push(...oFieldValidationRes.errors);
+                aErrorLogs = aErrorLogs.map(err => ({ ...err, process_code: sProcessCode }));
                 aFailedRecordIDs.push(record.ID);
                 hasRecordFailed = true;
             }
@@ -308,7 +310,7 @@ class CreditFG extends Processor {
                     if (creditMemoRequestItemResult && creditMemoRequestItemResult.length > 0) {
                         aErrorLogs.push({
                             record_ID: record.ID,
-                            message: `Credit memo request item already exists for WN Invoice ${record.wnInvoiceNo}`
+                            message: `Credit memo request item already exists for WN Invoice ${record.wnInvoiceNo}`, process_code: sProcessCode
                         });
                         aFailedRecordIDs.push(record.ID);
                         hasRecordFailed = true;
@@ -347,7 +349,7 @@ class CreditFG extends Processor {
                 if (!salesOrderHeaderResult || !salesOrderHeaderResult.length) {
                     aErrorLogs.push({
                         record_ID: record.ID,
-                        message: 'Sales Order not found.'
+                        message: 'Sales Order not found.', process_code: sProcessCode
                     });
                     aFailedRecordIDs.push(record.ID);
                     hasRecordFailed = true;
@@ -357,7 +359,7 @@ class CreditFG extends Processor {
                     if (salesOrderHeader.DistributionChannel !== record.woType) {
                         aErrorLogs.push({
                             record_ID: record.ID,
-                            message: 'ZWOTYPE does not match with the WO Type in SAP.'
+                            message: 'ZWOTYPE does not match with the WO Type in SAP.', process_code: sProcessCode
                         });
                         aFailedRecordIDs.push(record.ID);
                         hasRecordFailed = true;
@@ -383,7 +385,7 @@ class CreditFG extends Processor {
                         if (!salesOrderItemResult || !salesOrderItemResult.length) {
                             aErrorLogs.push({
                                 record_ID: record.ID,
-                                message: 'Sales Order Item not found.'
+                                message: 'Sales Order Item not found.', process_code: sProcessCode
                             });
                             aFailedRecordIDs.push(record.ID);
                             hasRecordFailed = true;
@@ -421,7 +423,7 @@ class CreditFG extends Processor {
                                 if (existingCreditInvoice) {
                                     aErrorLogs.push({
                                         record_ID: record.ID,
-                                        message: 'Credit Invoice already exists.'
+                                        message: 'Credit Invoice already exists.', process_code: sProcessCode
                                     });
                                     aFailedRecordIDs.push(record.ID);
                                     hasRecordFailed = true;
@@ -465,7 +467,7 @@ class CreditFG extends Processor {
                                         if (correspondingHeader.CustomerPriceGroup === 'ZM' && matchingInvoice?.Material === 'EXPENSE') {
                                             aErrorLogs.push({
                                                 record_ID: record.ID,
-                                                message: 'MBEWBE Expense. Please credit manually.'
+                                                message: 'MBEWBE Expense. Please credit manually.', process_code: sProcessCode
                                             });
                                             aFailedRecordIDs.push(record.ID);
                                             hasRecordFailed = true;
@@ -492,7 +494,7 @@ class CreditFG extends Processor {
                                             if ((zvRecords.length > 0 && zrRecords.length > 0) || zvRecords.length > 1 || zrRecords.length > 1) {
                                                 aErrorLogs.push({
                                                     record_ID: record.ID,
-                                                    message: 'More than two remit to vendor found.'
+                                                    message: 'More than two remit to vendor found.', process_code: sProcessCode
                                                 });
                                                 aFailedRecordIDs.push(record.ID);
                                                 hasRecordFailed = true;
@@ -521,7 +523,7 @@ class CreditFG extends Processor {
                                 } else {
                                     aErrorLogs.push({
                                         record_ID: record.ID,
-                                        message: `WN Invoice number ${record.wnInvoiceNo} does not exist in SO ${salesOrderHeader.SalesOrder} or in legacy invoices.`
+                                        message: `WN Invoice number ${record.wnInvoiceNo} does not exist in SO ${salesOrderHeader.SalesOrder} or in legacy invoices.`, process_code: sProcessCode
                                     });
                                     aFailedRecordIDs.push(record.ID);
                                     hasRecordFailed = true;
@@ -540,7 +542,7 @@ class CreditFG extends Processor {
                                     matchingInvoice.SalesDocumentRjcnReason.trim() !== '') {
                                     aErrorLogs.push({
                                         record_ID: record.ID,
-                                        message: 'SO & Line item already rejected.'
+                                        message: 'SO & Line item already rejected.', process_code: sProcessCode
                                     });
                                     aFailedRecordIDs.push(record.ID);
                                     hasRecordFailed = true;
@@ -553,7 +555,7 @@ class CreditFG extends Processor {
                                     if (correspondingHeader.CustomerPriceGroup === 'ZM' && matchingInvoice.Material === 'EXPENSE') {
                                         aErrorLogs.push({
                                             record_ID: record.ID,
-                                            message: 'MBEWBE Expense. Please credit manually.'
+                                            message: 'MBEWBE Expense. Please credit manually.', process_code: sProcessCode
                                         });
                                         aFailedRecordIDs.push(record.ID);
                                         hasRecordFailed = true;
@@ -581,7 +583,7 @@ class CreditFG extends Processor {
                                         if ((zvRecords.length > 0 && zrRecords.length > 0) || zvRecords.length > 1 || zrRecords.length > 1) {
                                             aErrorLogs.push({
                                                 record_ID: record.ID,
-                                                message: 'More than two remit to vendor found.'
+                                                message: 'More than two remit to vendor found.', process_code: sProcessCode
                                             });
                                             aFailedRecordIDs.push(record.ID);
                                             hasRecordFailed = true;
@@ -611,7 +613,7 @@ class CreditFG extends Processor {
                                 if (!hasRecordFailed && record.invoiceNoWNSAP && record.invoiceNoWNSAP.length > 15) {
                                     aErrorLogs.push({
                                         record_ID: record.ID,
-                                        message: 'Credit WN inv # cannot exceed 15 chars. Process entry manually.'
+                                        message: 'Credit WN inv # cannot exceed 15 chars. Process entry manually.', process_code: sProcessCode
                                     });
                                     aFailedRecordIDs.push(record.ID);
                                     hasRecordFailed = true;
@@ -675,7 +677,7 @@ class CreditFG extends Processor {
                 if (!salesOrderItemResult || !salesOrderItemResult.length) {
                     aErrorLogs.push({
                         record_ID: record.ID,
-                        message: `No sales order found for work order ${record.wnWorkOrderNo}`
+                        message: `No sales order found for work order ${record.wnWorkOrderNo}`, process_code: sProcessCode
                     });
                     aFailedRecordIDs.push(record.ID);
                     hasRecordFailed = true;
@@ -692,7 +694,7 @@ class CreditFG extends Processor {
                     if (!salesOrderHeaderResult || !salesOrderHeaderResult.length) {
                         aErrorLogs.push({
                             record_ID: record.ID,
-                            message: `No sales order header found for sales order ${salesOrder}`
+                            message: `No sales order header found for sales order ${salesOrder}`, process_code: sProcessCode
                         });
                         aFailedRecordIDs.push(record.ID);
                         hasRecordFailed = true;
@@ -721,7 +723,7 @@ class CreditFG extends Processor {
                     if (!salesOrderHeaderDetails || !salesOrderHeaderDetails.length) {
                         aErrorLogs.push({
                             record_ID: record.ID,
-                            message: 'Sales Order not found.'
+                            message: 'Sales Order not found.', process_code: sProcessCode
                         });
                         aFailedRecordIDs.push(record.ID);
                         hasRecordFailed = true;
@@ -761,7 +763,7 @@ class CreditFG extends Processor {
                         if (!salesOrderItemDetails || !salesOrderItemDetails.length) {
                             aErrorLogs.push({
                                 record_ID: record.ID,
-                                message: 'Sales Order Item not found.'
+                                message: 'Sales Order Item not found.', process_code: sProcessCode
                             });
                             aFailedRecordIDs.push(record.ID);
                             hasRecordFailed = true;
@@ -802,7 +804,7 @@ class CreditFG extends Processor {
                                 if (existingCreditInvoice) {
                                     aErrorLogs.push({
                                         record_ID: record.ID,
-                                        message: 'Credit Invoice already exists.'
+                                        message: 'Credit Invoice already exists.', process_code: sProcessCode
                                     });
                                     aFailedRecordIDs.push(record.ID);
                                     hasRecordFailed = true;
@@ -830,7 +832,7 @@ class CreditFG extends Processor {
                             if (!invoiceEntry) {
                                 aErrorLogs.push({
                                     record_ID: record.ID,
-                                    message: `No invoice found for WN Invoice Number ${record.wnInvoiceNo}`
+                                    message: `No invoice found for WN Invoice Number ${record.wnInvoiceNo}`, process_code: sProcessCode
                                 });
                                 aFailedRecordIDs.push(record.ID);
                                 hasRecordFailed = true;
@@ -841,7 +843,7 @@ class CreditFG extends Processor {
                                     invoiceEntry.SalesDocumentRjcnReason.trim() !== '') {
                                     aErrorLogs.push({
                                         record_ID: record.ID,
-                                        message: 'SO & Line item already rejected.'
+                                        message: 'SO & Line item already rejected.', process_code: sProcessCode
                                     });
                                     aFailedRecordIDs.push(record.ID);
                                     hasRecordFailed = true;
@@ -861,7 +863,7 @@ class CreditFG extends Processor {
                                         invoiceEntry.Material === 'EXPENSE') {
                                         aErrorLogs.push({
                                             record_ID: record.ID,
-                                            message: 'MBEWBE Expense. Please credit manually.'
+                                            message: 'MBEWBE Expense. Please credit manually.', process_code: sProcessCode
                                         });
                                         aFailedRecordIDs.push(record.ID);
                                         hasRecordFailed = true;
@@ -884,7 +886,7 @@ class CreditFG extends Processor {
                                             if (SAP_WN_INV && SAP_WN_INV.length > 15) {
                                                 aErrorLogs.push({
                                                     record_ID: record.ID,
-                                                    message: 'Credit WN inv # cannot exceed 15 chars. Process entry manually.'
+                                                    message: 'Credit WN inv # cannot exceed 15 chars. Process entry manually.', process_code: sProcessCode
                                                 });
                                                 aFailedRecordIDs.push(record.ID);
                                                 hasRecordFailed = true;
@@ -902,7 +904,7 @@ class CreditFG extends Processor {
                                         if (!salesOrderResult || !salesOrderResult.length) {
                                             aErrorLogs.push({
                                                 record_ID: record.ID,
-                                                message: `No sales order found for alphanumeric sales order ${VAR_SO_IC}`
+                                                message: `No sales order found for alphanumeric sales order ${VAR_SO_IC}`, process_code: sProcessCode
                                             });
                                             aFailedRecordIDs.push(record.ID);
                                             hasRecordFailed = true;
@@ -978,7 +980,7 @@ class CreditFG extends Processor {
                                                     zrEntries.length > 1) {
                                                     aErrorLogs.push({
                                                         record_ID: record.ID,
-                                                        message: 'More than two remit to vendor found.'
+                                                        message: 'More than two remit to vendor found.', process_code: sProcessCode
                                                     });
                                                     aFailedRecordIDs.push(record.ID);
                                                     hasRecordFailed = true;
@@ -1398,14 +1400,14 @@ class CreditFG extends Processor {
                 hasError = true;
                 aErrorLogs.push({
                     record_ID: oRecord.ID,
-                    message: cds.i18n.messages.at('ERR_MANDT_FIELD', [anyField]),
+                    message: cds.i18n.messages.at('ERR_MANDT_FIELD', [anyField]), process_code: sProcessCode
                 });
             }
             if (stBlankFields.has(anyField) && oRecord[anyField]) {
                 hasError = true;
                 aErrorLogs.push({
                     record_ID: oRecord.ID,
-                    message: cds.i18n.messages.at('ERR_BLANK_FIELD', [anyField]),
+                    message: cds.i18n.messages.at('ERR_BLANK_FIELD', [anyField]), process_code: sProcessCode
                 });
             }
         }
@@ -1475,7 +1477,7 @@ class CreditFG extends Processor {
                         } else {
                             aErrorLogs.push({
                                 record_ID: record.ID,
-                                message: `Error rejecting sales order item: ${patchResult.error}`
+                                message: `Error rejecting sales order item: ${patchResult.error}`, process_code: sProcessCode
                             });
                             aFailedRecordIDs.push(record.ID);
                         }
@@ -1486,7 +1488,7 @@ class CreditFG extends Processor {
                 } catch (err) {
                     aErrorLogs.push({
                         record_ID: record.ID,
-                        message: `Error rejecting sales order: ${err.message}`
+                        message: `Error rejecting sales order: ${err.message}`, process_code: sProcessCode
                     });
                     aFailedRecordIDs.push(record.ID);
                 }
@@ -1571,7 +1573,7 @@ class CreditFG extends Processor {
                         } else {
                             aErrorLogs.push({
                                 record_ID: record.ID,
-                                message: `Error rejecting sales order item: ${patchResult.error}`
+                                message: `Error rejecting sales order item: ${patchResult.error}`, process_code: sProcessCode
                             });
                             aFailedRecordIDs.push(record.ID);
                         }
@@ -1580,7 +1582,7 @@ class CreditFG extends Processor {
                 } catch (err) {
                     aErrorLogs.push({
                         record_ID: record.ID,
-                        message: `Error rejecting intercompany sales order: ${err.message}`
+                        message: `Error rejecting intercompany sales order: ${err.message}`, process_code: sProcessCode
                     });
                     aFailedRecordIDs.push(record.ID);
                 }
@@ -1654,7 +1656,7 @@ class CreditFG extends Processor {
                         if (!salesOrderItemResult || !salesOrderItemResult.length) {
                             aErrorLogs.push({
                                 record_ID: record.ID,
-                                message: `No sales order item found for invoice ${record.wnInvoiceNo}`
+                                message: `No sales order item found for invoice ${record.wnInvoiceNo}`, process_code: sProcessCode
                             });
                             aFailedRecordIDs.push(record.ID);
                             continue;
@@ -1678,7 +1680,7 @@ class CreditFG extends Processor {
                         if (!purchaseOrderResult || !purchaseOrderResult.length) {
                             aErrorLogs.push({
                                 record_ID: record.ID,
-                                message: `No purchase order found for sales order ${salesOrder}`
+                                message: `No purchase order found for sales order ${salesOrder}`, process_code: sProcessCode
                             });
                             aFailedRecordIDs.push(record.ID);
                             continue;
@@ -1701,7 +1703,7 @@ class CreditFG extends Processor {
                         if (!supplierInvoiceResult || !supplierInvoiceResult.length) {
                             aErrorLogs.push({
                                 record_ID: record.ID,
-                                message: `No supplier invoice found for purchase order ${purchaseOrder} and item ${salesOrderItem}`
+                                message: `No supplier invoice found for purchase order ${purchaseOrder} and item ${salesOrderItem}`, process_code: sProcessCode
                             });
                             aFailedRecordIDs.push(record.ID);
                             continue;
@@ -1742,7 +1744,7 @@ class CreditFG extends Processor {
                         } else {
                             aErrorLogs.push({
                                 record_ID: record.ID,
-                                message: `Error creating MIRO: ${createResult.message}`
+                                message: `Error creating MIRO: ${createResult.message}`, process_code: sProcessCode
                             });
                             aFailedRecordIDs.push(record.ID);
                         }
@@ -1753,7 +1755,7 @@ class CreditFG extends Processor {
                 } catch (err) {
                     aErrorLogs.push({
                         record_ID: record.ID,
-                        message: `Error canceling MIRO: ${err.message}`
+                        message: `Error canceling MIRO: ${err.message}`, process_code: sProcessCode
                     });
                     aFailedRecordIDs.push(record.ID);
                 }
@@ -1880,7 +1882,7 @@ class CreditFG extends Processor {
 
                         aErrorLogs.push({
                             record_ID: record.ID,
-                            message: `Error deleting purchase order item: ${deleteResult.message}`
+                            message: `Error deleting purchase order item: ${deleteResult.message}`, process_code: sProcessCode
                         });
                         aFailedRecordIDs.push(record.ID);
                     }
@@ -1890,7 +1892,7 @@ class CreditFG extends Processor {
             } catch (err) {
                 aErrorLogs.push({
                     record_ID: record.ID,
-                    message: `Error canceling purchase order: ${err.message}`
+                    message: `Error canceling purchase order: ${err.message}`, process_code: sProcessCode
                 });
                 aFailedRecordIDs.push(record.ID);
             }
@@ -1973,7 +1975,7 @@ class CreditFG extends Processor {
                         if (!legacyInvoiceResult || !legacyInvoiceResult.length) {
                             aErrorLogs.push({
                                 record_ID: record.ID,
-                                message: `No legacy invoice data found for WN Invoice ${record.wnInvoiceNo}`
+                                message: `No legacy invoice data found for WN Invoice ${record.wnInvoiceNo}`, process_code: sProcessCode
                             });
                             aFailedRecordIDs.push(record.ID);
                             continue;
@@ -2049,7 +2051,7 @@ class CreditFG extends Processor {
                         } else {
                             aErrorLogs.push({
                                 record_ID: record.ID,
-                                message: `Error creating Credit Memo for legacy invoice: ${createResult.message}`
+                                message: `Error creating Credit Memo for legacy invoice: ${createResult.message}`, process_code: sProcessCode
                             });
                             aFailedRecordIDs.push(record.ID);
                         }
@@ -2063,7 +2065,7 @@ class CreditFG extends Processor {
                         if (!record.salesDocumentNoSAP) {
                             aErrorLogs.push({
                                 record_ID: record.ID,
-                                message: 'SO missing.'
+                                message: 'SO missing.', process_code: sProcessCode
                             });
                             aFailedRecordIDs.push(record.ID);
                             continue;
@@ -2072,7 +2074,7 @@ class CreditFG extends Processor {
                         if (!record.wnInvoiceNo) {
                             aErrorLogs.push({
                                 record_ID: record.ID,
-                                message: 'WN Invoice Number is missing.'
+                                message: 'WN Invoice Number is missing.', process_code: sProcessCode
                             });
                             aFailedRecordIDs.push(record.ID);
                             continue;
@@ -2097,7 +2099,7 @@ class CreditFG extends Processor {
                         if (!salesOrderItemResult || !salesOrderItemResult.length) {
                             aErrorLogs.push({
                                 record_ID: record.ID,
-                                message: `No sales order item found for invoice ${record.wnInvoiceNo}`
+                                message: `No sales order item found for invoice ${record.wnInvoiceNo}`, process_code: sProcessCode
                             });
                             aFailedRecordIDs.push(record.ID);
                             continue;
@@ -2119,7 +2121,7 @@ class CreditFG extends Processor {
                         if (!salesOrderResult || !salesOrderResult.length) {
                             aErrorLogs.push({
                                 record_ID: record.ID,
-                                message: `No sales order found for ${VAR_VBELN}`
+                                message: `No sales order found for ${VAR_VBELN}`, process_code: sProcessCode
                             });
                             aFailedRecordIDs.push(record.ID);
                             continue;
@@ -2143,7 +2145,7 @@ class CreditFG extends Processor {
                         if (VAR_SAP_WN_INV.length > 15) {
                             aErrorLogs.push({
                                 record_ID: record.ID,
-                                message: 'Credit WN inv # cannot exceed 15 chars. Process entry manually.'
+                                message: 'Credit WN inv # cannot exceed 15 chars. Process entry manually.', process_code: sProcessCode
                             });
                             aFailedRecordIDs.push(record.ID);
                             continue;
@@ -2175,7 +2177,7 @@ class CreditFG extends Processor {
                         if (!filteredSubsequentItems || filteredSubsequentItems.length === 0) {
                             aErrorLogs.push({
                                 record_ID: record.ID,
-                                message: `No invoices for WN inv # ${record.wnInvoiceNo} exist.`
+                                message: `No invoices for WN inv # ${record.wnInvoiceNo} exist.`, process_code: sProcessCode
                             });
                             aFailedRecordIDs.push(record.ID);
                             continue;
@@ -2184,7 +2186,7 @@ class CreditFG extends Processor {
                         if (filteredSubsequentItems.length > 1) {
                             aErrorLogs.push({
                                 record_ID: record.ID,
-                                message: 'Multiple SAP Invoices for one WN Invoice. Do not know which one to credit'
+                                message: 'Multiple SAP Invoices for one WN Invoice. Do not know which one to credit', process_code: sProcessCode
                             });
                             aFailedRecordIDs.push(record.ID);
                             continue;
@@ -2222,7 +2224,7 @@ class CreditFG extends Processor {
                         } catch (apiError) {
                             aErrorLogs.push({
                                 record_ID: record.ID,
-                                message: `API Error creating credit memo request: ${apiError.message}`
+                                message: `API Error creating credit memo request: ${apiError.message}`, process_code: sProcessCode
                             });
                             aFailedRecordIDs.push(record.ID);
                             continue;
@@ -2232,7 +2234,7 @@ class CreditFG extends Processor {
                         if (!result || !result.CreditMemoRequest) {
                             aErrorLogs.push({
                                 record_ID: record.ID,
-                                message: `Failed to create credit memo request: ${result.message}`
+                                message: `Failed to create credit memo request: ${result.message}`, process_code: sProcessCode
                             });
                             aFailedRecordIDs.push(record.ID);
                             continue;
@@ -2256,7 +2258,7 @@ class CreditFG extends Processor {
             } catch (err) {
                 aErrorLogs.push({
                     record_ID: record.ID,
-                    message: `Error creating credit memo: ${err.message}`
+                    message: `Error creating credit memo: ${err.message}`, process_code: sProcessCode
                 });
                 aFailedRecordIDs.push(record.ID);
             }
@@ -2355,7 +2357,7 @@ class CreditFG extends Processor {
                     if (!record.salesDocumentNoSAP) {
                         aErrorLogs.push({
                             record_ID: record.ID,
-                            message: 'SO missing.'
+                            message: 'SO missing.', process_code: sProcessCode
                         });
                         aFailedRecordIDs.push(record.ID);
                         continue;
@@ -2364,7 +2366,7 @@ class CreditFG extends Processor {
                     if (!record.wnInvoiceNo) {
                         aErrorLogs.push({
                             record_ID: record.ID,
-                            message: 'WN Invoice Number is missing.'
+                            message: 'WN Invoice Number is missing.', process_code: sProcessCode
                         });
                         aFailedRecordIDs.push(record.ID);
                         continue;
@@ -2389,7 +2391,7 @@ class CreditFG extends Processor {
                     if (!salesOrderItemResult || !salesOrderItemResult.length) {
                         aErrorLogs.push({
                             record_ID: record.ID,
-                            message: `No sales order item found for invoice ${record.wnInvoiceNo}`
+                            message: `No sales order item found for invoice ${record.wnInvoiceNo}`, process_code: sProcessCode
                         });
                         aFailedRecordIDs.push(record.ID);
                         continue;
@@ -2411,7 +2413,7 @@ class CreditFG extends Processor {
                     if (!salesOrderResult || !salesOrderResult.length) {
                         aErrorLogs.push({
                             record_ID: record.ID,
-                            message: `No sales order found for ${VAR_VBELN}`
+                            message: `No sales order found for ${VAR_VBELN}`, process_code: sProcessCode
                         });
                         aFailedRecordIDs.push(record.ID);
                         continue;
@@ -2435,7 +2437,7 @@ class CreditFG extends Processor {
                     if (VAR_SAP_WN_INV.length > 15) {
                         aErrorLogs.push({
                             record_ID: record.ID,
-                            message: 'Credit WN inv # cannot exceed 15 chars. Process entry manually.'
+                            message: 'Credit WN inv # cannot exceed 15 chars. Process entry manually.', process_code: sProcessCode
                         });
                         aFailedRecordIDs.push(record.ID);
                         continue;
@@ -2467,7 +2469,7 @@ class CreditFG extends Processor {
                     if (!filteredSubsequentItems || filteredSubsequentItems.length === 0) {
                         aErrorLogs.push({
                             record_ID: record.ID,
-                            message: `No invoices for WN inv # ${record.wnInvoiceNo} exist.`
+                            message: `No invoices for WN inv # ${record.wnInvoiceNo} exist.`, process_code: sProcessCode
                         });
                         aFailedRecordIDs.push(record.ID);
                         continue;
@@ -2476,7 +2478,7 @@ class CreditFG extends Processor {
                     if (filteredSubsequentItems.length > 1) {
                         aErrorLogs.push({
                             record_ID: record.ID,
-                            message: 'Multiple SAP Invoices for one WN Invoice. Do not know which one to credit'
+                            message: 'Multiple SAP Invoices for one WN Invoice. Do not know which one to credit', process_code: sProcessCode
                         });
                         aFailedRecordIDs.push(record.ID);
                         continue;
@@ -2514,7 +2516,7 @@ class CreditFG extends Processor {
                     } catch (apiError) {
                         aErrorLogs.push({
                             record_ID: record.ID,
-                            message: `API Error creating credit memo request: ${apiError.message}`
+                            message: `API Error creating credit memo request: ${apiError.message}`, process_code: sProcessCode
                         });
                         aFailedRecordIDs.push(record.ID);
                         continue;
@@ -2524,7 +2526,7 @@ class CreditFG extends Processor {
                     if (!result || !result.CreditMemoRequest) {
                         aErrorLogs.push({
                             record_ID: record.ID,
-                            message: `Failed to create credit memo request: ${result.message}`
+                            message: `Failed to create credit memo request: ${result.message}`, process_code: sProcessCode
                         });
                         aFailedRecordIDs.push(record.ID);
                         continue;
@@ -2547,7 +2549,7 @@ class CreditFG extends Processor {
             } catch (err) {
                 aErrorLogs.push({
                     record_ID: record.ID,
-                    message: `Error creating credit memo: ${err.message}`
+                    message: `Error creating credit memo: ${err.message}`, process_code: sProcessCode
                 });
                 aFailedRecordIDs.push(record.ID);
             }
@@ -2635,7 +2637,7 @@ class CreditFG extends Processor {
                         if (!legacyInvoiceResult || !legacyInvoiceResult.length) {
                             aErrorLogs.push({
                                 record_ID: record.ID,
-                                message: `No legacy invoice data found for WN Invoice ${record.wnInvoiceNo}`
+                                message: `No legacy invoice data found for WN Invoice ${record.wnInvoiceNo}`, process_code: sProcessCode
                             });
                             aFailedRecordIDs.push(record.ID);
                             continue;
@@ -2896,7 +2898,7 @@ class CreditFG extends Processor {
                             this.LOG._error && this.LOG.error(`Journal Entry creation failed for record ${record.ID}:`, journalError);
                             aErrorLogs.push({
                                 record_ID: record.ID,
-                                message: `Journal Entry creation failed: ${journalError.message}`
+                                message: `Journal Entry creation failed: ${journalError.message}`, process_code: sProcessCode
                             });
                             aFailedRecordIDs.push(record.ID);
                             continue;
@@ -2915,7 +2917,7 @@ class CreditFG extends Processor {
                         if (!salesOrderItemResult || !salesOrderItemResult.length) {
                             aErrorLogs.push({
                                 record_ID: record.ID,
-                                message: `No sales order item found for invoice ${record.wnInvoiceNo}`
+                                message: `No sales order item found for invoice ${record.wnInvoiceNo}`, process_code: sProcessCode
                             });
                             aFailedRecordIDs.push(record.ID);
                             continue;
@@ -2939,7 +2941,7 @@ class CreditFG extends Processor {
                         if (!purchaseOrderResult || !purchaseOrderResult.length) {
                             aErrorLogs.push({
                                 record_ID: record.ID,
-                                message: `No purchase order found for sales order ${salesOrder}`
+                                message: `No purchase order found for sales order ${salesOrder}`, process_code: sProcessCode
                             });
                             aFailedRecordIDs.push(record.ID);
                             continue;
@@ -2969,7 +2971,7 @@ class CreditFG extends Processor {
                         if (!supplierInvoiceResult || !supplierInvoiceResult.length) {
                             aErrorLogs.push({
                                 record_ID: record.ID,
-                                message: `No supplier invoice found for purchase order ${purchaseOrder} and item ${salesOrderItem}`
+                                message: `No supplier invoice found for purchase order ${purchaseOrder} and item ${salesOrderItem}`, process_code: sProcessCode
                             });
                             aFailedRecordIDs.push(record.ID);
                             continue;
@@ -3018,7 +3020,7 @@ class CreditFG extends Processor {
                         if (!supplierInvoiceDetails || !supplierInvoiceDetails.length) {
                             aErrorLogs.push({
                                 record_ID: record.ID,
-                                message: `No supplier invoice details found for invoice ${supplierInvoice} and fiscal year ${fiscalYear}`
+                                message: `No supplier invoice details found for invoice ${supplierInvoice} and fiscal year ${fiscalYear}`, process_code: sProcessCode
                             });
                             aFailedRecordIDs.push(record.ID);
                             continue;
@@ -3075,7 +3077,7 @@ class CreditFG extends Processor {
                         } else {
                             aErrorLogs.push({
                                 record_ID: record.ID,
-                                message: `Error creating MIRO: ${createResult.message}`
+                                message: `Error creating MIRO: ${createResult.message}`, process_code: sProcessCode
                             });
                             aFailedRecordIDs.push(record.ID);
                         }
@@ -3086,7 +3088,7 @@ class CreditFG extends Processor {
             } catch (err) {
                 aErrorLogs.push({
                     record_ID: record.ID,
-                    message: `Error creating MIRO: ${err.message}`
+                    message: `Error creating MIRO: ${err.message}`, process_code: sProcessCode
                 });
                 aFailedRecordIDs.push(record.ID);
             }
@@ -3212,7 +3214,7 @@ class CreditFG extends Processor {
                             console.error('Error deleting CreditMemoReqPartner:', deleteError);
                             aErrorLogs.push({
                                 record_ID: record.ID,
-                                message: `Error deleting CreditMemoReqPartner: ${deleteError.message}`
+                                message: `Error deleting CreditMemoReqPartner: ${deleteError.message}`, process_code: sProcessCode
                             });
                             aFailedRecordIDs.push(record.ID);
 
@@ -3228,7 +3230,7 @@ class CreditFG extends Processor {
             } catch (err) {
                 aErrorLogs.push({
                     record_ID: record.ID,
-                    message: `Error in DeletePF: ${err.message}`
+                    message: `Error in DeletePF: ${err.message}`, process_code: sProcessCode
                 });
                 aFailedRecordIDs.push(record.ID);
             }
