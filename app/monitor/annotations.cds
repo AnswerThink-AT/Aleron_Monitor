@@ -377,7 +377,7 @@ annotate service.WorkOrders with @(
                 $Type                    : 'UI.DataField',
                 Value                    : valid,
                 Criticality              : criticality,
-                CriticalityRepresentation: #WithoutIcon,
+                CriticalityRepresentation: #WithIcon,
             },
             {
                 $Type: 'UI.DataField',
@@ -730,7 +730,7 @@ annotate service.Times with @(
                 $Type                    : 'UI.DataField',
                 Value                    : valid,
                 Criticality              : criticality,
-                CriticalityRepresentation: #WithoutIcon,
+                CriticalityRepresentation: #WithIcon,
             },
             {
                 $Type: 'UI.DataField',
@@ -850,7 +850,7 @@ annotate service.EmployeeHires with @(UI.LineItem #EmployeeRecords: [
         $Type                    : 'UI.DataField',
         Value                    : valid,
         Criticality              : criticality,
-        CriticalityRepresentation: #WithoutIcon,
+        CriticalityRepresentation: #WithIcon,
     },
     {
         $Type: 'UI.DataField',
@@ -1204,7 +1204,7 @@ annotate service.StaffHires with @(UI.LineItem #StaffRecords: [
         $Type                    : 'UI.DataField',
         Value                    : valid,
         Criticality              : criticality,
-        CriticalityRepresentation: #WithoutIcon,
+        CriticalityRepresentation: #WithIcon,
     },
     {
         $Type: 'UI.DataField',
@@ -1557,7 +1557,7 @@ annotate service.WorkOrders_WN with @(UI.LineItem #WorkOrdersWN: [
         $Type                    : 'UI.DataField',
         Value                    : valid,
         Criticality              : criticality,
-        CriticalityRepresentation: #WithoutIcon,
+        CriticalityRepresentation: #WithIcon,
     },
     {
         $Type: 'UI.DataField',
@@ -1937,7 +1937,7 @@ annotate service.WorkOrders_FG with @(UI.LineItem #WorkOrdersFG: [
         $Type                    : 'UI.DataField',
         Value                    : valid,
         Criticality              : criticality,
-        CriticalityRepresentation: #WithoutIcon,
+        CriticalityRepresentation: #WithIcon,
     },
     {
         $Type: 'UI.DataField',
@@ -2107,7 +2107,7 @@ annotate service.Terminations with @(UI.LineItem #Terminations: [
         $Type                    : 'UI.DataField',
         Value                    : valid,
         Criticality              : criticality,
-        CriticalityRepresentation: #WithoutIcon
+        CriticalityRepresentation: #WithIcon
     },
     {
         $Type: 'UI.DataField',
@@ -2155,7 +2155,7 @@ annotate service.Credit_Rebill with @(UI.LineItem #Credit_Rebill: [
         $Type                    : 'UI.DataField',
         Value                    : valid,
         Criticality              : criticality,
-        CriticalityRepresentation: #WithoutIcon
+        CriticalityRepresentation: #WithIcon
     },
     {
         $Type: 'UI.DataField',
@@ -2198,7 +2198,7 @@ annotate service.Fg_Credit_Rebill with @(
             $Type                    : 'UI.DataField',
             Value                    : valid,
             Criticality              : criticality,
-            CriticalityRepresentation: #WithoutIcon
+            CriticalityRepresentation: #WithIcon
         },
         {
         $Type: 'UI.DataField',
@@ -2390,7 +2390,7 @@ annotate service.OtherBillables with @(UI.LineItem #OtherBillables: [
         $Type                    : 'UI.DataField',
         Value                    : valid,
         Criticality              : criticality,
-        CriticalityRepresentation: #WithoutIcon
+        CriticalityRepresentation: #WithIcon
     },
     {
         $Type: 'UI.DataField',
@@ -2597,7 +2597,7 @@ annotate service.Bonus with @(UI.LineItem #Bonus: [
         $Type                    : 'UI.DataField',
         Value                    : valid,
         Criticality              : criticality,
-        CriticalityRepresentation: #WithoutIcon
+        CriticalityRepresentation: #WithIcon
     },
     {
         $Type: 'UI.DataField',
@@ -2782,7 +2782,7 @@ annotate service.SowScWo with @(UI.LineItem #SowScWo: [
         $Type                    : 'UI.DataField',
         Value                    : valid,
         Criticality              : criticality,
-        CriticalityRepresentation: #WithoutIcon
+        CriticalityRepresentation: #WithIcon
     },
     {
         $Type: 'UI.DataField',
@@ -3026,7 +3026,7 @@ annotate service.SowScInvoice with @(UI.LineItem #SowScInvoice: [
         $Type                    : 'UI.DataField',
         Value                    : valid,
         Criticality              : criticality,
-        CriticalityRepresentation: #WithoutIcon
+        CriticalityRepresentation: #WithIcon
     },
     {
         $Type: 'UI.DataField',
@@ -3292,7 +3292,7 @@ annotate service.Fg_Invoices with @(UI.LineItem #FgTimeInvoices: [
         $Type                    : 'UI.DataField',
         Value                    : valid,
         Criticality              : criticality,
-        CriticalityRepresentation: #WithoutIcon
+        CriticalityRepresentation: #WithIcon
     },
     {
         $Type: 'UI.DataField',
@@ -3484,7 +3484,7 @@ annotate service.Travel with @(UI.LineItem #Travel: [
         $Type                    : 'UI.DataField',
         Value                    : valid,
         Criticality              : criticality,
-        CriticalityRepresentation: #WithoutIcon
+        CriticalityRepresentation: #WithIcon
     },
     {
         $Type: 'UI.DataField',
@@ -3685,7 +3685,7 @@ annotate service.Drug_Background_Check with @(UI.LineItem #Drug_Background_Check
         $Type                    : 'UI.DataField',
         Value                    : valid,
         Criticality              : criticality,
-        CriticalityRepresentation: #WithoutIcon
+        CriticalityRepresentation: #WithIcon
     },
     {
         $Type: 'UI.DataField',

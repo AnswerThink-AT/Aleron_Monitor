@@ -10,7 +10,10 @@
 		<Table
 			id="idProcessLogsTable"
 			items="{/ProcessLogs}"
-			inset="false">
+			inset="false"
+			enableBusyIndicator="true"
+			growing="true"
+			noDataText="No Logs found">
 
 			<columns>
 				<Column>
