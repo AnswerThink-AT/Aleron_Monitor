@@ -58,10 +58,18 @@ class SalesOrder {
           }
             const oAPI = await this.getConnection();
             const result = await oAPI.run(query);
+            if (!result) {
+                LOG._error && LOG.error('[executeQuery] Query execution returned undefined result');
+                throw new Error('Query execution returned undefined result');
+            }else if (Array.isArray(result) && result.length === 0) {
+                LOG._error && LOG.error('[executeQuery] Query execution returned empty array');
+                throw new Error('Query execution returned empty array');
+            }
             return result;
 
         } catch (err) {
             LOG._error && LOG.error(cds.i18n.messages.at('ERR_SALESORDER_QUERY', [err.message]));
+            throw err;
         }
     }
 
