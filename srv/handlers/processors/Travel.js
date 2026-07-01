@@ -2151,7 +2151,7 @@ if (contractType === '1' && rec.wnWorkOrder) {
             } catch (e) {
                 LOG.error(`[Group ${key}] FAILED → ${e.message}`);
                 for (const l of lines) {
-                    errorLogs.push({ record_ID: l.ID, message: e.message });
+                    errorLogs.push({ record_ID: l.ID, message: e.message, process_code: sProcessCode });
                     failed.push(l.ID);
                 }
             }
@@ -2390,7 +2390,7 @@ if (contractType === '1' && rec.wnWorkOrder) {
                 for (const r of recs) {
                     errorLogs.push({
                         record_ID: r.ID,
-                        message: err.message
+                        message: err.message, process_code: sProcessCode
                     });
                     failed.push(r.ID);
                 }
