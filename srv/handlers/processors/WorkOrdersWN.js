@@ -193,7 +193,7 @@ class WorkOrdersWN extends Processor {
       aSalesContracts = [];
 
     // Clear the error logs for the selected records; so that new process can start
-    await ProcessLogger.removeLogs([...this.recordIDs]);
+    await ProcessLogger.removeLogs([...this.recordIDs], null, sProcessCode);
     // Get list of countries by looping over `this.file.to_WorkOrders_WN` and get unique countries
     let aCountries = [];
     let aAreas = [];
@@ -243,7 +243,7 @@ class WorkOrdersWN extends Processor {
       }
     }
 
-    await ProcessLogger.removeLogs(aRecordIDs);
+    await ProcessLogger.removeLogs(aRecordIDs, null, sProcessCode);
 
     this.updateProcessingState(sProcessCode);
     if (!aRecordsForProcessing.length) {
@@ -511,7 +511,8 @@ class WorkOrdersWN extends Processor {
         })
       );
       await Promise.allSettled([
-        ProcessLogger.removeLogs(aPassedRecordIDs),
+        ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode),
+        ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3}))),
         // this.markRecordsValid(sProcessCode, aPassedRecordIDs, true),
         ...aPassedRecordIDs.filter(recordID => {
             const record = this.records.find(r => r.ID === recordID);
@@ -1355,7 +1356,7 @@ class WorkOrdersWN extends Processor {
       }
     }
 
-    await ProcessLogger.removeLogs(aRecordIDs);
+    await ProcessLogger.removeLogs(aRecordIDs, null, sProcessCode);
 
     this.updateProcessingState(sProcessCode);
     if (!aRecordsForProcessing.length) {
@@ -1506,7 +1507,8 @@ class WorkOrdersWN extends Processor {
     }
 
     if (aPassedRecordIDs.length) {
-      await ProcessLogger.removeLogs(aPassedRecordIDs);
+      await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
+      await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3})));
     }
 
     this.updateExclusionSet({
@@ -1657,7 +1659,7 @@ class WorkOrdersWN extends Processor {
     sTaxCodeByProvinceWhere.length && (sTaxCodeByProvinceWhere = sTaxCodeByProvinceWhere.slice(3).trim());
     sTaxCodeByCityWhere.length && (sTaxCodeByCityWhere = sTaxCodeByCityWhere.slice(3).trim());
 
-    await ProcessLogger.removeLogs(aRecordIDs);
+    await ProcessLogger.removeLogs(aRecordIDs, null, sProcessCode);
 
     this.updateProcessingState(sProcessCode);
     if (!aRecordsForProcessing.length) {
@@ -2176,7 +2178,8 @@ class WorkOrdersWN extends Processor {
 
     // Update the status of passed records
     if (aPassedRecordIDs.length) {
-      await ProcessLogger.removeLogs(aPassedRecordIDs);
+      await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
+      await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3})));
       await this.markRecordsValid(sProcessCode, aPassedRecordIDs, true);
     }
 
@@ -3507,7 +3510,7 @@ Z38:{target:'CUST_COMMODITY_CODE2',vc:2},
       }
     });
 
-    await ProcessLogger.removeLogs(aRecordIDs);
+    await ProcessLogger.removeLogs(aRecordIDs, null, sProcessCode);
 
     this.updateProcessingState(sProcessCode);
     if (!aRecordsForProcessing.length) {
@@ -3614,7 +3617,7 @@ Z38:{target:'CUST_COMMODITY_CODE2',vc:2},
       }
     }
 
-    await ProcessLogger.removeLogs(aRecordIDs);
+    await ProcessLogger.removeLogs(aRecordIDs, null, sProcessCode);
 
     this.updateProcessingState(sProcessCode);
     if (!aRecordsForProcessing.length) {
@@ -3752,7 +3755,8 @@ Z38:{target:'CUST_COMMODITY_CODE2',vc:2},
     }
 
     if (aPassedRecordIDs.length) {
-      await ProcessLogger.removeLogs(aPassedRecordIDs);
+      await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
+      await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3})));
     }
 
     this.updateExclusionSet({
@@ -3788,7 +3792,7 @@ Z38:{target:'CUST_COMMODITY_CODE2',vc:2},
       }
     }
 
-    await ProcessLogger.removeLogs(aRecordIDs);
+    await ProcessLogger.removeLogs(aRecordIDs, null, sProcessCode);
 
     this.updateProcessingState(sProcessCode);
     if (!aRecordsForProcessing.length) {
@@ -3841,7 +3845,8 @@ Z38:{target:'CUST_COMMODITY_CODE2',vc:2},
     }
 
     if (aPassedRecordIDs.length) {
-      await ProcessLogger.removeLogs(aPassedRecordIDs);
+      await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
+      await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3})));
     }
 
     this.updateExclusionSet({

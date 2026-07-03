@@ -65,14 +65,17 @@ async function addLogs(anyLogs) {
 }
 
 /**
- * Removes logs from the ProcessLogs entity in the database.
+ * Removes logs from the ProcessLogs entity in the database,
+ * scoped to a specific process_code so that logs from other
+ * steps are preserved.
  *
- * @param {string[]} anyRecordID - The record ID of the logs to be removed.
- * @param {string} [ID] - The optional ID of the specific log to be removed.
- * @returns {Promise<void>} - A promise that resolves when the logs have been removed from the database.
+ * @param {string[]} anyRecordID - The record ID(s) of the logs to be removed.
+ * @param {string} [ID]          - The optional specific log ID to remove.
+ * @param {string} process_code  - The process step code to scope the deletion.
+ * @returns {Promise<void>}
  * @public
  */
-async function removeLogs(anyRecordID, ID) {
+async function removeLogs(anyRecordID, ID, process_code) {
   if (!anyRecordID && !ID) {
     LOG._error && LOG.error('Neither ID nor record_ID provided');
     return;
@@ -80,14 +83,14 @@ async function removeLogs(anyRecordID, ID) {
 
   try {
     if (ID) {
-      await db.run(DELETE.from(ProcessLogs, ID));
+      await db.run(DELETE.from(ProcessLogs).where({ID: ID, process_code: process_code}));
       LOG._info && LOG.info(`Removed log with record_ID: ${anyRecordID} and ID: ${ID}`);
     } else if (Array.isArray(anyRecordID)) {
-      await db.run(DELETE.from(ProcessLogs).where({record_ID: {in: anyRecordID}}));
-      LOG._info && LOG.info(`Removed logs for record IDs: ${anyRecordID}`);
+      await db.run(DELETE.from(ProcessLogs).where({record_ID: {in: anyRecordID}, process_code: process_code}));
+      LOG._info && LOG.info(`Removed logs for record IDs: ${anyRecordID} at process_code: ${process_code}`);
     } else {
-      await db.run(DELETE.from(ProcessLogs).where({record_ID: anyRecordID}));
-      LOG._info && LOG.info(`Removed logs with record_ID: ${anyRecordID}`);
+      await db.run(DELETE.from(ProcessLogs).where({record_ID: anyRecordID, process_code: process_code}));
+      LOG._info && LOG.info(`Removed logs with record_ID: ${anyRecordID} at process_code: ${process_code}`);
     }
   } catch (err) {
     LOG._error && LOG.error(err.message);

@@ -128,7 +128,7 @@ class WorkOrdersFG extends Processor {
     let aSalesContractHeaders = [];
     let aSalesContractItems = [];
     // Clear the error logs for the selected records; so that new process can start
-    await ProcessLogger.removeLogs([...this.recordIDs]);
+    await ProcessLogger.removeLogs([...this.recordIDs], null, sProcessCode);
 
 
     /*    const salesOrderError = await this.salesOrderAPI.executeQuery(
@@ -689,7 +689,8 @@ const aFailedRecordIDsFiltered = aFailedRecordIDs.filter(id => !aRejectedRecordI
       // );
 
       await Promise.allSettled([
-        ProcessLogger.removeLogs(aPassedRecordIDs),
+        ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode),
+        ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3}))),
         this.markRecordsValid(sProcessCode, aPassedRecordIDs, true),
       ]);
       this.LOG._info &&
@@ -854,7 +855,7 @@ const aFailedRecordIDsFiltered = aFailedRecordIDs.filter(id => !aRejectedRecordI
   //   }
 
   //   if (aPassedRecordIDs.length) {
-  //     await ProcessLogger.removeLogs(aPassedRecordIDs);
+  //     await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
   //     await UPDATE(WorkOrders_FG)
   //       .set({ valid: true, processLevel_code: sProcessCode })
   //       .where({ ID: { in: aPassedRecordIDs } });
@@ -1035,7 +1036,8 @@ const aFailedRecordIDsFiltered = aFailedRecordIDs.filter(id => !aRejectedRecordI
     }
 
     if (aPassedRecordIDs.length) {
-      await ProcessLogger.removeLogs(aPassedRecordIDs);
+      await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
+      await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3})));
       await UPDATE(WorkOrders_FG)
         .set({ valid: true, processLevel_code: sProcessCode })
         .where({ ID: { in: aPassedRecordIDs } });
@@ -1891,7 +1893,8 @@ const aFailedRecordIDsFiltered = aFailedRecordIDs.filter(id => !aRejectedRecordI
 
     // Update the status of passed records
     if (aPassedRecordIDs.length) {
-      await ProcessLogger.removeLogs(aPassedRecordIDs);
+      await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
+      await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3})));
       await UPDATE(WorkOrders_FG)
         .set({ valid: true, processLevel_code: sProcessCode })
         .where({ ID: { in: aPassedRecordIDs } });
@@ -2595,7 +2598,8 @@ const aFailedRecordIDsFiltered = aFailedRecordIDs.filter(id => !aRejectedRecordI
     }
 
     if (aPassedRecordIDs.length) {
-      await ProcessLogger.removeLogs(aPassedRecordIDs);
+      await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
+      await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3})));
       await UPDATE(WorkOrders_FG)
         .set({ valid: true, processLevel_code: sProcessCode })
         .where({ ID: { in: aPassedRecordIDs } });
@@ -2949,7 +2953,8 @@ const aFailedRecordIDsFiltered = aFailedRecordIDs.filter(id => !aRejectedRecordI
     }
 
     if (aPassedRecordIDs.length) {
-      await ProcessLogger.removeLogs(aPassedRecordIDs);
+      await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
+      await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3})));
       await UPDATE(WorkOrders_FG)
         .set({ valid: true, processLevel_code: sProcessCode })
         .where({ ID: { in: aPassedRecordIDs } });

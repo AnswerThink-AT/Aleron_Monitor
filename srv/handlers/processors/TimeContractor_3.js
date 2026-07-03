@@ -478,7 +478,7 @@ class TimeContractor_3 extends Processor {
                 LOG.error(`STEP 0.1 FAILED → ${msg}`);
                 await ProcessLogger.addLogs([{
                     record_ID: this.file.ID,
-                    message: msg
+                    message: msg,process_code: sProcessCode
                 }]);
                 return {
                     hasError: true,
@@ -490,7 +490,7 @@ class TimeContractor_3 extends Processor {
             LOG.error(`STEP 0.1 FAILED (exception) → ${e.message}`);
             await ProcessLogger.addLogs([{
                 record_ID: this.file.ID,
-                message: `InterfaceSteps lookup failed: ${e.message}`
+                message: `InterfaceSteps lookup failed: ${e.message}`,process_code: sProcessCode
             }]);
             return {
                 hasError: true,
@@ -501,7 +501,7 @@ class TimeContractor_3 extends Processor {
         // CHANGE #1: only clear file-scope logs during Process-All
         if (!bBreakExecution) {
             LOG.info(`STEP 0.2: Clearing any existing logs for this batch (Process-All)`);
-            await ProcessLogger.removeLogs([...this.recordIDs]);
+            await ProcessLogger.removeLogs([...this.recordIDs], null, sProcessCode);
             LOG.info(`STEP 0.2 DONE`);
         } else {
             LOG.info(`STEP 0.2: Validate mode → NOT clearing existing logs; will append`);
@@ -546,7 +546,7 @@ class TimeContractor_3 extends Processor {
         // CHANGE #2: only remove per-record logs during Process-All
         if (!bBreakExecution) {
             LOG.info(`STEP 1: Removing old logs for IDs=[${aRecordIDs.join(',')}] (Process-All)`);
-            await ProcessLogger.removeLogs(aRecordIDs);
+            await ProcessLogger.removeLogs(aRecordIDs, null, sProcessCode);
         } else {
             LOG.info(`STEP 1: Validate mode → NOT removing old logs for IDs; will append`);
         }
@@ -1085,7 +1085,7 @@ class TimeContractor_3 extends Processor {
             //  - Process-All: keep your current behavior (replace logs for these records this run).
             //  - Validate: DO NOT remove old logs → just append new ones.
             if (!bBreakExecution) {
-                await ProcessLogger.removeLogs([...new Set(aErrorLogs.map(e => e.record_ID))]);
+                await ProcessLogger.removeLogs([...new Set(aErrorLogs.map(e => e.record_ID))], null, sProcessCode);
                 LOG.info(`STEP 3: Process-All → old logs cleared for errored records, writing fresh logs`);
             } else {
                 LOG.info(`STEP 3: Validate mode → NOT clearing old logs; appending new logs`);
@@ -1154,7 +1154,7 @@ class TimeContractor_3 extends Processor {
             }
 
             if (promotable.length) {
-                await ProcessLogger.removeLogs([...new Set(toClearLogs)]);
+                await ProcessLogger.removeLogs([...new Set(toClearLogs)], null, sProcessCode);
                 await UPDATE(this.recordsEntity)
                     .set({
                         processLevel_code: 'T',
@@ -1292,7 +1292,7 @@ class TimeContractor_3 extends Processor {
 
         // ---------- STEP 1: Clear previous logs ----------
         LOG.info(`STEP 1: Clearing existing logs for records [${[...this.recordIDs].join(', ')}]`);
-        await ProcessLogger.removeLogs([...this.recordIDs]);
+        await ProcessLogger.removeLogs([...this.recordIDs], null, sProcessCode);
 
         // ---------- STEP 2: Re-fetch latest batch ----------
         LOG.info(`STEP 2: Re-fetching records [${[...this.recordIDs].join(', ')}]`);
@@ -1372,7 +1372,7 @@ class TimeContractor_3 extends Processor {
                             LOG.warn(`STEP 4: ${msg} for ${stillMissing.length} contract(s) → ${stillMissing.join(', ')}`);
                             for (const rec of toProcess) {
                                 if (rec.contractNo && stillMissing.includes(rec.contractNo)) {
-                                    errorLogs.push({ record_ID: rec.ID, message: msg });
+                                    errorLogs.push({ record_ID: rec.ID, message: msg,process_code: sProcessCode });
                                     failed.push(rec.ID);
                                 }
                             }
@@ -1382,7 +1382,7 @@ class TimeContractor_3 extends Processor {
                         LOG.error(`STEP 4 Fallback FAILED → ${msg}`);
                         for (const rec of toProcess) {
                             if (rec.contractNo && missingContracts.includes(rec.contractNo)) {
-                                errorLogs.push({ record_ID: rec.ID, message: msg });
+                                errorLogs.push({ record_ID: rec.ID, message: msg,process_code: sProcessCode });
                                 failed.push(rec.ID);
                             }
                         }
@@ -1394,7 +1394,7 @@ class TimeContractor_3 extends Processor {
                 const msg = `ERR_SALES_FETCH_FAILED: ${reason}`;
                 for (const rec of toProcess) {
                     if (rec.contractNo && contractIDs.includes(rec.contractNo)) {
-                        errorLogs.push({ record_ID: rec.ID, message: msg });
+                        errorLogs.push({ record_ID: rec.ID, message: msg ,process_code: sProcessCode});
                         failed.push(rec.ID);
                     }
                 }
@@ -1415,7 +1415,7 @@ class TimeContractor_3 extends Processor {
                 for (const rec of toProcess) {
                     const empKey = normEmp(rec.employeeNo);
                     if (empKey && empIDs.includes(empKey)) {
-                        errorLogs.push({ record_ID: rec.ID, message: msg });
+                        errorLogs.push({ record_ID: rec.ID, message: msg,process_code: sProcessCode });
                         failed.push(rec.ID);
                     }
                 }
@@ -1426,7 +1426,7 @@ class TimeContractor_3 extends Processor {
             const msg = `ERR_STEP4_UNHANDLED: ${e.message || e}`;
             LOG.error(`STEP 4 FAILED → ${msg}`);
             for (const rec of toProcess) {
-                errorLogs.push({ record_ID: rec.ID, message: msg });
+                errorLogs.push({ record_ID: rec.ID, message: msg,process_code: sProcessCode });
                 failed.push(rec.ID);
             }
         }
@@ -1517,7 +1517,7 @@ class TimeContractor_3 extends Processor {
                 const msg = errs.join(', ');
                 LOG.warn(`STEP 5: Missing data for record ${rec.ID} → ${msg}, NOT calling API`);
                 records.push(rec);
-                errorLogs.push({ record_ID: rec.ID, message: msg });
+                errorLogs.push({ record_ID: rec.ID, message: msg ,process_code: sProcessCode});
                 failed.push(rec.ID);
                 continue;
             }
@@ -1592,11 +1592,11 @@ class TimeContractor_3 extends Processor {
                     insertedUUIDsByRecord.set(rec.ID, arr);
                 } else {
                     const msg = res.message || 'Unknown error';
-                    errorLogs.push({ record_ID: rec.ID, message: `BUCKET ${bucketTag}: ${msg}` });
+                    errorLogs.push({ record_ID: rec.ID, message: `BUCKET ${bucketTag}: ${msg}`,process_code: sProcessCode });
                 }
             } catch (e) {
                 LOG.error(`   ← Rec ${rec.ID}, Bucket ${bucketTag}: Insert failed → ${e.message}`);
-                errorLogs.push({ record_ID: rec.ID, message: `BUCKET ${bucketTag}: ${e.message}` });
+                errorLogs.push({ record_ID: rec.ID, message: `BUCKET ${bucketTag}: ${e.message}`,process_code: sProcessCode });
             }
         }
 
@@ -1679,7 +1679,7 @@ class TimeContractor_3 extends Processor {
                     } catch (e) {
                         const msg = `CLEANUP_DELETE_FAILED for UUID=${uuid}: ${e.message}`;
                         LOG.error(msg);
-                        errorLogs.push({ record_ID: recId, message: msg });
+                        errorLogs.push({ record_ID: recId, message: msg,process_code: sProcessCode });
                     }
                 }
                 // Clear persisted UUIDs to avoid stale state
@@ -1705,7 +1705,8 @@ class TimeContractor_3 extends Processor {
         }
         LOG.info(`STEP 8: Marking ${finalPassed.length} record(s) valid`);
         if (finalPassed.length) {
-            await ProcessLogger.removeLogs(finalPassed);
+            await ProcessLogger.removeLogs(finalPassed, null, sProcessCode);
+            await ProcessLogger.addLogs(finalPassed.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3})));
             await this.markRecordsValid(sProcessCode, finalPassed, true);
         }
 
@@ -2449,7 +2450,7 @@ class TimeContractor_3 extends Processor {
             } catch (e) {
                 LOG.error(`[processSalesOrder][Group ${groupCounter}][ERROR] Group ${key} failed: ${e.message}`);
                 for (const l of lines) {
-                    errorLogs.push({ record_ID: l.ID, message: e.message });
+                    errorLogs.push({ record_ID: l.ID, message: e.message ,process_code: sProcessCode});
                     failed.push(l.ID);
                 }
             }
@@ -2459,12 +2460,13 @@ class TimeContractor_3 extends Processor {
         // -------- Step 5: Logging and final updates --------
         LOG.info(`[processSalesOrder][Step 5] Finalize: Update log tables and statuses`);
         if (errorLogs.length) {
-            await ProcessLogger.removeLogs(failed);
+            await ProcessLogger.removeLogs(failed, null, sProcessCode);
             await ProcessLogger.addLogs(errorLogs);
             await this.markRecordsValid('3', failed, false); // keep at 3 for retry
         }
         if (passed.length) {
-            await ProcessLogger.removeLogs(passed);
+            await ProcessLogger.removeLogs(passed, null, sProcessCode);
+            await ProcessLogger.addLogs(passed.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', ['5']), process_code: '5', type: 3})));
             await this.markRecordsValid('5', passed, true); // move to 5
         }
 
@@ -3058,7 +3060,7 @@ class TimeContractor_3 extends Processor {
             } catch (e) {
                 LOG.error(`[processIntercompanyso][Group ${groupCounter}][ERROR] Group ${key} failed: ${e.message}`);
                 for (const l of lines) {
-                    errorLogs.push({ record_ID: l.ID, message: e.message });
+                    errorLogs.push({ record_ID: l.ID, message: e.message,process_code: sProcessCode });
                     failed.push(l.ID);
                 }
             }
@@ -3068,12 +3070,13 @@ class TimeContractor_3 extends Processor {
         // -------- Step 5: Finalize logs & statuses (same as normal) --------
         LOG.info(`[processIntercompanyso][Step 5] Finalize: Update log tables and statuses`);
         if (errorLogs.length) {
-            await ProcessLogger.removeLogs(failed);
+            await ProcessLogger.removeLogs(failed, null, sProcessCode);
             await ProcessLogger.addLogs(errorLogs);
             await this.markRecordsValid('G', failed, false); // stay at G to retry
         }
         if (passed.length) {
-            await ProcessLogger.removeLogs(passed);
+            await ProcessLogger.removeLogs(passed, null, sProcessCode);
+            await ProcessLogger.addLogs(passed.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', ['5']), process_code: '5', type: 3})));
             await this.markRecordsValid('5', passed, true);  // advance on success
         }
 
@@ -3670,7 +3673,7 @@ class TimeContractor_3 extends Processor {
             } catch (e) {
                 LOG.error(`[Group ${key}] FAILED → ${e.message}`);
                 for (const l of lines) {
-                    errorLogs.push({ record_ID: l.ID, message: e.message });
+                    errorLogs.push({ record_ID: l.ID, message: e.message ,process_code: sProcessCode});
                     failed.push(l.ID);
                 }
             }
@@ -3679,13 +3682,15 @@ class TimeContractor_3 extends Processor {
         // 5.9) Finalize
         LOG.info('[Step 5.9] Finalizing');
         if (failed.length) {
-            await ProcessLogger.removeLogs(failed);
+            await ProcessLogger.removeLogs(failed, null, sProcessCode);
             await ProcessLogger.addLogs(errorLogs);
             // keep failures at '5' so they’ll be retried next time
             await this.markRecordsValid('5', failed, false);
         }
         if (passed.length) {
             // move successes to 'B' so they’re skipped next time
+            await ProcessLogger.removeLogs(passed, null, sProcessCode);
+            await ProcessLogger.addLogs(passed.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', ['B']), process_code: 'B', type: 3})));
             await this.markRecordsValid('B', passed, true);
         }
         this.updateExclusionSet({ passed, failed, skipped: [], bBreakExecution });
@@ -3911,7 +3916,7 @@ const paymentBlockingReason = supplierCarrierAccess
                 for (const r of recs) {
                     errorLogs.push({
                         record_ID: r.ID,
-                        message: err.message
+                        message: err.message,process_code: sProcessCode
                     });
                     failed.push(r.ID);
                 }
@@ -3921,7 +3926,7 @@ const paymentBlockingReason = supplierCarrierAccess
         // 5) finalize logs & validity
         LOG.info('[processSupplierInvoice] Finalizing MIRO step');
         if (failed.length) {
-            await ProcessLogger.removeLogs(failed);
+            await ProcessLogger.removeLogs(failed, null, sProcessCode);
             await ProcessLogger.addLogs(errorLogs);
             // keep failures at 'B' so they’ll be retried next time
             // await this.markRecordsValid('B', failed, false);
@@ -3938,6 +3943,8 @@ const paymentBlockingReason = supplierCarrierAccess
         if (passed.length) {
             // move successes to '9' so they’re skipped next time
             // await this.markRecordsValid('9', passed, true);
+            await ProcessLogger.removeLogs(passed, null, sProcessCode);
+            await ProcessLogger.addLogs(passed.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', ['9']), process_code: '9', type: 3})));
             await this.markRecordsValid('9', passed, true);
             // and bump them to step 9 in the DB
             await UPDATE(this.recordsEntity)

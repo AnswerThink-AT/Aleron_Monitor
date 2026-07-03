@@ -172,7 +172,7 @@ class SOWscInvoice extends Processor {
         const aSkippedRecords = [];
 
         // Clear the error logs for the selected records; so that new process can start
-        await ProcessLogger.removeLogs([...this.recordIDs]);
+        await ProcessLogger.removeLogs([...this.recordIDs], null, sProcessCode);
 
         let aSalesContractIDs = [];
         let aMaterialNos = [];
@@ -196,7 +196,7 @@ class SOWscInvoice extends Processor {
             }
         }
 
-        await ProcessLogger.removeLogs(aRecordIDs);
+        await ProcessLogger.removeLogs(aRecordIDs, null, sProcessCode);
 
         this.updateProcessingState(sProcessCode);
         if (!aRecordsForProcessing.length) {
@@ -365,7 +365,8 @@ class SOWscInvoice extends Processor {
             );
 
             await Promise.allSettled([
-                ProcessLogger.removeLogs(aPassedRecordIDs),
+                ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode),
+                ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3}))),
                 this.markRecordsValid(sProcessCode, aPassedRecordIDs, true),
             ]);
             this.LOG._info && this.LOG.info(cds.i18n.messages.at('INFO_RECORDS_UPDATED', [sProcessCode, 'All']));
@@ -543,7 +544,7 @@ class SOWscInvoice extends Processor {
 
         // Clear the error logs for the selected records; so that new process can start
         this.LOG._info && this.LOG.info(`[SO] Calling ProcessLogger.removeLogs for recordIDs: ${_s(this.recordIDs)}`);
-        await ProcessLogger.removeLogs([...this.recordIDs]);
+        await ProcessLogger.removeLogs([...this.recordIDs], null, sProcessCode);
         this.LOG._info && this.LOG.info(`[SO] ProcessLogger.removeLogs done`);
 
         const aRecordsForProcessing = [],
@@ -610,7 +611,7 @@ class SOWscInvoice extends Processor {
         this.LOG._info && this.LOG.info(`[SO] Pick loop done | toProcess=${_len(aRecordsForProcessing)} skipped=${_len(aSkippedRecords)} mappedKeys=${_len(mProcessingRecordsToCentralMapping)} recordIDs=${_s(aRecordIDs)}`);
 
         this.LOG._info && this.LOG.info(`[SO] Clear previous run logs for picked IDs: ${_s(aRecordIDs)}`);
-        await ProcessLogger.removeLogs(aRecordIDs);
+        await ProcessLogger.removeLogs(aRecordIDs, null, sProcessCode);
         this.LOG._info && this.LOG.info(`[SO] Done removeLogs for picked IDs`);
 
         this.LOG._info && this.LOG.info(`[SO] Update processing state to code=${sProcessCode}`);
@@ -1106,7 +1107,8 @@ class SOWscInvoice extends Processor {
         // Update the status of passed records
         if (aPassedRecordIDs.length) {
             this.LOG._info && this.LOG.info(`[SO] Remove logs & mark valid for passed IDs count=${aPassedRecordIDs.length}`);
-            await ProcessLogger.removeLogs(aPassedRecordIDs);
+            await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
+            await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3})));
             await this.markRecordsValid(sProcessCode, aPassedRecordIDs, true);
         }
 
@@ -1355,7 +1357,7 @@ class SOWscInvoice extends Processor {
 
     async processPurchaseOrder(sProcessCode, bBreakExecution) {
         // Clear the error logs for the selected records; so that new process can start
-        await ProcessLogger.removeLogs([...this.recordIDs]);
+        await ProcessLogger.removeLogs([...this.recordIDs], null, sProcessCode);
 
         const aRecordsForProcessing = [],
             aErrorLogs = [],
@@ -1394,7 +1396,7 @@ class SOWscInvoice extends Processor {
             }
         }
 
-        await ProcessLogger.removeLogs(aRecordIDs);
+        await ProcessLogger.removeLogs(aRecordIDs, null, sProcessCode);
 
         this.updateProcessingState(sProcessCode);
         if (!aRecordsForProcessing.length) {
@@ -1847,7 +1849,8 @@ class SOWscInvoice extends Processor {
 
         // Update the status of passed records
         if (aPassedRecordIDs.length) {
-            await ProcessLogger.removeLogs(aPassedRecordIDs);
+            await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
+            await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3})));
             await this.markRecordsValid(sProcessCode, aPassedRecordIDs, true);
         }
 
@@ -2073,7 +2076,7 @@ class SOWscInvoice extends Processor {
             }
         }
 
-        await ProcessLogger.removeLogs(aRecordIDs);
+        await ProcessLogger.removeLogs(aRecordIDs, null, sProcessCode);
 
         this.updateProcessingState(sProcessCode);
         if (!aRecordsForProcessing.length) {
@@ -2193,7 +2196,8 @@ class SOWscInvoice extends Processor {
         }
 
         if (aPassedRecordIDs.length) {
-            await ProcessLogger.removeLogs(aPassedRecordIDs);
+            await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
+            await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3})));
         }
 
         this.updateExclusionSet({

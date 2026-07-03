@@ -66,7 +66,7 @@ class SalesOrder {
                 throw new Error('Query execution returned empty array');
             }
             return result;
-
+     
         } catch (err) {
             LOG._error && LOG.error(cds.i18n.messages.at('ERR_SALESORDER_QUERY', [err.message]));
             throw err;
