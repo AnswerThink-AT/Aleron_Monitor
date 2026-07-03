@@ -224,7 +224,7 @@ class EmployeeContractor extends Processor {
     let aSalesContracts = [];
 
     // Clear the error logs for the selected records; so that new process can start
-    await ProcessLogger.removeLogs([...this.recordIDs]);
+    await ProcessLogger.removeLogs([...this.recordIDs], null, sProcessCode);
     // Get list of countries by looping over `this.file.to_EmployeeHires` and get unique countries
     let aCountries = [];
     let aAreas = [];
@@ -647,7 +647,8 @@ class EmployeeContractor extends Processor {
       }
     }
     if (aPassedRecordIDs.length) {
-      await ProcessLogger.removeLogs(aPassedRecordIDs);
+      await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
+      await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3})));
       await Promise.allSettled(
         aPassedRecordIDs.map(id => {
           const rec = this.records.find(r => r.ID === id);
@@ -661,7 +662,8 @@ class EmployeeContractor extends Processor {
       );
 
       await Promise.allSettled([
-        ProcessLogger.removeLogs(aPassedRecordIDs),
+        ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode),
+        ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3}))),
         // this.markRecordsValid(sProcessCode, aPassedRecordIDs, true),
         ...aPassedRecordIDs.filter(recordID => {
           const record = this.records.find(r => r.ID === recordID);
@@ -1484,7 +1486,8 @@ class EmployeeContractor extends Processor {
 
       if (aErrorLogs.length) await ProcessLogger.addLogs(aErrorLogs);
       if (aPassedRecordIDs.length) {
-        await ProcessLogger.removeLogs(aPassedRecordIDs);
+        await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
+        await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3})));
         this.markRecordsValid(sProcessCode, aPassedRecordIDs, true);
       }
       if (aFailedRecordIDs.length) this.markRecordsValid(sProcessCode, aFailedRecordIDs, false);
@@ -1621,7 +1624,7 @@ class EmployeeContractor extends Processor {
       // aCustomerFieldNamesWhere = result.aCustomerFieldNamesWhere;
     }
 
-    await ProcessLogger.removeLogs(aRecordIDs);
+    await ProcessLogger.removeLogs(aRecordIDs, null, sProcessCode);
 
     this.updateProcessingState(sProcessCode);
     if (!aRecordsForProcessing.length) {
@@ -2035,7 +2038,8 @@ class EmployeeContractor extends Processor {
 
     // Update the status of passed records
     if (aPassedRecordIDs.length) {
-      await ProcessLogger.removeLogs(aPassedRecordIDs);
+      await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
+      await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3})));
       await UPDATE(EmployeeHires)
         .set({ valid: true, processLevel_code: sProcessCode })
         .where({ ID: { in: aPassedRecordIDs } });
@@ -3610,7 +3614,7 @@ Z38:{target:'CUST_COMMODITY_CODE2',vc:2},    // SERVICE DATE - FOR SDI IBM
       }
     }
 
-    await ProcessLogger.removeLogs(aRecordIDs);
+    await ProcessLogger.removeLogs(aRecordIDs, null, sProcessCode);
 
     this.updateProcessingState(sProcessCode);
     if (!aRecordsForProcessing.length) {
@@ -3735,7 +3739,8 @@ Z38:{target:'CUST_COMMODITY_CODE2',vc:2},    // SERVICE DATE - FOR SDI IBM
     }
 
     if (aPassedRecordIDs.length) {
-      await ProcessLogger.removeLogs(aPassedRecordIDs);
+      await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
+      await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3})));
       this.markRecordsValid(sProcessCode, aPassedRecordIDs, true)
     }
 
@@ -3772,7 +3777,7 @@ Z38:{target:'CUST_COMMODITY_CODE2',vc:2},    // SERVICE DATE - FOR SDI IBM
       }
     }
 
-    await ProcessLogger.removeLogs(aRecordIDs);
+    await ProcessLogger.removeLogs(aRecordIDs, null, sProcessCode);
 
     this.updateProcessingState(sProcessCode);
     if (!aRecordsForProcessing.length) {
@@ -3946,7 +3951,8 @@ Z38:{target:'CUST_COMMODITY_CODE2',vc:2},    // SERVICE DATE - FOR SDI IBM
     }
 
     if (aPassedRecordIDs.length) {
-      await ProcessLogger.removeLogs(aPassedRecordIDs);
+      await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
+      await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3})));
     }
 
     this.updateExclusionSet({
@@ -4094,7 +4100,7 @@ Z38:{target:'CUST_COMMODITY_CODE2',vc:2},    // SERVICE DATE - FOR SDI IBM
   //   }
 
   //   if (aPassedRecordIDs.length) {
-  //     await ProcessLogger.removeLogs(aPassedRecordIDs);
+  //     await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
   //   }
 
   //   this.updateExclusionSet({
@@ -4360,7 +4366,7 @@ Z38:{target:'CUST_COMMODITY_CODE2',vc:2},    // SERVICE DATE - FOR SDI IBM
   //   }
 
   //   if (aPassedRecordIDs.length) {
-  //     await ProcessLogger.removeLogs(aPassedRecordIDs);
+  //     await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
   //   }
 
   //   this.updateExclusionSet({
@@ -4397,7 +4403,7 @@ Z38:{target:'CUST_COMMODITY_CODE2',vc:2},    // SERVICE DATE - FOR SDI IBM
       }
     }
 
-    await ProcessLogger.removeLogs(aRecordIDs);
+    await ProcessLogger.removeLogs(aRecordIDs, null, sProcessCode);
 
     this.updateProcessingState(sProcessCode);
     if (!aRecordsForProcessing.length) {
@@ -4628,7 +4634,8 @@ Z38:{target:'CUST_COMMODITY_CODE2',vc:2},    // SERVICE DATE - FOR SDI IBM
     }
 
     if (aPassedRecordIDs.length) {
-      await ProcessLogger.removeLogs(aPassedRecordIDs);
+      await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
+      await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3})));
     }
 
     this.updateExclusionSet({

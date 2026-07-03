@@ -96,7 +96,7 @@ class Processor {
     try {
       if (aRecordsForProcessing.length) {
         await Promise.allSettled([
-          ProcessLogger.removeLogs(aRecordsForProcessing),
+          ProcessLogger.removeLogs(aRecordsForProcessing, null, sProcessCode),
           this.markRecordsValid(sProcessCode, aRecordsForProcessing, true),
         ]);
       }

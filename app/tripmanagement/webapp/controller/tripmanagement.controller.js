@@ -1505,9 +1505,7 @@ _buildJournalXml: function (oTrip, sCreditor) {
         <TaxJurisdiction>4500000000</TaxJurisdiction>
         <TaxItemGroup>001</TaxItemGroup>
       </Tax>
-      <AccountAssignment>
-        <WBSElement>${wbs}</WBSElement>
-      </AccountAssignment>
+      <AssignmentReference>${wbs}</AssignmentReference>
     </Item>`.trim();
 
   const creditorItemsXml = items.map((it, idx) => {

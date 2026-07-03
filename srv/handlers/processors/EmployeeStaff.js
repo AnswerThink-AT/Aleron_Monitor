@@ -412,7 +412,7 @@ class EmployeeStaff extends Processor {
     if (aErrorLogs.length) {
       try {
         await Promise.allSettled([
-          ProcessLogger.removeLogs(aFailedRecordIDs),
+          ProcessLogger.removeLogs(aFailedRecordIDs, null, sProcessCode),
           ProcessLogger.addLogs(aErrorLogs),
           // this.markRecordsValid(sProcessCode, aFailedRecordIDs, false),
           // UPDATE(StaffHires)
@@ -468,10 +468,12 @@ class EmployeeStaff extends Processor {
       }
     }
     if (aPassedRecordIDs.length) {
-      await ProcessLogger.removeLogs(aPassedRecordIDs);
+      await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
+      await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3})));
       // const targetEntity = String(entity).includes('StaffHires') ? StaffHires : EmployeeHires;
       await Promise.allSettled([
-        ProcessLogger.removeLogs(aPassedRecordIDs),
+        ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode),
+        ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3}))),
         // this.markRecordsValid(sProcessCode, aPassedRecordIDs, true),
         // UPDATE(StaffHires)
         //   .set({valid: true, processLevel_code: sProcessCode})
@@ -600,7 +602,7 @@ class EmployeeStaff extends Processor {
   
   //     // Handle passed records
   //     if (aPassedRecordIDs.length) {
-  //       // await ProcessLogger.removeLogs(aPassedRecordIDs);
+  //       // await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
   //       await this.markRecordsValid(sProcessCode, aPassedRecordIDs, true);
   //     }
   
@@ -720,7 +722,7 @@ class EmployeeStaff extends Processor {
 
 //     // Handle passed records
 //     if (aPassedRecordIDs.length) {
-//       // await ProcessLogger.removeLogs(aPassedRecordIDs);
+//       // await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
 //       await this.markRecordsValid(sProcessCode, aPassedRecordIDs, true);
 //     }
 
@@ -1517,7 +1519,8 @@ async Hiredinsuccessfactors(sProcessCode, bBreakExecution) {
     // 4) Logs + valid flags
     if (aErrorLogs.length) await ProcessLogger.addLogs(aErrorLogs);
     if (aPassedRecordIDs.length) {
-      await ProcessLogger.removeLogs(aPassedRecordIDs);
+      await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
+      await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3})));
       this.markRecordsValid(sProcessCode, aPassedRecordIDs, true);
     }
     if (aFailedRecordIDs.length) this.markRecordsValid(sProcessCode, aFailedRecordIDs, false);
@@ -1698,7 +1701,8 @@ async Hiredinsuccessfactors(sProcessCode, bBreakExecution) {
     }
 
     if (aPassedRecordIDs.length) {
-      await ProcessLogger.removeLogs(aPassedRecordIDs);
+      await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
+      await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3})));
        this.markRecordsValid(sProcessCode, aPassedRecordIDs, true)
     }
 
@@ -1867,7 +1871,8 @@ async Hiredinsuccessfactors(sProcessCode, bBreakExecution) {
     }
 
     if (aPassedRecordIDs.length) {
-      await ProcessLogger.removeLogs(aPassedRecordIDs);
+      await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
+      await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3})));
     }
 
     this.updateExclusionSet({
@@ -2015,7 +2020,7 @@ async Hiredinsuccessfactors(sProcessCode, bBreakExecution) {
   //   }
 
   //   if (aPassedRecordIDs.length) {
-  //     await ProcessLogger.removeLogs(aPassedRecordIDs);
+  //     await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
   //   }
 
   //   this.updateExclusionSet({
@@ -2052,7 +2057,7 @@ async Hiredinsuccessfactors(sProcessCode, bBreakExecution) {
       }
     }
 
-    await ProcessLogger.removeLogs(aRecordIDs);
+    await ProcessLogger.removeLogs(aRecordIDs, null, sProcessCode);
 
     this.updateProcessingState(sProcessCode);
     if (!aRecordsForProcessing.length) {
@@ -2246,7 +2251,8 @@ async Hiredinsuccessfactors(sProcessCode, bBreakExecution) {
     }
 
     if (aPassedRecordIDs.length) {
-      await ProcessLogger.removeLogs(aPassedRecordIDs);
+      await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
+      await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3})));
     }
 
     this.updateExclusionSet({

@@ -124,7 +124,7 @@ class TimeStaff_C extends Processor {
 
     async validateRecords(sProcessCode, bBreakExecution) {
       try {
-        await ProcessLogger.removeLogs([...this.recordIDs]);
+        await ProcessLogger.removeLogs([...this.recordIDs], null, sProcessCode);
 
       const aRecordsForProcessing = [],
             aErrorLogs = [],
@@ -192,7 +192,8 @@ class TimeStaff_C extends Processor {
       }
       if (aPassedRecordIDs.length) {
         await Promise.allSettled([
-          ProcessLogger.removeLogs(aPassedRecordIDs),
+          ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode),
+          ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3}))),
           this.markRecordsValid(sProcessCode, aPassedRecordIDs, true),
         ]);
         this.LOG._info && this.LOG.info(cds.i18n.messages.at('INFO_RECORDS_UPDATED', [sProcessCode, 'All']));
@@ -219,7 +220,7 @@ class TimeStaff_C extends Processor {
 
     async processTime(sProcessCode, bBreakExecution) {
       try {
-        await ProcessLogger.removeLogs([...this.recordIDs]);
+        await ProcessLogger.removeLogs([...this.recordIDs], null, sProcessCode);
 
       const aRecordsForProcessing=[],
           aErrorLogs = [],
@@ -458,7 +459,8 @@ class TimeStaff_C extends Processor {
       }
       if (aPassedRecordIDs.length) {
         await Promise.allSettled([
-          ProcessLogger.removeLogs(aPassedRecordIDs),
+          ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode),
+          ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3}))),
           this.markRecordsValid(sProcessCode, aPassedRecordIDs, true),
         ]);
         this.LOG._info && this.LOG.info(cds.i18n.messages.at('INFO_RECORDS_UPDATED', [sProcessCode, 'All']));

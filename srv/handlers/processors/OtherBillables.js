@@ -279,7 +279,7 @@ async validateRecords(sProcessCode, bBreakExecution) {
         if (blank) {
             errorLogs.push({
                 record_ID: blank.ID,
-                message: `Group ${key}: mandatory field blank`
+                message: `Group ${key}: mandatory field blank`,process_code: sProcessCode
             });
             group.forEach(r => failedRecordIDs.add(r.ID));
             LOG.info(` → group ${key} FAILED mandatory check`);
@@ -358,7 +358,7 @@ async validateRecords(sProcessCode, bBreakExecution) {
 
                 errorLogs.push({
                     record_ID: rec.ID,
-                    message: `Group ${key}: SAP SalesOrder not found from WorkOrder '${rec.wnWorkOrder}'`
+                    message: `Group ${key}: SAP SalesOrder not found from WorkOrder '${rec.wnWorkOrder}'`,process_code: sProcessCode
                 });
                 group.forEach(r => failedRecordIDs.add(r.ID));
                 LOG.info(` → group ${key} FAILED SO lookup (WorkOrder based)`);
@@ -459,7 +459,7 @@ async validateRecords(sProcessCode, bBreakExecution) {
         if (duplicates.length) {
             errorLogs.push({
                 record_ID: rec.ID,
-                message: `Group ${key}: duplicate TADN schedule-line exists`
+                message: `Group ${key}: duplicate TADN schedule-line exists`,process_code: sProcessCode
             });
             group.forEach(r => failedRecordIDs.add(r.ID));
             LOG.info(` → group ${key} FAILED duplicate TADN check`);
@@ -550,7 +550,8 @@ async validateRecords(sProcessCode, bBreakExecution) {
         const stepCodeStr = String(sProcessCode);
 
         await Promise.allSettled([
-            ProcessLogger.removeLogs(passed),
+            ProcessLogger.removeLogs(passed, null, sProcessCode),
+            ProcessLogger.addLogs(passed.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [stepCodeStr]), process_code: stepCodeStr, type: 3}))),
             ...passed.map(recordID => {
                 const record = this.records.find(r => r.ID === recordID);
 
@@ -631,7 +632,7 @@ async validateRecords(sProcessCode, bBreakExecution) {
         });
         LOG.info(`--- Completed Step 3.0: toProcess=${toProcess.length}, skipped=${skipped.length}`);
         LOG.info(`   toProcess IDs: [${toProcess.map(r => r.ID).join(', ')}]`);
-        await ProcessLogger.removeLogs(toProcess.map(r => r.ID));
+        await ProcessLogger.removeLogs(toProcess.map(r => r.ID), null, sProcessCode);
         this.updateProcessingState(sProcessCode);
         if (!toProcess.length) {
             LOG.info('--- Step 3.0: no records → exit early');
@@ -1297,7 +1298,8 @@ async validateRecords(sProcessCode, bBreakExecution) {
 
         if (aPassedRecordIDs.length) {
             LOG.info(`   Marking ${aPassedRecordIDs.length} passed record(s) valid`);
-            await ProcessLogger.removeLogs(aPassedRecordIDs);
+            await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
+            await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3})));
             await this.markRecordsValid(sProcessCode, aPassedRecordIDs, true);
         }
         if (aFailedRecordIDs.length) {
@@ -1341,7 +1343,7 @@ async validateRecords(sProcessCode, bBreakExecution) {
             }
         }
         LOG.info(`Step 3.0: toProcess=${aRecordsForProcessing.length}, skipped=${aSkippedRecords.length}`);
-        await ProcessLogger.removeLogs(aRecordsForProcessing.map(r => r.ID));
+        await ProcessLogger.removeLogs(aRecordsForProcessing.map(r => r.ID), null, sProcessCode);
         this.updateProcessingState(sProcessCode);
         if (!aRecordsForProcessing.length) {
             LOG.info('Step 3.0: no IC records → exit');
@@ -1717,7 +1719,8 @@ async validateRecords(sProcessCode, bBreakExecution) {
         }
 
         if (aPassedRecordIDs.length) {
-            await ProcessLogger.removeLogs(aPassedRecordIDs);
+            await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
+            await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3})));
             await this.markRecordsValid(sProcessCode, aPassedRecordIDs, true);
         }
         if (aFailedRecordIDs.length) {
@@ -2316,7 +2319,7 @@ async validateRecords(sProcessCode, bBreakExecution) {
             } catch (e) {
                 LOG.error(`[Group ${key}] FAILED → ${e.message}`);
                 for (const l of lines) {
-                    errorLogs.push({ record_ID: l.ID, message: e.message });
+                    errorLogs.push({ record_ID: l.ID, message: e.message,process_code: sProcessCode });
                     failed.push(l.ID);
                 }
             }
@@ -2325,7 +2328,7 @@ async validateRecords(sProcessCode, bBreakExecution) {
         // 5.9) Finalize
         LOG.info('[Step 5.9] Finalizing');
         if (failed.length) {
-            await ProcessLogger.removeLogs(failed);
+            await ProcessLogger.removeLogs(failed, null, sProcessCode);
             await ProcessLogger.addLogs(errorLogs);
             // keep failures at '5' so they’ll be retried next time
             await this.markRecordsValid('5', failed, false);
@@ -2557,7 +2560,7 @@ async validateRecords(sProcessCode, bBreakExecution) {
                 for (const r of recs) {
                     errorLogs.push({
                         record_ID: r.ID,
-                        message: err.message
+                        message: err.message,process_code: sProcessCode
                     });
                     failed.push(r.ID);
                 }
@@ -2567,7 +2570,7 @@ async validateRecords(sProcessCode, bBreakExecution) {
         // 5) finalize logs & validity
         LOG.info('[processSupplierInvoice] Finalizing MIRO step');
         if (failed.length) {
-            await ProcessLogger.removeLogs(failed);
+            await ProcessLogger.removeLogs(failed, null, sProcessCode);
             await ProcessLogger.addLogs(errorLogs);
             // keep failures at 'B' so they’ll be retried next time
             // await this.markRecordsValid('B', failed, false);

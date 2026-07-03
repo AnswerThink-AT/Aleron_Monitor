@@ -32,7 +32,7 @@ class Term extends Processor {
     const aPassedRecordIDs = [];
     const aSkippedRecords = [];
 
-    await ProcessLogger.removeLogs(this.recordIDs);
+    await ProcessLogger.removeLogs(this.recordIDs, null, sProcessCode);
     const aRecordsForProcessing = this.records.filter(r => this.shouldRecordProcess(r, sProcessCode));
 
     for (const record of aRecordsForProcessing) {
@@ -41,7 +41,8 @@ class Term extends Processor {
 
     if (aPassedRecordIDs.length) {
       await Promise.allSettled([
-        ProcessLogger.removeLogs(aPassedRecordIDs),
+        ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode),
+        ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3}))),
         this.markRecordsValid(sProcessCode, aPassedRecordIDs, true),
         UPDATE(Terminations).set({ valid: true, processLevel_code: sProcessCode }).where({ ID: { in: aPassedRecordIDs } })
       ]);
@@ -178,7 +179,8 @@ class Term extends Processor {
     }
 
     if (aErrorLogs.length) await ProcessLogger.addLogs(aErrorLogs);
-    if (aPassedRecordIDs.length) await ProcessLogger.removeLogs(aPassedRecordIDs);
+    if (aPassedRecordIDs.length) await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
+    if (aPassedRecordIDs.length) await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3})));
 
     this.updateExclusionSet({
       passed: aPassedRecordIDs,
