@@ -1991,9 +1991,9 @@ _prepareDataForSalesOrderItemCreate({
         ConditionType: conditionType,
         ConditionRateValue: record.customerBillRate
       }]
-    },
+    }, 
     // make sure to_Text exists before we write to it in the loop
-    to_Text: [{ LongText: '', LongTextID: '', Language: 'EN' }]
+    to_Text: [{ LongText: '', LongTextID: '', Language: 'EN' }] 
   };
 
   if (travelPayTerm) {
@@ -2025,7 +2025,9 @@ _prepareDataForSalesOrderItemCreate({
       oReturnData.PriceListType = 'ZD';
     }
   }
-
+  if (!oReturnData.to_Text[0].LongText) {
+    delete oReturnData.to_Text;
+  }
   return oReturnData;
 }
 
