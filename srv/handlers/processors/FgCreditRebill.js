@@ -979,7 +979,7 @@ class FgCreditRebill extends Processor {
 
         // Update the status of passed records
         // if (aPassedRecordIDs.length) {
-        //     await ProcessLogger.removeLogs(aPassedRecordIDs);
+        //     await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
     
         //     try {
         //         await UPDATE(Fg_Credit_Rebill)
@@ -1005,7 +1005,8 @@ class FgCreditRebill extends Processor {
         // }
 
         if (aPassedRecordIDs.length) {
-            await ProcessLogger.removeLogs(aPassedRecordIDs);
+            await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
+            await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3})));
     
             try {
                 const updateResult = await this.markRecordsValid(sProcessCode, aPassedRecordIDs, true);
@@ -1091,7 +1092,8 @@ class FgCreditRebill extends Processor {
         }
         // Update the status of passed records
         if (aPassedRecordIDs.length) {
-            await ProcessLogger.removeLogs(aPassedRecordIDs);
+            await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
+            await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3})));
             await UPDATE(Fg_Credit_Rebill)
                 .set({
                     valid: true,
@@ -1290,7 +1292,8 @@ class FgCreditRebill extends Processor {
 
         // Update the status of passed records
         if (aPassedRecordIDs.length) {
-            await ProcessLogger.removeLogs(aPassedRecordIDs);
+            await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
+            await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3})));
 
             // Get all record IDs that need to be updated as passed (including group members)
             const allRecordIDsToUpdateAsPassed = new Set();
@@ -1458,7 +1461,8 @@ class FgCreditRebill extends Processor {
 
         // Update the status of passed records
         if (aPassedRecordIDs.length) {
-            await ProcessLogger.removeLogs(aPassedRecordIDs);
+            await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
+            await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3})));
 
             // Get all record IDs that need to be updated as passed (including group members)
             const allRecordIDsToUpdateAsPassed = new Set();
@@ -1688,7 +1692,8 @@ class FgCreditRebill extends Processor {
 
         // Update the status of passed records
         if (aPassedRecordIDs.length) {
-            await ProcessLogger.removeLogs(aPassedRecordIDs);
+            await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
+            await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3})));
 
             // Get all record IDs that need to be updated as passed (including group members)
             const allRecordIDsToUpdateAsPassed = new Set();
@@ -1776,7 +1781,8 @@ class FgCreditRebill extends Processor {
         }
         // Update the status of passed records
         if (aPassedRecordIDs.length) {
-            await ProcessLogger.removeLogs(aPassedRecordIDs);
+            await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
+            await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3})));
             await UPDATE(Fg_Credit_Rebill)
                 .set({
                     valid: true,
@@ -2029,7 +2035,8 @@ class FgCreditRebill extends Processor {
 
         // Update the status of passed records
         if (aPassedRecordIDs.length) {
-            await ProcessLogger.removeLogs(aPassedRecordIDs);
+            await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
+            await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3})));
 
             // Get all record IDs that need to be updated as passed (including group members)
             const allRecordIDsToUpdateAsPassed = new Set();
@@ -2340,7 +2347,8 @@ class FgCreditRebill extends Processor {
   
         // Update the status of passed records
         if (aPassedRecordIDs.length) {
-            await ProcessLogger.removeLogs(aPassedRecordIDs);
+            await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
+            await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3})));
             
             // Get all record IDs that need to be updated as passed (including group members)
             const allRecordIDsToUpdateAsPassed = new Set();

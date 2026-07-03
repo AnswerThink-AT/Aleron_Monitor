@@ -131,7 +131,7 @@ class DrugBackgroundCheckProcessor extends Processor {
         const aSkippedRecords = [];
 
         this.updateProcessingState(sProcessCode);
-
+        
         for (const record of this.records) {
             if (this.shouldRecordProcess(record, sProcessCode)) {
                 aRecordsForProcessing.push({ ...record });
@@ -399,7 +399,8 @@ class DrugBackgroundCheckProcessor extends Processor {
             }
         }
         if (aPassedRecordIDs.length) {
-            await ProcessLogger.removeLogs(aPassedRecordIDs);
+            await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
+            await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3})));
             // await Promise.allSettled(
             //     aPassedRecordIDs.map(id => {
             //         const rec = this.records.find(r => r.ID === id);
@@ -413,7 +414,7 @@ class DrugBackgroundCheckProcessor extends Processor {
             // );
 
             await Promise.allSettled([
-                // ProcessLogger.removeLogs(aPassedRecordIDs),
+                // ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode),
                 // this.markRecordsValid(sProcessCode, aPassedRecordIDs, true),
                 ...aPassedRecordIDs.filter(recordID => {
                     const record = this.records.find(r => r.ID === recordID);
@@ -1142,7 +1143,7 @@ class DrugBackgroundCheckProcessor extends Processor {
 
     //     if (aErrorLogs.length) {
     //         await ProcessLogger.addLogs(aErrorLogs);
-
+            
     //     }
 
     //     // Update the `salesDocumentNoSAP` field in `this.records` and the database
@@ -1215,7 +1216,7 @@ class DrugBackgroundCheckProcessor extends Processor {
     //     if (aPassedRecordIDs.length > 0) {
     //         // this.LOG._info && this.LOG.info(`Updating ${aPassedRecordIDs.length} passed records with valid=true and processLevel_code=${sProcessCode}`);
     //         // this.LOG._info && this.LOG.info(`Passed record IDs: ${JSON.stringify(aPassedRecordIDs)}`);
-    //         await ProcessLogger.removeLogs(aPassedRecordIDs);
+    //         await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
     //         await this.markRecordsValid(sProcessCode, aPassedRecordIDs, true);
     //         // try {
     //         //     const updateResult = await UPDATE(Drug_Background_Check)
@@ -1250,43 +1251,43 @@ class DrugBackgroundCheckProcessor extends Processor {
     //     };
     // }
 
-    async processSalesOrder(sProcessCode, bBreakExecution) {
-        const aRecordsForProcessing = [],
-            aErrorLogs = [],
-            aFailedRecordIDs = [],
-            aPassedRecordIDs = [],
-            aSkippedRecords = [];
-
-        let aRecordIDs = [],
-            aworkOrderWNWhere = [],
-            aSalesOrderWhere = [],
-            aSalesOrderPartnerWhere = [],
-            aPurchaseOrderItemWhere = [],
-            aCustomerWhere = [],
-            aCustomerTermWhere = [],
-            aVendorWhere = [],
-            aCustomerFieldNamesWhere = [];
-
-        let mSalesOrder = new Map(),        // Map for Sales Order
-            mSalesOrderItem = new Map(),    // Map for Sales Order Item
-            mSalesOrderFirstItem = new Map(),   // Map for Sales Order First Item
-            mSalesOrderPartner = new Map(), // Map for Sales Order Partner Function
-            mVendor = new Map(),            // Map for Vendor and Vendor ZR
-            mPurchaseOrderItem = new Map(), // Map for Purchasing Document Item
-            mTravelPayTerm = new Map(),     // Map for Travel Pay Term Config Table
-            mTravelPayTermFeed = new Map(), // Map for Travel Pay Term Feed Config Table
-            mCustomerFieldNameValue = new Map(),    // Map for CustomFieldsToVC Table
-            mProcessingRecordsToCentralMapping = new Map();
-
-        for (const [iRecordIndex, record] of this.records.entries())
-        // for (const record of this.records)
-        {
-            if (this.shouldRecordProcess(record, sProcessCode)) {
-                // If record is on step level & is already valid, then skip
-                aRecordsForProcessing.push({ ...record });
-                mProcessingRecordsToCentralMapping.set(record.ID, iRecordIndex);
-                aRecordIDs.push(record.ID);
-            } else {
+      async processSalesOrder(sProcessCode, bBreakExecution) {
+            const aRecordsForProcessing = [],
+                aErrorLogs = [],
+                aFailedRecordIDs = [],
+                aPassedRecordIDs = [],
+                aSkippedRecords = [];
+    
+            let aRecordIDs = [],
+                aworkOrderWNWhere = [],
+                aSalesOrderWhere = [],
+                aSalesOrderPartnerWhere = [],
+                aPurchaseOrderItemWhere = [],
+                aCustomerWhere = [],
+                aCustomerTermWhere = [],
+                aVendorWhere = [],
+                aCustomerFieldNamesWhere = [];
+    
+            let mSalesOrder = new Map(),        // Map for Sales Order
+                mSalesOrderItem = new Map(),    // Map for Sales Order Item
+                mSalesOrderFirstItem = new Map(),   // Map for Sales Order First Item
+                mSalesOrderPartner = new Map(), // Map for Sales Order Partner Function
+                mVendor = new Map(),            // Map for Vendor and Vendor ZR
+                mPurchaseOrderItem = new Map(), // Map for Purchasing Document Item
+                mTravelPayTerm = new Map(),     // Map for Travel Pay Term Config Table
+                mTravelPayTermFeed = new Map(), // Map for Travel Pay Term Feed Config Table
+                mCustomerFieldNameValue = new Map(),    // Map for CustomFieldsToVC Table
+                mProcessingRecordsToCentralMapping = new Map();
+    
+            for (const [iRecordIndex, record] of this.records.entries())
+                // for (const record of this.records)
+                {
+                if (this.shouldRecordProcess(record, sProcessCode)) {
+                    // If record is on step level & is already valid, then skip
+                    aRecordsForProcessing.push({ ...record });
+                    mProcessingRecordsToCentralMapping.set(record.ID, iRecordIndex);
+                    aRecordIDs.push(record.ID);
+                } else {
 
                 aSkippedRecords.push({ ...record });
                 continue;
@@ -1729,195 +1730,196 @@ class DrugBackgroundCheckProcessor extends Processor {
             });
         }
 
-
-        // VC Date update process
-        await this._prepareVCData({
-            records: this.records,
-            mCustomerFieldNameValue: mCustomerFieldNameValue,
-            mPayloadMap: mPayloadMap,
-            mSalesOrders: mSalesOrder,
-            aPassedRecordIDs: aPassedRecordIDs,
-            aFailedRecordIDs: aFailedRecordIDs,
-            aErrorLogs: aErrorLogs
-        });
-
-        if (aErrorLogs.length) {
-            await ProcessLogger.addLogs(aErrorLogs);
-            await UPDATE(Drug_Background_Check)
-                .set({ valid: false, processLevel_code: sProcessCode })
-                .where({ ID: { in: aFailedRecordIDs } });
-        }
-
-        // Update the `salesDocumentNoSAP` field in `this.records` and the database
-        this.records.forEach((oRecord) => {
-            const oMapEntry = mPayloadMap.get(oRecord.ID);
-
-            if (oMapEntry && oMapEntry.salesOrder) {
-                // Update fields in memory
-                oRecord.salesDocumentNoSAP = oMapEntry.salesOrder;
-                oRecord.salesItemNoSAP = oMapEntry.salesOrderItem;
-                oRecord.vcData1UUID = oMapEntry.vcData1UUID ?? '';
-                oRecord.vcData2UUID = oMapEntry.vcData2UUID ?? '';
-                oRecord.salesOrderICUpdateRequired = oMapEntry.salesOrderICUpdateRequired;
-                oRecord.p2SalesDocumentNoSAP = oMapEntry.p2SalesDocumentNoSAP;
-                oRecord.PORequiredSAP = oMapEntry.PORequiredSAP;
+    
+            // VC Date update process
+            await this._prepareVCData({
+                records: this.records,
+                mCustomerFieldNameValue: mCustomerFieldNameValue,
+                mPayloadMap: mPayloadMap,
+                mSalesOrders: mSalesOrder,
+                aPassedRecordIDs: aPassedRecordIDs,
+                aFailedRecordIDs: aFailedRecordIDs,
+                aErrorLogs: aErrorLogs
+            });
+    
+            if (aErrorLogs.length) {
+                await ProcessLogger.addLogs(aErrorLogs);
+                await UPDATE(Drug_Background_Check)
+                    .set({ valid: false, processLevel_code: sProcessCode })
+                    .where({ ID: { in: aFailedRecordIDs } });
+            }
+    
+            // Update the `salesDocumentNoSAP` field in `this.records` and the database
+            this.records.forEach((oRecord) => {
+                const oMapEntry = mPayloadMap.get(oRecord.ID);
+    
+                if (oMapEntry && oMapEntry.salesOrder) {
+                    // Update fields in memory
+                    oRecord.salesDocumentNoSAP = oMapEntry.salesOrder;
+                    oRecord.salesItemNoSAP = oMapEntry.salesOrderItem;
+                    oRecord.vcData1UUID = oMapEntry.vcData1UUID ?? '';
+                    oRecord.vcData2UUID = oMapEntry.vcData2UUID ?? '';
+                    oRecord.salesOrderICUpdateRequired = oMapEntry.salesOrderICUpdateRequired;
+                    oRecord.p2SalesDocumentNoSAP = oMapEntry.p2SalesDocumentNoSAP;
+                    oRecord.PORequiredSAP = oMapEntry.PORequiredSAP;
                 oRecord.purchaseDocumentNoSAP = oMapEntry.purchaseDocumentNoSAP;
+                }
+            });
+    
+            // Create records to update using flatMap
+            const aRecordsToUpdate = this.records.flatMap((oRecord) => {
+                const oMapEntry = mPayloadMap.get(oRecord.ID);
+    
+                return oMapEntry && oMapEntry.salesOrder
+                    ? [
+                        {
+                            ID: oRecord.ID,
+                            salesDocumentNoSAP: oMapEntry.salesOrder,
+                            salesItemNoSAP: oMapEntry.salesOrderItem,
+                            vcData1UUID: oMapEntry.vcData1UUID,
+                            vcData2UUID: oMapEntry.vcData2UUID,
+                            salesOrderICUpdateRequired: oMapEntry.salesOrderICUpdateRequired,
+                            p2SalesDocumentNoSAP: oMapEntry.p2SalesDocumentNoSAP,
+                            PORequiredSAP: oMapEntry.PORequiredSAP,
+                            purchaseDocumentNoSAP: oMapEntry.purchaseDocumentNoSAP,
+                        },
+                    ]
+                    : [];
+            });
+    
+            if (aRecordsToUpdate.length) {
+                await Promise.all(
+                    aRecordsToUpdate.map((oRecord) => {
+                        const iRecordIndex = mProcessingRecordsToCentralMapping.get(oRecord.ID);
+                        this.records[iRecordIndex].salesDocumentNoSAP = oRecord.salesDocumentNoSAP;
+                        this.records[iRecordIndex].salesItemNoSAP = oRecord.salesItemNoSAP;
+                        this.records[iRecordIndex].vcData1UUID = oRecord.vcData1UUID;
+                        this.records[iRecordIndex].vcData2UUID = oRecord.vcData2UUID;
+                        this.records[iRecordIndex].salesOrderICUpdateRequired = oRecord.salesOrderICUpdateRequired;
+                        this.records[iRecordIndex].p2SalesDocumentNoSAP = oRecord.p2SalesDocumentNoSAP;
+                        this.records[iRecordIndex].PORequiredSAP = oRecord.PORequiredSAP;
+                        this.records[iRecordIndex].purchaseDocumentNoSAP = oRecord.purchaseDocumentNoSAP;
+                        return UPDATE(Drug_Background_Check)
+                            .set({
+                                salesDocumentNoSAP: oRecord.salesDocumentNoSAP,
+                                salesItemNoSAP: oRecord.salesItemNoSAP,
+                                vcData1UUID: oRecord.vcData1UUID,
+                                vcData2UUID: oRecord.vcData2UUID,
+                                salesOrderICUpdateRequired: oRecord.salesOrderICUpdateRequired,
+                                p2SalesDocumentNoSAP: oRecord.p2SalesDocumentNoSAP,
+                                PORequiredSAP: oRecord.PORequiredSAP,
+                                purchaseDocumentNoSAP: oRecord.purchaseDocumentNoSAP,
+                            })
+                            .where({ ID: oRecord.ID });
+                    }),
+                );
             }
-        });
-
-        // Create records to update using flatMap
-        const aRecordsToUpdate = this.records.flatMap((oRecord) => {
-            const oMapEntry = mPayloadMap.get(oRecord.ID);
-
-            return oMapEntry && oMapEntry.salesOrder
-                ? [
-                    {
-                        ID: oRecord.ID,
-                        salesDocumentNoSAP: oMapEntry.salesOrder,
-                        salesItemNoSAP: oMapEntry.salesOrderItem,
-                        vcData1UUID: oMapEntry.vcData1UUID,
-                        vcData2UUID: oMapEntry.vcData2UUID,
-                        salesOrderICUpdateRequired: oMapEntry.salesOrderICUpdateRequired,
-                        p2SalesDocumentNoSAP: oMapEntry.p2SalesDocumentNoSAP,
-                        PORequiredSAP: oMapEntry.PORequiredSAP,
-                        purchaseDocumentNoSAP: oMapEntry.purchaseDocumentNoSAP,
-                    },
-                ]
-                : [];
-        });
-
-        if (aRecordsToUpdate.length) {
-            await Promise.all(
-                aRecordsToUpdate.map((oRecord) => {
-                    const iRecordIndex = mProcessingRecordsToCentralMapping.get(oRecord.ID);
-                    this.records[iRecordIndex].salesDocumentNoSAP = oRecord.salesDocumentNoSAP;
-                    this.records[iRecordIndex].salesItemNoSAP = oRecord.salesItemNoSAP;
-                    this.records[iRecordIndex].vcData1UUID = oRecord.vcData1UUID;
-                    this.records[iRecordIndex].vcData2UUID = oRecord.vcData2UUID;
-                    this.records[iRecordIndex].salesOrderICUpdateRequired = oRecord.salesOrderICUpdateRequired;
-                    this.records[iRecordIndex].p2SalesDocumentNoSAP = oRecord.p2SalesDocumentNoSAP;
-                    this.records[iRecordIndex].PORequiredSAP = oRecord.PORequiredSAP;
-                    this.records[iRecordIndex].purchaseDocumentNoSAP = oRecord.purchaseDocumentNoSAP;
-                    return UPDATE(Drug_Background_Check)
-                        .set({
-                            salesDocumentNoSAP: oRecord.salesDocumentNoSAP,
-                            salesItemNoSAP: oRecord.salesItemNoSAP,
-                            vcData1UUID: oRecord.vcData1UUID,
-                            vcData2UUID: oRecord.vcData2UUID,
-                            salesOrderICUpdateRequired: oRecord.salesOrderICUpdateRequired,
-                            p2SalesDocumentNoSAP: oRecord.p2SalesDocumentNoSAP,
-                            PORequiredSAP: oRecord.PORequiredSAP,
-                            purchaseDocumentNoSAP: oRecord.purchaseDocumentNoSAP,
-                        })
-                        .where({ ID: oRecord.ID });
-                }),
-            );
+    
+            // Update the status of passed records
+            if (aPassedRecordIDs.length) {
+                await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
+                await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3})));
+                await this.markRecordsValid(sProcessCode, aPassedRecordIDs, true);
+            }
+    
+            // Update the status of failed records
+            if (aFailedRecordIDs.length) {
+                await Promise.allSettled([
+                    this.markRecordsValid(sProcessCode, aFailedRecordIDs, false),
+                ]);
+            }
+    
+            // Update Exclusion Set
+            this.updateExclusionSet({
+                passed: aPassedRecordIDs,
+                failed: aFailedRecordIDs,
+                skipped: aSkippedRecords,
+                bBreakExecution,
+            });
+    
+            // Return Process Result
+            return {
+                hasError: aFailedRecordIDs.length > 0,
+                continue: aFailedRecordIDs.length === 0,
+            };
         }
 
-        // Update the status of passed records
-        if (aPassedRecordIDs.length) {
-            await ProcessLogger.removeLogs(aPassedRecordIDs);
-            await this.markRecordsValid(sProcessCode, aPassedRecordIDs, true);
-        }
 
-        // Update the status of failed records
-        if (aFailedRecordIDs.length) {
-            await Promise.allSettled([
-                this.markRecordsValid(sProcessCode, aFailedRecordIDs, false),
-            ]);
-        }
-
-        // Update Exclusion Set
-        this.updateExclusionSet({
-            passed: aPassedRecordIDs,
-            failed: aFailedRecordIDs,
-            skipped: aSkippedRecords,
-            bBreakExecution,
-        });
-
-        // Return Process Result
-        return {
-            hasError: aFailedRecordIDs.length > 0,
-            continue: aFailedRecordIDs.length === 0,
-        };
-    }
-
-
-    /**
-             * Prepare data for SalesOrder creation
-             * @param {object} mParams
-             * @param {object} mParams.record -  record from file
-             * @param {object} mParams.firstSOItem - First SalesOrder Item Object
-             * @param {object} mParams.soItemMax - SalesOrder Item Object with Max Item Number
-             * @returns {object} SalesOrderItem payload with 'errors' property. `errors` property MUST BE removed before sending to S/4HANA
-             */
-    _prepareDataForSalesOrderItemCreate({
-        record,
-        firstSOItem,
-        lastSOItem,
-        travelPayTerm,
-        travelPayTermFeed,
-        conditionType,
-        billingType,
-    }) {
-        const oReturnData = {
-            SalesOrder: firstSOItem.SalesOrder,
-            SalesOrderItem: String(Number(lastSOItem.SalesOrderItem) + 10),
-            SalesOrderItemCategory: 'TAD',
-            Material: 'MISC_EXPENSE',
-            RequestedQuantity: '1',
-            OrderQuantityUnit: 'LAB',
-            ProductionPlant: firstSOItem.ProductionPlant || '',
-            SalesOrderItemText: 'DRUG SCREENING',
-            WBSElement: firstSOItem.WBSElement,
+      /**
+               * Prepare data for SalesOrder creation
+               * @param {object} mParams
+               * @param {object} mParams.record -  record from file
+               * @param {object} mParams.firstSOItem - First SalesOrder Item Object
+               * @param {object} mParams.soItemMax - SalesOrder Item Object with Max Item Number
+               * @returns {object} SalesOrderItem payload with 'errors' property. `errors` property MUST BE removed before sending to S/4HANA
+               */
+        _prepareDataForSalesOrderItemCreate({
+            record,
+            firstSOItem,
+            lastSOItem,
+            travelPayTerm,
+            travelPayTermFeed,
+            conditionType,
+            billingType,
+        }) {
+            const oReturnData = {
+                SalesOrder: firstSOItem.SalesOrder,
+                SalesOrderItem: String(Number(lastSOItem.SalesOrderItem) + 10),
+                SalesOrderItemCategory: 'TAD',
+                Material: 'MISC_EXPENSE',
+                RequestedQuantity: '1',
+                OrderQuantityUnit: 'LAB',
+                ProductionPlant: firstSOItem.ProductionPlant || '',
+                SalesOrderItemText: 'DRUG SCREENING',
+                WBSElement: firstSOItem.WBSElement,
             PurchaseOrderByCustomer: record?.customerPoNoLabor ?? '',
-            PricingDate: `/Date(${+moment()})/`,
-            YY1_PurchasingDoc_SD_SDI: firstSOItem.YY1_PurchasingDoc_SD_SDI || '',
-            YY1_WeekEnd_SD_SDI: `/Date(${moment(record.weekEndDate, "YYYYMMDD").valueOf()})/`,
-            YY1_CustomBillingType_SDI: billingType.Billing_type,
-            YY1_WNWorkOrder_SD_SDI: firstSOItem.YY1_WNWorkOrder_SD_SDI,
-            YY1_WNInvoice_SD_SDI: record.wnInvoiceNo,
-            to_ScheduleLine: [this._prepareDataForScheduleLine({ record, lastSOItem })],
-            to_PricingElement: {
-                results: [{
-                    ConditionType: conditionType,
-                    ConditionRateValue: record.amount
-                }]
+                PricingDate: `/Date(${+moment()})/`,
+                YY1_PurchasingDoc_SD_SDI: firstSOItem.YY1_PurchasingDoc_SD_SDI || '',
+                YY1_WeekEnd_SD_SDI: `/Date(${moment(record.weekEndDate, "YYYYMMDD").valueOf()})/`,
+                YY1_CustomBillingType_SDI: billingType.Billing_type,
+                YY1_WNWorkOrder_SD_SDI: firstSOItem.YY1_WNWorkOrder_SD_SDI,
+                YY1_WNInvoice_SD_SDI: record.wnInvoiceNo,
+                to_ScheduleLine: [this._prepareDataForScheduleLine({ record, lastSOItem })],
+                to_PricingElement: {
+                    results: [{
+                        ConditionType: conditionType,
+                        ConditionRateValue: record.amount
+                    }]
+                }
             }
-        }
-
-        if (travelPayTerm) {
-            oReturnData.PurchaseOrderByShipToParty = travelPayTerm.poBox;
-        }
-
-        if (travelPayTermFeed) {
-            oReturnData.CustomerPaymentTerms = travelPayTermFeed.netPaymentTerm;
-        }
-
-        // Fill custom fields
-        for (const fieldIndex of Array(15).keys()) {
-            if (record[`customerFieldName${fieldIndex + 1}`] === 'Z20') {
-                oReturnData.to_Text[0].LongText = record[`customerFieldValue${fieldIndex + 1}`];
-                oReturnData.to_Text[0].LongTextID = 'ZJOB';
-                oReturnData.to_Text[0].Language = 'EN';
-                break;
+    
+            if (travelPayTerm) {
+                oReturnData.PurchaseOrderByShipToParty = travelPayTerm.poBox;
             }
-            if (record[`customerFieldName${fieldIndex + 1}`] === 'Z21') {
-                oReturnData.to_Text[0].LongText = record[`customerFieldValue${fieldIndex + 1}`];
-                oReturnData.to_Text[0].LongTextID = 'ZSLD';
-                oReturnData.to_Text[0].Language = 'EN';
-                break;
+    
+            if (travelPayTermFeed) {
+                oReturnData.CustomerPaymentTerms = travelPayTermFeed.netPaymentTerm;
             }
-            if (
-                record[`customerFieldName${fieldIndex + 1}`] === 'Z41' &&
-                ['X', 'YES', 'Y'].includes(record[`customerFieldValue${fieldIndex + 1}`])
-            ) {
-                oReturnData.PriceListType = 'ZD';
+    
+            // Fill custom fields
+            for (const fieldIndex of Array(15).keys()) {
+                if (record[`customerFieldName${fieldIndex + 1}`] === 'Z20') {
+                    oReturnData.to_Text[0].LongText = record[`customerFieldValue${fieldIndex + 1}`];
+                    oReturnData.to_Text[0].LongTextID = 'ZJOB';
+                    oReturnData.to_Text[0].Language = 'EN';
+                    break;
+                }
+                if (record[`customerFieldName${fieldIndex + 1}`] === 'Z21') {
+                    oReturnData.to_Text[0].LongText = record[`customerFieldValue${fieldIndex + 1}`];
+                    oReturnData.to_Text[0].LongTextID = 'ZSLD';
+                    oReturnData.to_Text[0].Language = 'EN';
+                    break;
+                }
+                if (
+                    record[`customerFieldName${fieldIndex + 1}`] === 'Z41' &&
+                    ['X', 'YES', 'Y'].includes(record[`customerFieldValue${fieldIndex + 1}`])
+                ) {
+                    oReturnData.PriceListType = 'ZD';
+                }
             }
-        }
-
-        return oReturnData;
-    }
+    
+            return oReturnData;
+        }    
 
     /**
      * Special routine for processing IC (Intercompany) SalesOrder updates
@@ -1969,7 +1971,7 @@ class DrugBackgroundCheckProcessor extends Processor {
                 if (!record._varSoNum || !record.p2SalesDocumentNoSAP) {
                     errorLogs.push({
                         record_ID: record.ID,
-                        message: 'Missing required IC data: SalesOrder number or P2 Sales Document'
+                        message: 'Missing required IC data: SalesOrder number or P2 Sales Document',process_code: sProcessCode
                     });
                     failedRecords.push(record.ID);
                     continue;
@@ -1983,7 +1985,7 @@ class DrugBackgroundCheckProcessor extends Processor {
                 if (!icDistChannelResult.success || !icDistChannelResult.data) {
                     errorLogs.push({
                         record_ID: record.ID,
-                        message: `Failed to get distribution channel for P2 document: ${icDistChannelResult.message}`
+                        message: `Failed to get distribution channel for P2 document: ${icDistChannelResult.message}`,process_code: sProcessCode
                     });
                     failedRecords.push(record.ID);
                     continue;
@@ -1996,7 +1998,7 @@ class DrugBackgroundCheckProcessor extends Processor {
                 if (varIcDistChannel !== 'IC') {
                     errorLogs.push({
                         record_ID: record.ID,
-                        message: `WN & <> IC Dis Ch. Check SS order. Distribution Channel: ${varIcDistChannel}`
+                        message: `WN & <> IC Dis Ch. Check SS order. Distribution Channel: ${varIcDistChannel}`,process_code: sProcessCode
                     });
                     failedRecords.push(record.ID);
                     continue;
@@ -2008,7 +2010,7 @@ class DrugBackgroundCheckProcessor extends Processor {
                 if (!varVbelnSo || varVbelnSo.toString().trim() === '') {
                     errorLogs.push({
                         record_ID: record.ID,
-                        message: 'Sales order not found - VAR_VBELN_SO is blank'
+                        message: 'Sales order not found - VAR_VBELN_SO is blank',process_code: sProcessCode
                     });
                     failedRecords.push(record.ID);
                     continue;
@@ -2110,7 +2112,7 @@ class DrugBackgroundCheckProcessor extends Processor {
                 if (!nextSoItemNumberResult.success || !nextSoItemNumberResult.data) {
                     errorLogs.push({
                         record_ID: record.ID,
-                        message: `Failed to get next item number for SO: ${nextSoItemNumberResult.message}`
+                        message: `Failed to get next item number for SO: ${nextSoItemNumberResult.message}`,process_code: sProcessCode
                     });
                     failedRecords.push(record.ID);
                     continue;
@@ -2200,7 +2202,7 @@ class DrugBackgroundCheckProcessor extends Processor {
                 if (!nextItemNumberResult.success || !nextItemNumberResult.data) {
                     errorLogs.push({
                         record_ID: record.ID,
-                        message: `Failed to get next item number for IC SalesOrder: ${nextItemNumberResult.message}`
+                        message: `Failed to get next item number for IC SalesOrder: ${nextItemNumberResult.message}`,process_code: sProcessCode
                     });
                     failedRecords.push(record.ID);
                     continue;
@@ -2286,7 +2288,7 @@ class DrugBackgroundCheckProcessor extends Processor {
                 } else {
                     errorLogs.push({
                         record_ID: record.ID,
-                        message: `IC SalesOrder item creation failed: ${icCreationResult.message}`
+                        message: `IC SalesOrder item creation failed: ${icCreationResult.message}`,process_code: sProcessCode
                     });
                     failedRecords.push(record.ID);
 
@@ -2300,7 +2302,7 @@ class DrugBackgroundCheckProcessor extends Processor {
             } catch (err) {
                 errorLogs.push({
                     record_ID: record.ID,
-                    message: `Unexpected error during IC SalesOrder processing: ${err.message}`
+                    message: `Unexpected error during IC SalesOrder processing: ${err.message}`,process_code: sProcessCode
                 });
                 failedRecords.push(record.ID);
 
@@ -2313,7 +2315,8 @@ class DrugBackgroundCheckProcessor extends Processor {
 
         // Step 10: Update record statuses
         if (processedRecords.length > 0) {
-            await ProcessLogger.removeLogs(aPassedRecordIDs);
+            await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
+            await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3})));
             await this.markRecordsValid(processCode, processedRecords, true);
         }
 
@@ -3463,290 +3466,301 @@ class DrugBackgroundCheckProcessor extends Processor {
         }
     }
 
-    async processIntercompanyso(sProcessCode, bBreakExecution) {
-        const aRecordsForProcessing = [],
-            aErrorLogs = [],
-            aFailedRecordIDs = [],
-            aPassedRecordIDs = [],
-            aSkippedRecords = [];
-
-        let aRecordIDs = [],
-            aSalesOrderWhere = [],
-            aVendorWhere = [],
-            aPurchaseOrderItemWhere = [],
-            aCustomerWhere = [],
-            aCustomerTermWhere = [],
-            aCustomerFieldNamesWhere = [];
-
-        let mCustomerFieldNameValue = new Map(),    // Map for CustomFieldsToVC Table
-            mSalesOrder = new Map(), // Map for Sales Order
-            mSalesOrderItem = new Map(), // Map for Sales Order Item
-            mSalesOrderPartner = new Map(), // Map for Sales Order Partner Fucntion
-            mVendor = new Map(), // Map for Vendor from Config Table
-            mPurchaseOrderItem = new Map(), // Map for Purchase Order Item
-            mTravelPayTerm = new Map(), // Map for Travel Pay Term from Config Table
-            mTravelPayTermFeed = new Map(), // Map for Travel Pay Term Feed from Config Table
-            mProcessingRecordsToCentralMapping = new Map();
-
-        for (const [iRecordIndex, record] of this.records.entries()) {
-            if (this.shouldRecordProcess(record, sProcessCode) && record.salesOrderICUpdateRequired === 'X' && record?.p2SalesDocumentNoSAP) {
-                // If record is on step level & is already valid, then skip
-                aRecordsForProcessing.push({ ...record });
-                mProcessingRecordsToCentralMapping.set(record.ID, iRecordIndex);
-                aRecordIDs.push(record.ID);
-            } else {
-                if (record.salesOrderICUpdateRequired !== 'X' || !record.p2SalesDocumentNoSAP) {
-                    await this.markRecordsValid(sProcessCode, [record.ID], true);
-                    continue;
+      async processIntercompanyso(sProcessCode, bBreakExecution) {
+            const aRecordsForProcessing = [],
+                aErrorLogs = [],
+                aFailedRecordIDs = [],
+                aPassedRecordIDs = [],
+                aSkippedRecords = [];
+    
+            let aRecordIDs = [],
+                aSalesOrderWhere = [],
+                aVendorWhere = [],
+                aPurchaseOrderItemWhere = [],
+                aCustomerWhere = [],
+                aCustomerTermWhere = [],
+                aCustomerFieldNamesWhere = [];
+    
+            let mCustomerFieldNameValue = new Map(),    // Map for CustomFieldsToVC Table
+                mSalesOrder = new Map(), // Map for Sales Order
+                mSalesOrderItem = new Map(), // Map for Sales Order Item
+                mSalesOrderPartner = new Map(), // Map for Sales Order Partner Fucntion
+                mVendor = new Map(), // Map for Vendor from Config Table
+                mPurchaseOrderItem = new Map(), // Map for Purchase Order Item
+                mTravelPayTerm = new Map(), // Map for Travel Pay Term from Config Table
+                mTravelPayTermFeed = new Map(), // Map for Travel Pay Term Feed from Config Table
+                mProcessingRecordsToCentralMapping = new Map();
+    
+            for (const [iRecordIndex, record] of this.records.entries()) {
+                if (this.shouldRecordProcess(record, sProcessCode) && record.salesOrderICUpdateRequired === 'X' && record?.p2SalesDocumentNoSAP) {
+                    // If record is on step level & is already valid, then skip
+                    aRecordsForProcessing.push({ ...record });
+                    mProcessingRecordsToCentralMapping.set(record.ID, iRecordIndex);
+                    aRecordIDs.push(record.ID);
                 } else {
-                    aSkippedRecords.push({ ...record });
-                    continue;
+                    if (record.salesOrderICUpdateRequired !== 'X' || !record.p2SalesDocumentNoSAP) {
+                        await this.markRecordsValid(sProcessCode, [record.ID], true);
+                        continue;
+                    } else {
+                        aSkippedRecords.push({ ...record });
+                        continue;
+                    }
                 }
-            }
-
-            if (record.p2SalesDocumentNoSAP) {
-                aSalesOrderWhere.push(record.p2SalesDocumentNoSAP);
-            }
-
-            ({ mCustomerFieldNameValue, aCustomerFieldNamesWhere } = this.customerFieldNameValues(record, mCustomerFieldNameValue, aCustomerFieldNamesWhere));
-        }
-
-        await ProcessLogger.removeLogs(aRecordIDs);
-
-        this.updateProcessingState(sProcessCode);
-        if (!aRecordsForProcessing.length) {
-            // If Step doesn't need to be processed, simply return to avoid costly calls
-            return {
-                hasError: false,
-                continue: true,
-            };
-        }
-
-        try {
-            const [
-                { reason: anySalesOrderErr, value: aSalesOrders },
-                { reason: anySalesOrderItemErr, value: aSalesOrderItems },
-                { reason: anySalesOrderPartnerErr, value: aSalesOrderPartners },
-            ] = await Promise.allSettled([
-                this.salesOrderAPI.executeQuery(
-                    SELECT.from('A_SalesOrder')
-                        .columns(['SalesOrder', 'SalesOrganization', 'DistributionChannel', 'OrganizationDivision', 'CustomerPaymentTerms',
-                            'SoldToParty', 'YY1_AlphanumericSalesO_SDH', 'YY1_CustomSalesOrder_SDH', 'CustomerGroup', 'CustomerPriceGroup', 'AdditionalCustomerGroup2'])
-                        .where({
-                            SalesOrder: { in: [...new Set(aSalesOrderWhere)] }
-                        })
-                ),
-
-                this.salesOrderAPI.executeQuery(
-                    SELECT.from('A_SalesOrderItem')
-                        .columns(['SalesOrder', 'SalesOrderItem', 'YY1_PurchasingDoc_SD_SDI',
-                            'YY1_WNWorkOrder_SD_SDI', 'Material'])
-                        .where({
-                            SalesOrder: { in: [...new Set(aSalesOrderWhere)] }
-                        })
-                ),
-
-                this.salesOrderAPI.executeQuery(
-                    SELECT.from('A_SalesOrderHeaderPartner')
-                        .columns(['SalesOrder', 'Customer', 'Supplier', 'PartnerFunction'])
-                        .where({
-                            SalesOrder: { in: [...new Set(aSalesOrderWhere)] },
-                            PartnerFunction: { in: ['ZR', 'ZM', 'BP'] }
-                        })
-                ),
-            ]);
-
-            if (!anySalesOrderErr?.message && aSalesOrders.length) {
-                aSalesOrders.forEach((oSalesOrder) => {
-                    mSalesOrder.set(oSalesOrder.SalesOrder, oSalesOrder);
-                    aCustomerWhere.push(oSalesOrder.SoldToParty);
-                    aCustomerTermWhere.push(oSalesOrder.CustomerPaymentTerms);
-                });
-            }
-
-            if (!anySalesOrderItemErr?.message && aSalesOrderItems.length) {
-                aSalesOrderItems.forEach((oSalesOrderItem) => {
-                    if (!mSalesOrderItem.has(oSalesOrderItem.SalesOrder)) {
-                        mSalesOrderItem.set(oSalesOrderItem.SalesOrder, []);
-                    }
-                    mSalesOrderItem.get(oSalesOrderItem.SalesOrder).push(oSalesOrderItem);
-                    if (!aPurchaseOrderItemWhere.includes(oSalesOrderItem.YY1_PurchasingDoc_SD_SDI)) {
-                        aPurchaseOrderItemWhere.push(oSalesOrderItem.YY1_PurchasingDoc_SD_SDI);
-                    }
-                });
-            }
-
-            if (!anySalesOrderPartnerErr?.message && aSalesOrderPartners.length) {
-                aSalesOrderPartners.forEach((oSalesOrderPartner) => {
-                    if (!mSalesOrderPartner.has(oSalesOrderPartner.SalesOrder)) {
-                        mSalesOrderPartner.set(oSalesOrderPartner.SalesOrder, []);
-                    }
-                    mSalesOrderPartner.get(oSalesOrderPartner.SalesOrder).push(oSalesOrderPartner);
-
-                    if (oSalesOrderPartner.PartnerFunction === 'ZR') {
-                        aVendorWhere.push(oSalesOrderPartner.Supplier);
-                    }
-                });
-            }
-        } catch (err) {
-            this.LOG._error && this.LOG.error(err.message);
-        }
-
-        try {
-            const [
-                { reason: anyVendorErr, value: aVendors },
-                { reason: anyPurchaseOrderItemErr, value: aPurchaseOrderItems },
-                { reason: anyTravelPayTermsErr, value: aTravelPayTerms },
-                { reason: anyTravelPayTermFeedErr, value: aTravelPayTermFeeds },
-            ] = await Promise.allSettled([
-                SELECT.from('com.aleron.monitor.Vendor_VendorRemit')
-                    .columns(['vendor', 'vendorZR'])
-                    .where({ vendor: { in: aVendorWhere } }),
-
-                this.purchaseOrderAPI.executeQuery(
-                    SELECT.from('PurchaseOrderItem')
-                        .columns(['PurchaseOrder', 'PurchaseOrderItem'])
-                        .where({ PurchaseOrder: { in: [...new Set(aPurchaseOrderItemWhere)] } })
-                ),
-
-                SELECT.from('com.aleron.monitor.TravelCustomerPayTermByPOBox')
-                    .columns(['customerNo', 'customerTerm', 'poBox'])
-                    .where({
-                        customerNo: { in: aCustomerWhere },
-                        customerTerm: { in: aCustomerTermWhere }
-                    }),
-
-                SELECT.from('com.aleron.monitor.TravelPayTermFeed')
-                    .columns(['paymentTerm', 'netPaymentTerm'])
-                    .where({
-                        paymentTerm: { in: aCustomerTermWhere }
-                    }),
-            ]);
-
-            if (!anyVendorErr?.message && aVendors.length) {
-                aVendors.forEach((oVendor) => {
-                    mVendor.set(oVendor.SalesOrder, oVendor);
-                });
-            }
-
-            if (!anyPurchaseOrderItemErr?.message && aPurchaseOrderItems.length) {
-                aPurchaseOrderItems.forEach((oPurchaseOrder) => {
-                    if (!mPurchaseOrderItem.has(oPurchaseOrder.PurchaseOrder)) {
-                        mPurchaseOrderItem.set(oPurchaseOrder.PurchaseOrder, []);
-                    }
-                    mPurchaseOrderItem.get(oPurchaseOrder.PurchaseOrder).push(oPurchaseOrder);
-                });
-            }
-
-            if (!anyTravelPayTermsErr?.message && aTravelPayTerms.length) {
-                aTravelPayTerms.forEach((oTravelPayTerm) => {
-                    mTravelPayTerm.set(oTravelPayTerm.customerNo, oTravelPayTerm);
-                });
-            }
-
-            if (!anyTravelPayTermFeedErr?.message && aTravelPayTermFeeds.length) {
-                aTravelPayTermFeeds.forEach((oTravelPayTermFeed) => {
-                    mTravelPayTermFeed.set(oTravelPayTermFeed.paymentTerm, oTravelPayTermFeed);
-                });
-            }
-        } catch (err) {
-            this.LOG._error && this.LOG.error(err.message);
-        }
-
-        const mConditionType = new Map();
-        const mBillingType = new Map();
-
-        for (const record of aRecordsForProcessing) {
-            let salesOrder = mSalesOrder.get(record.p2SalesDocumentNoSAP);
-
-            const conditionType = await determineConditionType({
-                customer: salesOrder.SoldToParty,
-                salesOrganization: salesOrder.SalesOrganization,
-                distributionChannel: salesOrder.DistributionChannel,
-                division: salesOrder.OrganizationDivision
-            });
-            mConditionType.set(record.ID, conditionType);
-
-            const billingType = await this.billingTypeAPI.executeQuery(
-                SELECT.from('YY1_BILLINGTYPE')
-                    .columns(['Billing_type', 'SO_order_Type'])
-                    .where({
-                        SO_order_Type: salesOrder.YY1_CustomSalesOrder_SDH
-                    })
-            )
-            mBillingType.set(record.ID, billingType[0]);
-        }
-
-        const aPayloads = [];
-        const mPayloadMap = new Map();
-
-        for (const oRecord of aRecordsForProcessing) {
-            const aErrors = [];
-
-            let salesOrder = mSalesOrder.get(oRecord.p2SalesDocumentNoSAP);
-            let salesOrderItem = mSalesOrder.get(oRecord.p2SalesDocumentNoSAP);
-            let salesOrderPartner = mSalesOrderPartner.get(salesOrder?.salesOrder);
-            let oPartnerFunctionZV = salesOrderPartner.filter(item => item.PartnerFunction === 'ZV')[0];
-            let oPartnerFunctionBP = salesOrderPartner.filter(item => item.PartnerFunction === 'BP')[0];
-            let vendor = mVendor.get(oPartnerFunctionZV?.Supplier);
-            let firstSOItem = salesOrderItem.filter(item => item.SalesOrderItem === "10" && item.SalesOrderItemCategory === "TADN")[0];
-            let lastSOItem = salesOrderItem.reduce((maxItem, current) =>
-                Number(current.SalesOrderItem) > Number(maxItem.SalesOrderItem) ? current : maxItem
-            );
-            let travelPayTerm = mTravelPayTerm.get(salesOrder.SoldToParty);
-            let travelPayTermFeed = mTravelPayTermFeed.get(salesOrder.CustomerPaymentTerms);
-
-
-            if (!salesOrder) {
-                aErrors.push({
-                    record_ID: oRecord.ID,
-                    message: cds.i18n.messages.at('ERR_SALES_ORDER_NOT_EXIST'), process_code: sProcessCode
-                });
-                aFailedRecordIDs.push(oRecord.ID);
-                aErrorLogs.push(...aErrors);
-                continue; // Skip this record
-            }
-
-            if (salesOrder.DistributionChannel !== 'IC') {
-                aErrors.push({
-                    record_ID: oRecord.ID,
-                    message: cds.i18n.messages.at('ERR_DIST_IC'), process_code: sProcessCode
-                });
-                aFailedRecordIDs.push(oRecord.ID);
-                aErrorLogs.push(...aErrors);
-                continue; // Skip this record
-            }
-
-            if (vendor || salesOrder.CustomerPriceGroup === 'ZM') {
-                oRecord.PORequiredSAP = '';
-            } else {
-                oRecord.PORequiredSAP = '2';
-            }
-
-            if (oRecord.PORequiredSAP === '2') {
-                let purchaseOrderItem = mPurchaseOrderItem.get(firstSOItem?.YY1_PurchasingDoc_SD_SDI);
-
-                const poItemMax = purchaseOrderItem.reduce((maxItem, current) => {
-                    current.PurchaseOrderItem > maxItem.PurchaseOrderItem ? current : maxItem;
-                });
-
-                if (Number(poItemMax.PurchaseOrderItem) > Number(lastSOItem.SalesOrderItem)) {
-                    lastSOItem.SalesOrderItem = poItemMax.PurchaseOrderItem;
+    
+                if (record.p2SalesDocumentNoSAP) {
+                    aSalesOrderWhere.push(record.p2SalesDocumentNoSAP);
                 }
+    
+                ({ mCustomerFieldNameValue, aCustomerFieldNamesWhere } = this.customerFieldNameValues(record, mCustomerFieldNameValue, aCustomerFieldNamesWhere));
             }
-
-            if (!firstSOItem.WBSElement) {
-                aErrors.push({
-                    record_ID: oRecord.ID,
-                    message: cds.i18n.messages.at('ERR_PROJECT_NUMBER_MISSING'), process_code: sProcessCode
+    
+            await ProcessLogger.removeLogs(aRecordIDs, null, sProcessCode);
+    
+            this.updateProcessingState(sProcessCode);
+            if (!aRecordsForProcessing.length) {
+                // If Step doesn't need to be processed, simply return to avoid costly calls
+                return {
+                    hasError: false,
+                    continue: true,
+                };
+            }
+    
+            try {
+                const [
+                    { reason: anySalesOrderErr, value: aSalesOrders },
+                    { reason: anySalesOrderItemErr, value: aSalesOrderItems },
+                    { reason: anySalesOrderPartnerErr, value: aSalesOrderPartners },
+                ] = await Promise.allSettled([
+                    this.salesOrderAPI.executeQuery(
+                        SELECT.from('A_SalesOrder')
+                            .columns(['SalesOrder', 'SalesOrganization', 'DistributionChannel', 'OrganizationDivision', 'CustomerPaymentTerms',
+                                'SoldToParty', 'YY1_AlphanumericSalesO_SDH', 'YY1_CustomSalesOrder_SDH', 'CustomerGroup', 'CustomerPriceGroup', 'AdditionalCustomerGroup2'])
+                            .where({
+                                SalesOrder: { in: [...new Set(aSalesOrderWhere)] }
+                            })
+                    ),
+    
+                    this.salesOrderAPI.executeQuery(
+                        SELECT.from('A_SalesOrderItem')
+                            .columns(['SalesOrder', 'SalesOrderItem', 'YY1_PurchasingDoc_SD_SDI',
+                                'YY1_WNWorkOrder_SD_SDI', 'Material'])
+                            .where({
+                                SalesOrder: { in: [...new Set(aSalesOrderWhere)] }
+                            })
+                    ),
+    
+                    this.salesOrderAPI.executeQuery(
+                        SELECT.from('A_SalesOrderHeaderPartner')
+                            .columns(['SalesOrder', 'Customer', 'Supplier', 'PartnerFunction'])
+                            .where({
+                                SalesOrder: { in: [...new Set(aSalesOrderWhere)] },
+                                PartnerFunction: { in: ['ZR', 'ZM', 'BP'] }
+                            })
+                    ),
+                ]);
+    
+                if (!anySalesOrderErr?.message && aSalesOrders.length) {
+                    aSalesOrders.forEach((oSalesOrder) => {
+                        mSalesOrder.set(oSalesOrder.SalesOrder, oSalesOrder);
+                        aCustomerWhere.push(oSalesOrder.SoldToParty);
+                        aCustomerTermWhere.push(oSalesOrder.CustomerPaymentTerms);
+                    });
+                }
+    
+                if (!anySalesOrderItemErr?.message && aSalesOrderItems.length) {
+                    aSalesOrderItems.forEach((oSalesOrderItem) => {
+                        if (!mSalesOrderItem.has(oSalesOrderItem.SalesOrder)) {
+                            mSalesOrderItem.set(oSalesOrderItem.SalesOrder, []);
+                        }
+                        mSalesOrderItem.get(oSalesOrderItem.SalesOrder).push(oSalesOrderItem);
+                        if (!aPurchaseOrderItemWhere.includes(oSalesOrderItem.YY1_PurchasingDoc_SD_SDI)) {
+                            aPurchaseOrderItemWhere.push(oSalesOrderItem.YY1_PurchasingDoc_SD_SDI);
+                        }
+                    });
+                }
+    
+                if (!anySalesOrderPartnerErr?.message && aSalesOrderPartners.length) {
+                    aSalesOrderPartners.forEach((oSalesOrderPartner) => {
+                        if (!mSalesOrderPartner.has(oSalesOrderPartner.SalesOrder)) {
+                            mSalesOrderPartner.set(oSalesOrderPartner.SalesOrder, []);
+                        }
+                        mSalesOrderPartner.get(oSalesOrderPartner.SalesOrder).push(oSalesOrderPartner);
+    
+                        if (oSalesOrderPartner.PartnerFunction === 'ZR') {
+                            aVendorWhere.push(oSalesOrderPartner.Supplier);
+                        }
+                    });
+                }
+            } catch (err) {
+                this.LOG._error && this.LOG.error(err.message);
+            }
+    
+            try {
+                const [
+                    { reason: anyVendorErr, value: aVendors },
+                    { reason: anyPurchaseOrderItemErr, value: aPurchaseOrderItems },
+                    { reason: anyTravelPayTermsErr, value: aTravelPayTerms },
+                    { reason: anyTravelPayTermFeedErr, value: aTravelPayTermFeeds },
+                ] = await Promise.allSettled([
+                    SELECT.from('com.aleron.monitor.Vendor_VendorRemit')
+                        .columns(['vendor', 'vendorZR'])
+                        .where({ vendor: { in: aVendorWhere } }),
+    
+                    this.purchaseOrderAPI.executeQuery(
+                        SELECT.from('PurchaseOrderItem')
+                            .columns(['PurchaseOrder', 'PurchaseOrderItem'])
+                            .where({ PurchaseOrder: { in: [...new Set(aPurchaseOrderItemWhere)] } })
+                    ),
+    
+                    SELECT.from('com.aleron.monitor.TravelCustomerPayTermByPOBox')
+                        .columns(['customerNo', 'customerTerm', 'poBox'])
+                        .where({
+                            customerNo: { in: aCustomerWhere },
+                            customerTerm: { in: aCustomerTermWhere }
+                        }),
+    
+                    SELECT.from('com.aleron.monitor.TravelPayTermFeed')
+                        .columns(['paymentTerm', 'netPaymentTerm'])
+                        .where({
+                            paymentTerm: { in: aCustomerTermWhere }
+                        }),
+                ]);
+    
+                if (!anyVendorErr?.message && aVendors.length) {
+                    aVendors.forEach((oVendor) => {
+                        mVendor.set(oVendor.SalesOrder, oVendor);
+                    });
+                }
+    
+                if (!anyPurchaseOrderItemErr?.message && aPurchaseOrderItems.length) {
+                    aPurchaseOrderItems.forEach((oPurchaseOrder) => {
+                        if (!mPurchaseOrderItem.has(oPurchaseOrder.PurchaseOrder)) {
+                            mPurchaseOrderItem.set(oPurchaseOrder.PurchaseOrder, []);
+                        }
+                        mPurchaseOrderItem.get(oPurchaseOrder.PurchaseOrder).push(oPurchaseOrder);
+                    });
+                }
+    
+                if (!anyTravelPayTermsErr?.message && aTravelPayTerms.length) {
+                    aTravelPayTerms.forEach((oTravelPayTerm) => {
+                        mTravelPayTerm.set(oTravelPayTerm.customerNo, oTravelPayTerm);
+                    });
+                }
+    
+                if (!anyTravelPayTermFeedErr?.message && aTravelPayTermFeeds.length) {
+                    aTravelPayTermFeeds.forEach((oTravelPayTermFeed) => {
+                        mTravelPayTermFeed.set(oTravelPayTermFeed.paymentTerm, oTravelPayTermFeed);
+                    });
+                }
+            } catch (err) {
+                this.LOG._error && this.LOG.error(err.message);
+            }
+    
+            const mConditionType = new Map();
+            const mBillingType = new Map();
+    
+            for (const record of aRecordsForProcessing) {
+                let salesOrder = mSalesOrder.get(record.p2SalesDocumentNoSAP);
+    
+                const conditionType = await determineConditionType({
+                    customer: salesOrder.SoldToParty,
+                    salesOrganization: salesOrder.SalesOrganization,
+                    distributionChannel: salesOrder.DistributionChannel,
+                    division: salesOrder.OrganizationDivision
                 });
-                aFailedRecordIDs.push(oRecord.ID);
-                aErrorLogs.push(...aErrors);
-                continue; // Skip this record
+                mConditionType.set(record.ID, conditionType);
+    
+                const billingType = await this.billingTypeAPI.executeQuery(
+                    SELECT.from('YY1_BILLINGTYPE')
+                        .columns(['Billing_type', 'SO_order_Type'])
+                        .where({
+                            SO_order_Type: salesOrder.YY1_CustomSalesOrder_SDH
+                        })
+                )
+                mBillingType.set(record.ID, billingType[0]);
             }
-
-            if (['CP', 'CR'].includes(oRecord.salesDocumentType)) {
-                if (oRecord.wnInvoiceNo + 'IC' === salesOrder.YY1_WNInvoice_SD_SDI) {
+    
+            const aPayloads = [];
+            const mPayloadMap = new Map();
+    
+            for (const oRecord of aRecordsForProcessing) {
+                const aErrors = [];
+    
+                let salesOrder = mSalesOrder.get(oRecord.p2SalesDocumentNoSAP);
+                let salesOrderItem = mSalesOrder.get(oRecord.p2SalesDocumentNoSAP);
+                let salesOrderPartner = mSalesOrderPartner.get(salesOrder?.salesOrder);
+                let oPartnerFunctionZV = salesOrderPartner.filter(item => item.PartnerFunction === 'ZV')[0];
+                let oPartnerFunctionBP = salesOrderPartner.filter(item => item.PartnerFunction === 'BP')[0];
+                let vendor = mVendor.get(oPartnerFunctionZV?.Supplier);
+                let firstSOItem = salesOrderItem.filter(item => item.SalesOrderItem === "10" && item.SalesOrderItemCategory === "TADN")[0];
+                let lastSOItem = salesOrderItem.reduce((maxItem, current) =>
+                    Number(current.SalesOrderItem) > Number(maxItem.SalesOrderItem) ? current : maxItem
+                );
+                let travelPayTerm = mTravelPayTerm.get(salesOrder.SoldToParty);
+                let travelPayTermFeed = mTravelPayTermFeed.get(salesOrder.CustomerPaymentTerms);
+    
+    
+                if (!salesOrder) {
+                    aErrors.push({
+                        record_ID: oRecord.ID,
+                        message: cds.i18n.messages.at('ERR_SALES_ORDER_NOT_EXIST'), process_code: sProcessCode
+                    });
+                    aFailedRecordIDs.push(oRecord.ID);
+                    aErrorLogs.push(...aErrors);
+                    continue; // Skip this record
+                }
+    
+                if (salesOrder.DistributionChannel !== 'IC') {
+                    aErrors.push({
+                        record_ID: oRecord.ID,
+                        message: cds.i18n.messages.at('ERR_DIST_IC'), process_code: sProcessCode
+                    });
+                    aFailedRecordIDs.push(oRecord.ID);
+                    aErrorLogs.push(...aErrors);
+                    continue; // Skip this record
+                }
+    
+                if (vendor || salesOrder.CustomerPriceGroup === 'ZM') {
+                    oRecord.PORequiredSAP = '';
+                } else {
+                    oRecord.PORequiredSAP = '2';
+                }
+    
+                if (oRecord.PORequiredSAP === '2') {
+                    let purchaseOrderItem = mPurchaseOrderItem.get(firstSOItem?.YY1_PurchasingDoc_SD_SDI);
+    
+                    const poItemMax = purchaseOrderItem.reduce((maxItem, current) => {
+                        current.PurchaseOrderItem > maxItem.PurchaseOrderItem ? current : maxItem;
+                    });
+    
+                    if (Number(poItemMax.PurchaseOrderItem) > Number(lastSOItem.SalesOrderItem)) {
+                        lastSOItem.SalesOrderItem = poItemMax.PurchaseOrderItem;
+                    }
+                }
+    
+                if (!firstSOItem.WBSElement) {
+                    aErrors.push({
+                        record_ID: oRecord.ID,
+                        message: cds.i18n.messages.at('ERR_PROJECT_NUMBER_MISSING'), process_code: sProcessCode
+                    });
+                    aFailedRecordIDs.push(oRecord.ID);
+                    aErrorLogs.push(...aErrors);
+                    continue; // Skip this record
+                }
+    
+                if (['CP', 'CR'].includes(oRecord.salesDocumentType)) {
+                    if (oRecord.wnInvoiceNo + 'IC' === salesOrder.YY1_WNInvoice_SD_SDI) {
+                        aErrorLogs.push({
+                            record_ID: oRecord.ID,
+                            message: cds.i18n.messages.at('ERR_DUPLICATE_LINES'), process_code: sProcessCode
+                        });
+                        aFailedRecordIDs.push(oRecord.ID);
+                        aErrorLogs.push(...aErrors);
+                        continue; // Skip this record
+                    }
+                }
+    
+                if (oRecord.wnInvoiceNo === salesOrder.YY1_WNInvoice_SD_SDI) {
                     aErrorLogs.push({
                         record_ID: oRecord.ID,
                         message: cds.i18n.messages.at('ERR_DUPLICATE_LINES'), process_code: sProcessCode
@@ -3755,359 +3769,349 @@ class DrugBackgroundCheckProcessor extends Processor {
                     aErrorLogs.push(...aErrors);
                     continue; // Skip this record
                 }
-            }
-
-            if (oRecord.wnInvoiceNo === salesOrder.YY1_WNInvoice_SD_SDI) {
-                aErrorLogs.push({
-                    record_ID: oRecord.ID,
-                    message: cds.i18n.messages.at('ERR_DUPLICATE_LINES'), process_code: sProcessCode
+    
+                mPayloadMap.set(oRecord.ID, {
+                    salesOrder: '',
+                    salesOrderItem: '',
+                    PORequiredSAP: oRecord.PORequiredSAP,
                 });
-                aFailedRecordIDs.push(oRecord.ID);
-                aErrorLogs.push(...aErrors);
-                continue; // Skip this record
+    
+                // Prepare payload for SalesOrderItem creation
+                const oPayload = this._prepareDataForICSalesOrderItemCreate({
+                    record: oRecord,                        // record form File
+                    firstSOItem: firstSOItem,               // SO Item first object
+                    lastSOItem: lastSOItem,                 // SO Item last Object
+                    conditionType: conditionType,           // conditionType
+                    billingType: billingType,               // Billing Type
+                    travelPayTerm: travelPayTerm,           // Travel Pay Term
+                    travelPayTermFeed: travelPayTermFeed        // Teravel Pay Term Feed
+                });
+    
+                // Add payload to aPayloads and map record.ID to its payloadIndex
+                const iPayloadIndex = aPayloads.push(oPayload) - 1;
+                const oMapEntry = mPayloadMap.get(oRecord.ID);
+                oMapEntry.payloadIndex = iPayloadIndex;
+                mPayloadMap.set(oRecord.ID, oMapEntry);
             }
-
-            mPayloadMap.set(oRecord.ID, {
-                salesOrder: '',
-                salesOrderItem: '',
-                PORequiredSAP: oRecord.PORequiredSAP,
-            });
-
-            // Prepare payload for SalesOrderItem creation
-            const oPayload = this._prepareDataForICSalesOrderItemCreate({
-                record: oRecord,                        // record form File
-                firstSOItem: firstSOItem,               // SO Item first object
-                lastSOItem: lastSOItem,                 // SO Item last Object
-                conditionType: conditionType,           // conditionType
-                billingType: billingType,               // Billing Type
-                travelPayTerm: travelPayTerm,           // Travel Pay Term
-                travelPayTermFeed: travelPayTermFeed        // Teravel Pay Term Feed
-            });
-
-            // Add payload to aPayloads and map record.ID to its payloadIndex
-            const iPayloadIndex = aPayloads.push(oPayload) - 1;
-            const oMapEntry = mPayloadMap.get(oRecord.ID);
-            oMapEntry.payloadIndex = iPayloadIndex;
-            mPayloadMap.set(oRecord.ID, oMapEntry);
-        }
-
-        if (Array.isArray(aPayloads) && aPayloads.length > 0) {
-            // TODO: Check if aPayloads[].errors has any value; process accordingly
-            aPayloads.forEach((oPayload) => delete oPayload.errors);
-
-            // Create SalesOrderItems in S/4HANA via OData
-            const aSalesOrderItemResults = await this.salesOrderAPI.createSalesOrderItems(aPayloads);
-
-            // Process the results
-            aSalesOrderItemResults.forEach((oResult, iPayloadIndex) => {
-                // Find the record ID corresponding to the payload index
-                const sRecordID = [...mPayloadMap.entries()].find(
-                    ([, oMapEntry]) => oMapEntry.payloadIndex === iPayloadIndex,
-                )?.[0];
-
-                if (!oResult.hasError) {
-                    const oCreatedSalesOrderItem = oResult.value;
-                    aPassedRecordIDs.push(sRecordID);
-
-                    // Update the map entry with the created SalesOrder ID
-                    const oMapEntry = mPayloadMap.get(sRecordID);
-                    oMapEntry.salesOrder = oCreatedSalesOrderItem.SalesOrder;
-                    oMapEntry.salesOrderItem = oCreatedSalesOrderItem.SalesOrderItem;
-                    mPayloadMap.set(sRecordID, oMapEntry);
-                } else {
-                    aFailedRecordIDs.push(sRecordID);
-                    if (Array.isArray(oResult.reason)) {
-                        oResult.reason.forEach((oError) => {
+    
+            if (Array.isArray(aPayloads) && aPayloads.length > 0) {
+                // TODO: Check if aPayloads[].errors has any value; process accordingly
+                aPayloads.forEach((oPayload) => delete oPayload.errors);
+    
+                // Create SalesOrderItems in S/4HANA via OData
+                const aSalesOrderItemResults = await this.salesOrderAPI.createSalesOrderItems(aPayloads);
+    
+                // Process the results
+                aSalesOrderItemResults.forEach((oResult, iPayloadIndex) => {
+                    // Find the record ID corresponding to the payload index
+                    const sRecordID = [...mPayloadMap.entries()].find(
+                        ([, oMapEntry]) => oMapEntry.payloadIndex === iPayloadIndex,
+                    )?.[0];
+    
+                    if (!oResult.hasError) {
+                        const oCreatedSalesOrderItem = oResult.value;
+                        aPassedRecordIDs.push(sRecordID);
+    
+                        // Update the map entry with the created SalesOrder ID
+                        const oMapEntry = mPayloadMap.get(sRecordID);
+                        oMapEntry.salesOrder = oCreatedSalesOrderItem.SalesOrder;
+                        oMapEntry.salesOrderItem = oCreatedSalesOrderItem.SalesOrderItem;
+                        mPayloadMap.set(sRecordID, oMapEntry);
+                    } else {
+                        aFailedRecordIDs.push(sRecordID);
+                        if (Array.isArray(oResult.reason)) {
+                            oResult.reason.forEach((oError) => {
+                                aErrorLogs.push({
+                                    record_ID: sRecordID,
+                                    ...oError, process_code: sProcessCode
+                                });
+                            });
+                        } else {
                             aErrorLogs.push({
                                 record_ID: sRecordID,
-                                ...oError, process_code: sProcessCode
+                                message: cds.i18n.messages.at('ERR_SALES_ORDER_ITEM_CREATION_FAILED', [oResult.reason]), process_code: sProcessCode
                             });
-                        });
+                        }
+    
+                        // Remove the failed record from the map
+                        mPayloadMap.delete(sRecordID);
+                    }
+                });
+            }
+    
+            // VC Date update process
+            await this._prepareICVCData({
+                records: this.records,
+                mCustomerFieldNameValue: mCustomerFieldNameValue,
+                mPayloadMap: mPayloadMap,
+                mSalesOrders: mSalesOrder,
+                aPassedRecordIDs: aPassedRecordIDs,
+                aFailedRecordIDs: aFailedRecordIDs,
+                aErrorLogs: aErrorLogs
+            });
+    
+            if (aErrorLogs.length) {
+                await ProcessLogger.addLogs(aErrorLogs);
+                await UPDATE(SowScInvoice)
+                    .set({ valid: false, processLevel_code: sProcessCode })
+                    .where({ ID: { in: aFailedRecordIDs } });
+            }
+    
+            // Update the `salesDocumentNoSAP` field in `this.records` and the database
+            this.records.forEach((oRecord) => {
+                const oMapEntry = mPayloadMap.get(oRecord.ID);
+    
+                if (oMapEntry && oMapEntry.salesOrder) {
+                    // Update fields in memory
+                    oRecord.salesDocumentNoSAP = oMapEntry.salesOrder;
+                    oRecord.salesItemNoSAP = oMapEntry.salesOrderItem;
+                    oRecord.vcData1ICUUID = oMapEntry.vcData1ICUUID ?? '';
+                    oRecord.vcData2ICUUID = oMapEntry.vcData2ICUUID ?? '';
+                    oRecord.PORequiredSAP = oMapEntry.PORequiredSAP;
+                }
+            });
+    
+            // Create records to update using flatMap
+            const aRecordsToUpdate = this.records.flatMap((oRecord) => {
+                const oMapEntry = mPayloadMap.get(oRecord.ID);
+    
+                return oMapEntry && oMapEntry.salesOrder
+                    ? [
+                        {
+                            ID: oRecord.ID,
+                            salesDocumentNoSAP: oMapEntry.salesOrder,
+                            salesItemNoSAP: oMapEntry.salesOrderItem,
+                            vcData1ICUUID: oMapEntry.vcData1ICUUID,
+                            vcData2ICUUID: oMapEntry.vcData2ICUUID,
+                            PORequiredSAP: oMapEntry.PORequiredSAP,
+                        },
+                    ]
+                    : [];
+            });
+    
+            if (aRecordsToUpdate.length) {
+                await Promise.all(
+                    aRecordsToUpdate.map((oRecord) => {
+                        const iRecordIndex = mProcessingRecordsToCentralMapping.get(oRecord.ID);
+                        this.records[iRecordIndex].salesDocumentNoSAP = oRecord.salesDocumentNoSAP;
+                        this.records[iRecordIndex].salesItemNoSAP = oRecord.salesItemNoSAP;
+                        this.records[iRecordIndex].vcData1ICUUID = oRecord.vcData1ICUUID;
+                        this.records[iRecordIndex].vcData2ICUUID = oRecord.vcData2ICUUID;
+                        this.records[iRecordIndex].PORequiredSAP = oRecord.PORequiredSAP;
+                        return UPDATE(Drug_Background_Check)
+                            .set({
+                                salesDocumentNoSAP: oRecord.salesDocumentNoSAP,
+                                salesItemNoSAP: oRecord.salesItemNoSAP,
+                                vcData1ICUUID: oRecord.vcData1ICUUID,
+                                vcData2ICUUID: oRecord.vcData2ICUUID,
+                                PORequiredSAP: oRecord.PORequiredSAP,
+                            })
+                            .where({ ID: oRecord.ID });
+                    }),
+                );
+            }
+    
+            // Update the status of passed records
+            if (aPassedRecordIDs.length) {
+                await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
+                await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3})));
+                await this.markRecordsValid(sProcessCode, aPassedRecordIDs, true);
+            }
+    
+            // Update the status of failed records
+            if (aFailedRecordIDs.length) {
+                await Promise.allSettled([
+                    this.markRecordsValid(sProcessCode, aFailedRecordIDs, false),
+                ]);
+            }
+    
+            // Step 8: Update Exclusion Set
+            this.updateExclusionSet({
+                passed: aPassedRecordIDs,
+                failed: aFailedRecordIDs,
+                skipped: aSkippedRecords,
+                bBreakExecution,
+            });
+    
+            // Step 9: Return Process Result
+            return {
+                hasError: aFailedRecordIDs.length > 0,
+                continue: aFailedRecordIDs.length === 0,
+            };
+        }
+    
+        _prepareDataForICSalesOrderItemCreate({
+            record,
+            firstSOItem,
+            lastSOItem,
+            conditionType,
+            billingType,
+            travelPayTerm,
+            travelPayTermFeed
+        }) {
+            const oReturnData = {
+                SalesOrder: lastSOItem.SalesOrder,
+                SalesOrderItem: String(Number(lastSOItem.SalesOrderItem) + 10),
+                Material: firstSOItem.Material,
+                SalesOrderItemText: 'BONUS',
+                SalesOrderItemCategory: 'ZLAB',
+                PurchaseOrderByCustomer: record?.customerPoNoLabor,
+                PricingDate: `/Date(${+moment()})/`,
+                ProductionPlant: firstSOItem.ProductionPlant,
+                YY1_PurchasingDoc_SD_SDI: soItemMax.YY1_PurchasingDoc_SD_SDI,
+                YY1_WeekEnd_SD_SDI: `/Date(${moment(record.weekEndDate, "YYYYMMDD").valueOf()})/`,
+                YY1_CustomBillingType_SDI: billingType.Billing_type,
+                YY1_WNWorkOrder_SD_SDI: soItemMax.YY1_WNWorkOrder_SD_SDI,
+                YY1_WNInvoice_SD_SDI: record.wnInvoiceNo,
+                to_ScheduleLine: [this._prepareDataForScheduleLine({ record, lastSOItem })],
+                to_PricingElement: {
+                    results: [{
+                        ConditionType: conditionType,
+                        ConditionRateValue: record.amount
+                    }]
+                }
+    
+            }
+    
+            if (travelPayTerm) {
+                oReturnData.PurchaseOrderByShipToParty = travelPayTerm.poBox;
+            }
+    
+            if (travelPayTermFeed) {
+                oReturnData.CustomerPaymentTerms = travelPayTermFeed.netPaymentTerm;
+            }
+    
+            // Fill custom fields
+            for (const fieldIndex of Array(15).keys()) {
+                if (record[`customerFieldName${fieldIndex + 1}`] === 'Z20') {
+                    oReturnData.to_Text[0].LongText = record[`customerFieldValue${fieldIndex + 1}`];
+                    oReturnData.to_Text[0].LongTextID = 'ZJOB';
+                    oReturnData.to_Text[0].Language = 'EN';
+                    break;
+                }
+                if (record[`customerFieldName${fieldIndex + 1}`] === 'Z21') {
+                    oReturnData.to_Text[0].LongText = record[`customerFieldValue${fieldIndex + 1}`];
+                    oReturnData.to_Text[0].LongTextID = 'ZSLD';
+                    oReturnData.to_Text[0].Language = 'EN';
+                    break;
+                }
+                if (
+                    record[`customerFieldName${fieldIndex + 1}`] === 'Z41' &&
+                    ['X', 'YES', 'Y'].includes(record[`customerFieldValue${fieldIndex + 1}`])
+                ) {
+                    oReturnData.PriceListType = 'ZD';
+                }
+            }
+    
+            return oReturnData;
+        }
+    
+        // Prepare VC Data Payload and insert it
+        async _prepareICVCData({
+            records,
+            mCustomerFieldNameValue,
+            mPayloadMap,
+            mSalesOrders,
+            aPassedRecordIDs,
+            aFailedRecordIDs,
+            aErrorLogs
+        }) {
+            const SalesVCData_1 = new SalesVCData_1Comm();
+            const SalesVCData_2 = new SalesVCData_2Comm();
+    
+            // 1. filtering the records based on the not failed records ids.
+            // 2. generating payload for both VCData1 & VCData2 based on the salesorder for that record id.
+            let aPayloadsSalesVCData = records
+                .filter((record) => !aFailedRecordIDs.includes(record.ID))
+                .map((record) => {
+                    const oMapEntry = mPayloadMap.get(record.ID);
+                    const oSalesOrder = mSalesOrders.get(record.p2SalesDocumentNoSAP);
+    
+                    if (oMapEntry && oMapEntry.salesOrder) {
+                        const aCustomerfieldEntry = mCustomerFieldNameValue.get(record.ID);
+                        const VC1CustomerFieldName = ['Z40', 'Z43', 'Z44', 'Z45', 'Z46'];
+                        const VC2CustomerFieldName = ['Z01', 'Z02', 'Z03', 'Z04', 'Z05', 'Z06', 'Z07', 'Z08', 'Z09', 'Z10', 'Z11', 'Z12',
+                            'Z16', 'Z17', 'Z18', 'Z19', 'Z24', 'Z25', 'Z26', 'Z27', 'Z28', 'Z29', 'Z31',
+                            'Z32', 'Z33', 'Z34', 'Z35', 'Z37', 'Z39', 'Z42'];
+                        const oCustFieldResult = aCustomerfieldEntry.reduce((acc, entry) => {
+                            if (VC1CustomerFieldName.includes(entry.customerFieldName)) {
+                                acc.VC1Fields[entry.fieldName] = entry.customerFieldValue;
+                            } else if (VC2CustomerFieldName.includes(entry.customerFieldName)) {
+                                acc.VC2Fields[entry.fieldName] = entry.customerFieldValue;
+                            }
+                            return acc;
+                        }, { VC1Fields: {}, VC2Fields: {} });
+    
+                        const salesVC1 = {
+                            SalesOrderNumber: oMapEntry.salesOrder,
+                            SalesOrderItemNum: oMapEntry.salesOrderItem,
+                            YY8_WEEK_ENDING2: moment(record.endDate).format('YYYY-MM-DD'),
+                            ...(oCustFieldResult.VC1Fields || {}),
+                        };
+                        const salesVC2 = {
+                            Sales_Order_Number: oMapEntry.salesOrder,
+                            Sales_Order_Item_Num: oMapEntry.salesOrderItem,                            
+                            ...(oCustFieldResult.VC2Fields || {}),
+                        };
+                        const recordID = record.ID;
+                        const vcData1UUID = record.vcData1ICUUID;
+                        const vcData2UUID = record.vcData2ICUUID;
+                        return [salesVC1, salesVC2, recordID, vcData1UUID, vcData2UUID];
                     } else {
+                        return [];
+                    }
+                });
+    
+            for (let i = 0; i < aPayloadsSalesVCData.length; i++) {
+                let insertedSalesVCData1, insertedSalesVCData2;
+                // TODO: Conver to Batch call and take call out of loop
+                if (!aPayloadsSalesVCData[i][3]) {
+                    insertedSalesVCData1 = await SalesVCData_1.executeQuery(
+                        INSERT.into('YY1_SALESVCDATA_1').entries(aPayloadsSalesVCData[i][0]),
+                    );
+                }
+                if (!aPayloadsSalesVCData[i][4]) {
+                    insertedSalesVCData2 = await SalesVCData_2.executeQuery(
+                        INSERT.into('YY1_SALESVCDATA_2').entries(aPayloadsSalesVCData[i][1]),
+                    );
+                }
+    
+                const oMapEntry = mPayloadMap.get(aPayloadsSalesVCData[i][2]);
+                if (insertedSalesVCData1?.SAP_UUID || aPayloadsSalesVCData[i][3]) {
+                    oMapEntry.vcData1ICUUID = insertedSalesVCData1?.SAP_UUID ?? aPayloadsSalesVCData[i][3];
+                }
+                if (insertedSalesVCData2?.SAP_UUID || aPayloadsSalesVCData[i][4]) {
+                    oMapEntry.vcData2ICUUID = insertedSalesVCData2?.SAP_UUID ?? aPayloadsSalesVCData[i][4];
+                }
+                mPayloadMap.set(aPayloadsSalesVCData[i][2], oMapEntry);
+    
+                // error log for failed to insert records in VCData
+                if (insertedSalesVCData1?.message || insertedSalesVCData2?.message) {
+                    if (insertedSalesVCData1?.message) {
                         aErrorLogs.push({
-                            record_ID: sRecordID,
-                            message: cds.i18n.messages.at('ERR_SALES_ORDER_ITEM_CREATION_FAILED', [oResult.reason]), process_code: sProcessCode
+                            record_ID: aPayloadsSalesVCData[i][2],
+                            message: `${insertedSalesVCData1.message}`, process_code: sProcessCode
                         });
                     }
-
-                    // Remove the failed record from the map
-                    mPayloadMap.delete(sRecordID);
+                    if (insertedSalesVCData2?.message) {
+                        aErrorLogs.push({
+                            record_ID: aPayloadsSalesVCData[i][2],
+                            message: `${insertedSalesVCData2.message}`, process_code: sProcessCode
+                        });
+                    }
+    
+                    aFailedRecordIDs.push(aPayloadsSalesVCData[i][2]);
+    
+                    // remvove id which is getting error from PassRecordIds.
+                    const index = aPassedRecordIDs.indexOf(aPayloadsSalesVCData[i][2]);
+                    if (index !== -1) aPassedRecordIDs.splice(index, 1);
+                    LOG.error(
+                        `Error processing record ID ${aPayloadsSalesVCData[i][2]}: ${insertedSalesVCData1.message} || ${insertedSalesVCData2.message}`,
+                    );
                 }
-            });
-        }
-
-        // VC Date update process
-        await this._prepareICVCData({
-            records: this.records,
-            mCustomerFieldNameValue: mCustomerFieldNameValue,
-            mPayloadMap: mPayloadMap,
-            mSalesOrders: mSalesOrder,
-            aPassedRecordIDs: aPassedRecordIDs,
-            aFailedRecordIDs: aFailedRecordIDs,
-            aErrorLogs: aErrorLogs
-        });
-
-        if (aErrorLogs.length) {
-            await ProcessLogger.addLogs(aErrorLogs);
-            await UPDATE(SowScInvoice)
-                .set({ valid: false, processLevel_code: sProcessCode })
-                .where({ ID: { in: aFailedRecordIDs } });
-        }
-
-        // Update the `salesDocumentNoSAP` field in `this.records` and the database
-        this.records.forEach((oRecord) => {
-            const oMapEntry = mPayloadMap.get(oRecord.ID);
-
-            if (oMapEntry && oMapEntry.salesOrder) {
-                // Update fields in memory
-                oRecord.salesDocumentNoSAP = oMapEntry.salesOrder;
-                oRecord.salesItemNoSAP = oMapEntry.salesOrderItem;
-                oRecord.vcData1ICUUID = oMapEntry.vcData1ICUUID ?? '';
-                oRecord.vcData2ICUUID = oMapEntry.vcData2ICUUID ?? '';
-                oRecord.PORequiredSAP = oMapEntry.PORequiredSAP;
-            }
-        });
-
-        // Create records to update using flatMap
-        const aRecordsToUpdate = this.records.flatMap((oRecord) => {
-            const oMapEntry = mPayloadMap.get(oRecord.ID);
-
-            return oMapEntry && oMapEntry.salesOrder
-                ? [
-                    {
-                        ID: oRecord.ID,
-                        salesDocumentNoSAP: oMapEntry.salesOrder,
-                        salesItemNoSAP: oMapEntry.salesOrderItem,
-                        vcData1ICUUID: oMapEntry.vcData1ICUUID,
-                        vcData2ICUUID: oMapEntry.vcData2ICUUID,
-                        PORequiredSAP: oMapEntry.PORequiredSAP,
-                    },
-                ]
-                : [];
-        });
-
-        if (aRecordsToUpdate.length) {
-            await Promise.all(
-                aRecordsToUpdate.map((oRecord) => {
-                    const iRecordIndex = mProcessingRecordsToCentralMapping.get(oRecord.ID);
-                    this.records[iRecordIndex].salesDocumentNoSAP = oRecord.salesDocumentNoSAP;
-                    this.records[iRecordIndex].salesItemNoSAP = oRecord.salesItemNoSAP;
-                    this.records[iRecordIndex].vcData1ICUUID = oRecord.vcData1ICUUID;
-                    this.records[iRecordIndex].vcData2ICUUID = oRecord.vcData2ICUUID;
-                    this.records[iRecordIndex].PORequiredSAP = oRecord.PORequiredSAP;
-                    return UPDATE(Drug_Background_Check)
-                        .set({
-                            salesDocumentNoSAP: oRecord.salesDocumentNoSAP,
-                            salesItemNoSAP: oRecord.salesItemNoSAP,
-                            vcData1ICUUID: oRecord.vcData1ICUUID,
-                            vcData2ICUUID: oRecord.vcData2ICUUID,
-                            PORequiredSAP: oRecord.PORequiredSAP,
-                        })
-                        .where({ ID: oRecord.ID });
-                }),
-            );
-        }
-
-        // Update the status of passed records
-        if (aPassedRecordIDs.length) {
-            await ProcessLogger.removeLogs(aPassedRecordIDs);
-            await this.markRecordsValid(sProcessCode, aPassedRecordIDs, true);
-        }
-
-        // Update the status of failed records
-        if (aFailedRecordIDs.length) {
-            await Promise.allSettled([
-                this.markRecordsValid(sProcessCode, aFailedRecordIDs, false),
-            ]);
-        }
-
-        // Step 8: Update Exclusion Set
-        this.updateExclusionSet({
-            passed: aPassedRecordIDs,
-            failed: aFailedRecordIDs,
-            skipped: aSkippedRecords,
-            bBreakExecution,
-        });
-
-        // Step 9: Return Process Result
-        return {
-            hasError: aFailedRecordIDs.length > 0,
-            continue: aFailedRecordIDs.length === 0,
-        };
-    }
-
-    _prepareDataForICSalesOrderItemCreate({
-        record,
-        firstSOItem,
-        lastSOItem,
-        conditionType,
-        billingType,
-        travelPayTerm,
-        travelPayTermFeed
-    }) {
-        const oReturnData = {
-            SalesOrder: lastSOItem.SalesOrder,
-            SalesOrderItem: String(Number(lastSOItem.SalesOrderItem) + 10),
-            Material: firstSOItem.Material,
-            SalesOrderItemText: 'BONUS',
-            SalesOrderItemCategory: 'ZLAB',
-            PurchaseOrderByCustomer: record?.customerPoNoLabor,
-            PricingDate: `/Date(${+moment()})/`,
-            ProductionPlant: firstSOItem.ProductionPlant,
-            YY1_PurchasingDoc_SD_SDI: soItemMax.YY1_PurchasingDoc_SD_SDI,
-            YY1_WeekEnd_SD_SDI: `/Date(${moment(record.weekEndDate, "YYYYMMDD").valueOf()})/`,
-            YY1_CustomBillingType_SDI: billingType.Billing_type,
-            YY1_WNWorkOrder_SD_SDI: soItemMax.YY1_WNWorkOrder_SD_SDI,
-            YY1_WNInvoice_SD_SDI: record.wnInvoiceNo,
-            to_ScheduleLine: [this._prepareDataForScheduleLine({ record, lastSOItem })],
-            to_PricingElement: {
-                results: [{
-                    ConditionType: conditionType,
-                    ConditionRateValue: record.amount
-                }]
-            }
-
-        }
-
-        if (travelPayTerm) {
-            oReturnData.PurchaseOrderByShipToParty = travelPayTerm.poBox;
-        }
-
-        if (travelPayTermFeed) {
-            oReturnData.CustomerPaymentTerms = travelPayTermFeed.netPaymentTerm;
-        }
-
-        // Fill custom fields
-        for (const fieldIndex of Array(15).keys()) {
-            if (record[`customerFieldName${fieldIndex + 1}`] === 'Z20') {
-                oReturnData.to_Text[0].LongText = record[`customerFieldValue${fieldIndex + 1}`];
-                oReturnData.to_Text[0].LongTextID = 'ZJOB';
-                oReturnData.to_Text[0].Language = 'EN';
-                break;
-            }
-            if (record[`customerFieldName${fieldIndex + 1}`] === 'Z21') {
-                oReturnData.to_Text[0].LongText = record[`customerFieldValue${fieldIndex + 1}`];
-                oReturnData.to_Text[0].LongTextID = 'ZSLD';
-                oReturnData.to_Text[0].Language = 'EN';
-                break;
-            }
-            if (
-                record[`customerFieldName${fieldIndex + 1}`] === 'Z41' &&
-                ['X', 'YES', 'Y'].includes(record[`customerFieldValue${fieldIndex + 1}`])
-            ) {
-                oReturnData.PriceListType = 'ZD';
             }
         }
-
-        return oReturnData;
-    }
-
-    // Prepare VC Data Payload and insert it
-    async _prepareICVCData({
-        records,
-        mCustomerFieldNameValue,
-        mPayloadMap,
-        mSalesOrders,
-        aPassedRecordIDs,
-        aFailedRecordIDs,
-        aErrorLogs
-    }) {
-        const SalesVCData_1 = new SalesVCData_1Comm();
-        const SalesVCData_2 = new SalesVCData_2Comm();
-
-        // 1. filtering the records based on the not failed records ids.
-        // 2. generating payload for both VCData1 & VCData2 based on the salesorder for that record id.
-        let aPayloadsSalesVCData = records
-            .filter((record) => !aFailedRecordIDs.includes(record.ID))
-            .map((record) => {
-                const oMapEntry = mPayloadMap.get(record.ID);
-                const oSalesOrder = mSalesOrders.get(record.p2SalesDocumentNoSAP);
-
-                if (oMapEntry && oMapEntry.salesOrder) {
-                    const aCustomerfieldEntry = mCustomerFieldNameValue.get(record.ID);
-                    const VC1CustomerFieldName = ['Z40', 'Z43', 'Z44', 'Z45', 'Z46'];
-                    const VC2CustomerFieldName = ['Z01', 'Z02', 'Z03', 'Z04', 'Z05', 'Z06', 'Z07', 'Z08', 'Z09', 'Z10', 'Z11', 'Z12',
-                        'Z16', 'Z17', 'Z18', 'Z19', 'Z24', 'Z25', 'Z26', 'Z27', 'Z28', 'Z29', 'Z31',
-                        'Z32', 'Z33', 'Z34', 'Z35', 'Z37', 'Z39', 'Z42'];
-                    const oCustFieldResult = aCustomerfieldEntry.reduce((acc, entry) => {
-                        if (VC1CustomerFieldName.includes(entry.customerFieldName)) {
-                            acc.VC1Fields[entry.fieldName] = entry.customerFieldValue;
-                        } else if (VC2CustomerFieldName.includes(entry.customerFieldName)) {
-                            acc.VC2Fields[entry.fieldName] = entry.customerFieldValue;
-                        }
-                        return acc;
-                    }, { VC1Fields: {}, VC2Fields: {} });
-
-                    const salesVC1 = {
-                        SalesOrderNumber: oMapEntry.salesOrder,
-                        SalesOrderItemNum: oMapEntry.salesOrderItem,
-                        YY8_WEEK_ENDING2: moment(record.endDate).format('YYYY-MM-DD'),
-                        ...(oCustFieldResult.VC1Fields || {}),
-                    };
-                    const salesVC2 = {
-                        Sales_Order_Number: oMapEntry.salesOrder,
-                        Sales_Order_Item_Num: oMapEntry.salesOrderItem,
-                        ...(oCustFieldResult.VC2Fields || {}),
-                    };
-                    const recordID = record.ID;
-                    const vcData1UUID = record.vcData1ICUUID;
-                    const vcData2UUID = record.vcData2ICUUID;
-                    return [salesVC1, salesVC2, recordID, vcData1UUID, vcData2UUID];
-                } else {
-                    return [];
-                }
-            });
-
-        for (let i = 0; i < aPayloadsSalesVCData.length; i++) {
-            let insertedSalesVCData1, insertedSalesVCData2;
-            // TODO: Conver to Batch call and take call out of loop
-            if (!aPayloadsSalesVCData[i][3]) {
-                insertedSalesVCData1 = await SalesVCData_1.executeQuery(
-                    INSERT.into('YY1_SALESVCDATA_1').entries(aPayloadsSalesVCData[i][0]),
-                );
-            }
-            if (!aPayloadsSalesVCData[i][4]) {
-                insertedSalesVCData2 = await SalesVCData_2.executeQuery(
-                    INSERT.into('YY1_SALESVCDATA_2').entries(aPayloadsSalesVCData[i][1]),
-                );
-            }
-
-            const oMapEntry = mPayloadMap.get(aPayloadsSalesVCData[i][2]);
-            if (insertedSalesVCData1?.SAP_UUID || aPayloadsSalesVCData[i][3]) {
-                oMapEntry.vcData1ICUUID = insertedSalesVCData1?.SAP_UUID ?? aPayloadsSalesVCData[i][3];
-            }
-            if (insertedSalesVCData2?.SAP_UUID || aPayloadsSalesVCData[i][4]) {
-                oMapEntry.vcData2ICUUID = insertedSalesVCData2?.SAP_UUID ?? aPayloadsSalesVCData[i][4];
-            }
-            mPayloadMap.set(aPayloadsSalesVCData[i][2], oMapEntry);
-
-            // error log for failed to insert records in VCData
-            if (insertedSalesVCData1?.message || insertedSalesVCData2?.message) {
-                if (insertedSalesVCData1?.message) {
-                    aErrorLogs.push({
-                        record_ID: aPayloadsSalesVCData[i][2],
-                        message: `${insertedSalesVCData1.message}`, process_code: sProcessCode
-                    });
-                }
-                if (insertedSalesVCData2?.message) {
-                    aErrorLogs.push({
-                        record_ID: aPayloadsSalesVCData[i][2],
-                        message: `${insertedSalesVCData2.message}`, process_code: sProcessCode
-                    });
-                }
-
-                aFailedRecordIDs.push(aPayloadsSalesVCData[i][2]);
-
-                // remvove id which is getting error from PassRecordIds.
-                const index = aPassedRecordIDs.indexOf(aPayloadsSalesVCData[i][2]);
-                if (index !== -1) aPassedRecordIDs.splice(index, 1);
-                LOG.error(
-                    `Error processing record ID ${aPayloadsSalesVCData[i][2]}: ${insertedSalesVCData1.message} || ${insertedSalesVCData2.message}`,
-                );
-            }
-        }
-    }
-
+    
 
     /**
      * General routine for processing Purchase Order updates (similar to Bonus_G.js)
@@ -4157,7 +4161,7 @@ class DrugBackgroundCheckProcessor extends Processor {
             }
         }
 
-        await ProcessLogger.removeLogs(aRecordIDs);
+        await ProcessLogger.removeLogs(aRecordIDs, null, sProcessCode);
 
         this.updateProcessingState(sProcessCode);
         if (!aRecordsForProcessing.length) {
@@ -4221,7 +4225,7 @@ class DrugBackgroundCheckProcessor extends Processor {
                             'Subtotal3Amount', 'Subtotal4Amount', 'Subtotal5Amount',
                             'Subtotal6Amount', 'YY1_StrTimeMarkup_SD_SDI', 'YY1_DoubTimeMarkup_SD_SDI',
                             'YY1_LegacyPurchase_SD_SDI', 'YY1_WeekEnd_SD_SDI', 'YY1_CustomURL_SDI',
-                            'YY1_ExtensionUUID1_SDI',
+                            'YY1_ExtensionUUID1_SDI', 
                             // 'YY1_CostCenter_SD_SDI', 
                             'YY1_EEGroup_SD_SDI',
                             'YY1_DuplicateWeek_SD_SDI', 'YY1_ACA_HRS_SDI', 'YY1_Royality_SD_SDI',
@@ -4320,11 +4324,11 @@ class DrugBackgroundCheckProcessor extends Processor {
             );
 
             // let duplicateCheck = oSalesOrderItem.filter(item => item.YY1_WNInvoice_SD_SDI === oRecord.wnInvoiceNo) ?? [];
-            let duplicateCheck = oSalesOrderItem.filter(item =>
+               let duplicateCheck = oSalesOrderItem.filter(item =>
                 item.YY1_WNInvoice_SD_SDI === oRecord.wnInvoiceNo &&
                 item.SalesOrderItem !== oRecord.salesItemNoSAP
             ) ?? [];
-
+            
             let oSalesOrderPartner = mSalesOrderPartner.get(oRecord.salesDocumentNoSAP);
             let oSalesOrderPartnerSH = oSalesOrderPartner.filter(p => p.PartnerFunction === 'SH')[0];
             let oBusinessPartner = mBusinessPartner.get(oSalesOrderPartnerSH?.ReferenceBusinessPartner);
@@ -4388,10 +4392,10 @@ class DrugBackgroundCheckProcessor extends Processor {
                     PurchaseOrder: lastSOItem.YY1_PurchasingDoc_SD_SDI,
                     PurchaseOrderItem: lastSOItem.SalesOrderItem,
                     DeliveryAddressID: oSalesOrderPartnerSH.AddressID
-                };
+                };            
             }
 
-
+            
             const oItemPayload = this._prepareDataForPurchaseOrderUpdate({
                 record: oRecord,
                 salesOrder: oSalesOrder,
@@ -4438,7 +4442,7 @@ class DrugBackgroundCheckProcessor extends Processor {
                             SalesOrderItem: oSalesOrderItem.SalesOrderItem
                         })
                 );
-            }
+            } 
             // else if (oPurchaseOrderItemResults.error) {
             //     aErrorLogs.push({
             //         record_ID: oRecord.ID,
@@ -4501,7 +4505,8 @@ class DrugBackgroundCheckProcessor extends Processor {
 
         // Update the status of passed records
         if (aPassedRecordIDs.length) {
-            await ProcessLogger.removeLogs(aPassedRecordIDs);
+            await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
+            await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3})));
             await this.markRecordsValid(sProcessCode, aPassedRecordIDs, true);
         }
 
@@ -4680,7 +4685,7 @@ class DrugBackgroundCheckProcessor extends Processor {
 
         for (const record of this.records) {
             // if (record.creditSteps && record.creditSteps.split(',').includes('H')) 
-            {
+                {
                 try {
                     // const status = record.orderRelatedBillingStatus;
                     // if (sProcessCode === '1' && (status === 'A' || status === '')) 
@@ -4727,7 +4732,7 @@ class DrugBackgroundCheckProcessor extends Processor {
                     });
                     aFailedRecordIDs.push(record.ID);
                 }
-            }
+            } 
             // else {
             //     aPassedRecordIDs.push(record.ID);
             // }
@@ -4735,7 +4740,8 @@ class DrugBackgroundCheckProcessor extends Processor {
 
         // Update the status of passed records
         if (aPassedRecordIDs.length) {
-            await ProcessLogger.removeLogs(aPassedRecordIDs);
+            await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
+            await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3})));
             await UPDATE(Drug_Background_Check)
                 .set({
                     valid: true,
@@ -4876,7 +4882,7 @@ class DrugBackgroundCheckProcessor extends Processor {
     }
 
 
-    async CreditMIRO(sProcessCode, bBreakExecution) {
+async CreditMIRO(sProcessCode, bBreakExecution) {
         const aRecordsForProcessing = [],
             aSkippedRecords = [],
             aErrorLogs = [],
@@ -4924,7 +4930,7 @@ class DrugBackgroundCheckProcessor extends Processor {
             }
         }
 
-        await ProcessLogger.removeLogs(aRecordIDs);
+        await ProcessLogger.removeLogs(aRecordIDs, null, sProcessCode);
 
         this.updateProcessingState(sProcessCode);
         if (!aRecordsForProcessing.length) {
@@ -5071,24 +5077,24 @@ class DrugBackgroundCheckProcessor extends Processor {
                 }
 
                 let paymentBlockingReason;
-                try {
-                    const lfa1Row = await this.supplierLFA1API.executeQuery(
-                        SELECT.one
-                            .from('YY1_Supplier_LFA1') // entity set per S/4: .../YY1_SUPPLIER_LFA1_CDS/YY1_Supplier_LFA1
-                            .columns(['Supplier', 'SupplierStandardCarrierAccess'])
-                            .where({ Supplier: oPurchaseOrder?.Supplier })
-                    );
-                    const carrier = lfa1Row?.SupplierStandardCarrierAccess;
-                    paymentBlockingReason = carrier ? String(carrier).trim().slice(0, 2).toUpperCase() : undefined;
-                } catch (e) {
-                    LOG.error(`[Drug][MIRO] Supplier LFA1 lookup failed for ${oPurchaseOrder?.Supplier}: ${e.message}`);
-                }
+try {
+  const lfa1Row = await this.supplierLFA1API.executeQuery(
+    SELECT.one
+      .from('YY1_Supplier_LFA1') // entity set per S/4: .../YY1_SUPPLIER_LFA1_CDS/YY1_Supplier_LFA1
+      .columns(['Supplier', 'SupplierStandardCarrierAccess'])
+      .where({ Supplier: oPurchaseOrder?.Supplier })
+  );
+  const carrier = lfa1Row?.SupplierStandardCarrierAccess;
+  paymentBlockingReason = carrier ? String(carrier).trim().slice(0, 2).toUpperCase() : undefined;
+} catch (e) {
+  LOG.error(`[Drug][MIRO] Supplier LFA1 lookup failed for ${oPurchaseOrder?.Supplier}: ${e.message}`);
+}
 
                 const oPayload = this._prepareDataForSupplierInvoiceCreate({
                     record: oRecord,
                     purchaseOrder: oPurchaseOrder,
                     purchaseOrderItem: oPurchaseOrderItem,
-                    paymentBlockingReason
+                    paymentBlockingReason 
                 });
 
 
@@ -5136,7 +5142,8 @@ class DrugBackgroundCheckProcessor extends Processor {
         }
 
         if (aPassedRecordIDs.length) {
-            await ProcessLogger.removeLogs(aPassedRecordIDs);
+            await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
+            await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3})));
         }
 
         this.updateExclusionSet({

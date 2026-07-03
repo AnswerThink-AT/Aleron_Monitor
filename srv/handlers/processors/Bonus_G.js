@@ -209,7 +209,7 @@ class Bonus_G extends Processor {
         LOG.info(`[VAL] unique contractNos=${[...new Set(aSalesContractIDs)].length} -> ${JSON.stringify([...new Set(aSalesContractIDs)])}`);
         LOG.info(`[VAL] unique workOrders=${[...new Set(aSalesOrderWhere)].length} -> ${JSON.stringify([...new Set(aSalesOrderWhere)])}`);
 
-        await ProcessLogger.removeLogs(aRecordIDs);
+        await ProcessLogger.removeLogs(aRecordIDs, null, sProcessCode);
         LOG.info(`[VAL] ProcessLogger.removeLogs done; count=${aRecordIDs.length}`);
 
         this.updateProcessingState(sProcessCode);
@@ -359,7 +359,7 @@ class Bonus_G extends Processor {
             if (Array.isArray(oSalesOrderItemCheck) && oSalesOrderItemCheck.length > 0) {
                 LOG.info(`[VAL] record ${oRecord.ID} duplicate lines found: ${oSalesOrderItemCheck.length}`);
                 oSalesOrderItemCheck = oSalesOrderItemCheck.map(err => ({ ...err, process_code: sProcessCode }));
-                aErrorLogs.push({ record_ID: oRecord.ID, message: cds.i18n.messages.at('ERR_DUPLICATE_LINES') });
+                aErrorLogs.push({ record_ID: oRecord.ID, message: cds.i18n.messages.at('ERR_DUPLICATE_LINES'),process_code: sProcessCode });
                 aFailedRecordIDs.push(oRecord.ID);
                 hasRecordFailed = true;
             }
@@ -401,7 +401,8 @@ class Bonus_G extends Processor {
 
         if (aPassedRecordIDs.length) {
             LOG.info('[VAL] clearing logs + updating passed records (PL=1 only)…');
-            await ProcessLogger.removeLogs(aPassedRecordIDs);
+            await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
+            await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3})));
 
             const updates = aPassedRecordIDs
                 .filter(recordID => {
@@ -1159,7 +1160,7 @@ class Bonus_G extends Processor {
 
 //         // Update the status of passed records
 //         if (aPassedRecordIDs.length) {
-//             await ProcessLogger.removeLogs(aPassedRecordIDs);
+//             await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
 //             await this.markRecordsValid(sProcessCode, aPassedRecordIDs, true);
 //         }
 
@@ -1450,7 +1451,7 @@ class Bonus_G extends Processor {
     customFieldNames: aCustomerFieldNamesWhere.length
   });
 
-  await ProcessLogger.removeLogs(aRecordIDs);
+  await ProcessLogger.removeLogs(aRecordIDs, null, sProcessCode);
   this.updateProcessingState(sProcessCode);
 
   if (!aRecordsForProcessing.length) {
@@ -1932,7 +1933,8 @@ class Bonus_G extends Processor {
   });
 
   if (aPassedRecordIDs.length) {
-    await ProcessLogger.removeLogs(aPassedRecordIDs);
+    await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
+    await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3})));
     await this.markRecordsValid(sProcessCode, aPassedRecordIDs, true);
   }
   if (aFailedRecordIDs.length) {
@@ -2200,7 +2202,7 @@ async _prepareVCData({
             ({ mCustomerFieldNameValue, aCustomerFieldNamesWhere } = this.customerFieldNameValues(record, mCustomerFieldNameValue, aCustomerFieldNamesWhere));
         }
 
-        await ProcessLogger.removeLogs(aRecordIDs);
+        await ProcessLogger.removeLogs(aRecordIDs, null, sProcessCode);
 
         this.updateProcessingState(sProcessCode);
         if (!aRecordsForProcessing.length) {
@@ -2647,7 +2649,8 @@ async _prepareVCData({
 
         // Update the status of passed records
         if (aPassedRecordIDs.length) {
-            await ProcessLogger.removeLogs(aPassedRecordIDs);
+            await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
+            await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3})));
             await this.markRecordsValid(sProcessCode, aPassedRecordIDs, true);
         }
 
@@ -3226,7 +3229,7 @@ async _prepareVCData({
 
     //     // Update the status of passed records
     //     if (aPassedRecordIDs.length) {
-    //         await ProcessLogger.removeLogs(aPassedRecordIDs);
+    //         await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
     //         await this.markRecordsValid(sProcessCode, aPassedRecordIDs, true);
     //     }
 
@@ -3707,7 +3710,7 @@ async _prepareVCData({
 //   }
 
 //   if (aPassedRecordIDs.length) {
-//     await ProcessLogger.removeLogs(aPassedRecordIDs);
+//     await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
 //     await this.markRecordsValid(sProcessCode, aPassedRecordIDs, true);
 //   }
 
@@ -3769,7 +3772,7 @@ async processPurchaseOrder(sProcessCode, bBreakExecution) {
     }
   }
 
-  await ProcessLogger.removeLogs(aRecordIDs);
+  await ProcessLogger.removeLogs(aRecordIDs, null, sProcessCode);
   this.updateProcessingState(sProcessCode);
 
   if (!aRecordsForProcessing.length) {
@@ -4026,7 +4029,8 @@ async processPurchaseOrder(sProcessCode, bBreakExecution) {
   }
 
   if (aPassedRecordIDs.length) {
-    await ProcessLogger.removeLogs(aPassedRecordIDs);
+    await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
+    await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3})));
     await this.markRecordsValid(sProcessCode, aPassedRecordIDs, true);
   }
 
@@ -4394,7 +4398,7 @@ async processPurchaseOrder(sProcessCode, bBreakExecution) {
     //     }
 
     //     if (aPassedRecordIDs.length) {
-    //         await ProcessLogger.removeLogs(aPassedRecordIDs);
+    //         await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
     //     }
 
     //     this.updateExclusionSet({
@@ -4452,7 +4456,7 @@ async processSupplierInvoice(sProcessCode, bBreakExecution) {
     if (record.sapEmployeeNo) aEmpCustInfoWhere.push(record.sapEmployeeNo);
   }
 
-  await ProcessLogger.removeLogs(aRecordIDs);
+  await ProcessLogger.removeLogs(aRecordIDs, null, sProcessCode);
 
   this.updateProcessingState(sProcessCode);
   if (!aRecordsForProcessing.length) {
@@ -4663,7 +4667,8 @@ async processSupplierInvoice(sProcessCode, bBreakExecution) {
   }
 
   if (aPassedRecordIDs.length) {
-    await ProcessLogger.removeLogs(aPassedRecordIDs);
+    await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
+    await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3})));
   }
 
   this.updateExclusionSet({

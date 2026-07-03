@@ -150,7 +150,7 @@ class Travel extends Processor {
         }
     
         // clean logs once at start
-        await ProcessLogger.removeLogs([...this.recordIDs]);
+        await ProcessLogger.removeLogs([...this.recordIDs], null, sProcessCode);
     
         // STEP 1: Filter & prepare
         LOG.info(`[validateRecords] STEP 1 BEGIN: Filter by processCode='${sProcessCode}'`);
@@ -170,7 +170,7 @@ class Travel extends Processor {
         }
     
         LOG.info(`→ Removing previous logs for these IDs: ${aRecordIDs.join(',')}`);
-        await ProcessLogger.removeLogs(aRecordIDs);
+        await ProcessLogger.removeLogs(aRecordIDs, null, sProcessCode);
         this.updateProcessingState(sProcessCode);
     
         if (!aRecordsForProcessing.length) {
@@ -533,7 +533,8 @@ if (contractType === '1' && rec.wnWorkOrder) {
             await this.markRecordsValid(sProcessCode, aFailedRecordIDs, false);
         }
         if (aPassedRecordIDs.length) {
-            await ProcessLogger.removeLogs(aPassedRecordIDs);
+            await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
+            await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3})));
             await this.markRecordsValid(sProcessCode, aPassedRecordIDs, true);
             if (sProcessCode === '1') {
                 await UPDATE(this.recordsEntity)
@@ -562,7 +563,7 @@ if (contractType === '1' && rec.wnWorkOrder) {
     // Step 3: sales order update
     async processSalesOrder(sProcessCode, bBreakExecution) {
     // 0) Clear all previous logs
-    await ProcessLogger.removeLogs([...this.recordIDs]);
+    await ProcessLogger.removeLogs([...this.recordIDs], null, sProcessCode);
     await this._fetchRecords(this.recordIDs);
 
     const aErrorLogs = [];
@@ -589,7 +590,7 @@ if (contractType === '1' && rec.wnWorkOrder) {
     });
 
     LOG.info(`[processSalesOrder] STEP 1.2: Removing old logs for [${aRecordIDs.join(',')}]`);
-    await ProcessLogger.removeLogs(aRecordIDs);
+    await ProcessLogger.removeLogs(aRecordIDs, null, sProcessCode);
     this.updateProcessingState(sProcessCode);
 
     if (!aRecordsForProcessing.length) {
@@ -1092,7 +1093,8 @@ if (contractType === '1' && rec.wnWorkOrder) {
         await this.markRecordsValid(sProcessCode, aFailedRecordIDs, false);
     }
     if (aPassedRecordIDs.length) {
-        await ProcessLogger.removeLogs(aPassedRecordIDs);
+        await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
+        await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3})));
         await this.markRecordsValid(sProcessCode, aPassedRecordIDs, true);
         await UPDATE(this.recordsEntity).set({ processLevel_code: 'G' }).where({ ID: aPassedRecordIDs });
         this.records.forEach(r => { if (aPassedRecordIDs.includes(r.ID)) r.processLevel_code = 'G'; });
@@ -1106,7 +1108,7 @@ if (contractType === '1' && rec.wnWorkOrder) {
 
     async processIntercompanyso(sProcessCode, bBreakExecution) {
         // 0) clear old logs
-        await ProcessLogger.removeLogs([...this.recordIDs]);
+        await ProcessLogger.removeLogs([...this.recordIDs], null, sProcessCode);
         await this._fetchRecords(this.recordIDs);
 
         const aErrorLogs = [];
@@ -1131,7 +1133,7 @@ if (contractType === '1' && rec.wnWorkOrder) {
                 LOG.info(`    SKIPPED`);
             }
         });
-        await ProcessLogger.removeLogs(aRecordIDs);
+        await ProcessLogger.removeLogs(aRecordIDs, null, sProcessCode);
         this.updateProcessingState(sProcessCode);
         if (!aRecordsForProcessing.length) {
             LOG.info(`[processIntercompanyso] STEP 1.2: no records → exit`);
@@ -1538,7 +1540,8 @@ if (contractType === '1' && rec.wnWorkOrder) {
             await this.markRecordsValid(sProcessCode, aFailedRecordIDs, false);
         }
         if (aPassedRecordIDs.length) {
-            await ProcessLogger.removeLogs(aPassedRecordIDs);
+            await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
+            await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3})));
             await this.markRecordsValid(sProcessCode, aPassedRecordIDs, true);
 
             // bump to next step 5
@@ -2160,7 +2163,7 @@ if (contractType === '1' && rec.wnWorkOrder) {
         // 5.9) Finalize
         LOG.info('[Step 5.9] Finalizing');
         if (failed.length) {
-            await ProcessLogger.removeLogs(failed);
+            await ProcessLogger.removeLogs(failed, null, sProcessCode);
             await ProcessLogger.addLogs(errorLogs);
             // keep failures at '5' so they’ll be retried next time
             await this.markRecordsValid('5', failed, false);
@@ -2189,7 +2192,7 @@ if (contractType === '1' && rec.wnWorkOrder) {
 
     /*** Step B: MIRO (Incoming Invoice) creation ***/
     async processSupplierInvoice(sProcessCode, bBreakExecution) {
-        LOG.info(`[processSupplierInvoice] ENTRY (code=${sProcessCode})`);
+                LOG.info(`[processSupplierInvoice] ENTRY (code=${sProcessCode})`);
         // this.updateProcessingState(sProcessCode);
 
         if (sProcessCode !== 'B') {
@@ -2390,7 +2393,7 @@ if (contractType === '1' && rec.wnWorkOrder) {
                 for (const r of recs) {
                     errorLogs.push({
                         record_ID: r.ID,
-                        message: err.message, process_code: sProcessCode
+                        message: err.message , process_code: sProcessCode
                     });
                     failed.push(r.ID);
                 }
@@ -2400,7 +2403,7 @@ if (contractType === '1' && rec.wnWorkOrder) {
         // 5) finalize logs & validity
         LOG.info('[processSupplierInvoice] Finalizing MIRO step');
         if (failed.length) {
-            await ProcessLogger.removeLogs(failed);
+            await ProcessLogger.removeLogs(failed, null, sProcessCode);
             await ProcessLogger.addLogs(errorLogs);
             // keep failures at 'B' so they’ll be retried next time
             // await this.markRecordsValid('B', failed, false);

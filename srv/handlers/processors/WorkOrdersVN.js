@@ -185,7 +185,7 @@ class WorkOrdersVN extends Processor {
         let aSalesContracts = [];
 
         // Clear the error logs for the selected records; so that new process can start
-        await ProcessLogger.removeLogs([...this.recordIDs]);
+        await ProcessLogger.removeLogs([...this.recordIDs], null, sProcessCode);
         // Get list of countries by looping over `this.file.to_WorkOrders` and get unique countries
 
         let aCountries = [];
@@ -244,7 +244,7 @@ class WorkOrdersVN extends Processor {
             }
         }
 
-        await ProcessLogger.removeLogs(aRecordIDs);
+        await ProcessLogger.removeLogs(aRecordIDs, null, sProcessCode);
 
         this.updateProcessingState(sProcessCode);
         if (!aRecordsForProcessing.length) {
@@ -545,7 +545,8 @@ class WorkOrdersVN extends Processor {
             );
 
             await Promise.allSettled([
-                ProcessLogger.removeLogs(aPassedRecordIDs),
+                ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode),
+                ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3}))),
                 // this.markRecordsValid(sProcessCode, aPassedRecordIDs, true),
                 ...aPassedRecordIDs.filter(recordID => {
                     const record = this.records.find(r => r.ID === recordID);
@@ -1353,7 +1354,7 @@ class WorkOrdersVN extends Processor {
     async processProject(sProcessCode, bBreakExecution) {
         this.LOG._info && this.LOG.info('Logging _processHrCostDistObj');
 
-        await ProcessLogger.removeLogs([...this.recordIDs]);
+        await ProcessLogger.removeLogs([...this.recordIDs], null, sProcessCode);
 
         const aRecordsForProcessing = [],
             aSkippedRecords = [],
@@ -1378,7 +1379,7 @@ class WorkOrdersVN extends Processor {
             }
         }
 
-        await ProcessLogger.removeLogs(aRecordIDs);
+        await ProcessLogger.removeLogs(aRecordIDs, null, sProcessCode);
 
         this.updateProcessingState(sProcessCode);
         if (!aRecordsForProcessing.length) {
@@ -1540,7 +1541,8 @@ class WorkOrdersVN extends Processor {
         }
 
         if (aPassedRecordIDs.length) {
-            await ProcessLogger.removeLogs(aPassedRecordIDs);
+            await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
+            await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3})));
         }
 
         this.updateExclusionSet({
@@ -1696,7 +1698,7 @@ class WorkOrdersVN extends Processor {
         sTaxCodeByProvinceWhere.length && (sTaxCodeByProvinceWhere = sTaxCodeByProvinceWhere.slice(3).trim());
         sTaxCodeByCityWhere.length && (sTaxCodeByCityWhere = sTaxCodeByCityWhere.slice(3).trim());
 
-        await ProcessLogger.removeLogs(aRecordIDs);
+        await ProcessLogger.removeLogs(aRecordIDs, null, sProcessCode);
 
         this.updateProcessingState(sProcessCode);
         if (!aRecordsForProcessing.length) {
@@ -3804,7 +3806,7 @@ if (Object.keys(foundFields).length > 0) {
             }
         });
 
-        await ProcessLogger.removeLogs(aRecordIDs);
+        await ProcessLogger.removeLogs(aRecordIDs, null, sProcessCode);
 
         this.updateProcessingState(sProcessCode);
         if (!aRecordsForProcessing.length) {
@@ -3898,7 +3900,7 @@ if (Object.keys(foundFields).length > 0) {
         const aSkippedRecords = [];
 
         // Clear the error logs for the selected records
-        await ProcessLogger.removeLogs([...this.recordIDs]);
+        await ProcessLogger.removeLogs([...this.recordIDs], null, sProcessCode);
 
         for (const record of this.records) {
             if (this.shouldRecordProcess(record, sProcessCode)) {
@@ -4047,7 +4049,8 @@ if (Object.keys(foundFields).length > 0) {
         }
 
         if (aPassedRecordIDs.length) {
-            await ProcessLogger.removeLogs(aPassedRecordIDs);
+            await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
+            await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3})));
         }
 
         this.updateExclusionSet({
@@ -4087,7 +4090,7 @@ if (Object.keys(foundFields).length > 0) {
             }
         }
 
-        await ProcessLogger.removeLogs(aRecordIDs);
+        await ProcessLogger.removeLogs(aRecordIDs, null, sProcessCode);
 
         this.updateProcessingState(sProcessCode);
         if (!aRecordsForProcessing.length) {
@@ -4149,7 +4152,8 @@ if (Object.keys(foundFields).length > 0) {
         }
 
         if (aPassedRecordIDs.length) {
-            await ProcessLogger.removeLogs(aPassedRecordIDs);
+            await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
+            await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3})));
         }
 
         this.updateExclusionSet({

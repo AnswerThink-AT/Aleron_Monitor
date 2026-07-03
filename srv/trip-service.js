@@ -48,7 +48,15 @@ module.exports = cds.service.impl(async (srv) => {
   } catch (e) {
     console.error('[trip-service] ✖ Enterprise project sync failed:', e.message);
   }
-
+  const PROJECT_SYNC_INTERVAL_MS = 15 * 60 * 1000;
+  setInterval(async () => {
+    try {
+      await syncEnterpriseProjects();
+      console.log('[trip-service] ▶ Scheduled enterprise project sync complete (15 min)');
+    } catch (e) {
+      console.error('[trip-service] ✖ Scheduled enterprise project sync failed:', e.message);
+    }
+  }, PROJECT_SYNC_INTERVAL_MS).unref();
   // Sequence helper factory
   const makeSeq = tx => new SequenceHelper({
     db: tx,
@@ -186,32 +194,73 @@ module.exports = cds.service.impl(async (srv) => {
   //   console.warn('[trip-service] ⚠ EnterpriseProjectCache not available, skipping');
   // }
 
+  // srv.on('READ', EnterpriseProjectCache, async (req) => {
+  //   const tx    = cds.transaction(req);
+  //   const input = (req._.req.query.search || '').toLowerCase();
+  //   const top   = parseInt(req._.req.query.$top, 10) || 10;
+  
+  //   if (!input) {
+  //     // honor the client’s $top (or default to 10)
+  //     return tx.run(`
+  //       SELECT * 
+  //       FROM "TRIP_ENTERPRISEPROJECTCACHE"
+  //       LIMIT ${ top }
+  //     `);
+  //   }
+  
+  //   const term = `%${ input }%`;
+  //   return tx.run(`
+  //     SELECT *
+  //       FROM "TRIP_ENTERPRISEPROJECTCACHE"
+  //      WHERE LOWER("PROJECT")            LIKE ?
+  //         OR LOWER("PROJECTDESCRIPTION") LIKE ?
+  //         OR LOWER("YY1_EMPLOYEE_PPH")    LIKE ?
+  //         OR LOWER("ENTERPRISEPROJECTTYPE") LIKE ?
+  //      LIMIT ${ top }
+  //   `, [ term, term, term, term ]);
+  // });
   srv.on('READ', EnterpriseProjectCache, async (req) => {
-    const tx    = cds.transaction(req);
-    const input = (req._.req.query.search || '').toLowerCase();
-    const top   = parseInt(req._.req.query.$top, 10) || 10;
-  
-    if (!input) {
-      // honor the client’s $top (or default to 10)
-      return tx.run(`
-        SELECT * 
-        FROM "TRIP_ENTERPRISEPROJECTCACHE"
-        LIMIT ${ top }
-      `);
-    }
-  
-    const term = `%${ input }%`;
-    return tx.run(`
-      SELECT *
-        FROM "TRIP_ENTERPRISEPROJECTCACHE"
-       WHERE LOWER("PROJECT")            LIKE ?
-          OR LOWER("PROJECTDESCRIPTION") LIKE ?
-          OR LOWER("YY1_EMPLOYEE_PPH")    LIKE ?
-          OR LOWER("ENTERPRISEPROJECTTYPE") LIKE ?
-       LIMIT ${ top }
-    `, [ term, term, term, term ]);
-  });
-  
+
+  if (req.query.SELECT.where) {
+    const result = await cds.run(req.query);
+    return toUpperCaseKeys(result);
+  }
+
+  const tx = cds.transaction(req);
+  const input = (req._.req.query.search || '').toLowerCase();
+  const top = parseInt(req._.req.query.$top, 10) || 10;
+
+  if (!input) {
+    const result = await tx.run(
+      SELECT.from(EnterpriseProjectCache).limit(top)
+    );
+    return toUpperCaseKeys(result);
+  }
+
+  const term = `%${input}%`;
+
+  const result = await tx.run(`
+    SELECT *
+    FROM "TRIP_ENTERPRISEPROJECTCACHE"
+    WHERE LOWER("PROJECT") LIKE ?
+       OR LOWER("PROJECTDESCRIPTION") LIKE ?
+       OR LOWER("YY1_EMPLOYEE_PPH") LIKE ?
+       OR LOWER("ENTERPRISEPROJECTTYPE") LIKE ?
+    LIMIT ${top}
+  `, [term, term, term, term]);
+
+  return toUpperCaseKeys(result);
+});
+
+
+function toUpperCaseKeys(data) {
+  const upperRow = (row) =>
+    Object.fromEntries(
+      Object.entries(row).map(([key, value]) => [key.toUpperCase(), value])
+    );
+
+  return Array.isArray(data) ? data.map(upperRow) : upperRow(data);
+}
   
 
 

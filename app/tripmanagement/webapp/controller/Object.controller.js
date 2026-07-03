@@ -9,7 +9,7 @@ sap.ui.define([
     "sap/ui/model/Filter",
     "sap/ui/model/FilterOperator",
     "sap/m/Token"
-], function(Controller, JSONModel, UIComponent, History, MessageToast, MessageBox,
+], function (Controller, JSONModel, UIComponent, History, MessageToast, MessageBox,
     Fragment, Filter, FilterOperator, Token) {
     "use strict";
 
@@ -22,12 +22,12 @@ sap.ui.define([
     return Controller.extend("tripmanagement.controller.Object", {
 
         getBaseURL: function () {
-          var appId   = this.getOwnerComponent().getManifestEntry("/sap.app/id");
-          var appPath = appId.replace(/\./g, "/");
-          return jQuery.sap.getModulePath(appPath);
+            var appId = this.getOwnerComponent().getManifestEntry("/sap.app/id");
+            var appPath = appId.replace(/\./g, "/");
+            return jQuery.sap.getModulePath(appPath);
         },
 
-        updateTotalNetAmount: function() {
+        updateTotalNetAmount: function () {
             const oModel = this.getView().getModel("trip"),
                 aLines = oModel.getProperty("/ExpenseReceipts") || [],
                 fSum = aLines.reduce((acc, l) => acc + (parseFloat(l.Amount) || 0), 0);
@@ -309,7 +309,7 @@ sap.ui.define([
 
 
 
-        _mapStatusText: function(code) {
+        _mapStatusText: function (code) {
             switch (code) {
                 case 0:
                     return "Created";
@@ -334,7 +334,7 @@ sap.ui.define([
             }
         },
 
-        _mapStatusState: function(code) {
+        _mapStatusState: function (code) {
             switch (code) {
                 case 0:
                     return "None";
@@ -361,13 +361,13 @@ sap.ui.define([
 
 
         /** Loads the fragment once, attaches it, and returns it */
-        _getCountryDialog: function() {
+        _getCountryDialog: function () {
             if (!this._pCountryDialog) {
                 this._pCountryDialog = Fragment.load({
                     id: this.getView().getId(),
                     name: "tripmanagement.view.CountrySelectDialog",
                     controller: this
-                }).then(function(oDlg) {
+                }).then(function (oDlg) {
                     this._oCountryDialog = oDlg;
                     this.getView().addDependent(oDlg);
                     return oDlg;
@@ -376,7 +376,7 @@ sap.ui.define([
             return this._pCountryDialog;
         },
 
-        onInit: function() {
+        onInit: function () {
             const oRouter = UIComponent.getRouterFor(this);
 
             this._oExpenseTypesModel = new JSONModel([]);
@@ -437,22 +437,22 @@ sap.ui.define([
             this.getView().setModel(this._projectsModel, "projects");
 
             // 2) fetch your project cache once
-            console.log("[onInit] Loading EnterpriseProjectCache...");
-            $.ajax({
-                // url: "/odata/v4/trip/EnterpriseProjectCache?$top=5000",
-                url: this.getBaseURL() + "/odata/v4/trip/EnterpriseProjectCache?$top=5000",
-                method: "GET",
-                dataType: "json",
-                success: function(oData) {
-                    this._allProjects = oData.value || [];
-                    console.log(`[onInit] Loaded ${this._allProjects.length} projects`);
-                    // seed the model if you like, or wait until the user opens the dialog
-                }.bind(this),
-                error: function(err) {
-                    console.error("[onInit] Failed to load projects", err);
-                    MessageToast.show("Could not load project list");
-                }.bind(this)
-            });
+            // console.log("[onInit] Loading EnterpriseProjectCache...");
+            // $.ajax({
+            //     // url: "/odata/v4/trip/EnterpriseProjectCache?$top=5000",
+            //     url: this.getBaseURL() + "/odata/v4/trip/EnterpriseProjectCache?$top=10000",
+            //     method: "GET",
+            //     dataType: "json",
+            //     success: function(oData) {
+            //         this._allProjects = oData.value || [];
+            //         console.log(`[onInit] Loaded ${this._allProjects.length} projects`);
+            //         // seed the model if you like, or wait until the user opens the dialog
+            //     }.bind(this),
+            //     error: function(err) {
+            //         console.error("[onInit] Failed to load projects", err);
+            //         MessageToast.show("Could not load project list");
+            //     }.bind(this)
+            // });
 
         },
 
@@ -474,13 +474,13 @@ sap.ui.define([
         _pProjectDialog: null,
         _oProjectDialog: null,
 
-        _getProjectDialog: function() {
+        _getProjectDialog: function () {
             if (!this._pProjectDialog) {
                 this._pProjectDialog = Fragment.load({
                     id: this.getView().getId(),
                     name: "tripmanagement.view.ProjectSelectDialog",
                     controller: this
-                }).then(function(oDlg) {
+                }).then(function (oDlg) {
                     this._oProjectDialog = oDlg;
                     this.getView().addDependent(oDlg);
                     return oDlg;
@@ -490,14 +490,14 @@ sap.ui.define([
         },
 
         /** open the dialog, seed first 10 projects for initial display */
-        onProjectValueHelp: function() {
+        onProjectValueHelp: function () {
             const aTop10 = (this._allProjects || []).slice(0, 10);
             this._projectsModel.setData(aTop10);
             this._getProjectDialog().then(oDlg => oDlg.open());
         },
 
         /** filter locally as the user types */
-        onProjectSearch: function(oEvent) {
+        onProjectSearch: function (oEvent) {
             const sTerm = (oEvent.getParameter("newValue") || "")
                 .trim()
                 .toLowerCase();
@@ -517,7 +517,7 @@ sap.ui.define([
         },
 
         /** when the user confirms a row */
-        onProjectSelect: function(oEvent) {
+        onProjectSelect: function (oEvent) {
             const oItem = oEvent.getParameter("selectedItem") ||
                 oEvent.getParameter("listItem");
             if (!oItem) {
@@ -547,20 +547,20 @@ sap.ui.define([
             this._oProjectDialog.close();
         },
 
-        onProjectCancel: function() {
+        onProjectCancel: function () {
             this._oProjectDialog.close();
         },
         _pDestinationDialog: null,
         _oDestinationDialog: null,
 
         /** Load the fragment once, attach it, and return it */
-        _getDestinationDialog: function() {
+        _getDestinationDialog: function () {
             if (!this._pDestinationDialog) {
                 this._pDestinationDialog = Fragment.load({
                     id: this.getView().getId(),
                     name: "tripmanagement.view.DestinationSelectDialog",
                     controller: this
-                }).then(function(oDlg) {
+                }).then(function (oDlg) {
                     this._oDestinationDialog = oDlg;
                     this.getView().addDependent(oDlg);
                     return oDlg;
@@ -570,7 +570,7 @@ sap.ui.define([
         },
 
         /** Load and open the destination dialog via AJAX */
-        onDestinationValueHelp: function() {
+        onDestinationValueHelp: function () {
             $.ajax({
                 // url: "/odata/v4/trip/Countries",
                 url: this.getBaseURL() + "/odata/v4/trip/Countries",
@@ -595,7 +595,7 @@ sap.ui.define([
         },
 
         /** Filter the dialog list locally after initial AJAX load */
-        onDestinationSearch: function(oEvent) {
+        onDestinationSearch: function (oEvent) {
             const sTerm = (oEvent.getParameter("newValue") || "")
                 .trim().toUpperCase();
             const oModel = this.getView().getModel("countries");
@@ -611,7 +611,7 @@ sap.ui.define([
 
 
         /** User picks one destination */
-        onDestinationSelect: function(oEvent) {
+        onDestinationSelect: function (oEvent) {
             const oCtx = oEvent.getParameter("listItem")
                 .getBindingContext("countries")
                 .getObject(),
@@ -631,7 +631,7 @@ sap.ui.define([
             //    but do NOT touch Currency!
             const sProv = sDest === "US" ? "07" :
                 sDest === "CA" ? "10" :
-                null;
+                    null;
             this._filterExpenseTypes(sProv);
 
             // 3) close the dialog
@@ -640,11 +640,11 @@ sap.ui.define([
 
 
 
-        onDestinationCancel: function() {
+        onDestinationCancel: function () {
             this._oDestinationDialog.close();
         },
 
-        onCountryValueHelp: function() {
+        onCountryValueHelp: function () {
             // take the first 5 entries
             const aTop5 = (this._allCcMap || []).slice(0, 5);
             this._ccMapModel.setData(aTop5);
@@ -655,7 +655,7 @@ sap.ui.define([
 
 
 
-        onCountrySearch: function(oEvent) {
+        onCountrySearch: function (oEvent) {
             // get typed text (liveChange & search)
             const sTerm = (oEvent.getParameter("newValue") ||
                 oEvent.getSource().getValue() ||
@@ -678,7 +678,7 @@ sap.ui.define([
             this._ccMapModel.setData(aFiltered);
         },
 
-        onCountrySelect: function(oEvent) {
+        onCountrySelect: function (oEvent) {
             const oItem = oEvent.getParameter("listItem") || oEvent.getParameter("selectedItem"),
                 oCtx = oItem.getBindingContext("ccMap").getObject(),
                 sCountry = oCtx.Country,
@@ -714,7 +714,7 @@ sap.ui.define([
 
             const sProv = (sCountry === "US" ? "07" :
                 sCountry === "CA" ? "10" :
-                null);
+                    null);
             this._filterExpenseTypes(sProv);
         },
 
@@ -723,7 +723,7 @@ sap.ui.define([
          * Renumber ExpenseReceiptNumber (and optionally ReceiptsDocumentNumber) 1..n
          * Keeps everything else (amount, type, GL, etc.) unchanged.
          */
-        _resequenceExpenseReceipts: function() {
+        _resequenceExpenseReceipts: function () {
             const oModel = this.getView().getModel("trip");
             const aItems = oModel.getProperty("/ExpenseReceipts") || [];
 
@@ -757,7 +757,7 @@ sap.ui.define([
         //     this._oExpenseTypesModel.setData(aFiltered);
         // },
 
-        _filterExpenseTypes: function(provision) {
+        _filterExpenseTypes: function (provision) {
             const aFiltered = provision ?
                 (this._aAllExpenseTypes || []).filter(e => e.TripProvision === provision) :
                 [];
@@ -802,9 +802,18 @@ sap.ui.define([
             const sUrl = `/odata/v4/trip/Trip?$filter=TripNumber eq '${sTripNumber}' and Personnel eq '${sPersonnel}'&$expand=Header,Items,Costs`;
             console.log("Fetching Trip:", sUrl);
 
+
+            var projUrl = this.getBaseURL() + "/odata/v4/trip/EnterpriseProjectCache";
+            console.log("[_loadProjectCacheForPersonnel] Personnel:", sPersonnel, "→ PersonnelNo:", sPersonnel);
+            if (sPersonnel) {
+                projUrl += "?$filter=" + encodeURIComponent(
+                    "contains(ProjectDescription,'" + sPersonnel + "')"
+                );
+            }
+
             oView.setBusy(true);
             $.ajax({
-                url: this.getBaseURL() + sUrl,
+                url: this.getBaseURL() + projUrl,
                 method: "GET",
                 cache: false,
                 dataType: "json"
@@ -943,8 +952,34 @@ sap.ui.define([
                     MessageBox.error("Could not load trip data");
                 });
         },
+        _loadProjectCacheForPersonnel: function (sPersonnel) {
+            var oMatch = String(sPersonnel || "").match(/^(\d+)/),
+                sPersonnelNo = oMatch ? oMatch[1] : "";
 
-        _onObjectMatched: function(oEvent) {
+            var sUrl = this.getBaseURL() + "/odata/v4/trip/EnterpriseProjectCache";
+            console.log("[_loadProjectCacheForPersonnel] Personnel:", sPersonnel, "→ PersonnelNo:", sPersonnelNo);
+            if (sPersonnelNo) {
+                sUrl += "?$filter=" + encodeURIComponent(
+                    "contains(ProjectDescription,'" + sPersonnelNo + "')"
+                );
+            }
+
+            console.log("[_loadProjectCacheForPersonnel] Loading projects for personnel:", sPersonnelNo || "(none — unfiltered)");
+            $.ajax({
+                url: sUrl,
+                method: "GET",
+                dataType: "json",
+                success: function (oData) {
+                    this._allProjects = oData.value || [];
+                    console.log(`[_loadProjectCacheForPersonnel] Loaded ${this._allProjects.length} projects for ${sPersonnelNo}`);
+                }.bind(this),
+                error: function (err) {
+                    console.error("[_loadProjectCacheForPersonnel] Failed to load projects", err);
+                    MessageToast.show("Could not load project list");
+                }.bind(this)
+            });
+        },
+        _onObjectMatched: function (oEvent) {
             var oArgs = oEvent.getParameter("arguments"),
                 sMode = oArgs.mode,
                 sPersonnel = oArgs.Personnel,
@@ -952,6 +987,7 @@ sap.ui.define([
                 sEndOfTrip = oArgs.EndOfTrip;
 
             console.log("Matched with:", sPersonnel, sStartOfTrip, sEndOfTrip);
+            this._loadProjectCacheForPersonnel(sPersonnel);
             // Now you can verify in the console that mode/personnel/startDate/endDate came through
 
             var oData = {
@@ -1056,7 +1092,7 @@ sap.ui.define([
             }
         },
 
-        _setStatusByCode: function(iCode) {
+        _setStatusByCode: function (iCode) {
             const oM = this.getView().getModel("trip");
             const n = Number(iCode);
             oM.setProperty("/StatusText", this._mapStatusText(n));
@@ -1066,12 +1102,12 @@ sap.ui.define([
         },
 
 
-        onSave: function() {
+        onSave: function () {
             const oModel = this.getView().getModel("trip"),
                 oData = oModel.getData(),
                 // 1) Recompute the total from the table
                 fTotal = (oData.ExpenseReceipts || [])
-                .reduce((sum, r) => sum + (parseFloat(r.Amount) || 0), 0),
+                    .reduce((sum, r) => sum + (parseFloat(r.Amount) || 0), 0),
                 sStart = formatDateToEdm(oData.StartOfTrip),
                 sEnd = formatDateToEdm(oData.EndOfTrip),
                 sPers = oData.Personnel,
@@ -1089,12 +1125,12 @@ sap.ui.define([
             const h = oData.Header;
             const provision = (h.Destination === "US" ? "07" :
                 h.Destination === "CA" ? "10" :
-                null);
+                    null);
             // list of allowed TripExpenseType codes for that provision
             const allowedTypes = provision ?
                 this._aAllExpenseTypes
-                .filter(e => e.TripProvision === provision)
-                .map(e => e.TripExpenseType) :
+                    .filter(e => e.TripProvision === provision)
+                    .map(e => e.TripExpenseType) :
                 [];
             // abort if any receipt has an invalid code
             // for (const r of oData.ExpenseReceipts) {
@@ -1228,8 +1264,8 @@ sap.ui.define([
 
                         MessageBox.success(
                             `Trip number ${res.TripNumber} for Personnel ${res.Personnel} has been saved.`, {
-                                actions: [MessageBox.Action.OK]
-                            }
+                            actions: [MessageBox.Action.OK]
+                        }
                         );
                     },
 
@@ -1275,8 +1311,8 @@ sap.ui.define([
 
                         MessageBox.success(
                             `Trip number ${res.TripNumber} for Personnel ${res.Personnel} has been saved.`, {
-                                actions: [MessageBox.Action.OK]
-                            }
+                            actions: [MessageBox.Action.OK]
+                        }
                         );
                     },
 
@@ -1302,7 +1338,7 @@ sap.ui.define([
             console.groupEnd();
         },
 
-        _parseError: function(xhr) {
+        _parseError: function (xhr) {
             try {
                 return JSON.parse(xhr.responseText).error.message;
             } catch (e) {
@@ -1310,14 +1346,14 @@ sap.ui.define([
             }
         },
 
-        onCountryDialogCancel: function() {
+        onCountryDialogCancel: function () {
             this._oCountryDialog.close();
         },
 
 
 
 
-        onDiscardDraft: function() {
+        onDiscardDraft: function () {
             const oM = this.getView().getModel("trip");
             oM.setProperty("/Mode", "display");
             oM.setProperty("/StatusText", this._mapStatusText(0));
@@ -1325,7 +1361,7 @@ sap.ui.define([
         },
 
 
-        onEdit: function() {
+        onEdit: function () {
             const oModel = this.getView().getModel("trip");
             const sStatus = oModel.getProperty("/StatusText"); // “Draft”, “Created”, “Approved”, etc.
             // only allow edit if we’re still in Draft or Created
@@ -1339,7 +1375,7 @@ sap.ui.define([
             oModel.setProperty("/Mode", "create");
         },
 
-        onApprove: function() {
+        onApprove: function () {
             const oModel = this.getView().getModel("trip");
             const oData = oModel.getData();
             const sTripNumber = oData?.TripNumber;
@@ -1349,15 +1385,15 @@ sap.ui.define([
                 return;
             }
             // fetch("/odata/v4/Trip/approveTrip", {
-                    fetch(this.getBaseURL() + "/odata/v4/Trip/approveTrip", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({
-                        TripNumbers: [String(sTripNumber)]
-                    })
+            fetch(this.getBaseURL() + "/odata/v4/Trip/approveTrip", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    TripNumbers: [String(sTripNumber)]
                 })
+            })
                 .then((res) => {
                     if (!res.ok) {
                         throw new Error("Trip approval failed.");
@@ -1451,12 +1487,12 @@ sap.ui.define([
         // },
 
         // --- helpers ---
-        _getCurrentProvision: function() {
+        _getCurrentProvision: function () {
             const dest = this.getView().getModel("trip").getProperty("/Header/Destination");
             return dest === "US" ? "07" : dest === "CA" ? "10" : null;
         },
 
-        _padGL8: function(gl) {
+        _padGL8: function (gl) {
             return gl ? String(gl).replace(/\D/g, "").padStart(8, "0") : "";
         },
 
@@ -1478,7 +1514,7 @@ sap.ui.define([
         // },
 
 
-        _setRowGLFromType: function(rowPath, tripExpenseType) {
+        _setRowGLFromType: function (rowPath, tripExpenseType) {
             if (!rowPath || !tripExpenseType) {
                 console.warn("[_setRowGLFromType] bad args", {
                     rowPath,
@@ -1540,7 +1576,7 @@ sap.ui.define([
         //   });
         // },
 
-        _lookupGLForExpenseType: function(tripExpenseType) {
+        _lookupGLForExpenseType: function (tripExpenseType) {
             const prov = this._getCurrentProvision();
             console.log("[_lookupGLForExpenseType] prov =", prov, "tripExpenseType =", tripExpenseType);
 
@@ -1585,7 +1621,7 @@ sap.ui.define([
 
 
         /** XML uses change=".onTripExpenseTypeChange" */
-        onTripExpenseTypeChange: function(oEvent) {
+        onTripExpenseTypeChange: function (oEvent) {
             console.log("[onTripExpenseTypeChange] fired", oEvent);
             this._onExpenseTypeChanged(oEvent);
         },
@@ -1631,7 +1667,7 @@ sap.ui.define([
          * Fired when user changes the Trip Expense Type in a row.
          * Sets Header.CustomerGLCode and stores per-row GLAccount.
          */
-        _onExpenseTypeChanged: function(oEvent) {
+        _onExpenseTypeChanged: function (oEvent) {
             const src = oEvent.getSource();
             const key =
                 (src.getSelectedKey && src.getSelectedKey()) ||
@@ -1660,7 +1696,7 @@ sap.ui.define([
          * AJAX fetch GL by provision + expenseType, then set row.GLAccount and Header.CustomerGLCode.
          * Uses ExpenseType in the filter to match your API shape.
          */
-        _fetchAndSetGL: function(rowPath, expenseType) {
+        _fetchAndSetGL: function (rowPath, expenseType) {
             const prov = this._getCurrentProvision();
             console.log("[_fetchAndSetGL] prov =", prov, "expenseType =", expenseType, "rowPath =", rowPath);
             if (!rowPath || !expenseType || !prov) return;
@@ -1692,7 +1728,7 @@ sap.ui.define([
 
 
 
-        onAddExpense: function() {
+        onAddExpense: function () {
             console.log("[onAddExpense] start");
             const oModel = this.getView().getModel("trip");
             const sProject = oModel.getProperty("/Header/Project");
@@ -1735,7 +1771,7 @@ sap.ui.define([
             this.updateTotalNetAmount();
         },
 
-        onDeleteExpense: function() {
+        onDeleteExpense: function () {
             const oTable = this.byId("expenseTable");
             const oModel = this.getView().getModel("trip");
             const aItems = oModel.getProperty("/ExpenseReceipts") || [];
@@ -1788,7 +1824,7 @@ sap.ui.define([
         },
 
 
-        onDuplicateExpense: function() {
+        onDuplicateExpense: function () {
             const oTable = this.byId("expenseTable");
             const oModel = this.getView().getModel("trip");
             const aItems = oModel.getProperty("/ExpenseReceipts") || [];
