@@ -347,6 +347,7 @@ class DrugBackgroundCheckProcessor extends Processor {
         if (aErrorLogs.length) {
             try {
                 await Promise.allSettled([
+                    ProcessLogger.removeLogs(aFailedRecordIDs, null, sProcessCode),
                     ProcessLogger.addLogs(aErrorLogs),
                     // this.markRecordsValid(sProcessCode, aFailedRecordIDs, false),
                     ...aFailedRecordIDs.filter(recordID => {
