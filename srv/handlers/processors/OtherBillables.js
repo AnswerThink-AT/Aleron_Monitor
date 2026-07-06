@@ -845,9 +845,9 @@ class OtherBillables extends Processor {
             });
 
             LOG.info(`   Fetched ${aSalesOrderItems.length} SalesOrderItem(s)`);
-            aSalesOrderItems.forEach(o => {
-                if (!mSalesOrderItem.has(o.SalesOrder)) mSalesOrderItem.set(o.SalesOrder, []);
-                mSalesOrderItem.get(o.SalesOrder).push(o);
+            aSalesOrderItems?.forEach(o => {
+                if (!mSalesOrderItem.has(o.SalesOrder)) mSalesOrderItem?.set(o.SalesOrder, []);
+                mSalesOrderItem?.get(o.SalesOrder).push(o);
                 if (o.YY1_PurchasingDoc_SD_SDI && !aPurchaseOrderItemWhere.includes(o.YY1_PurchasingDoc_SD_SDI)) {
                     aPurchaseOrderItemWhere.push(o.YY1_PurchasingDoc_SD_SDI);
                 }
@@ -855,10 +855,10 @@ class OtherBillables extends Processor {
             });
 
             LOG.info(`   Fetched ${aSalesOrderPartners.length} SalesOrderHeaderPartner(s)`);
-            aSalesOrderPartners.forEach(o => {
-                if (!mSalesOrderPartner.has(o.SalesOrder)) mSalesOrderPartner.set(o.SalesOrder, []);
-                mSalesOrderPartner.get(o.SalesOrder).push(o);
-                if (o.PartnerFunction === 'ZR') aVendorWhere.push(o.Supplier);
+            aSalesOrderPartners?.forEach(o => {
+                if (!mSalesOrderPartner?.has(o.SalesOrder)) mSalesOrderPartner?.set(o.SalesOrder, []);
+                mSalesOrderPartner?.get(o.SalesOrder).push(o);
+                if (o.PartnerFunction === 'ZR') aVendorWhere?.push(o.Supplier);
                 LOG.info(`     SO=${o.SalesOrder}, PF=${o.PartnerFunction}, Supp/Buyer=${o.Supplier || o.Customer}`);
             });
         } catch (err) {
@@ -894,27 +894,27 @@ class OtherBillables extends Processor {
             ]);
 
             LOG.info(`   Retrieved ${aVendors.length} Vendor_VendorRemit entries`);
-            aVendors.forEach(o => {
+            aVendors?.forEach(o => {
                 mVendor.set(o.vendor, o);
                 LOG.info(`     vendor=${o.vendor}, vendorZR=${o.vendorZR}`);
             });
 
-            LOG.info(`   Retrieved ${aPurchaseOrderItems.length} PurchaseOrderItem(s)`);
-            aPurchaseOrderItems.forEach(o => {
-                if (!mPurchaseOrderItem.has(o.PurchaseOrder)) mPurchaseOrderItem.set(o.PurchaseOrder, []);
-                mPurchaseOrderItem.get(o.PurchaseOrder).push(o);
+            LOG.info(`   Retrieved ${aPurchaseOrderItems?.length} PurchaseOrderItem(s)`);
+            aPurchaseOrderItems?.forEach(o => {
+                if (!mPurchaseOrderItem?.has(o.PurchaseOrder)) mPurchaseOrderItem?.set(o.PurchaseOrder, []);
+                mPurchaseOrderItem?.get(o.PurchaseOrder).push(o);
                 LOG.info(`     PO=${o.PurchaseOrder}, POItem=${o.PurchaseOrderItem}`);
             });
 
-            LOG.info(`   Retrieved ${aTravelPayTerms.length} TravelCustomerPayTermByPOBox entries`);
-            aTravelPayTerms.forEach(o => {
-                mTravelPayTerm.set(o.customerNo, o);
+            LOG.info(`   Retrieved ${aTravelPayTerms?.length} TravelCustomerPayTermByPOBox entries`);
+            aTravelPayTerms?.forEach(o => {
+                mTravelPayTerm?.set(o.customerNo, o);
                 LOG.info(`     customerNo=${o.customerNo}, poBox=${o.poBox}`);
             });
 
-            LOG.info(`   Retrieved ${aTravelPayTermFeeds.length} TravelPayTermFeed entries`);
-            aTravelPayTermFeeds.forEach(o => {
-                mTravelPayTermFeed.set(o.paymentTerm, o);
+            LOG.info(`   Retrieved ${aTravelPayTermFeeds?.length} TravelPayTermFeed entries`);
+            aTravelPayTermFeeds?.forEach(o => {
+                mTravelPayTermFeed?.set(o.paymentTerm, o);
                 LOG.info(`     paymentTerm=${o.paymentTerm}, netPaymentTerm=${o.netPaymentTerm}`);
             });
         } catch (err) {
@@ -962,10 +962,10 @@ class OtherBillables extends Processor {
             // CP/CR branch
             if (['CP', 'CR'].includes(record.woType)) {
                 LOG.info('   Entering CP/CR logic');
-                if (firstItems.length === 1) {
-                    const so = mSalesOrder.get(firstItems[0].SalesOrder);
-                    LOG.info(`     single firstItem → SO=${so.SalesOrder}, DistChannel=${so.DistributionChannel}`);
-                    if (!['CP', 'CR'].includes(so.DistributionChannel)) {
+                if (firstItems?.length === 1) {
+                    const so = mSalesOrder?.get(firstItems[0]?.SalesOrder);
+                    LOG.info(`     single firstItem → SO=${so?.SalesOrder}, DistChannel=${so?.DistributionChannel}`);
+                    if (!['CP', 'CR'].includes(so?.DistributionChannel)) {
                         const msg = cds.i18n.messages.at('ERR_SALES_ORDER_PAYROLL');
                         LOG.error(`     ERR_SALES_ORDER_PAYROLL: ${msg}`);
                         aErrors.push({ record_ID: record.ID, message: msg, process_code: sProcessCode });
@@ -977,11 +977,11 @@ class OtherBillables extends Processor {
                 } else {
                     LOG.info('     multiple firstItems → searching CP/CR or IC/Z1');
                     for (const item of firstItems) {
-                        const so = mSalesOrder.get(item.SalesOrder);
-                        LOG.info(`       check SO=${so.SalesOrder}, DistChannel=${so.DistributionChannel}, CustGroup=${so.CustomerGroup}`);
-                        if (['CP', 'CR'].includes(so.DistributionChannel)) {
+                        const so = mSalesOrder?.get(item.SalesOrder);
+                        LOG.info(`       check SO=${so?.SalesOrder}, DistChannel=${so?.DistributionChannel}, CustGroup=${so?.CustomerGroup}`);
+                        if (['CP', 'CR'].includes(so?.DistributionChannel)) {
                             oSalesOrder = so;
-                        } else if (so.DistributionChannel === 'IC' && so.CustomerGroup === 'Z1') {
+                        } else if (so?.DistributionChannel === 'IC' && so?.CustomerGroup === 'Z1') {
                             record.salesOrderICUpdateRequired = 'X';
                             record.p2SalesDocumentNoSAP = so.SalesOrder;
                             LOG.info(`         flagged IC update for P2 SO=${so.SalesOrder}`);
@@ -993,11 +993,11 @@ class OtherBillables extends Processor {
             else if (record.woType === 'MS') {
                 LOG.info('   Entering MS logic');
                 for (const item of firstItems) {
-                    const so = mSalesOrder.get(item.SalesOrder);
-                    LOG.info(`       check SO=${so.SalesOrder}, DistChannel=${so.DistributionChannel}`);
-                    if (so.DistributionChannel === 'MS') {
+                    const so = mSalesOrder?.get(item.SalesOrder);
+                    LOG.info(`       check SO=${so?.SalesOrder}, DistChannel=${so?.DistributionChannel}`);
+                    if (so?.DistributionChannel === 'MS') {
                         oSalesOrder = so;
-                        const partners = mSalesOrderPartner.get(so.SalesOrder) || [];
+                        const partners = mSalesOrderPartner?.get(so.SalesOrder) || [];
                         oPartnerFunctionZV = partners.find(p => p.PartnerFunction === 'ZV');
                         const vendor = mVendor.get(oPartnerFunctionZV?.Supplier);
                         record.PORequiredSAP = vendor ? '' : '1';
@@ -1018,15 +1018,15 @@ class OtherBillables extends Processor {
                 aErrorLogs.push(...aErrors);
                 continue;
             }
-            LOG.info(`   Using SalesOrder ${oSalesOrder.SalesOrder}`);
+            LOG.info(`   Using SalesOrder ${oSalesOrder?.SalesOrder}`);
 
             // collect existing SO items
-            const items = mSalesOrderItem.get(oSalesOrder.SalesOrder) || [];
-            const firstSOItem = items.find(i => i.SalesOrderItem === '10' && i.SalesOrderItemCategory === 'TADN');
-            const lastSOItem = items.reduce((max, cur) =>
+            const items = mSalesOrderItem?.get(oSalesOrder.SalesOrder) || [];
+            const firstSOItem = items?.find(i => i.SalesOrderItem === '10' && i.SalesOrderItemCategory === 'TADN');
+            const lastSOItem = items?.reduce((max, cur) =>
                 Number(cur.SalesOrderItem) > Number(max.SalesOrderItem) ? cur : max, items[0]
             );
-            LOG.info(`   Found ${items.length} existing SO items; firstSOItem=${firstSOItem.SalesOrderItem}, lastSOItem=${lastSOItem.SalesOrderItem}`);
+            LOG.info(`   Found ${items.length} existing SO items; firstSOItem=${firstSOItem?.SalesOrderItem}, lastSOItem=${lastSOItem?.SalesOrderItem}`);
 
             // pricing & billing type
             LOG.info('   Determining conditionType via pricingHelper');
@@ -1047,9 +1047,9 @@ class OtherBillables extends Processor {
             LOG.info(`   → billingType='${billingType.Billing_type}' for orderType='${billingType.SO_order_Type}'`);
 
             // project number check
-            if (!firstSOItem.WBSElement || firstSOItem.WBSElement !== record.internalOrder) {
+            if (!firstSOItem?.WBSElement || firstSOItem?.WBSElement !== record.internalOrder) {
                 const msg = cds.i18n.messages.at('ERR_PROJECT_NUMBER_MISSING');
-                LOG.error(`   ERR_PROJECT_NUMBER_MISSING: ${msg} (expected '${record.internalOrder}', got '${firstSOItem.WBSElement}')`);
+                LOG.error(`   ERR_PROJECT_NUMBER_MISSING: ${msg} (expected '${record.internalOrder}', got '${firstSOItem?.WBSElement}')`);
                 aErrors.push({ record_ID: record.ID, message: msg, process_code: sProcessCode });
                 aFailedRecordIDs.push(record.ID);
                 aErrorLogs.push(...aErrors);
@@ -1059,7 +1059,7 @@ class OtherBillables extends Processor {
             // PO creation logic
             if (record.PORequiredSAP === '1') {
                 LOG.info('   PORequiredSAP flag is set → validating purchaseDocument...');
-                if (!firstSOItem.YY1_PurchasingDoc_SD_SDI) {
+                if (!firstSOItem?.YY1_PurchasingDoc_SD_SDI) {
                     const msg = cds.i18n.messages.at('ERR_CREATE_PO');
                     LOG.error(`   ERR_CREATE_PO: ${msg}`);
                     aErrors.push({ record_ID: record.ID, message: msg, process_code: sProcessCode });
@@ -1067,15 +1067,15 @@ class OtherBillables extends Processor {
                     aErrorLogs.push(...aErrors);
                     continue;
                 }
-                record.purchaseDocumentNoSAP = firstSOItem.YY1_PurchasingDoc_SD_SDI;
+                record.purchaseDocumentNoSAP = firstSOItem?.YY1_PurchasingDoc_SD_SDI;
                 LOG.info(`   Using existing PO=${record.purchaseDocumentNoSAP}`);
-                const poItems = mPurchaseOrderItem.get(firstSOItem.YY1_PurchasingDoc_SD_SDI) || [];
-                const maxPO = poItems.reduce((max, cur) =>
+                const poItems = mPurchaseOrderItem?.get(firstSOItem.YY1_PurchasingDoc_SD_SDI) || [];
+                const maxPO = poItems?.reduce((max, cur) =>
                     cur.PurchaseOrderItem > max.PurchaseOrderItem ? cur : max, poItems[0]
                 );
-                if (poItems.length) {
-                    LOG.info(`     Found ${poItems.length} PO items; maxPOItem=${maxPO.PurchaseOrderItem}`);
-                    if (Number(maxPO.PurchaseOrderItem) > Number(lastSOItem.SalesOrderItem)) {
+                if (poItems?.length) {
+                    LOG.info(`     Found ${poItems.length} PO items; maxPOItem=${maxPO?.PurchaseOrderItem}`);
+                    if (Number(maxPO?.PurchaseOrderItem) > Number(lastSOItem?.SalesOrderItem)) {
                         lastSOItem.SalesOrderItem = maxPO.PurchaseOrderItem;
                         LOG.info(`     lastSOItem adjusted up to ${lastSOItem.SalesOrderItem}`);
                     }
@@ -1083,7 +1083,7 @@ class OtherBillables extends Processor {
             }
 
             // duplicate invoice check
-            if (record.wnInvoiceNo === oSalesOrder.YY1_WNInvoice_SD_SDI) {
+            if (record.wnInvoiceNo === oSalesOrder?.YY1_WNInvoice_SD_SDI) {
                 const msg = cds.i18n.messages.at('ERR_DUPLICATE_LINES');
                 LOG.error(`   ERR_DUPLICATE_LINES: ${msg}`);
                 aErrorLogs.push({ record_ID: record.ID, message: msg, process_code: sProcessCode });
@@ -1123,12 +1123,12 @@ class OtherBillables extends Processor {
             };
 
             LOG.info('   Applying travel terms & text fields');
-            const travelTerm = mTravelPayTerm.get(oSalesOrder.SoldToParty);
+            const travelTerm = mTravelPayTerm?.get(oSalesOrder?.SoldToParty);
             if (travelTerm) {
                 payload.PurchaseOrderByShipToParty = travelTerm.poBox;
                 LOG.info(`     PurchaseOrderByShipToParty='${travelTerm.poBox}'`);
             }
-            const termFeed = mTravelPayTermFeed.get(oSalesOrder.CustomerPaymentTerms);
+            const termFeed = mTravelPayTermFeed?.get(oSalesOrder?.CustomerPaymentTerms);
             if (termFeed) {
                 payload.CustomerPaymentTerms = termFeed.netPaymentTerm;
                 LOG.info(`     CustomerPaymentTerms='${termFeed.netPaymentTerm}'`);
