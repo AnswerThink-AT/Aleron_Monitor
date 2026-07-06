@@ -328,7 +328,7 @@ class OtherBillables extends Processor {
                 LOG.error(err.message);
                 errorLogs.push({
                     record_ID: rec.ID,
-                    message: err.message, process_code: sProcessCode
+                    message: err.message + ` (WorkOrderNumber: ${rec.wnWorkOrder})`, process_code: sProcessCode
                 });
             }
             // ----------------------------
@@ -390,7 +390,7 @@ class OtherBillables extends Processor {
                 );
                 let soHdr;
                 try {
-                    soHdr = await this.salesOrderAPI.executeQuery(
+                     soHdr = await this.salesOrderAPI.executeQuery(
                         SELECT.one.from('A_SalesOrder')
                             .columns(['YY1_AlphanumericSalesO_SDH'])
                             .where({ SalesOrder: soItem.SalesOrder })
@@ -462,8 +462,9 @@ class OtherBillables extends Processor {
                 null;
 
             // ─── 1.4.C — Duplicate check via TADN schedule-lines ───
+            let scheduleItems;
             try {
-                const scheduleItems = await this.salesOrderAPI.executeQuery(
+                scheduleItems = await this.salesOrderAPI.executeQuery(
                     SELECT.from('A_SalesOrderItem')
                         .columns([
                             'SalesOrderItem',
