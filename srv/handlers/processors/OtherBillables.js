@@ -211,325 +211,404 @@ class OtherBillables extends Processor {
         LOG.info('[prepareCommunicators] billingTypeAPI ready');
     }
 
-async validateRecords(sProcessCode, bBreakExecution) {
-    LOG.info(`Entering validateRecords: process=${sProcessCode}, totalRecords=${this.records.length}`);
+    async validateRecords(sProcessCode, bBreakExecution) {
+        LOG.info(`Entering validateRecords: process=${sProcessCode}, totalRecords=${this.records.length}`);
 
-    // ------------------------------------------------------------
-    // Step 0: Filter records to process vs. skip
-    //  - Use shouldRecordProcess
-    //  - BUT: if record is already at this step AND valid=true,
-    //    force it into toProcess (do not skip)
-    // ------------------------------------------------------------
-    const toProcess = [];
-    const skipped = [];
-    const stepCode = String(sProcessCode);
+        // ------------------------------------------------------------
+        // Step 0: Filter records to process vs. skip
+        //  - Use shouldRecordProcess
+        //  - BUT: if record is already at this step AND valid=true,
+        //    force it into toProcess (do not skip)
+        // ------------------------------------------------------------
+        const toProcess = [];
+        const skipped = [];
+        const stepCode = String(sProcessCode);
 
-    for (const rec of this.records) {
-        const recStep = String(rec.processLevel_code ?? '');
-        const isValid = rec.valid === true;
+        for (const rec of this.records) {
+            const recStep = String(rec.processLevel_code ?? '');
+            const isValid = rec.valid === true;
 
-        // extra rule: record at this step + valid => must process
-        const explicitlyAllowed = recStep === stepCode && isValid;
+            // extra rule: record at this step + valid => must process
+            const explicitlyAllowed = recStep === stepCode && isValid;
 
-        if (this.shouldRecordProcess(rec, sProcessCode) || explicitlyAllowed) {
-            toProcess.push({ ...rec });
-        } else {
-            skipped.push({ ...rec });
-        }
-    }
-
-    LOG.info(`Filtered: toProcess=${toProcess.length}, skipped=${skipped.length}`);
-    this.updateProcessingState(sProcessCode);
-
-    if (!toProcess.length) {
-        LOG.info('No records to validate, exiting');
-        return { hasError: false, continue: true };
-    }
-
-    // ------------------------------------------------------------
-    // Step 1.1: Group by wnWorkOrder|wnInvoiceNo|weekEndDate|currency
-    // ------------------------------------------------------------
-    LOG.info('Step 1.1: grouping records');
-    const groups = toProcess.reduce((acc, rec) => {
-        const key = `${rec.wnWorkOrder}|${rec.wnInvoiceNo}|${rec.weekEndDate}|${rec.currency}`;
-        (acc[key] ||= []).push(rec);
-        return acc;
-    }, {});
-    LOG.info(` → ${Object.keys(groups).length} groups formed`);
-
-    // ------------------------------------------------------------
-    // Step 1.2: OPT-MAN placeholder
-    // ------------------------------------------------------------
-    LOG.info('Step 1.2: OPT-MAN placeholder (skipped)');
-
-    // Prepare trackers
-    const errorLogs = [];
-    const failedRecordIDs = new Set();
-    const passedRecordIDs = new Set();
-    const writes = [];
-
-    // ------------------------------------------------------------
-    // Step 1.3: Mandatory grouping fields must **not** be blank
-    // ------------------------------------------------------------
-    LOG.info('Step 1.3: checking mandatory fields');
-    for (const [key, group] of Object.entries(groups)) {
-        const blank = group.find(r =>
-            !r.wnWorkOrder || !r.wnInvoiceNo || !r.weekEndDate || !r.currency
-        );
-        if (blank) {
-            errorLogs.push({
-                record_ID: blank.ID,
-                message: `Group ${key}: mandatory field blank`,process_code: sProcessCode
-            });
-            group.forEach(r => failedRecordIDs.add(r.ID));
-            LOG.info(` → group ${key} FAILED mandatory check`);
-        } else {
-            group.forEach(r => passedRecordIDs.add(r.ID));
-            LOG.info(` → group ${key} passed mandatory check`);
-        }
-    }
-
-    // ------------------------------------------------------------
-    // Step 1.4: Duplicate & ZLAB logic + NEW SO lookup from WorkOrder
-    // ------------------------------------------------------------
-    LOG.info('Step 1.4: duplicate and ZLAB logic');
-    for (const [key, group] of Object.entries(groups)) {
-        // if any in this group already failed, skip all further checks
-        if (group.some(r => failedRecordIDs.has(r.ID))) {
-            LOG.info(` → skipping ${key} (already failed)`);
-            continue;
-        }
-
-        const rec = group[0];
-
-        // ─────────────────────────────────────────────────────────
-        // NEW STEP 1.4.A – Derive SAP SalesOrder from WorkOrder
-        //   1) Try A_SalesOrderItem via YY1_WNWorkOrder_SD_SDI & item 000010
-        //   2) Fallback: A_SalesOrder via YY1_AlphanumericSalesO_SDH
-        //   3) Update wnWorkOrder in DB when we normalize it
-        // ─────────────────────────────────────────────────────────
-        LOG.info(
-            `STEP 1.4.A: Group ${key} → Deriving SalesOrder from wnWorkOrder='${rec.wnWorkOrder}'`
-        );
-
-        let sapSO;
-        let soItem = await this.salesOrderAPI.executeQuery(
-            SELECT.one.from('A_SalesOrderItem')
-                .columns(['SalesOrder'])
-                .where({
-                    YY1_WNWorkOrder_SD_SDI: rec.wnWorkOrder,
-                    SalesOrderItem: '000010'
-                })
-        );
-
-        // ----------------------------
-        // NEW ELSE CASE (fallback)
-        // ----------------------------
-        if (!soItem) {
-            LOG.info(
-                `STEP 1.0x: Record ${rec.ID} → No SalesOrderItem found via YY1_WNWorkOrder_SD_SDI, ` +
-                `trying fallback: A_SalesOrder with YY1_AlphanumericSalesO_SDH='${rec.wnWorkOrder}'`
-            );
-
-            const soHdrFallback = await this.salesOrderAPI.executeQuery(
-                SELECT.one.from('A_SalesOrder')
-                    .columns(['SalesOrder'])   // we only need SalesOrder
-                    .where({ YY1_AlphanumericSalesO_SDH: rec.wnWorkOrder })
-            );
-
-            if (soHdrFallback && soHdrFallback.SalesOrder) {
-                const newWO = soHdrFallback.SalesOrder;
-                LOG.info(
-                    `STEP 1.0x: Record ${rec.ID} (fallback) → Updating wnWorkOrder '${rec.wnWorkOrder}' → '${newWO}'`
-                );
-
-                rec.wnWorkOrder = newWO;
-                sapSO = newWO;
-
-                await UPDATE(this.recordsEntity)
-                    .set({ wnWorkOrder: newWO })
-                    .where({ ID: rec.ID });
-
-                // fallback succeeded, continue with rest of validation
+            if (this.shouldRecordProcess(rec, sProcessCode) || explicitlyAllowed) {
+                toProcess.push({ ...rec });
             } else {
-                LOG.error(
-                    `STEP 1.0x: Record ${rec.ID} → Fallback SalesOrder lookup also failed → ERROR OUT`
-                );
+                skipped.push({ ...rec });
+            }
+        }
 
+        LOG.info(`Filtered: toProcess=${toProcess.length}, skipped=${skipped.length}`);
+        this.updateProcessingState(sProcessCode);
+
+        if (!toProcess.length) {
+            LOG.info('No records to validate, exiting');
+            return { hasError: false, continue: true };
+        }
+
+        // ------------------------------------------------------------
+        // Step 1.1: Group by wnWorkOrder|wnInvoiceNo|weekEndDate|currency
+        // ------------------------------------------------------------
+        LOG.info('Step 1.1: grouping records');
+        const groups = toProcess.reduce((acc, rec) => {
+            const key = `${rec.wnWorkOrder}|${rec.wnInvoiceNo}|${rec.weekEndDate}|${rec.currency}`;
+            (acc[key] ||= []).push(rec);
+            return acc;
+        }, {});
+        LOG.info(` → ${Object.keys(groups).length} groups formed`);
+
+        // ------------------------------------------------------------
+        // Step 1.2: OPT-MAN placeholder
+        // ------------------------------------------------------------
+        LOG.info('Step 1.2: OPT-MAN placeholder (skipped)');
+
+        // Prepare trackers
+        const errorLogs = [];
+        const failedRecordIDs = new Set();
+        const passedRecordIDs = new Set();
+        const writes = [];
+
+        // ------------------------------------------------------------
+        // Step 1.3: Mandatory grouping fields must **not** be blank
+        // ------------------------------------------------------------
+        LOG.info('Step 1.3: checking mandatory fields');
+        for (const [key, group] of Object.entries(groups)) {
+            const blank = group.find(r =>
+                !r.wnWorkOrder || !r.wnInvoiceNo || !r.weekEndDate || !r.currency
+            );
+            if (blank) {
                 errorLogs.push({
-                    record_ID: rec.ID,
-                    message: `Group ${key}: SAP SalesOrder not found from WorkOrder '${rec.wnWorkOrder}'`,process_code: sProcessCode
+                    record_ID: blank.ID,
+                    message: `Group ${key}: mandatory field blank`, process_code: sProcessCode
                 });
                 group.forEach(r => failedRecordIDs.add(r.ID));
-                LOG.info(` → group ${key} FAILED SO lookup (WorkOrder based)`);
+                LOG.info(` → group ${key} FAILED mandatory check`);
+            } else {
+                group.forEach(r => passedRecordIDs.add(r.ID));
+                LOG.info(` → group ${key} passed mandatory check`);
+            }
+        }
+
+        // ------------------------------------------------------------
+        // Step 1.4: Duplicate & ZLAB logic + NEW SO lookup from WorkOrder
+        // ------------------------------------------------------------
+        LOG.info('Step 1.4: duplicate and ZLAB logic');
+        for (const [key, group] of Object.entries(groups)) {
+            // if any in this group already failed, skip all further checks
+            if (group.some(r => failedRecordIDs.has(r.ID))) {
+                LOG.info(` → skipping ${key} (already failed)`);
                 continue;
             }
-        } else {
-            // ----------------------------
-            // ORIGINAL LOGIC CONTINUES HERE
-            // ----------------------------
+
+            const rec = group[0];
+
+            // ─────────────────────────────────────────────────────────
+            // NEW STEP 1.4.A – Derive SAP SalesOrder from WorkOrder
+            //   1) Try A_SalesOrderItem via YY1_WNWorkOrder_SD_SDI & item 000010
+            //   2) Fallback: A_SalesOrder via YY1_AlphanumericSalesO_SDH
+            //   3) Update wnWorkOrder in DB when we normalize it
+            // ─────────────────────────────────────────────────────────
             LOG.info(
-                `STEP 1.0x: Record ${rec.ID} → Found SalesOrder='${soItem.SalesOrder}', fetching alphanumeric`
+                `STEP 1.4.A: Group ${key} → Deriving SalesOrder from wnWorkOrder='${rec.wnWorkOrder}'`
             );
 
-            const soHdr = await this.salesOrderAPI.executeQuery(
-                SELECT.one.from('A_SalesOrder')
-                    .columns(['YY1_AlphanumericSalesO_SDH'])
-                    .where({ SalesOrder: soItem.SalesOrder })
-            );
-
-            if (soHdr && soHdr.YY1_AlphanumericSalesO_SDH) {
-                const newWO = soHdr.YY1_AlphanumericSalesO_SDH;
+            let sapSO;
+            let soItem;
+            try {
+                soItem = await this.salesOrderAPI.executeQuery(
+                    SELECT.one.from('A_SalesOrderItem')
+                        .columns(['SalesOrder'])
+                        .where({
+                            YY1_WNWorkOrder_SD_SDI: rec.wnWorkOrder,
+                            SalesOrderItem: '000010'
+                        })
+                );
+            }
+            catch (err) {
+                LOG.error(err.message);
+                errorLogs.push({
+                    record_ID: rec.ID,
+                    message: err.message, process_code: sProcessCode
+                });
+            }
+            // ----------------------------
+            // NEW ELSE CASE (fallback)
+            // ----------------------------
+            if (!soItem) {
                 LOG.info(
-                    `STEP 1.0x: Record ${rec.ID} → Updating wnWorkOrder '${rec.wnWorkOrder}' → '${newWO}'`
+                    `STEP 1.0x: Record ${rec.ID} → No SalesOrderItem found via YY1_WNWorkOrder_SD_SDI, ` +
+                    `trying fallback: A_SalesOrder with YY1_AlphanumericSalesO_SDH='${rec.wnWorkOrder}'`
                 );
 
-                rec.wnWorkOrder = newWO;
+                let soHdrFallback;
+                try {
+                    soHdrFallback = await this.salesOrderAPI.executeQuery(
+                        SELECT.one.from('A_SalesOrder')
+                            .columns(['SalesOrder'])   // we only need SalesOrder
+                            .where({ YY1_AlphanumericSalesO_SDH: rec.wnWorkOrder })
+                    );
+                }
 
-                await UPDATE(this.recordsEntity)
-                    .set({ wnWorkOrder: newWO })
-                    .where({ ID: rec.ID });
+                catch (err) {
+                    LOG.error(err.message);
+
+                }
+
+                if (soHdrFallback && soHdrFallback.SalesOrder) {
+                    const newWO = soHdrFallback.SalesOrder;
+                    LOG.info(
+                        `STEP 1.0x: Record ${rec.ID} (fallback) → Updating wnWorkOrder '${rec.wnWorkOrder}' → '${newWO}'`
+                    );
+
+                    rec.wnWorkOrder = newWO;
+                    sapSO = newWO;
+
+                    await UPDATE(this.recordsEntity)
+                        .set({ wnWorkOrder: newWO })
+                        .where({ ID: rec.ID });
+
+                    // fallback succeeded, continue with rest of validation
+                } else {
+                    LOG.error(
+                        `STEP 1.0x: Record ${rec.ID} → Fallback SalesOrder lookup also failed → ERROR OUT`
+                    );
+
+                    errorLogs.push({
+                        record_ID: rec.ID,
+                        message: `Group ${key}: SAP SalesOrder not found from WorkOrder '${rec.wnWorkOrder}'`, process_code: sProcessCode
+                    });
+                    group.forEach(r => failedRecordIDs.add(r.ID));
+                    LOG.info(` → group ${key} FAILED SO lookup (WorkOrder based)`);
+                    continue;
+                }
+            } else {
+                // ----------------------------
+                // ORIGINAL LOGIC CONTINUES HERE
+                // ----------------------------
+                LOG.info(
+                    `STEP 1.0x: Record ${rec.ID} → Found SalesOrder='${soItem.SalesOrder}', fetching alphanumeric`
+                );
+                let soHdr;
+                try {
+                    soHdr = await this.salesOrderAPI.executeQuery(
+                        SELECT.one.from('A_SalesOrder')
+                            .columns(['YY1_AlphanumericSalesO_SDH'])
+                            .where({ SalesOrder: soItem.SalesOrder })
+                    );
+                }
+
+                catch (err) {
+                    LOG.error(err.message);
+
+                }
+                if (soHdr && soHdr.YY1_AlphanumericSalesO_SDH) {
+                    const newWO = soHdr.YY1_AlphanumericSalesO_SDH;
+                    LOG.info(
+                        `STEP 1.0x: Record ${rec.ID} → Updating wnWorkOrder '${rec.wnWorkOrder}' → '${newWO}'`
+                    );
+
+                    rec.wnWorkOrder = newWO;
+
+                    await UPDATE(this.recordsEntity)
+                        .set({ wnWorkOrder: newWO })
+                        .where({ ID: rec.ID });
+                } else {
+                    LOG.info(
+                        `STEP 1.0x: Record ${rec.ID} → No alphanumeric found for SalesOrder='${soItem.SalesOrder}'`
+                    );
+                    errorLogs.push({
+                        record_ID: rec.ID,
+                        message: `STEP 1.0x: Record ${rec.ID} → No alphanumeric found for SalesOrder='${soItem.SalesOrder}'`, process_code: sProcessCode
+                    });
+                }
+
+                sapSO = soItem.SalesOrder;
+            }
+
+            LOG.info(` → Group ${key}: resolved SAP SO=${sapSO}`);
+
+            // ─── 1.4.B — “skip ZEXP check if any item already has this invoice” ───
+            let existing;
+            try {
+                existing = await this.salesOrderAPI.executeQuery(
+                    SELECT.from('A_SalesOrderItem')
+                        .columns(['SalesOrderItem'])
+                        .where({
+                            SalesOrder: sapSO,
+                            YY1_WNInvoice_SD_SDI: rec.wnInvoiceNo
+                        })
+                );
+            }
+            catch (err) {
+                LOG.error(err.message);
+
+            }
+
+            if (existing.length) {
+                LOG.info(
+                    ` → order ${sapSO} already has ${existing.length}` +
+                    ` item(s) for invoice ${rec.wnInvoiceNo}; skipping ZEXP check`
+                );
             } else {
                 LOG.info(
-                    `STEP 1.0x: Record ${rec.ID} → No alphanumeric found for SalesOrder='${soItem.SalesOrder}'`
+                    ` → no existing item found for invoice ${rec.wnInvoiceNo}; ZEXP check passes`
                 );
             }
 
-            sapSO = soItem.SalesOrder;
-        }
+            // Date Check convertor as per S4
+            const parts = rec.weekEndDate.match(/(\d{4})(\d{2})(\d{2})/);
+            const weekEndDate = parts ?
+                new Date(Number(parts[1]), Number(parts[2]) - 1, Number(parts[3])) :
+                null;
 
-        LOG.info(` → Group ${key}: resolved SAP SO=${sapSO}`);
+            // ─── 1.4.C — Duplicate check via TADN schedule-lines ───
+            try {
+                const scheduleItems = await this.salesOrderAPI.executeQuery(
+                    SELECT.from('A_SalesOrderItem')
+                        .columns([
+                            'SalesOrderItem',
+                            'YY1_WeekEnd_SD_SDI',
+                            'SalesOrderItemCategory'
+                        ])
+                        .where({
+                            SalesOrder: sapSO,
+                            YY1_WNInvoice_SD_SDI: rec.wnInvoiceNo
+                        })
+                );
+            }
+            catch (err) {
+                LOG.error(err.message);
 
-        // ─── 1.4.B — “skip ZEXP check if any item already has this invoice” ───
-        const existing = await this.salesOrderAPI.executeQuery(
-            SELECT.from('A_SalesOrderItem')
-                .columns(['SalesOrderItem'])
-                .where({
-                    SalesOrder: sapSO,
-                    YY1_WNInvoice_SD_SDI: rec.wnInvoiceNo
-                })
-        );
+            }
 
-        if (existing.length) {
-            LOG.info(
-                ` → order ${sapSO} already has ${existing.length}` +
-                ` item(s) for invoice ${rec.wnInvoiceNo}; skipping ZEXP check`
-            );
-        } else {
-            LOG.info(
-                ` → no existing item found for invoice ${rec.wnInvoiceNo}; ZEXP check passes`
-            );
-        }
+            const m = rec.weekEndDate.match(/^(\d{4})(\d{2})(\d{2})$/);
+            const weekEnd = m ?
+                new Date(+m[1], +m[2] - 1, +m[3]) :
+                null;
 
-        // Date Check convertor as per S4
-        const parts = rec.weekEndDate.match(/(\d{4})(\d{2})(\d{2})/);
-        const weekEndDate = parts ?
-            new Date(Number(parts[1]), Number(parts[2]) - 1, Number(parts[3])) :
-            null;
-
-        // ─── 1.4.C — Duplicate check via TADN schedule-lines ───
-        const scheduleItems = await this.salesOrderAPI.executeQuery(
-            SELECT.from('A_SalesOrderItem')
-                .columns([
-                    'SalesOrderItem',
-                    'YY1_WeekEnd_SD_SDI',
-                    'SalesOrderItemCategory'
-                ])
-                .where({
-                    SalesOrder: sapSO,
-                    YY1_WNInvoice_SD_SDI: rec.wnInvoiceNo
-                })
-        );
-
-        const m = rec.weekEndDate.match(/^(\d{4})(\d{2})(\d{2})$/);
-        const weekEnd = m ?
-            new Date(+m[1], +m[2] - 1, +m[3]) :
-            null;
-
-        const duplicates = scheduleItems.filter(i => {
-            if (i.SalesOrderItemCategory !== 'TADN') return false;
-            if (!weekEnd || !i.YY1_WeekEnd_SD_SDI) return false;
-            const svcDate = new Date(i.YY1_WeekEnd_SD_SDI);
-            return svcDate.toISOString().slice(0, 10) ===
-                weekEnd.toISOString().slice(0, 10);
-        });
-
-        LOG.info(` → found ${duplicates.length} existing TADN line(s)`);
-
-        if (duplicates.length) {
-            errorLogs.push({
-                record_ID: rec.ID,
-                message: `Group ${key}: duplicate TADN schedule-line exists`,process_code: sProcessCode
+            const duplicates = scheduleItems.filter(i => {
+                if (i.SalesOrderItemCategory !== 'TADN') return false;
+                if (!weekEnd || !i.YY1_WeekEnd_SD_SDI) return false;
+                const svcDate = new Date(i.YY1_WeekEnd_SD_SDI);
+                return svcDate.toISOString().slice(0, 10) ===
+                    weekEnd.toISOString().slice(0, 10);
             });
-            group.forEach(r => failedRecordIDs.add(r.ID));
-            LOG.info(` → group ${key} FAILED duplicate TADN check`);
-            continue;
-        }
 
-        LOG.info(` → group ${key} passed duplicate TADN check`);
+            LOG.info(` → found ${duplicates.length} existing TADN line(s)`);
 
-        const salesItem = existing[0]?.SalesOrderItem;
-        if (!salesItem) {
-            LOG.warn(` → group ${key}: could not find a SalesOrderItem to write back`);
-        }
+            if (duplicates.length) {
+                errorLogs.push({
+                    record_ID: rec.ID,
+                    message: `Group ${key}: duplicate TADN schedule-line exists`, process_code: sProcessCode
+                });
+                group.forEach(r => failedRecordIDs.add(r.ID));
+                LOG.info(` → group ${key} FAILED duplicate TADN check`);
+                continue;
+            }
 
-        // queue the write-back of salesDocumentNoSAP & salesItemNoSAP
-        group.forEach(r => {
-            writes.push({
-                ID: r.ID,
-                salesDocumentNoSAP: sapSO,
-                salesItemNoSAP: salesItem
+            LOG.info(` → group ${key} passed duplicate TADN check`);
+
+            const salesItem = existing[0]?.SalesOrderItem;
+            if (!salesItem) {
+                LOG.warn(` → group ${key}: could not find a SalesOrderItem to write back`);
+            }
+
+            // queue the write-back of salesDocumentNoSAP & salesItemNoSAP
+            group.forEach(r => {
+                writes.push({
+                    ID: r.ID,
+                    salesDocumentNoSAP: sapSO,
+                    salesItemNoSAP: salesItem
+                });
+                passedRecordIDs.add(r.ID);
             });
-            passedRecordIDs.add(r.ID);
-        });
-    }
+        }
 
-    // ------------------------------------------------------------
-    // Persist all salesDocumentNoSAP & salesItemNoSAP updates
-    // ------------------------------------------------------------
-    if (writes.length) {
-        await Promise.all(writes.map(w =>
-            UPDATE(this.recordsEntity)
-                .set({
-                    salesDocumentNoSAP: w.salesDocumentNoSAP,
-                    salesItemNoSAP: w.salesItemNoSAP
-                })
-                .where({ ID: w.ID })
-        ));
-        LOG.info(`Wrote back ${writes.length} SAP fields`);
-    }
+        // ------------------------------------------------------------
+        // Persist all salesDocumentNoSAP & salesItemNoSAP updates
+        // ------------------------------------------------------------
+        if (writes.length) {
+            await Promise.all(writes.map(w =>
+                UPDATE(this.recordsEntity)
+                    .set({
+                        salesDocumentNoSAP: w.salesDocumentNoSAP,
+                        salesItemNoSAP: w.salesItemNoSAP
+                    })
+                    .where({ ID: w.ID })
+            ));
+            LOG.info(`Wrote back ${writes.length} SAP fields`);
+        }
 
-    // ------------------------------------------------------------
-    // Finalize: log, persist errors, mark records valid/invalid
-    // ------------------------------------------------------------
-    const failed = Array.from(failedRecordIDs);
-    const passed = Array.from(passedRecordIDs).filter(id => !failedRecordIDs.has(id));
+        // ------------------------------------------------------------
+        // Finalize: log, persist errors, mark records valid/invalid
+        // ------------------------------------------------------------
+        const failed = Array.from(failedRecordIDs);
+        const passed = Array.from(passedRecordIDs).filter(id => !failedRecordIDs.has(id));
 
-    LOG.info(`Exiting validateRecords: passed=${passed.length}, failed=${failed.length}, skipped=${skipped.length}`);
+        LOG.info(`Exiting validateRecords: passed=${passed.length}, failed=${failed.length}, skipped=${skipped.length}`);
 
-    // Handle failed records
-    if (failed.length) {
-        try {
-            await Promise.allSettled([
-                // add error logs
-                ProcessLogger.addLogs(errorLogs),
-                // mark failed records invalid with correct processLevel_code
-                ...failed.map(recordID => {
-                    const record = this.records.find(r => r.ID === recordID);
-                    let recordProcessLevelCode = sProcessCode;
+        // Handle failed records
+        if (failed.length) {
+            try {
+                await Promise.allSettled([
+                    // add error logs
+                    ProcessLogger.addLogs(errorLogs),
+                    // mark failed records invalid with correct processLevel_code
+                    ...failed.map(recordID => {
+                        const record = this.records.find(r => r.ID === recordID);
+                        let recordProcessLevelCode = sProcessCode;
 
-                    if (record) {
-                        if (record.processLevel_code === '0') {
-                            recordProcessLevelCode = '1';
-                        } else if (record.processLevel_code === '1') {
-                            recordProcessLevelCode = '1';
-                        } else {
-                            recordProcessLevelCode = record.processLevel_code;
+                        if (record) {
+                            if (record.processLevel_code === '0') {
+                                recordProcessLevelCode = '1';
+                            } else if (record.processLevel_code === '1') {
+                                recordProcessLevelCode = '1';
+                            } else {
+                                recordProcessLevelCode = record.processLevel_code;
+                            }
                         }
+
+                        return UPDATE(this.recordsEntity)
+                            .set({ valid: false, processLevel_code: recordProcessLevelCode })
+                            .where({ ID: recordID });
+                    })
+                ]);
+
+                LOG.info(
+                    cds.i18n.messages.at('INFO_RECORDS_UPDATED', [
+                        sProcessCode,
+                        failed.join(',')
+                    ])
+                );
+            } catch (err) {
+                LOG.error(err.message);
+            }
+        }
+
+        // Handle passed records
+        if (passed.length) {
+            const stepCodeStr = String(sProcessCode);
+
+            await Promise.allSettled([
+                ProcessLogger.removeLogs(passed, null, sProcessCode),
+                ProcessLogger.addLogs(passed.map((sId) => ({ record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [stepCodeStr]), process_code: stepCodeStr, type: 3 }))),
+                ...passed.map(recordID => {
+                    const record = this.records.find(r => r.ID === recordID);
+
+                    // default to current DB value
+                    let recordProcessLevelCode = record?.processLevel_code ?? stepCodeStr;
+
+                    // --- KEY LOGIC ---
+                    //  step 0  -> after pass, move to 1
+                    //  step 1  -> after pass, move to 3 (so Sales Order step will not skip)
+                    if (stepCodeStr === '0') {
+                        recordProcessLevelCode = '1';
+                    } else if (stepCodeStr === '1') {
+                        recordProcessLevelCode = '3';
                     }
 
                     return UPDATE(this.recordsEntity)
-                        .set({ valid: false, processLevel_code: recordProcessLevelCode })
+                        .set({ valid: true, processLevel_code: recordProcessLevelCode })
                         .where({ ID: recordID });
                 })
             ]);
@@ -537,74 +616,35 @@ async validateRecords(sProcessCode, bBreakExecution) {
             LOG.info(
                 cds.i18n.messages.at('INFO_RECORDS_UPDATED', [
                     sProcessCode,
-                    failed.join(',')
+                    'All'
                 ])
             );
-        } catch (err) {
-            LOG.error(err.message);
+
+            // keep in-memory snapshot in sync
+            this.records.forEach(r => {
+                if (passed.includes(r.ID)) {
+                    if (stepCodeStr === '0') {
+                        r.processLevel_code = '1';
+                    } else if (stepCodeStr === '1') {
+                        r.processLevel_code = '3';
+                    }
+                    r.valid = true;
+                }
+            });
         }
-    }
 
-    // Handle passed records
-    if (passed.length) {
-        const stepCodeStr = String(sProcessCode);
-
-        await Promise.allSettled([
-            ProcessLogger.removeLogs(passed, null, sProcessCode),
-            ProcessLogger.addLogs(passed.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [stepCodeStr]), process_code: stepCodeStr, type: 3}))),
-            ...passed.map(recordID => {
-                const record = this.records.find(r => r.ID === recordID);
-
-                // default to current DB value
-                let recordProcessLevelCode = record?.processLevel_code ?? stepCodeStr;
-
-                // --- KEY LOGIC ---
-                //  step 0  -> after pass, move to 1
-                //  step 1  -> after pass, move to 3 (so Sales Order step will not skip)
-                if (stepCodeStr === '0') {
-                    recordProcessLevelCode = '1';
-                } else if (stepCodeStr === '1') {
-                    recordProcessLevelCode = '3';
-                }
-
-                return UPDATE(this.recordsEntity)
-                    .set({ valid: true, processLevel_code: recordProcessLevelCode })
-                    .where({ ID: recordID });
-            })
-        ]);
-
-        LOG.info(
-            cds.i18n.messages.at('INFO_RECORDS_UPDATED', [
-                sProcessCode,
-                'All'
-            ])
-        );
-
-        // keep in-memory snapshot in sync
-        this.records.forEach(r => {
-            if (passed.includes(r.ID)) {
-                if (stepCodeStr === '0') {
-                    r.processLevel_code = '1';
-                } else if (stepCodeStr === '1') {
-                    r.processLevel_code = '3';
-                }
-                r.valid = true;
-            }
+        this.updateExclusionSet({
+            passed,
+            failed,
+            skipped,
+            bBreakExecution
         });
+
+        return {
+            hasError: failed.length > 0,
+            continue: failed.length === 0
+        };
     }
-
-    this.updateExclusionSet({
-        passed,
-        failed,
-        skipped,
-        bBreakExecution
-    });
-
-    return {
-        hasError: failed.length > 0,
-        continue: failed.length === 0
-    };
-}
 
 
 
@@ -912,7 +952,7 @@ async validateRecords(sProcessCode, bBreakExecution) {
             if (!record.woType || !['SC', 'MS', 'IC', 'CP'].includes(record.woType)) {
                 const msg = cds.i18n.messages.at('ERR_SALES_DOCUMENT_TYPE');
                 LOG.error(`   ERR_SALES_DOCUMENT_TYPE: ${msg}`);
-                aErrors.push({ record_ID: record.ID, message: msg , process_code: sProcessCode});
+                aErrors.push({ record_ID: record.ID, message: msg, process_code: sProcessCode });
                 aFailedRecordIDs.push(record.ID);
                 aErrorLogs.push(...aErrors);
                 continue;
@@ -1299,7 +1339,7 @@ async validateRecords(sProcessCode, bBreakExecution) {
         if (aPassedRecordIDs.length) {
             LOG.info(`   Marking ${aPassedRecordIDs.length} passed record(s) valid`);
             await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
-            await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3})));
+            await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({ record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3 })));
             await this.markRecordsValid(sProcessCode, aPassedRecordIDs, true);
         }
         if (aFailedRecordIDs.length) {
@@ -1720,7 +1760,7 @@ async validateRecords(sProcessCode, bBreakExecution) {
 
         if (aPassedRecordIDs.length) {
             await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
-            await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3})));
+            await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({ record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3 })));
             await this.markRecordsValid(sProcessCode, aPassedRecordIDs, true);
         }
         if (aFailedRecordIDs.length) {
@@ -2319,7 +2359,7 @@ async validateRecords(sProcessCode, bBreakExecution) {
             } catch (e) {
                 LOG.error(`[Group ${key}] FAILED → ${e.message}`);
                 for (const l of lines) {
-                    errorLogs.push({ record_ID: l.ID, message: e.message,process_code: sProcessCode });
+                    errorLogs.push({ record_ID: l.ID, message: e.message, process_code: sProcessCode });
                     failed.push(l.ID);
                 }
             }
@@ -2560,7 +2600,7 @@ async validateRecords(sProcessCode, bBreakExecution) {
                 for (const r of recs) {
                     errorLogs.push({
                         record_ID: r.ID,
-                        message: err.message,process_code: sProcessCode
+                        message: err.message, process_code: sProcessCode
                     });
                     failed.push(r.ID);
                 }
