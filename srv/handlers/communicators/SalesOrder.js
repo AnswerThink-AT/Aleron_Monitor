@@ -63,7 +63,7 @@ class SalesOrder {
                 throw new Error('Query execution returned undefined result');
             }else if (Array.isArray(result) && result.length === 0) {
                 LOG._error && LOG.error('[executeQuery] Query execution returned empty array');
-                throw new Error('Query execution returned empty array');
+               // throw new Error('Query execution returned empty array');
             }
             return result;
      

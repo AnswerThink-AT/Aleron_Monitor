@@ -93,12 +93,18 @@ class Processor {
       }
     }
 
-    try {
+    try  {
       if (aRecordsForProcessing.length) {
-        await Promise.allSettled([
-          ProcessLogger.removeLogs(aRecordsForProcessing, null, sProcessCode),
-          this.markRecordsValid(sProcessCode, aRecordsForProcessing, true),
-        ]);
+        await ProcessLogger.removeLogs(aRecordsForProcessing, null, sProcessCode);
+        await ProcessLogger.addLogs(
+          aRecordsForProcessing.map((sId) => ({
+            record_ID: sId,
+            message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]),
+            process_code: sProcessCode,
+            type: 3,
+          })),
+        );
+        await this.markRecordsValid(sProcessCode, aRecordsForProcessing, true);
       }
 
       return {
@@ -232,7 +238,7 @@ class Processor {
         );
         if (hasError) {
           // This step encountered any error, it will stop further execution
-          break;
+          //break;
         }
       } catch (err) {
         this.LOG._error && this.LOG.error(`${oStep.name}: ${err.message}`);
