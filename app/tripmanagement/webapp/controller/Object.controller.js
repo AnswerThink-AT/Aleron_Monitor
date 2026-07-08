@@ -799,21 +799,27 @@ sap.ui.define([
                 this._projectsModel.refresh(true);
             }
 
-            const sUrl = `/odata/v4/trip/Trip?$filter=TripNumber eq '${sTripNumber}' and Personnel eq '${sPersonnel}'&$expand=Header,Items,Costs`;
+            var sUrl = this.getBaseURL() + "/odata/v4/trip/Trip"; 
+            // ?$filter=TripNumber eq '${sTripNumber}' and Personnel eq '${sPersonnel}'&$expand=Header,Items,Costs
             console.log("Fetching Trip:", sUrl);
+            if (sTripNumber && sPersonnel) {
+                sUrl += "?$filter=" + encodeURIComponent(
+                    "TripNumber eq '" + sTripNumber + "' and Personnel eq '" + sPersonnel + "'"
+                ) + "&$expand=Header,Items,Costs";
+            }
 
 
             var projUrl = this.getBaseURL() + "/odata/v4/trip/EnterpriseProjectCache";
             console.log("[_loadProjectCacheForPersonnel] Personnel:", sPersonnel, "→ PersonnelNo:", sPersonnel);
             if (sPersonnel) {
                 projUrl += "?$filter=" + encodeURIComponent(
-                    "contains(ProjectDescription,'" + sPersonnel + "')"
+                    "YY1_Employee_PPH eq '" + sPersonnel + "'"
                 );
             }
 
             oView.setBusy(true);
             $.ajax({
-                url: this.getBaseURL() + projUrl,
+                url: projUrl,
                 method: "GET",
                 cache: false,
                 dataType: "json"
@@ -822,7 +828,7 @@ sap.ui.define([
                     this._allProjects = oProjData.value || [];
                     console.log(`[ObjectPage] ✅ Project cache refreshed (${this._allProjects.length} entries)`);
                     return $.ajax({
-                        url: this.getBaseURL() + sUrl,
+                        url: sUrl,
                         method: "GET",
                         cache: false,
                         headers: {
@@ -958,9 +964,9 @@ sap.ui.define([
 
             var sUrl = this.getBaseURL() + "/odata/v4/trip/EnterpriseProjectCache";
             console.log("[_loadProjectCacheForPersonnel] Personnel:", sPersonnel, "→ PersonnelNo:", sPersonnelNo);
-            if (sPersonnelNo) {
+            if (sPersonnel) {
                 sUrl += "?$filter=" + encodeURIComponent(
-                    "contains(ProjectDescription,'" + sPersonnelNo + "')"
+                    "YY1_Employee_PPH eq '" + sPersonnel + "'"
                 );
             }
 
