@@ -18,6 +18,23 @@ sap.ui.define([
         return oDate instanceof Date ? oDate.toISOString().split("T")[0] : oDate;
     }
 
+    function splitPersonnelNumber(input) {
+        // Decode if it's URL-encoded (e.g. %20 for spaces)
+        const decoded = decodeURIComponent(input);
+
+        // Match: number, optional whitespace, then (Name) if present
+        const match = decoded.match(/^(\S+)\s*(?:\((.+)\))?$/);
+
+        if (!match) {
+            return { personnelNumber: decoded.trim(), name: null };
+        }
+
+        return {
+            personnelNumber: match[1].trim(),
+            name: match[2] ? match[2].trim() : null
+        };
+    }
+
 
     return Controller.extend("tripmanagement.controller.Object", {
 
@@ -341,7 +358,7 @@ sap.ui.define([
                 case 1:
                     return "Success";
                 case 2:
-                    return "Neutral";
+                    return "Success";
                 case 3:
                     return "Information";
                 case 4:
@@ -799,7 +816,7 @@ sap.ui.define([
                 this._projectsModel.refresh(true);
             }
 
-            var sUrl = this.getBaseURL() + "/odata/v4/trip/Trip"; 
+            var sUrl = this.getBaseURL() + "/odata/v4/trip/Trip";
             // ?$filter=TripNumber eq '${sTripNumber}' and Personnel eq '${sPersonnel}'&$expand=Header,Items,Costs
             console.log("Fetching Trip:", sUrl);
             if (sTripNumber && sPersonnel) {
@@ -812,8 +829,9 @@ sap.ui.define([
             var projUrl = this.getBaseURL() + "/odata/v4/trip/EnterpriseProjectCache";
             console.log("[_loadProjectCacheForPersonnel] Personnel:", sPersonnel, "→ PersonnelNo:", sPersonnel);
             if (sPersonnel) {
+                const { personnelNumber, name } = splitPersonnelNumber(sPersonnel);
                 projUrl += "?$filter=" + encodeURIComponent(
-                    "YY1_Employee_PPH eq '" + sPersonnel + "'"
+                    "YY1_Employee_PPH eq '" + personnelNumber + "'"
                 );
             }
 
@@ -993,7 +1011,8 @@ sap.ui.define([
                 sEndOfTrip = oArgs.EndOfTrip;
 
             console.log("Matched with:", sPersonnel, sStartOfTrip, sEndOfTrip);
-            this._loadProjectCacheForPersonnel(sPersonnel);
+            const { personnelNumber, name } = splitPersonnelNumber(sPersonnel);
+            this._loadProjectCacheForPersonnel(personnelNumber);
             // Now you can verify in the console that mode/personnel/startDate/endDate came through
 
             var oData = {
