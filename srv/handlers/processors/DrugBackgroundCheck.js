@@ -1823,7 +1823,7 @@ class DrugBackgroundCheckProcessor extends Processor {
         // Update the status of passed records
         if (aPassedRecordIDs.length) {
             await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
-            await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({ record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3 })));
+            await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({ record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3 })),);
             await this.markRecordsValid(sProcessCode, aPassedRecordIDs, true);
         }
 
@@ -3495,7 +3495,8 @@ class DrugBackgroundCheckProcessor extends Processor {
             mTravelPayTerm = new Map(), // Map for Travel Pay Term from Config Table
             mTravelPayTermFeed = new Map(), // Map for Travel Pay Term Feed from Config Table
             mProcessingRecordsToCentralMapping = new Map();
-        var icupdateexceptionarray=[];
+        var icupdateexceptionarray = [];
+        var aNotRecorded = [];
         for (const [iRecordIndex, record] of this.records.entries()) {
             if (this.shouldRecordProcess(record, sProcessCode) && record.salesOrderICUpdateRequired === 'X' && record?.p2SalesDocumentNoSAP) {
                 // If record is on step level & is already valid, then skip
@@ -3503,6 +3504,7 @@ class DrugBackgroundCheckProcessor extends Processor {
                 mProcessingRecordsToCentralMapping.set(record.ID, iRecordIndex);
                 aRecordIDs.push(record.ID);
             } else {
+                aNotRecorded.push(record.ID);
                 if (this.shouldRecordProcess(record, sProcessCode) == false) {
                     aSkippedRecords.push({ ...record });
                     continue;
@@ -3529,15 +3531,17 @@ class DrugBackgroundCheckProcessor extends Processor {
         await ProcessLogger.removeLogs(aRecordIDs, null, sProcessCode);
 
         this.updateProcessingState(sProcessCode);
-        if (!aRecordsForProcessing.length) {
+        if (!aRecordsForProcessing.length && !icupdateexceptionarray.length) {
 
-            await ProcessLogger.addLogs(aRecordIDs.map((sId) => ({ record_ID: sId, message: 'The process code skipped due to salesorderIC is empty and p2SalesDocumentNoSAP is empty', process_code: sProcessCode, type: 3 })));
-
+            if (!aSkippedRecords.length) {
+                await ProcessLogger.addLogs(aNotRecorded.map((sId) => ({ record_ID: sId, message: 'The process code skipped due to salesorderIC is empty and p2SalesDocumentNoSAP is empty', process_code: sProcessCode, type: 3 })));
+            }
             // If Step doesn't need to be processed, simply return to avoid costly calls
             return {
                 hasError: false,
                 continue: true,
             };
+
         }
         else if (icupdateexceptionarray.length > 0) {
             await ProcessLogger.addLogs(icupdateexceptionarray.map((sId) => ({ record_ID: sId, message: 'The process code skipped due to salesorderIC is not X or p2SalesDocumentNoSAP is empty', process_code: sProcessCode, type: 3 })));
@@ -3548,32 +3552,32 @@ class DrugBackgroundCheckProcessor extends Processor {
                 { reason: anySalesOrderItemErr, value: aSalesOrderItems },
                 { reason: anySalesOrderPartnerErr, value: aSalesOrderPartners },
             ] = await Promise.allSettled([
-                this.salesOrderAPI.executeQuery(
+                aSalesOrderWhere.length > 0 ? this.salesOrderAPI.executeQuery(
                     SELECT.from('A_SalesOrder')
                         .columns(['SalesOrder', 'SalesOrganization', 'DistributionChannel', 'OrganizationDivision', 'CustomerPaymentTerms',
                             'SoldToParty', 'YY1_AlphanumericSalesO_SDH', 'YY1_CustomSalesOrder_SDH', 'CustomerGroup', 'CustomerPriceGroup', 'AdditionalCustomerGroup2'])
                         .where({
                             SalesOrder: { in: [...new Set(aSalesOrderWhere)] }
                         })
-                ),
+                ) : Promise.resolve([]),
 
-                this.salesOrderAPI.executeQuery(
+                aSalesOrderWhere.length > 0 ? this.salesOrderAPI.executeQuery(
                     SELECT.from('A_SalesOrderItem')
                         .columns(['SalesOrder', 'SalesOrderItem', 'YY1_PurchasingDoc_SD_SDI',
                             'YY1_WNWorkOrder_SD_SDI', 'Material'])
                         .where({
                             SalesOrder: { in: [...new Set(aSalesOrderWhere)] }
                         })
-                ),
+                ) : Promise.resolve([]),
 
-                this.salesOrderAPI.executeQuery(
+                aSalesOrderWhere.length > 0 ? this.salesOrderAPI.executeQuery(
                     SELECT.from('A_SalesOrderHeaderPartner')
                         .columns(['SalesOrder', 'Customer', 'Supplier', 'PartnerFunction'])
                         .where({
                             SalesOrder: { in: [...new Set(aSalesOrderWhere)] },
                             PartnerFunction: { in: ['ZR', 'ZM', 'BP'] }
                         })
-                ),
+                ) : Promise.resolve([]),
             ]);
 
             if (!anySalesOrderErr?.message && aSalesOrders.length) {
@@ -3619,15 +3623,16 @@ class DrugBackgroundCheckProcessor extends Processor {
                 { reason: anyTravelPayTermsErr, value: aTravelPayTerms },
                 { reason: anyTravelPayTermFeedErr, value: aTravelPayTermFeeds },
             ] = await Promise.allSettled([
-                SELECT.from('com.aleron.monitor.Vendor_VendorRemit')
-                    .columns(['vendor', 'vendorZR'])
-                    .where({ vendor: { in: aVendorWhere } }),
 
-                this.purchaseOrderAPI.executeQuery(
+                aVendorWhere.length > 0 ? SELECT.from('com.aleron.monitor.Vendor_VendorRemit')
+                    .columns(['vendor', 'vendorZR'])
+                    .where({ vendor: { in: aVendorWhere } }) : Promise.resolve([]),
+
+                aPurchaseOrderItemWhere.length > 0 ? this.purchaseOrderAPI.executeQuery(
                     SELECT.from('PurchaseOrderItem')
                         .columns(['PurchaseOrder', 'PurchaseOrderItem'])
                         .where({ PurchaseOrder: { in: [...new Set(aPurchaseOrderItemWhere)] } })
-                ),
+                ) : Promise.resolve([]),
 
                 SELECT.from('com.aleron.monitor.TravelCustomerPayTermByPOBox')
                     .columns(['customerNo', 'customerTerm', 'poBox'])
@@ -3636,11 +3641,11 @@ class DrugBackgroundCheckProcessor extends Processor {
                         customerTerm: { in: aCustomerTermWhere }
                     }),
 
-                SELECT.from('com.aleron.monitor.TravelPayTermFeed')
+                aCustomerTermWhere.length > 0 ? SELECT.from('com.aleron.monitor.TravelPayTermFeed')
                     .columns(['paymentTerm', 'netPaymentTerm'])
                     .where({
                         paymentTerm: { in: aCustomerTermWhere }
-                    }),
+                    }) : Promise.resolve([]),
             ]);
 
             if (!anyVendorErr?.message && aVendors.length) {
@@ -4153,7 +4158,8 @@ class DrugBackgroundCheckProcessor extends Processor {
             mSalesOrderPartner = new Map(),    // Map for SalesOrderPartners
             mBusinessPartner = new Map(),   // Map for BusinessPartner
             mProcessingRecordsToCentralMapping = new Map();
-
+        var processpurchaseexceptionarray = [];
+        var aNotRecorded = [];
         for (const [iRecordIndex, record] of this.records.entries()) {
             if (this.shouldRecordProcess(record, sProcessCode) && record.PORequiredSAP) {
                 // If record is on step level & is already valid, then skip
@@ -4161,11 +4167,19 @@ class DrugBackgroundCheckProcessor extends Processor {
                 mProcessingRecordsToCentralMapping.set(record.ID, iRecordIndex);
                 aRecordIDs.push(record.ID);
             } else {
-                if (record.PORequiredSAP === '' || !record.PORequiredSAP) {
-                    await this.markRecordsValid(sProcessCode, [record.ID], true);
-                } else {
+                aNotRecorded.push(record.ID);
+                if (this.shouldRecordProcess(record, sProcessCode) == false) {
                     aSkippedRecords.push({ ...record });
                     continue;
+                } else {
+                    if (record.PORequiredSAP === '' || !record.PORequiredSAP) {
+                        processpurchaseexceptionarray.push(record.ID);
+                        await this.markRecordsValid(sProcessCode, [record.ID], true);
+                        continue;
+                    } else {
+                        aSkippedRecords.push({ ...record });
+                        continue;
+                    }
                 }
             }
 
@@ -4181,12 +4195,18 @@ class DrugBackgroundCheckProcessor extends Processor {
         await ProcessLogger.removeLogs(aRecordIDs, null, sProcessCode);
 
         this.updateProcessingState(sProcessCode);
-        if (!aRecordsForProcessing.length) {
+        if (!aRecordsForProcessing.length && !processpurchaseexceptionarray.length) {
+
+            if (!aSkippedRecords.length) {
+                await ProcessLogger.addLogs(aNotRecorded.map((sId) => ({ record_ID: sId, message: 'The process code skipped due to PORequiredSAP is empty', process_code: sProcessCode, type: 3 })));
+            }
             // If Step doesn't need to be processed, simply return to avoid costly calls
             return {
                 hasError: false,
                 continue: true,
             };
+        } else if (processpurchaseexceptionarray.length > 0) {
+            await ProcessLogger.addLogs(processpurchaseexceptionarray.map((sId) => ({ record_ID: sId, message: 'The process code skipped due to PORequiredSAP is empty', process_code: sProcessCode, type: 3 })));
         }
 
         try {
@@ -4195,7 +4215,7 @@ class DrugBackgroundCheckProcessor extends Processor {
                 { reason: anySalesOrderItemErr, value: aSalesOrderItems },
                 { reason: anySalesOrderPartnerErr, value: aSalesOrderPartners },
             ] = await Promise.allSettled([
-                this.salesOrderAPI.executeQuery(
+                aSalesDocumentNoWhere.length > 0 ? this.salesOrderAPI.executeQuery(
                     SELECT.from('A_SalesOrder')
                         .columns(['SalesOrder', 'SalesOrderType', 'SalesOrganization', 'DistributionChannel', 'TransactionCurrency'
                             , 'TaxDepartureCountry', 'SoldToParty', 'OrganizationDivision', 'YY1_CustomSalesOrder_SDH'
@@ -4203,9 +4223,9 @@ class DrugBackgroundCheckProcessor extends Processor {
                         .where({
                             SalesOrder: { in: [...new Set(aSalesDocumentNoWhere)] }
                         })
-                ),
+                ) : Promise.resolve([]),
 
-                this.salesOrderAPI.executeQuery(
+                aSalesDocumentNoWhere.length > 0 ? this.salesOrderAPI.executeQuery(
                     SELECT.from('A_SalesOrderItem')
                         .columns(['SalesOrder', 'SalesOrderItem', 'HigherLevelItem', 'HigherLevelItemUsage',
                             'SalesOrderItemCategory', 'SalesOrderItemText', 'PurchaseOrderByCustomer',
@@ -4256,25 +4276,25 @@ class DrugBackgroundCheckProcessor extends Processor {
                         .where({
                             SalesOrder: { in: [...new Set(aSalesDocumentNoWhere)] }
                         })
-                ),
+                ) : Promise.resolve([]),
 
-                this.salesOrderAPI.executeQuery(
+                aSalesDocumentNoWhere.length > 0 ? this.salesOrderAPI.executeQuery(
                     SELECT.from('A_SalesOrderHeaderPartner')
                         .columns(['SalesOrder', 'Customer', 'AddressID', 'ReferenceBusinessPartner', 'PartnerFunction', 'Supplier'])
                         .where({
                             SalesOrder: { in: [...new Set(aSalesDocumentNoWhere)] },
                             PartnerFunction: { in: ['SH', 'ZV', 'ZR'] }
                         })
-                ),
+                ) : Promise.resolve([]),
             ]);
 
-            if (!anySalesOrderErr?.message && aSalesOrders.length) {
+            if (!anySalesOrderErr?.message && aSalesOrders?.length) {
                 aSalesOrders.forEach((oSalesOrder) =>
                     mSalesOrder.set(oSalesOrder.SalesOrder, oSalesOrder)
                 );
             }
 
-            if (!anySalesOrderItemErr?.message && aSalesOrderItems.length) {
+            if (!anySalesOrderItemErr?.message && aSalesOrderItems?.length) {
                 aSalesOrderItems.forEach((oSalesOrderItem) => {
                     if (!mSalesOrderItem.has(oSalesOrderItem.SalesOrder)) {
                         mSalesOrderItem.set(oSalesOrderItem.SalesOrder, []);
@@ -4283,7 +4303,7 @@ class DrugBackgroundCheckProcessor extends Processor {
                 });
             }
 
-            if (!anySalesOrderPartnerErr?.message && aSalesOrderPartners.length) {
+            if (!anySalesOrderPartnerErr?.message && aSalesOrderPartners?.length) {
                 aSalesOrderPartners.forEach((oSalesOrderPartner) => {
                     if (!mSalesOrderPartner.has(oSalesOrderPartner.SalesOrder)) {
                         mSalesOrderPartner.set(oSalesOrderPartner.SalesOrder, []);
@@ -4302,16 +4322,16 @@ class DrugBackgroundCheckProcessor extends Processor {
             const [
                 { reason: anyBusinessPartnerErr, value: aBusinessPartners },
             ] = await Promise.allSettled([
-                this.businessPartnerAPI.executeQuery(
+                aBusinessPartnerAddressWhere.length > 0 ? this.businessPartnerAPI.executeQuery(
                     SELECT.from('A_BusinessPartnerAddress')
                         .columns(['BusinessPartner', 'Language', 'HouseNumber', 'StreetName', 'CityName', 'PostalCode', 'Country', 'Region', 'TaxJurisdiction'])
                         .where({
                             BusinessPartner: { in: [...new Set(aBusinessPartnerAddressWhere)] }
                         })
-                )
+                ) : Promise.resolve([])
             ]);
 
-            if (!anyBusinessPartnerErr?.message && aBusinessPartners.length) {
+            if (!anyBusinessPartnerErr?.message && aBusinessPartners?.length) {
                 aBusinessPartners.forEach((oBusinessPartner) => {
                     mBusinessPartner.set(oBusinessPartner.BusinessPartner, oBusinessPartner)
                 });
@@ -4331,24 +4351,24 @@ class DrugBackgroundCheckProcessor extends Processor {
                 oSalesOrder = mSalesOrder.get(oRecord.salesOrderICSAP);
                 oSalesOrderItem = mSalesOrderItem.get(oRecord.salesOrderICSAP);
             } else {
-                oSalesOrder = mSalesOrder.get(oRecord.salesDocumentNoSAP);
-                oSalesOrderItem = mSalesOrderItem.get(oRecord.salesDocumentNoSAP);
+                oSalesOrder = mSalesOrder?.get(oRecord.salesDocumentNoSAP);
+                oSalesOrderItem = mSalesOrderItem?.get(oRecord.salesDocumentNoSAP);
             }
 
-            let firstSOItem = oSalesOrderItem.filter(item => item.SalesOrderItem === "10" && item.SalesOrderItemCategory === "TADN")[0];
-            let lastSOItem = oSalesOrderItem.reduce((maxItem, current) =>
+            let firstSOItem = oSalesOrderItem?.filter(item => item.SalesOrderItem === "10" && item.SalesOrderItemCategory === "TADN")[0];
+            let lastSOItem = oSalesOrderItem?.reduce((maxItem, current) =>
                 Number(current.SalesOrderItem) > Number(maxItem.SalesOrderItem) ? current : maxItem
             );
 
             // let duplicateCheck = oSalesOrderItem.filter(item => item.YY1_WNInvoice_SD_SDI === oRecord.wnInvoiceNo) ?? [];
-            let duplicateCheck = oSalesOrderItem.filter(item =>
+            let duplicateCheck = oSalesOrderItem?.filter(item =>
                 item.YY1_WNInvoice_SD_SDI === oRecord.wnInvoiceNo &&
                 item.SalesOrderItem !== oRecord.salesItemNoSAP
             ) ?? [];
 
-            let oSalesOrderPartner = mSalesOrderPartner.get(oRecord.salesDocumentNoSAP);
-            let oSalesOrderPartnerSH = oSalesOrderPartner.filter(p => p.PartnerFunction === 'SH')[0];
-            let oBusinessPartner = mBusinessPartner.get(oSalesOrderPartnerSH?.ReferenceBusinessPartner);
+            let oSalesOrderPartner = mSalesOrderPartner?.get(oRecord.salesDocumentNoSAP);
+            let oSalesOrderPartnerSH = oSalesOrderPartner?.filter(p => p.PartnerFunction === 'SH')[0];
+            let oBusinessPartner = mBusinessPartner?.get(oSalesOrderPartnerSH?.ReferenceBusinessPartner);
             let conditionType = await determineConditionType({
                 customer: oSalesOrder.SoldToParty,
                 salesOrganization: oSalesOrder.SalesOrganization,
@@ -4427,7 +4447,7 @@ class DrugBackgroundCheckProcessor extends Processor {
 
             const oPurchaseOrderItemResults = await this.purchaseOrderAPI.createPurchaseOrderItem(firstSOItem.YY1_PurchasingDoc_SD_SDI, oItemPayload);
 
-            if (oPurchaseOrderItemResults.error) {
+            if (oPurchaseOrderItemResults?.error) {
                 aErrorLogs.push({
                     record_ID: oRecord.ID,
                     message: `${oPurchaseOrderItemResults.error}`, process_code: sProcessCode
@@ -4918,19 +4938,27 @@ class DrugBackgroundCheckProcessor extends Processor {
             mSalesOrderLastItem = new Map(),    // Map for SalesOrderLastItem
             mSalesOrderLastFirstItem = new Map(),    // Map for SalesOrderFirstItem
             mEmpCustInfo = new Map();       // Map for EmpCustInfo 
-
+        var aNotRecorded = [];
+        var processpurchaseexceptionarray = [];
         for (const record of this.records) {
             if (this.shouldRecordProcess(record, sProcessCode) && record.PORequiredSAP) {
                 // If record is on step level & is already valid, then skip
                 aRecordsForProcessing.push({ ...record });
                 aRecordIDs.push(record.ID);
             } else {
-                if (record.PORequiredSAP === '' || !record.PORequiredSAP) {
-                    await this.markRecordsValid(sProcessCode, [record.ID], true);
-                    continue;
-                } else {
+                aNotRecorded.push(record.ID);
+                if (this.shouldRecordProcess(record, sProcessCode) == false) {
                     aSkippedRecords.push({ ...record });
                     continue;
+                } else {
+                    if (record.PORequiredSAP === '' || !record.PORequiredSAP) {
+                        processpurchaseexceptionarray.push(record.ID);
+                        await this.markRecordsValid(sProcessCode, [record.ID], true);
+                        continue;
+                    } else {
+                        aSkippedRecords.push({ ...record });
+                        continue;
+                    }
                 }
             }
 
@@ -4950,12 +4978,17 @@ class DrugBackgroundCheckProcessor extends Processor {
         await ProcessLogger.removeLogs(aRecordIDs, null, sProcessCode);
 
         this.updateProcessingState(sProcessCode);
-        if (!aRecordsForProcessing.length) {
+        if (!aRecordsForProcessing.length && !processpurchaseexceptionarray.length) {
+            if (!aSkippedRecords.length) {
+                await ProcessLogger.addLogs(aNotRecorded.map((sId) => ({ record_ID: sId, message: 'The process code skipped due to PORequiredSAP is empty', process_code: sProcessCode, type: 3 })));
+            }
             // If Step doesn't need to be processed, simply return to avoid costly calls
             return {
                 hasError: false,
                 continue: true,
             };
+        }else if (processpurchaseexceptionarray.length > 0) {
+            await ProcessLogger.addLogs(processpurchaseexceptionarray.map((sId) => ({ record_ID: sId, message: 'The process code skipped due to PORequiredSAP is empty', process_code: sProcessCode, type: 3 })));
         }
 
         try {
@@ -4965,15 +4998,15 @@ class DrugBackgroundCheckProcessor extends Processor {
                 { reason: anySalesOrderLastItemErr, value: aSalesOrderLastItems },
                 { reason: anySalesOrderFirstItemErr, value: aSalesOrderFirstItems },
             ] = await Promise.allSettled([
-                this.purchaseOrderAPI.executeQuery(
+               aPurchaseOrderWhere.length > 0 ? this.purchaseOrderAPI.executeQuery(
                     SELECT.from('PurchaseOrder')
                         .columns(['PurchaseOrder', 'DocumentCurrency', 'Supplier'])
                         .where({
                             PurchaseOrder: { in: [...new Set(aPurchaseOrderWhere)] }
                         })
-                ),
+                ) : Promise.resolve([]),
 
-                this.purchaseOrderAPI.executeQuery(
+               aPurchaseOrderWhere.length > 0 ? this.purchaseOrderAPI.executeQuery(
                     SELECT.from('PurchaseOrderItem')
                         .columns(['PurchaseOrder', 'PurchaseOrderItem', 'OrderQuantity', 'NetPriceAmount',
                             'TaxCode', 'TaxJurisdiction', 'Plant', 'CompanyCode',
@@ -4982,9 +5015,9 @@ class DrugBackgroundCheckProcessor extends Processor {
                             PurchaseOrder: { in: [...new Set(aPurchaseOrderWhere)] },
                             PurchaseOrderItem: { in: [...new Set(aPurchaseOrderItemWhere)] }
                         })
-                ),
+                ) : Promise.resolve([]),
 
-                this.salesOrderAPI.executeQuery(
+               aPurchaseOrderWhere.length > 0 ? this.salesOrderAPI.executeQuery(
                     SELECT.from('A_SalesOrderItem')
                         .columns(['SalesOrder', 'SalesOrderItem', 'YY1_PurchasingDoc_SD_SDI', 'YY1_WNInvoice_SD_SDI',
                             'YY1_WNWorkOrder_SD_SDI'
@@ -4993,9 +5026,9 @@ class DrugBackgroundCheckProcessor extends Processor {
                             YY1_PurchasingDoc_SD_SDI: { in: [...new Set(aPurchaseOrderWhere)] },
                             SalesOrderItem: { in: [...new Set(aPurchaseOrderItemWhere)] },
                         })
-                ),
+                ) : Promise.resolve([]),
 
-                this.salesOrderAPI.executeQuery(
+                aPurchaseOrderWhere.length > 0 ? this.salesOrderAPI.executeQuery(
                     SELECT.from('A_SalesOrderItem')
                         .columns(['SalesOrder', 'SalesOrderItem', 'YY1_PurchasingDoc_SD_SDI', 'YY1_WNInvoice_SD_SDI',
                             'YY1_WNWorkOrder_SD_SDI'
@@ -5004,30 +5037,30 @@ class DrugBackgroundCheckProcessor extends Processor {
                             YY1_PurchasingDoc_SD_SDI: { in: [...new Set(aPurchaseOrderWhere)] },
                             SalesOrderItem: '10',
                         })
-                ),
+                ) : Promise.resolve([]),
             ]);
 
-            if (!anyPurchaseOrderErr?.message && aPurchaseOrders.length) {
+            if (!anyPurchaseOrderErr?.message && aPurchaseOrders?.length) {
                 aPurchaseOrders.forEach((oPurchaseOrder) =>
                     mPurchaseOrder.set(oPurchaseOrder.PurchaseOrder, oPurchaseOrder)
                 );
             }
 
-            if (!anyPurchaseOrderItemErr?.message && aPurchaseOrderItems.length) {
+            if (!anyPurchaseOrderItemErr?.message && aPurchaseOrderItems?.length) {
                 aPurchaseOrderItems.forEach((oPurchaseOrderItem) => {
                     mPurchaseOrderItem.set(oPurchaseOrderItem.PurchaseOrder, oPurchaseOrderItem);
                 });
             }
 
-            if (!anySalesOrderLastItemErr?.message && aSalesOrderLastItems.length) {
+            if (!anySalesOrderLastItemErr?.message && aSalesOrderLastItems?.length) {
                 aSalesOrderLastItems.forEach((oSalesOrderItem) => {
                     mSalesOrderLastItem.set(oSalesOrderItem.YY1_PurchasingDoc_SD_SDI, oSalesOrderItem);
                     aSalesOrderWhere.push(oSalesOrderItem.SalesOrder);
                 });
             }
 
-            if (!anySalesOrderFirstItemErr?.message && aSalesOrderFirstItems.length) {
-                aSalesOrderFirstItems.forEach((oSalesOrderItem) => {
+            if (!anySalesOrderFirstItemErr?.message && aSalesOrderFirstItems?.length) {
+                aSalesOrderFirstItems?.forEach((oSalesOrderItem) => {
                     mSalesOrderLastFirstItem.set(oSalesOrderItem.YY1_PurchasingDoc_SD_SDI, oSalesOrderItem);
                     if (!aSalesOrderWhere.includes(oSalesOrderItem.SalesOrder)) {
                         aSalesOrderWhere.push(oSalesOrderItem.SalesOrder);
@@ -5043,7 +5076,7 @@ class DrugBackgroundCheckProcessor extends Processor {
                 { reason: anySalesOrderErr, value: aSalesOrders },
                 { reason: anyEmpCustInfoErr, value: aEmpCustInfos },
             ] = await Promise.allSettled([
-                this.salesOrderAPI.executeQuery(
+               aSalesOrderWhere.length > 0 ? this.salesOrderAPI.executeQuery(
                     SELECT.from('A_SalesOrder')
                         .columns(['SalesOrder', 'SalesOrganization', 'DistributionChannel', 'OrganizationDivision',
                             'YY1_AlphanumericSalesO_SDH'
@@ -5051,24 +5084,24 @@ class DrugBackgroundCheckProcessor extends Processor {
                         .where({
                             SalesOrder: { in: [...new Set(aSalesOrderWhere)] },
                         })
-                ),
+                ) : Promise.resolve([]),
 
-                this.empCustInfoAPI.executeQuery(
+               aEmpCustInfoWhere.length > 0 ? this.empCustInfoAPI.executeQuery(
                     SELECT.from('YY1_EMPLOYEE_CUSTOMER_INFO')
                         .columns(['Name', 'FirstName', 'MiddleName', 'WORKER_ID'])
                         .where({
                             WORKER_ID: { in: [...new Set(aEmpCustInfoWhere)] },
                         })
-                ),
+                ) : Promise.resolve([]),
             ]);
 
-            if (!anySalesOrderErr?.message && aSalesOrders.length) {
+            if (!anySalesOrderErr?.message && aSalesOrders?.length) {
                 aSalesOrders.forEach((oSalesOrder) => {
                     mSalesOrder.set(oSalesOrder.SalesOrder, oSalesOrder);
                 });
             }
 
-            if (!anyEmpCustInfoErr?.message && aEmpCustInfos.length) {
+            if (!anyEmpCustInfoErr?.message && aEmpCustInfos?.length) {
                 aEmpCustInfos.forEach((oEmpCustInfo) => {
                     mEmpCustInfo.set(oEmpCustInfo.WORKER_ID, oEmpCustInfo);
                 });
