@@ -21,7 +21,7 @@
       <List
         id="projectDialogList"
         mode="SingleSelectMaster"
-        selectionChange=".onProjectSelect"
+        itemPress=".onProjectSelect"
         growingThreshold="50"
         items="{projects>/}">
         <StandardListItem id="_IDGenStandardListItem3"

@@ -1114,6 +1114,9 @@ sap.ui.define([
 
                 // 3) filter expense types for US (provision “07”)
                 this._filterExpenseTypes("07");
+                const mi = this.byId("miProject");
+                mi.removeAllTokens();
+                mi.setValue("");
             }
         },
 
