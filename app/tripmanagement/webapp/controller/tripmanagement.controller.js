@@ -208,11 +208,11 @@ sap.ui.define([
       this.oFilterBar = null;
       this.oTable = null;
       if (this._oColDialog) {
-        this._oColDialog.destroy();
+       // this._oColDialog.destroy();
         this._oColDialog = null;
       }
       if (this._pCreateDialog) {
-        this._pCreateDialog.destroy();
+        //this._pCreateDialog.destroy();
         this._pCreateDialog = null;
       }
     },

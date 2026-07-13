@@ -62,10 +62,9 @@
 									<fb:FilterGroupItem id="_IDGenFilterGroupItem8" name="Destination" label="Destination" groupName="General" visibleInFilterBar="false">
 										<fb:control>
 											<MultiComboBox id="_IDGenMultiComboBox1" name="Destination" selectionChange=".onSelectionChange" items="{
-                          path: '/Destinations',
-                          templateShareable: true
-                        }">
-												<core:Item id="_IDGenItem" key="{DestID}" text="{DestName}"/>
+												path: '/Destinations'
+												}">
+												<core:Item id="_IDGenItemDes" key="{DestID}" text="{DestName}"/>
 											</MultiComboBox>
 										</fb:control>
 									</fb:FilterGroupItem>
@@ -85,8 +84,8 @@
 									<!-- NEW: Editing Status (hidden until user adds it) -->
 									<fb:FilterGroupItem id="_IDGenFilterGroupItem6" name="EditingStatus" label="Editing Status" groupName="General" visibleInFilterBar="false">
 										<fb:control>
-											<MultiComboBox id="_IDGenMultiComboBox4" name="EditingStatus" selectionChange=".onSelectionChange" items="{ path: '/EditingStatuses', templateShareable: true }">
-												<core:Item id="_IDGenItem3" key="{StatusID}" text="{StatusText}"/>
+											<MultiComboBox id="_IDGenMultiComboBox4" name="EditingStatus" selectionChange=".onSelectionChange" items="{ path: '/EditingStatuses' }">
+												<core:Item id="_IDGenItemStat3" key="{StatusID}" text="{StatusText}"/>
 											</MultiComboBox>
 										</fb:control>
 									</fb:FilterGroupItem>
