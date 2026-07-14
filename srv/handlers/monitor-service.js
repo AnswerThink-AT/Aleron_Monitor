@@ -825,7 +825,11 @@ class MonitorService extends cds.ApplicationService {
   async _addLogs(req) {
     const { logs: aLogs } = req.data;
     try {
-      await INSERT.into(ProcessLogs).entries(aLogs);
+      const aLogsWithCreatedTime = (aLogs || []).map((oLog) => ({
+        ...oLog,
+        createdtime: oLog.createdtime ?? new Date().toISOString(),
+      }));
+      await INSERT.into(ProcessLogs).entries(aLogsWithCreatedTime);
     } catch (err) {
       return req.reject(err.message);
     }
@@ -887,7 +891,10 @@ class MonitorService extends cds.ApplicationService {
         // Remove ID and other managed fields from logs to ensure fresh insert
         const logsWithoutIds = aLogs.map(log => {
           const { ID, IsActiveEntity, HasActiveEntity, HasDraftEntity, ...logWithoutId } = log;
-          return logWithoutId;
+          return {
+            ...logWithoutId,
+            createdtime: logWithoutId.createdtime ?? new Date().toISOString(),
+          };
         });
         await db.run(INSERT.into('com.aleron.monitor.ProcessLogs').entries(logsWithoutIds));
         LOG._info && LOG.info(`Inserted ${logsWithoutIds.length} new logs`);
