@@ -9,7 +9,7 @@
 		<content>
 		<Table
 			id="idProcessLogsTable"
-			items="{/ProcessLogs}"
+			items="{ path: '/ProcessLogs', sorter: { path: 'createdtime', descending: true } }"
 			inset="false"
 			enableBusyIndicator="true"
 			growing="true"
@@ -24,6 +24,11 @@
 				</Column>
 				<Column>
 					<Text text="Message"/>
+				</Column>
+				<Column
+					hAlign="End"
+					sortIndicator="Descending">
+					<Text text="Generated Time"/>
 				</Column>
 			</columns>
 
@@ -44,7 +49,8 @@
 						/>
 
 						<Text text="{message}" wrapping="true"/>
-					</cells>
+
+						<Text text="{createdtime}"/></cells>
 				</ColumnListItem>
 			</items>
 

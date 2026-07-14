@@ -36,6 +36,7 @@ async function addLogs(anyLogs) {
             message: oLog.message,
             type_code: oLog.type ?? mLogTypeEnum.error.val,
             process_code: oLog.process_code ?? null,
+            createdtime: oLog.createdtime ?? new Date().toISOString(),
           },
         ];
       }
@@ -47,6 +48,7 @@ async function addLogs(anyLogs) {
       message: anyLogs.message,
       type_code: anyLogs.type ?? mLogTypeEnum.error.val,
       process_code: anyLogs.process_code ?? null,
+      createdtime: anyLogs.createdtime ?? new Date().toISOString(),
     });
   } else {
     LOG._error && LOG.error('Invalid logs');

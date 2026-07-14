@@ -51,10 +51,11 @@ entity LogType : CodeList {
 }
 
 entity ProcessLogs : cuid, managed {
-    record_ID : String;
-    type      : Association to LogType;
+    record_ID   : String;
+    type        : Association to LogType;
     process_code: String(1);
-    message   : String @title: '{i18n>errorMessage}';
+    message     : String    @title: '{i18n>errorMessage}';
+    createdtime : Timestamp @title: '{i18n>createdTime}'; // Explicit created timestamp, set at every log-creation code path, used to sort logs with most recent first
 }
 
 aspect record : cuid, managed, SAPFields {
