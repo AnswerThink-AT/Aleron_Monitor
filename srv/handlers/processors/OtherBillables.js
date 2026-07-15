@@ -1570,7 +1570,7 @@ class OtherBillables extends Processor {
             // 3.1.9 If SAP_PO=2, check PO lines
             if (SAP_PO === 2) {
                 LOG.info('3.1.9: checking existing PO lines');
-                const poTop = await this.PurchaseOrderAPI.executeQuery(
+                const poTop = await this.purchaseOrderAPI.executeQuery(
                     SELECT.one.from('PurchaseOrderItem')
                         .columns(['PurchaseOrderItem'])
                         .where({
@@ -1850,7 +1850,7 @@ class OtherBillables extends Processor {
         LOG.info(`[Step 5.2] Formed ${groups.size} groups`);
 
         const errorLogs = [], passed = [], failed = [];
-        const poComm = new PurchaseOrder();
+        const poComm = new PurchaseOrderComm();
 
         for (const [key, lines] of groups.entries()) {
             const rec = lines[0];
@@ -2098,7 +2098,7 @@ class OtherBillables extends Processor {
                         if (zpCustomer) {
                             LOG.info(`[Step 5.x] Found ZR partner entry on SO ${vbeln}, partner=${zpCustomer}`);
                             try {
-                                const vp = await this.businesPartnerAPI.executeQuery(
+                                const vp = await this.businessPartnerAPI.executeQuery(
                                     SELECT.one.from('A_CustSalesPartnerFunc')
                                         .columns(['BPCustomerNumber'])
                                         .where({
