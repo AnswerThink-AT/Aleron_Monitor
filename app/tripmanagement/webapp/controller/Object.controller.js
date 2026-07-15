@@ -793,6 +793,8 @@ sap.ui.define([
             const oArgs = oEvent.getParameter("arguments");
             const sTripNumber = oArgs.TripNumber;
             const sPersonnel = oArgs.Personnel;
+            this.TripNumber = sTripNumber;
+            this.Personnel = sPersonnel;
 
             if (!sTripNumber || !sPersonnel) {
                 MessageBox.error("TripNumber or Personnel is missing from route parameters.");
@@ -1128,7 +1130,15 @@ sap.ui.define([
             oM.setProperty("/Header/TripStatus_code", n);
             oM.refresh(true);
         },
-
+        onProjectChange: function (oEvent) {
+            var oParams = oEvent.getParameters();
+            var sType = oParams?.type;
+            if (sType === "removed") {
+                var oMultiInput = this.getView().byId("miProject");
+                oMultiInput.removeAllTokens();
+                this.getView().getModel("trip").setProperty("/Header/Project", "");
+            }
+        },
 
         onSave: function () {
             const oModel = this.getView().getModel("trip"),
@@ -1381,11 +1391,130 @@ sap.ui.define([
 
 
 
-        onDiscardDraft: function () {
-            const oM = this.getView().getModel("trip");
-            oM.setProperty("/Mode", "display");
-            oM.setProperty("/StatusText", this._mapStatusText(0));
-            oM.setProperty("/StatusState", this._mapStatusState(0));
+        onDiscardDraft: async function () {
+            const oView = this.getView();
+            if (this.TripNumber && this.Personnel) {
+                var sUrl = this.getBaseURL() + "/odata/v4/trip/Trip";
+                    sUrl += "?$filter=" + encodeURIComponent(
+                        "TripNumber eq '" + this.TripNumber + "' and Personnel eq '" + this.Personnel + "'"
+                    ) + "&$expand=Header,Items,Costs";
+
+                var Data = await this._getTripData(sUrl);
+                const oTrip = Data.value && Data.value[0];
+                if (!oTrip) {
+                    MessageBox.error("Trip not found.");
+                    oView.setBusy(false);
+                    return;
+                }
+
+                const aReceipts = (oTrip.Items || []).map(item => ({
+                    ...item,
+                    Currency: item.Currency_code
+                }));
+                const oDisplay = {
+                    Mode: "display",
+                    TripNumber: oTrip.TripNumber,
+                    Personnel: oTrip.Personnel,
+                    StartOfTrip: new Date(oTrip.StartOfTrip),
+                    EndOfTrip: new Date(oTrip.EndOfTrip),
+
+                    Header: {
+                        Project: oTrip.Header.Project,
+                        CountryRegion: oTrip.Header.Country_code,
+                        Currency: oTrip.Header.Currency_code,
+                        Region: oTrip.Header.Region,
+                        TripType: oTrip.Header.TripType,
+                        TripSettlement: oTrip.Header.TotalAmount,
+                        WnInvoiceNo: oTrip.Header.WnInvoiceNo,
+                        WnWorkOrder: oTrip.Header.WnWorkOrder,
+                        WoType: oTrip.Header.WoType,
+                        ReasonForTrip: oTrip.Header.ReasonForTrip,
+                        Comments: oTrip.Header.Comments,
+                        ContractNo: oTrip.Header.ContractNo,
+                        Destination: oTrip.Header.Destination,
+
+                        // — Customer Reference Fields —
+                        SAPSalesOrderNumber: oTrip.Header.SapSalesDocNo,
+                        CustomerCompanyCode: oTrip.Header.CustCompanyCode,
+                        SGVendorNumber: oTrip.Header.SGVendorNo,
+                        CustomerEmployeeNumber: oTrip.Header.CustEmployeeNo,
+                        PurchaseAgreement: oTrip.Header.PurchaseAgreement,
+                        CustomerCostCenter: oTrip.Header.CustCostCentre,
+                        SAPSalesOrderItemNumber: oTrip.Header.SapSalesDocItemNo,
+                        CustomerDepartmentNumber: oTrip.Header.CustDeptNo,
+                        CustomerOrgCode: oTrip.Header.CustOrgCode,
+                        CustomerAgreementName: oTrip.Header.CustAgreementName,
+                        BBNumber: oTrip.Header.BB,
+                        CustPOLineItemNumber: oTrip.Header.CustPoLineItemNo,
+                        CustomerWeekEnding: oTrip.Header.CustWeekEnding,
+                        CustomerRUI: oTrip.Header.CustRUI,
+                        CustomerLegalEntity: oTrip.Header.CustLegalEntity,
+                        TaskNumber: oTrip.Header.Task,
+                        CustomerBackgroundCheckDate: oTrip.Header.CustBackgroundCheckDate,
+                        CustomerBusinessUnit: oTrip.Header.CustBusinessUnit,
+                        CustomerAccountNumber: oTrip.Header.CustAccountNo,
+                        CustomerOracleNumber: oTrip.Header.CustOracleNo,
+                        FEPSCode: oTrip.Header.FEPSCode,
+                        CustomerDivisionUnitNumber: oTrip.Header.CustDivisionUnitNo,
+                        CustomerChargeNumber: oTrip.Header.CustChargeNo,
+                        CustomerBudgetCenter: oTrip.Header.CustBudgetCenter,
+                        CustomerUnitStoreNumber: oTrip.Header.CustUnitStoreNo,
+                        CustomerPosition: oTrip.Header.CustPosition,
+                        CustomerPositionCodeJobID: oTrip.Header.CustPositionCode,
+                        ProjectNumber: oTrip.Header.ProjectNo,
+                        CustomerContractNumber: oTrip.Header.CustContractNo,
+                        ServiceDateForSdiIbm: oTrip.Header.ServiceDate,
+                        CustomerGLCode: oTrip.Header.CustGLCode
+                    },
+
+                    ExpenseReceipts: aReceipts,
+                    Costs: oTrip.Costs || [],
+
+                    _validations: {
+                        Project: { state: "None", text: "" }
+                    }
+                };
+
+                const iCode = Number(oTrip.Header.TripStatus_code);
+                oDisplay.StatusText = this._mapStatusText(iCode);
+                oDisplay.StatusState = this._mapStatusState(iCode);
+                const oTripModel = new sap.ui.model.json.JSONModel(oDisplay);
+                oTripModel.setDefaultBindingMode(sap.ui.model.BindingMode.TwoWay);
+                oTripModel.refresh(true);
+
+                oView.setModel(oTripModel, "trip");
+                console.log("[ObjectPage] ✅ Trip model replaced with fresh data");
+
+                this.updateTotalNetAmount();
+                const seed = (id, key, text) => {
+                    const mi = this.byId(id);
+                    if (!mi) return;
+                    mi.removeAllTokens();
+                    if (key) mi.addToken(new sap.m.Token({ key, text }));
+                };
+
+                seed("miCountry", oDisplay.Header.CountryRegion, oDisplay.Header.CountryRegion);
+                seed("miCurrency", oDisplay.Header.Currency, oDisplay.Header.Currency);
+                seed("miDestination", oDisplay.Header.Destination, oDisplay.Header.Destination);
+                const sProjectKey = oDisplay.Header.Project;
+                let sProjectText = sProjectKey;
+                if (sProjectKey && this._allProjects?.length) {
+                    const oProj = this._allProjects.find(p => p.PROJECT === sProjectKey);
+                    if (oProj) {
+                        sProjectText = `${oProj.PROJECT} – ${oProj.PROJECTDESCRIPTION}`;
+                    }
+                }
+                seed("miProject", sProjectKey, sProjectText);
+                const sDest = oDisplay.Header.Destination;
+                const sProv = sDest === "US" ? "07" : sDest === "CA" ? "10" : null;
+                this._filterExpenseTypes(sProv);
+
+            } else {
+                const oM = this.getView().getModel("trip");
+                oM.setProperty("/Mode", "display");
+                oM.setProperty("/StatusText", this._mapStatusText(0));
+                oM.setProperty("/StatusState", this._mapStatusState(0));
+            }
         },
 
 
@@ -1393,7 +1522,7 @@ sap.ui.define([
             const oModel = this.getView().getModel("trip");
             const sStatus = oModel.getProperty("/StatusText"); // “Draft”, “Created”, “Approved”, etc.
             // only allow edit if we’re still in Draft or Created
-            if (sStatus !== "Draft" && sStatus !== "Created") {
+            if (sStatus !== "Draft" && sStatus !== "Created" && sStatus !== "Approved") {
                 MessageBox.error(`You cannot edit this trip because its status is “${sStatus}”.`);
                 return;
             }
@@ -1884,6 +2013,21 @@ sap.ui.define([
 
             // Update model
             oModel.setProperty("/ExpenseReceipts", aItems);
+        },
+        _getTripData: async function (sUrl) {
+           return new Promise((resolve, reject) => {
+                $.ajax({
+                    url: sUrl,
+                    method: "GET",
+                    dataType: "json",
+                    success: function (data) {
+                        resolve(data);
+                    },
+                    error: function (xhr, status, error) {
+                        reject(error);
+                    }
+                });
+            });
         }
 
         //   updateTotalNetAmount: function() {

@@ -73,7 +73,7 @@
 										<m:MultiInput id="miProject" width="100%" placeholder="Type to search projects…" showSuggestion="true" suggestionItems="{
       path: '/EnterpriseProjectCache'
       
-    }" editable="{= ${trip>/Mode} !== 'display'}" valueHelpRequest=".onProjectValueHelp" liveChange=".onProjectSuggest" maxTokens="1">
+    }" editable="{= ${trip>/Mode} !== 'display'}" valueHelpRequest=".onProjectValueHelp" tokenUpdate="onProjectChange" liveChange=".onProjectSuggest" maxTokens="1">
 											<core:Item id="_IDGenItem9" key="{PROJECT}" text="{PROJECT} — {PROJECTDESCRIPTION}"/>
 										</m:MultiInput>
 										<!-- Country/Region -->
