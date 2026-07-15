@@ -1464,7 +1464,7 @@ class DrugBackgroundCheckProcessor extends Processor {
 
             if (!anyVendorErr?.message && aVendors?.length) {
                 aVendors.forEach((oVendor) => {
-                    mVendor.Set(oVendor.vendor, oVendor);
+                    mVendor.set(oVendor.vendor, oVendor);
                 });
             }
 
@@ -1479,13 +1479,13 @@ class DrugBackgroundCheckProcessor extends Processor {
 
             if (!anyTravelPayTermsErr?.message && aTravelPayTerms?.length) {
                 aTravelPayTerms.forEach((oTravelPayTerm) => {
-                    mTravelPayTerm.Set(oTravelPayTerm.customerNo, oTravelPayTerm);
+                    mTravelPayTerm.set(oTravelPayTerm.customerNo, oTravelPayTerm);
                 });
             }
 
             if (!anyTravelPayTermFeedErr?.message && aTravelPayTermFeeds?.length) {
                 aTravelPayTermFeeds.forEach((oTravelPayTermFeed) => {
-                    mTravelPayTermFeed.Set(oTravelPayTermFeed.paymentTerm, oTravelPayTermFeed);
+                    mTravelPayTermFeed.set(oTravelPayTermFeed.paymentTerm, oTravelPayTermFeed);
                 });
             }
         } catch (err) {
@@ -1823,8 +1823,14 @@ class DrugBackgroundCheckProcessor extends Processor {
         // Update the status of passed records
         if (aPassedRecordIDs.length) {
             await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
-            await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({ record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3 })),);
-            await this.markRecordsValid(sProcessCode, aPassedRecordIDs, true);
+            await ProcessLogger.addLogs(
+                aRecordsToUpdate.map((oRecord) => ({
+                    record_ID: oRecord.ID,
+                    message: `Sales Order Item ${oRecord.salesItemNoSAP} created  for Sales order No: ` + oRecord.salesDocumentNoSAP,
+                    process_code: sProcessCode,
+                    type: 3
+                }))
+            ); await this.markRecordsValid(sProcessCode, aPassedRecordIDs, true);
         }
 
         // Update the status of failed records
@@ -3704,7 +3710,7 @@ class DrugBackgroundCheckProcessor extends Processor {
 
         const aPayloads = [];
         const mPayloadMap = new Map();
-
+        let index = 0;
         for (const oRecord of aRecordsForProcessing) {
             const aErrors = [];
 
@@ -3797,7 +3803,10 @@ class DrugBackgroundCheckProcessor extends Processor {
                 salesOrderItem: '',
                 PORequiredSAP: oRecord.PORequiredSAP,
             });
-
+            if (index != 0) {
+                lastSOItem = String(Number(lastSOItem) + (index * 10));
+            }
+            index++;
             // Prepare payload for SalesOrderItem creation
             const oPayload = this._prepareDataForICSalesOrderItemCreate({
                 record: oRecord,                        // record form File
@@ -3874,7 +3883,7 @@ class DrugBackgroundCheckProcessor extends Processor {
 
         if (aErrorLogs.length) {
             await ProcessLogger.addLogs(aErrorLogs);
-            await UPDATE(SowScInvoice)
+            await UPDATE(Drug_Background_Check)
                 .set({ valid: false, processLevel_code: sProcessCode })
                 .where({ ID: { in: aFailedRecordIDs } });
         }
@@ -3936,7 +3945,14 @@ class DrugBackgroundCheckProcessor extends Processor {
         // Update the status of passed records
         if (aPassedRecordIDs.length) {
             await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
-            await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({ record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3 })));
+            await ProcessLogger.addLogs(
+                aRecordsToUpdate.map((oRecord) => ({
+                    record_ID: oRecord.ID,
+                    message: `Sales Order Item ${oRecord.salesItemNoSAP} created successfully with Sales Document No: ${oRecord.salesDocumentNoSAP} along with VC Data 1 UUID: ${oRecord.vcData1ICUUID} and VC Data 2 UUID: ${oRecord.vcData2ICUUID}`,
+                    process_code: sProcessCode,
+                    type: 3
+                }))
+            );
             await this.markRecordsValid(sProcessCode, aPassedRecordIDs, true);
         }
 
@@ -4085,6 +4101,9 @@ class DrugBackgroundCheckProcessor extends Processor {
             });
 
         for (let i = 0; i < aPayloadsSalesVCData.length; i++) {
+            if (aPayloadsSalesVCData[i].length === 0) {
+                continue;
+            }
             let insertedSalesVCData1, insertedSalesVCData2;
             // TODO: Conver to Batch call and take call out of loop
             if (!aPayloadsSalesVCData[i][3]) {
@@ -4341,7 +4360,7 @@ class DrugBackgroundCheckProcessor extends Processor {
         }
 
         let mPayloadMap = new Map();
-
+        let index = 0;
         for (const oRecord of aRecordsForProcessing) {
             const aErrors = [];
 
@@ -4432,7 +4451,10 @@ class DrugBackgroundCheckProcessor extends Processor {
                 };
             }
 
-
+            if (index != 0) {
+                lastSOItem = String(Number(lastSOItem) + (index * 10));
+            }
+            index++;
             const oItemPayload = this._prepareDataForPurchaseOrderUpdate({
                 record: oRecord,
                 salesOrder: oSalesOrder,
@@ -4543,8 +4565,14 @@ class DrugBackgroundCheckProcessor extends Processor {
         // Update the status of passed records
         if (aPassedRecordIDs.length) {
             await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
-            await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({ record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3 })));
-            await this.markRecordsValid(sProcessCode, aPassedRecordIDs, true);
+            await ProcessLogger.addLogs(
+                aRecordsToUpdate.map((oRecord) => ({
+                    record_ID: oRecord.ID,
+                    message: `Purchase Order created successfully with Purchase Document No: ${oRecord.purchaseDocumentNoSAP}`,
+                    process_code: sProcessCode,
+                    type: 3
+                }))
+            ); await this.markRecordsValid(sProcessCode, aPassedRecordIDs, true);
         }
 
         // Update the status of failed records
@@ -4987,7 +5015,7 @@ class DrugBackgroundCheckProcessor extends Processor {
                 hasError: false,
                 continue: true,
             };
-        }else if (processpurchaseexceptionarray.length > 0) {
+        } else if (processpurchaseexceptionarray.length > 0) {
             await ProcessLogger.addLogs(processpurchaseexceptionarray.map((sId) => ({ record_ID: sId, message: 'The process code skipped due to PORequiredSAP is empty', process_code: sProcessCode, type: 3 })));
         }
 
@@ -4998,7 +5026,7 @@ class DrugBackgroundCheckProcessor extends Processor {
                 { reason: anySalesOrderLastItemErr, value: aSalesOrderLastItems },
                 { reason: anySalesOrderFirstItemErr, value: aSalesOrderFirstItems },
             ] = await Promise.allSettled([
-               aPurchaseOrderWhere.length > 0 ? this.purchaseOrderAPI.executeQuery(
+                aPurchaseOrderWhere.length > 0 ? this.purchaseOrderAPI.executeQuery(
                     SELECT.from('PurchaseOrder')
                         .columns(['PurchaseOrder', 'DocumentCurrency', 'Supplier'])
                         .where({
@@ -5006,7 +5034,7 @@ class DrugBackgroundCheckProcessor extends Processor {
                         })
                 ) : Promise.resolve([]),
 
-               aPurchaseOrderWhere.length > 0 ? this.purchaseOrderAPI.executeQuery(
+                aPurchaseOrderWhere.length > 0 ? this.purchaseOrderAPI.executeQuery(
                     SELECT.from('PurchaseOrderItem')
                         .columns(['PurchaseOrder', 'PurchaseOrderItem', 'OrderQuantity', 'NetPriceAmount',
                             'TaxCode', 'TaxJurisdiction', 'Plant', 'CompanyCode',
@@ -5017,7 +5045,7 @@ class DrugBackgroundCheckProcessor extends Processor {
                         })
                 ) : Promise.resolve([]),
 
-               aPurchaseOrderWhere.length > 0 ? this.salesOrderAPI.executeQuery(
+                aPurchaseOrderWhere.length > 0 ? this.salesOrderAPI.executeQuery(
                     SELECT.from('A_SalesOrderItem')
                         .columns(['SalesOrder', 'SalesOrderItem', 'YY1_PurchasingDoc_SD_SDI', 'YY1_WNInvoice_SD_SDI',
                             'YY1_WNWorkOrder_SD_SDI'
@@ -5076,7 +5104,7 @@ class DrugBackgroundCheckProcessor extends Processor {
                 { reason: anySalesOrderErr, value: aSalesOrders },
                 { reason: anyEmpCustInfoErr, value: aEmpCustInfos },
             ] = await Promise.allSettled([
-               aSalesOrderWhere.length > 0 ? this.salesOrderAPI.executeQuery(
+                aSalesOrderWhere.length > 0 ? this.salesOrderAPI.executeQuery(
                     SELECT.from('A_SalesOrder')
                         .columns(['SalesOrder', 'SalesOrganization', 'DistributionChannel', 'OrganizationDivision',
                             'YY1_AlphanumericSalesO_SDH'
@@ -5086,7 +5114,7 @@ class DrugBackgroundCheckProcessor extends Processor {
                         })
                 ) : Promise.resolve([]),
 
-               aEmpCustInfoWhere.length > 0 ? this.empCustInfoAPI.executeQuery(
+                aEmpCustInfoWhere.length > 0 ? this.empCustInfoAPI.executeQuery(
                     SELECT.from('YY1_EMPLOYEE_CUSTOMER_INFO')
                         .columns(['Name', 'FirstName', 'MiddleName', 'WORKER_ID'])
                         .where({
@@ -5193,7 +5221,16 @@ class DrugBackgroundCheckProcessor extends Processor {
 
         if (aPassedRecordIDs.length) {
             await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
-            await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({ record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3 })));
+            await ProcessLogger.addLogs(
+                aRecordsForProcessing
+                    .filter((oRecord) => aPassedRecordIDs.includes(oRecord.ID))
+                    .map((oRecord) => ({
+                        record_ID: oRecord.ID,
+                        message: `Supplier Invoice created successfully with Invoice Document No: ${oRecord.invoiceDocumentNoSAP}`,
+                        process_code: sProcessCode,
+                        type: 3
+                    }))
+            );
         }
 
         this.updateExclusionSet({
