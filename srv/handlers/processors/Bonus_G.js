@@ -1934,7 +1934,18 @@ class Bonus_G extends Processor {
 
   if (aPassedRecordIDs.length) {
     await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
-    await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3})));
+    await ProcessLogger.addLogs(
+    aPassedRecordIDs.map((sId) => {
+        const oMapEntry = mPayloadMap.get(sId);
+
+        return {
+            record_ID: sId,
+            message: `Sales Order created successfully with Sales Document No: ${oMapEntry.salesOrder} and Sales Order Item No: ${oMapEntry.salesOrderItem}`,
+            process_code: sProcessCode,
+            type: 3
+        };
+    })
+);
     await this.markRecordsValid(sProcessCode, aPassedRecordIDs, true);
   }
   if (aFailedRecordIDs.length) {
@@ -2178,40 +2189,61 @@ async _prepareVCData({
             mTravelPayTerm = new Map(), // Map for Travel Pay Term from Config Table
             mTravelPayTermFeed = new Map(), // Map for Travel Pay Term Feed from Config Table
             mProcessingRecordsToCentralMapping = new Map();
-
-        for (const [iRecordIndex, record] of this.records.entries()) {
-            if (this.shouldRecordProcess(record, sProcessCode) && record.salesOrderICUpdateRequired === 'X' && record?.p2SalesDocumentNoSAP) {
-                // If record is on step level & is already valid, then skip
-                aRecordsForProcessing.push({ ...record });
-                mProcessingRecordsToCentralMapping.set(record.ID, iRecordIndex);
-                aRecordIDs.push(record.ID);
-            } else {
-                if (record.salesOrderICUpdateRequired !== 'X' || !record.p2SalesDocumentNoSAP) {
-                    await this.markRecordsValid(sProcessCode, [record.ID], true);
-                    continue;
-                } else {
-                    aSkippedRecords.push({ ...record });
-                    continue;
-                }
-            }
-
-            if (record.p2SalesDocumentNoSAP) {
-                aSalesOrderWhere.push(record.p2SalesDocumentNoSAP);
-            }
-
-            ({ mCustomerFieldNameValue, aCustomerFieldNamesWhere } = this.customerFieldNameValues(record, mCustomerFieldNameValue, aCustomerFieldNamesWhere));
-        }
-
-        await ProcessLogger.removeLogs(aRecordIDs, null, sProcessCode);
-
-        this.updateProcessingState(sProcessCode);
-        if (!aRecordsForProcessing.length) {
-            // If Step doesn't need to be processed, simply return to avoid costly calls
-            return {
+            var icupdateexceptionarray = [];
+                    var aNotRecorded = [];
+                    for (const [iRecordIndex, record] of this.records.entries()) {
+                        if (this.shouldRecordProcess(record, sProcessCode) && record.salesOrderICUpdateRequired === 'X' && record?.p2SalesDocumentNoSAP) {
+                            // If record is on step level & is already valid, then skip
+                            aRecordsForProcessing.push({ ...record });
+                            mProcessingRecordsToCentralMapping.set(record.ID, iRecordIndex);
+                            aRecordIDs.push(record.ID);
+                        } else {
+                            aNotRecorded.push(record.ID);
+                            if (this.shouldRecordProcess(record, sProcessCode) == false) {
+                                aSkippedRecords.push({ ...record });
+                                continue;
+                            } else {
+                                if (record.salesOrderICUpdateRequired !== 'X' || !record.p2SalesDocumentNoSAP) {
+                                    icupdateexceptionarray.push(record.ID);
+                                    await this.markRecordsValid(sProcessCode, [record.ID], true);
+                                    continue;
+                                } else {
+                                    aSkippedRecords.push({ ...record });
+                                    continue;
+                                }
+                            }
+            
+                        }
+            
+                        if (record.p2SalesDocumentNoSAP) {
+                            aSalesOrderWhere.push(record.p2SalesDocumentNoSAP);
+                        }
+            
+                        ({ mCustomerFieldNameValue, aCustomerFieldNamesWhere } = this.customerFieldNameValues(record, mCustomerFieldNameValue, aCustomerFieldNamesWhere));
+                    }
+            
+                    await ProcessLogger.removeLogs(aRecordIDs, null, sProcessCode);
+            
+                    this.updateProcessingState(sProcessCode);
+                    if (!aRecordsForProcessing.length && !icupdateexceptionarray.length) {
+            
+                        if (!aSkippedRecords.length) {
+                            await ProcessLogger.addLogs(aNotRecorded.map((sId) => ({ record_ID: sId, message: 'The process code skipped due to salesorderIC is empty and p2SalesDocumentNoSAP is empty', process_code: sProcessCode, type: 3 })));
+                        }
+                        // If Step doesn't need to be processed, simply return to avoid costly calls
+                        return {
+                            hasError: false,
+                            continue: true,
+                        };
+            
+                    }
+                    else if (icupdateexceptionarray.length > 0) {
+                        await ProcessLogger.addLogs(icupdateexceptionarray.map((sId) => ({ record_ID: sId, message: 'The process code skipped due to salesorderIC is not X or p2SalesDocumentNoSAP is empty', process_code: sProcessCode, type: 3 })));
+                        return {
                 hasError: false,
                 continue: true,
             };
-        }
+                    }
 
         try {
             const [
@@ -2650,7 +2682,14 @@ async _prepareVCData({
         // Update the status of passed records
         if (aPassedRecordIDs.length) {
             await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
-            await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3})));
+            await ProcessLogger.addLogs(
+        aRecordsToUpdate.map((oRecord) => ({
+            record_ID: oRecord.ID,
+            message: `Sales Order created successfully with Sales Document No: ${oRecord.salesDocumentNoSAP} and Sales Item No: ${oRecord.salesItemNoSAP} and VC Data 1 UUID: ${oRecord.vcData1ICUUID} and VC Data 2 UUID: ${oRecord.vcData2ICUUID}`,
+            process_code: sProcessCode,
+            type: 3
+        }))
+    );  
             await this.markRecordsValid(sProcessCode, aPassedRecordIDs, true);
         }
 
@@ -3731,53 +3770,75 @@ async _prepareVCData({
 /*** Step 5: Create / Update PO ***/
 async processPurchaseOrder(sProcessCode, bBreakExecution) {
   const aRecordsForProcessing = [],
-    aErrorLogs = [],
-    aFailedRecordIDs = [],
-    aPassedRecordIDs = [],
-    aSkippedRecords = [];
-
-  let aRecordIDs = [],
-    aSalesDocumentNoWhere = [],
-    aSalesDocumentItemNOWhere = [],
-    aBusinessPartnerAddressWhere = [];
-
-  let mSalesOrder = new Map(),          // SO headers
-    mSalesOrderItem = new Map(),        // SO items
-    mSalesOrderPartner = new Map(),     // SO partners
-    mBusinessPartner = new Map(),       // BP addresses (Ship-To)
-    mProcessingRecordsToCentralMapping = new Map();
-
-  // ---------- collect ----------
-  for (const [iRecordIndex, record] of this.records.entries()) {
-    if (this.shouldRecordProcess(record, sProcessCode) && record.PORequiredSAP) {
-      aRecordsForProcessing.push({ ...record });
-      mProcessingRecordsToCentralMapping.set(record.ID, iRecordIndex);
-      aRecordIDs.push(record.ID);
-    } else {
-      if (record.PORequiredSAP === '' || !record.PORequiredSAP) {
-        await this.markRecordsValid(sProcessCode, [record.ID], true);
-        continue;
-      } else {
-        aSkippedRecords.push({ ...record });
-        continue;
-      }
-    }
-
-    if (record.PORequiredSAP === '2') {
-      aSalesDocumentNoWhere.push(record.salesOrderICSAP);
-      aSalesDocumentItemNOWhere.push(record.salesItemNoICSAP);
-    } else {
-      aSalesDocumentNoWhere.push(record.salesDocumentNoSAP);
-      aSalesDocumentItemNOWhere.push(record.salesItemNoSAP);
-    }
-  }
-
-  await ProcessLogger.removeLogs(aRecordIDs, null, sProcessCode);
-  this.updateProcessingState(sProcessCode);
-
-  if (!aRecordsForProcessing.length) {
-    return { hasError: false, continue: true };
-  }
+              aErrorLogs = [],
+              aFailedRecordIDs = [],
+              aPassedRecordIDs = [],
+              aSkippedRecords = [];
+  
+          let aRecordIDs = [],
+              aSalesDocumentNoWhere = [],
+              aSalesDocumentItemNOWhere = [],
+              aBusinessPartnerAddressWhere = [];
+  
+          let mSalesOrder = new Map(),   // Map for SalesOrders
+              mSalesOrderItem = new Map(),   // Map for SalesOrderItems
+              mSalesOrderPartner = new Map(),    // Map for SalesOrderPartners
+              mBusinessPartner = new Map(),   // Map for BusinessPartner
+              mProcessingRecordsToCentralMapping = new Map();
+          var processpurchaseexceptionarray = [];
+          var aNotRecorded = [];
+          for (const [iRecordIndex, record] of this.records.entries()) {
+              if (this.shouldRecordProcess(record, sProcessCode) && record.PORequiredSAP) {
+                  // If record is on step level & is already valid, then skip
+                  aRecordsForProcessing.push({ ...record });
+                  mProcessingRecordsToCentralMapping.set(record.ID, iRecordIndex);
+                  aRecordIDs.push(record.ID);
+              } else {
+                  aNotRecorded.push(record.ID);
+                  if (this.shouldRecordProcess(record, sProcessCode) == false) {
+                      aSkippedRecords.push({ ...record });
+                      continue;
+                  } else {
+                      if (record.PORequiredSAP === '' || !record.PORequiredSAP) {
+                          processpurchaseexceptionarray.push(record.ID);
+                          await this.markRecordsValid(sProcessCode, [record.ID], true);
+                          continue;
+                      } else {
+                          aSkippedRecords.push({ ...record });
+                          continue;
+                      }
+                  }
+              }
+  
+              if (record.PORequiredSAP === '2') {
+                  aSalesDocumentNoWhere.push(record.salesOrderICSAP);
+                  aSalesDocumentItemNOWhere.push(record.salesItemNoICSAP);
+              } else {
+                  aSalesDocumentNoWhere.push(record.salesDocumentNoSAP);
+                  aSalesDocumentItemNOWhere.push(record.salesItemNoSAP);
+              }
+          }
+  
+          await ProcessLogger.removeLogs(aRecordIDs, null, sProcessCode);
+  
+          this.updateProcessingState(sProcessCode);
+          if (!aRecordsForProcessing.length && !processpurchaseexceptionarray.length) {
+  
+              if (!aSkippedRecords.length) {
+                  await ProcessLogger.addLogs(aNotRecorded.map((sId) => ({ record_ID: sId, message: 'The process code skipped due to PORequiredSAP is empty', process_code: sProcessCode, type: 3 })));
+              }
+              // If Step doesn't need to be processed, simply return to avoid costly calls
+              return {
+                  hasError: false,
+                  continue: true,
+              };
+          } else if (processpurchaseexceptionarray.length > 0) {
+              await ProcessLogger.addLogs(processpurchaseexceptionarray.map((sId) => ({ record_ID: sId, message: 'The process code skipped due to PORequiredSAP is empty', process_code: sProcessCode, type: 3 })));
+              return {
+                hasError: false,
+                continue: true,
+            };
+          }
 
   // ---------- read refs ----------
   try {
@@ -4030,7 +4091,14 @@ async processPurchaseOrder(sProcessCode, bBreakExecution) {
 
   if (aPassedRecordIDs.length) {
     await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
-    await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3})));
+    await ProcessLogger.addLogs(
+        aRecordsToUpdate.map((oRecord) => ({
+            record_ID: oRecord.ID,
+            message: `Purchase Order created successfully with Purchase Document No: ${oRecord.purchaseDocumentNoSAP} and Purchase Document Item No: ${oRecord.purchaseDocumentItemSAP}`,
+            process_code: sProcessCode,
+            type: 3
+        }))
+    );
     await this.markRecordsValid(sProcessCode, aPassedRecordIDs, true);
   }
 
@@ -4418,50 +4486,79 @@ async processPurchaseOrder(sProcessCode, bBreakExecution) {
     /*** Step B: MIRO (Incoming Invoice) creation ***/
 async processSupplierInvoice(sProcessCode, bBreakExecution) {
   const aRecordsForProcessing = [],
-    aSkippedRecords = [],
-    aErrorLogs = [],
-    aPassedRecordIDs = [],
-    aFailedRecordIDs = [];
-
-  let aRecordIDs = [],
-    aPurchaseOrderWhere = [],
-    aPurchaseOrderItemWhere = [],
-    aSalesOrderWhere = [],
-    aEmpCustInfoWhere = [];
-
-  let mPurchaseOrder = new Map(),     // PO header
-    mPurchaseOrderItem = new Map(),   // PO item (by PO number)
-    mSalesOrder = new Map(),          // SO header
-    mSalesOrderLastItem = new Map(),  // SO last item by PO
-    mSalesOrderLastFirstItem = new Map(), // SO first item by PO
-    mEmpCustInfo = new Map();         // Emp info
-
-  // --- collect ---
-  for (const record of this.records) {
-    if (this.shouldRecordProcess(record, sProcessCode) && record.PORequiredSAP) {
-      aRecordsForProcessing.push({ ...record });
-      aRecordIDs.push(record.ID);
-    } else {
-      if (record.PORequiredSAP === '' || !record.PORequiredSAP) {
-        await this.markRecordsValid(sProcessCode, [record.ID], true);
-        continue;
-      } else {
-        aSkippedRecords.push({ ...record });
-        continue;
-      }
-    }
-
-    if (record.purchaseDocumentNoSAP) aPurchaseOrderWhere.push(record.purchaseDocumentNoSAP);
-    if (record.purchaseDocumentItemSAP) aPurchaseOrderItemWhere.push(record.purchaseDocumentItemSAP);
-    if (record.sapEmployeeNo) aEmpCustInfoWhere.push(record.sapEmployeeNo);
-  }
-
-  await ProcessLogger.removeLogs(aRecordIDs, null, sProcessCode);
-
-  this.updateProcessingState(sProcessCode);
-  if (!aRecordsForProcessing.length) {
-    return { hasError: false, continue: true };
-  }
+              aSkippedRecords = [],
+              aErrorLogs = [],
+              aPassedRecordIDs = [],
+              aFailedRecordIDs = [];
+  
+          let aRecordIDs = [],
+              aPurchaseOrderWhere = [],
+              aPurchaseOrderItemWhere = [],
+              aSalesOrderWhere = [],
+              aEmpCustInfoWhere = [];
+  
+          let mPurchaseOrder = new Map(),     // Map for PurchaseOrder
+              mPurchaseOrderItem = new Map(), // Map for PurchaseOrderItem
+              mSalesOrder = new Map(),        // Map for SaleOrder
+              mSalesOrderLastItem = new Map(),    // Map for SalesOrderLastItem
+              mSalesOrderLastFirstItem = new Map(),    // Map for SalesOrderFirstItem
+              mEmpCustInfo = new Map();       // Map for EmpCustInfo 
+          var aNotRecorded = [];
+          var processpurchaseexceptionarray = [];
+          for (const record of this.records) {
+              if (this.shouldRecordProcess(record, sProcessCode) && record.PORequiredSAP) {
+                  // If record is on step level & is already valid, then skip
+                  aRecordsForProcessing.push({ ...record });
+                  aRecordIDs.push(record.ID);
+              } else {
+                  aNotRecorded.push(record.ID);
+                  if (this.shouldRecordProcess(record, sProcessCode) == false) {
+                      aSkippedRecords.push({ ...record });
+                      continue;
+                  } else {
+                      if (record.PORequiredSAP === '' || !record.PORequiredSAP) {
+                          processpurchaseexceptionarray.push(record.ID);
+                          await this.markRecordsValid(sProcessCode, [record.ID], true);
+                          continue;
+                      } else {
+                          aSkippedRecords.push({ ...record });
+                          continue;
+                      }
+                  }
+              }
+  
+              if (record.purchaseDocumentNoSAP) {
+                  aPurchaseOrderWhere.push(record.purchaseDocumentNoSAP);
+              }
+  
+              if (record.purchaseDocumentItemSAP) {
+                  aPurchaseOrderItemWhere.push(record.purchaseDocumentItemSAP);
+              }
+  
+              if (record.employeeNo) {
+                  aEmpCustInfoWhere.push(record.employeeNo);
+              }
+          }
+  
+          await ProcessLogger.removeLogs(aRecordIDs, null, sProcessCode);
+  
+          this.updateProcessingState(sProcessCode);
+          if (!aRecordsForProcessing.length && !processpurchaseexceptionarray.length) {
+              if (!aSkippedRecords.length) {
+                  await ProcessLogger.addLogs(aNotRecorded.map((sId) => ({ record_ID: sId, message: 'The process code skipped due to PORequiredSAP is empty', process_code: sProcessCode, type: 3 })));
+              }
+              // If Step doesn't need to be processed, simply return to avoid costly calls
+              return {
+                  hasError: false,
+                  continue: true,
+              };
+          } else if (processpurchaseexceptionarray.length > 0) {
+              await ProcessLogger.addLogs(processpurchaseexceptionarray.map((sId) => ({ record_ID: sId, message: 'The process code skipped due to PORequiredSAP is empty', process_code: sProcessCode, type: 3 })));
+              return {
+                hasError: false,
+                continue: true,
+            };
+          }
 
   // --- ref data fetch ---
   try {
@@ -4668,8 +4765,16 @@ async processSupplierInvoice(sProcessCode, bBreakExecution) {
 
   if (aPassedRecordIDs.length) {
     await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
-    await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3})));
-  }
+    await ProcessLogger.addLogs(
+                    aRecordsForProcessing
+                        .filter((oRecord) => aPassedRecordIDs.includes(oRecord.ID))
+                        .map((oRecord) => ({
+                            record_ID: oRecord.ID,
+                            message: `Supplier Invoice created successfully with Invoice Document No: ${oRecord.invoiceDocumentNoSAP}`,
+                            process_code: sProcessCode,
+                            type: 3
+                        }))
+                );}
 
   this.updateExclusionSet({
     passed: aPassedRecordIDs,

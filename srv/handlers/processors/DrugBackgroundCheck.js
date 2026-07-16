@@ -3551,6 +3551,10 @@ class DrugBackgroundCheckProcessor extends Processor {
         }
         else if (icupdateexceptionarray.length > 0) {
             await ProcessLogger.addLogs(icupdateexceptionarray.map((sId) => ({ record_ID: sId, message: 'The process code skipped due to salesorderIC is not X or p2SalesDocumentNoSAP is empty', process_code: sProcessCode, type: 3 })));
+            return {
+                hasError: false,
+                continue: true,
+            };
         }
         try {
             const [
@@ -4226,6 +4230,10 @@ class DrugBackgroundCheckProcessor extends Processor {
             };
         } else if (processpurchaseexceptionarray.length > 0) {
             await ProcessLogger.addLogs(processpurchaseexceptionarray.map((sId) => ({ record_ID: sId, message: 'The process code skipped due to PORequiredSAP is empty', process_code: sProcessCode, type: 3 })));
+            return {
+                hasError: false,
+                continue: true,
+            };
         }
 
         try {
@@ -5017,6 +5025,10 @@ class DrugBackgroundCheckProcessor extends Processor {
             };
         } else if (processpurchaseexceptionarray.length > 0) {
             await ProcessLogger.addLogs(processpurchaseexceptionarray.map((sId) => ({ record_ID: sId, message: 'The process code skipped due to PORequiredSAP is empty', process_code: sProcessCode, type: 3 })));
+            return {
+                hasError: false,
+                continue: true,
+            };
         }
 
         try {
