@@ -999,8 +999,7 @@ sap.ui.define(['sap/ui/export/library',], function (exportLibrary) {
           'customerFieldName14',
           'customerFieldValue14',
           'customerFieldName15',
-          'customerFieldValue15',
-
+          'customerFieldValue15'
         ],
 
         aDrug_Background_CheckColumns:[

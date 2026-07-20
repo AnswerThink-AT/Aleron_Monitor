@@ -15,7 +15,8 @@ sap.ui.define(
          */
         onInit: function () {
           // you can access the Fiori elements extensionAPI via this.base.getExtensionAPI
-          var oModel = this.base.getExtensionAPI().getModel();
+          //var oModel = this.base.getExtensionAPI().getModel();
+
         },
       },
 
@@ -36,13 +37,26 @@ sap.ui.define(
         this._oUploadDialog.open();
         this._oUploadDialog.getContent()[1].setSelectedKey('');
         this._oUploadDialog.getContent()[2].setValue('');
+        const oAppModel = this.base.getExtensionAPI().getModel("appModel");
+        oAppModel.setProperty("/isCheckBoxVisible", false);
+        oAppModel.setProperty("/isCheckBoxSelected", false);
       },
-
+      onInterfaceTypeChange: function (oEvent) {
+        const selectedKey = oEvent.getParameter('selectedItem').getKey();
+        const oAppModel = this.base.getExtensionAPI().getModel('appModel');
+        if (selectedKey === '2') {
+          oAppModel.setProperty("/isCheckBoxVisible", true);
+        } else {
+          oAppModel.setProperty("/isCheckBoxVisible", false);
+        }
+      },
       // close upload dialog
       onPressCancel: function () {
         const oAppModel = this.base.getExtensionAPI().getModel("appModel");
         oAppModel.setProperty("/isUploadBusy", false);
+        oAppModel.setProperty("/isCheckBoxVisible", false);
         if (this._oUploadDialog) {
+          oAppModel.setProperty("/isCheckBoxSelected", false);
           this._oUploadDialog.close();
         }
         const oTable = this.base.byId("fe::table::Files::LineItem");
@@ -345,7 +359,7 @@ sap.ui.define(
         }
       },
       // 
-      async _uploadInterfaceData(fileID, interfaceID, oModel) {
+      async _uploadInterfaceData(fileID, interfaceID, oModel, skipTrip) {
         const csvBase64 = btoa(
           unescape(
             encodeURIComponent(this._csvContent)
@@ -370,6 +384,10 @@ sap.ui.define(
                 {
                   name: "csvString",
                   value: csvBase64
+                },
+                {
+                  name: "skipTrip",
+                  value: skipTrip
                 }
               ]
             }
@@ -377,6 +395,9 @@ sap.ui.define(
       },
       _createMonitorFile: async function (aSubItemsPayload, interfaceID) {
         console.log('Creating file with interface ID:', interfaceID);
+
+        const oAppModel = this.base.getExtensionAPI().getModel('appModel');
+
         console.log('Payload data:', aSubItemsPayload);
         let oFile = {
           IsActiveEntity: false,
@@ -442,7 +463,6 @@ sap.ui.define(
         // console.log('Final file object being sent:', oFile);
         // console.log('Association data:', oFile[columnMappings[interfaceID]]);
 
-        const oAppModel = this.base.getExtensionAPI().getModel('appModel');
         const oModel = this.base.getExtensionAPI().getModel();
         console.log("Update Group:", oModel.getUpdateGroupId());
         // this._pendingDrugRecords = interfaceID === 'A' ? aSubItemsPayload : null;
@@ -464,7 +484,10 @@ sap.ui.define(
               console.log('Manually creating records for interface:', interfaceID);
               try {
                 //(rohit- 11/06) await this._createRecordsManually(oNewlyCreatedFile.ID, this._pendingRecords, interfaceID);
-                await this._uploadInterfaceData(oNewlyCreatedFile.ID, interfaceID, oModel);
+                if (interfaceID === '2') {
+                  var bSkipTrip = oAppModel.getProperty('/isCheckBoxSelected');
+                }
+                await this._uploadInterfaceData(oNewlyCreatedFile.ID, interfaceID, oModel, bSkipTrip);
                 this._endTime = performance.now();
                 const duration = (this._endTime - this._startTime) / 1000; // in seconds
                 console.log(`Total operation took: ${duration.toFixed(2)} seconds`);
@@ -480,6 +503,7 @@ sap.ui.define(
 
             this.onPressCancel();
             oAppModel.setProperty('/isUploadBusy', false);
+            oAppModel.setProperty('/isCheckBoxVisible', false);
 
             // generating the pattern for routing
             let sObjectPath = `ID=${oNewlyCreatedFile.ID},IsActiveEntity=false`;

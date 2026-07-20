@@ -14,7 +14,8 @@
 					path: '/InterfaceTypes'
 				}"
 				class="sapUiSmallMarginBegin sapUiSmallMarginEnd sapUiTinyMarginBottom"
-				width="90%">
+				width="90%"
+				selectionChange="onInterfaceTypeChange">
 				<core:Item key="{ID}"
 					text="{name}" />
 			</ComboBox>
@@ -24,6 +25,10 @@
 				fileType="csv"
 				placeholder="Choose a file"
 				change="onFileBrowse"></unified:FileUploader>
+			<CheckBox text="{i18n>someCheckboxLabel}"
+						visible="{appModel>/isCheckBoxVisible}"
+						selected="{appModel>/isCheckBoxSelected}"
+						class="sapUiSmallMarginBegin sapUiTinyMarginBottom"></CheckBox>
 		</content>
 		<beginButton>
 			<Button text="Upload"

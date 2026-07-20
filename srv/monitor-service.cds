@@ -127,7 +127,8 @@ service MonitorService {
 
     action uploadInterfaceData(fileID: String,
                                interfaceID: String,
-                               csvString: LargeString)                                                             returns String;
+                               csvString: LargeString,
+                               skipTrip: Boolean)                                                             returns String;
 
     action deletediscardedRecords(interfaceID: String(2), fileID: String)                                          returns {}
 }
