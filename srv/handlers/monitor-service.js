@@ -912,7 +912,8 @@ class MonitorService extends cds.ApplicationService {
     let {
       fileID,
       interfaceID,
-      csvString
+      csvString,
+      skipTrip
     } = req.data;
 
 
@@ -930,7 +931,7 @@ class MonitorService extends cds.ApplicationService {
        * Reuse your existing parsing logic here.
        * Ideally move the code from UI _parseCSV()
        */
-      const records = this._parseCSV(csvString, interfaceID);
+      const records = this._parseCSV(csvString, interfaceID,skipTrip);
 
       if (!records || records.length === 0) {
         return req.reject(400, 'No valid records found');
@@ -1030,7 +1031,7 @@ class MonitorService extends cds.ApplicationService {
         }),
     );
   }
-  _parseCSV(sCSV, interfaceID) {
+  _parseCSV(sCSV, interfaceID,skipTrip) {
 
     let columnMappings = {
       "1": "aWNWorkOrdersColumns",
@@ -1203,6 +1204,10 @@ class MonitorService extends cds.ApplicationService {
           if (oRecord.additionalDayOfWork && oRecord.additionalDayOfWork.trim() !== '') {
             oRecord.additionalDayOfWork = 'X';
           }
+        }
+
+        if (interfaceID === '2') {
+         oRecord.skipTrip = skipTrip;  
         }
 
         //  if(interfaceID === 'S' || interfaceID === '1'|| interfaceID === 'M' || interfaceID === 'E' || interfaceID === 'F' || interfaceID === 'C' || interfaceID === '3'){

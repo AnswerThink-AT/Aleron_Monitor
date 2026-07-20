@@ -1437,6 +1437,7 @@ entity Travel:         record,customerFields {
   tripExpenseType      : String(4)       @title: '{i18n>tripExpenseType}';
   amount               : String(18)      @title: '{i18n>amount}';
   currency             : Currency;
+  skipTrip             : Boolean default false        @title: '{i18n>skipTrip}';
 
 }
 
