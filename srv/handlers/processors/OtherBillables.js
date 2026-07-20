@@ -106,10 +106,11 @@ class OtherBillables extends Processor {
         }
         if (!seeds.length) return;
 
+
         // de-dupe by the SAME tuple you use for grouping throughout this interface
         const K = r => [
-            r.contractNo, r.invoiceNoWN, r.employeeNo,
-            r.tempusWorkOrder, r.salesDocumentType, r.orderNo, r.weekEndDate
+            r.contractNo, r.wnInvoiceNo, r.sapEmployeeNo,
+            r.wnWorkOrder, r.salesDocumentTypeSAP, r.internalOrder, r.weekEndDate
         ].map(v => v ?? '∅').join('|');
 
         const seen = new Set();
@@ -121,7 +122,7 @@ class OtherBillables extends Processor {
         if (!uniqSeeds.length) return;
 
         // build CQN WHERE:  (A=? AND B=? AND ... ) OR (A2=? AND B2=? AND ... )
-        const F = ['contractNo', 'invoiceNoWN', 'employeeNo', 'tempusWorkOrder', 'salesDocumentType', 'orderNo', 'weekEndDate'];
+        const F = ['contractNo', 'wnInvoiceNo', 'sapEmployeeNo', 'wnWorkOrder', 'salesDocumentTypeSAP', 'internalOrder', 'weekEndDate'];
 
         const orConds = uniqSeeds.map(s => {
             const and = [];
@@ -243,6 +244,12 @@ class OtherBillables extends Processor {
 
         if (!toProcess.length) {
             LOG.info('No records to validate, exiting');
+            ProcessLogger.addLogs(skipped.map(r => ({
+                record_ID: r.ID,
+                message: `Skipping processSalesOrder: not at step 3 (current step=${sProcessCode})`,
+                process_code: String(sProcessCode),
+                type: 3
+            })));
             return { hasError: false, continue: true };
         }
 
@@ -390,7 +397,7 @@ class OtherBillables extends Processor {
                 );
                 let soHdr;
                 try {
-                     soHdr = await this.salesOrderAPI.executeQuery(
+                    soHdr = await this.salesOrderAPI.executeQuery(
                         SELECT.one.from('A_SalesOrder')
                             .columns(['YY1_AlphanumericSalesO_SDH'])
                             .where({ SalesOrder: soItem.SalesOrder })
@@ -651,10 +658,16 @@ class OtherBillables extends Processor {
 
     async processSalesOrder(sProcessCode, bBreakExecution) {
         LOG.info(`=== Entering processSalesOrder: code=${sProcessCode}, totalRecords=${this.records.length} ===`);
-
+        ProcessLogger.removeLogs(this.records.map(r => r.ID), null, sProcessCode);
         // only run this step at process code “3”
         if (String(sProcessCode) !== '3') {
             LOG.info(`--- Skipping processSalesOrder: not at step 3 (current step=${sProcessCode})`);
+            ProcessLogger.addLogs(this.records.map(r => ({
+                record_ID: r.ID,
+                message: `Skipping processSalesOrder: not at step 3 (current step=${sProcessCode})`,
+                process_code: String(sProcessCode),
+                type: 3
+            })));
             return { hasError: false, continue: true };
         }
 
@@ -678,6 +691,12 @@ class OtherBillables extends Processor {
         if (!toProcess.length) {
             LOG.info('--- Step 3.0: no records → exit early');
             LOG.info('=== Exiting processSalesOrder: no records ===');
+            ProcessLogger.addLogs(skipped.map(r => ({
+                record_ID: r.ID,
+                message: `Skipping processSalesOrder: not at step 3 (current step=${sProcessCode})`,
+                process_code: String(sProcessCode),
+                type: 3
+            })));
             return { hasError: false, continue: true };
         }
 
@@ -697,6 +716,12 @@ class OtherBillables extends Processor {
         if (!groupKeys.length) {
             LOG.info('--- Step 3.1: no groups → exit early');
             LOG.info('=== Exiting processSalesOrder: no groups ===');
+            ProcessLogger.addLogs(toProcess.map(r => ({
+                record_ID: r.ID,
+                message: `Skipping processSalesOrder: not at step 3 (current step=${sProcessCode})`,
+                process_code: String(sProcessCode),
+                type: 3
+            })));
             return { hasError: false, continue: true };
         }
 
@@ -1094,6 +1119,7 @@ class OtherBillables extends Processor {
             // build payload
             const newItemNum = String(Number(lastSOItem.SalesOrderItem) + 10);
             LOG.info(`   Building payload → newItemNum=${newItemNum}`);
+
             const payload = {
                 SalesOrder: firstSOItem.SalesOrder,
                 SalesOrderItem: newItemNum,
@@ -1107,7 +1133,7 @@ class OtherBillables extends Processor {
                 PurchaseOrderByCustomer: record.customerPO || '',
                 PricingDate: `/Date(${+moment()})/`,
                 YY1_PurchasingDoc_SD_SDI: firstSOItem.YY1_PurchasingDoc_SD_SDI || '',
-                YY1_WeekEnd_SD_SDI: `/Date(${moment(record.endDate, 'YYYYMMDD').valueOf()})/`,
+                YY1_WeekEnd_SD_SDI: `/Date(${moment(record.weekEndDate, 'YYYY-MM-DD').valueOf()})/`,
                 YY1_CustomBillingType_SDI: billingType.Billing_type || '',
                 YY1_WNWorkOrder_SD_SDI: firstSOItem.YY1_WNWorkOrder_SD_SDI,
                 YY1_WNInvoice_SD_SDI: record.wnInvoiceNo,
@@ -1154,6 +1180,9 @@ class OtherBillables extends Processor {
                     LOG.info(`     PriceListType='ZD'`);
                     break;
                 }
+            }
+            if (!payload.to_Text[0].LongTextID) {
+                delete payload.to_Text;
             }
             LOG.info('   Final payload JSON:');
             LOG.info(JSON.stringify(payload, null, 2));
@@ -1340,7 +1369,14 @@ class OtherBillables extends Processor {
         if (aPassedRecordIDs.length) {
             LOG.info(`   Marking ${aPassedRecordIDs.length} passed record(s) valid`);
             await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
-            await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({ record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3 })));
+            await ProcessLogger.addLogs(
+                aUpdates.map((u) => ({
+                    record_ID: u.ID,
+                    message: `Sales order created with Document No ${u.salesDocumentNoSAP} and Item No ${u.salesItemNoSAP}`,
+                    process_code: sProcessCode,
+                    type: 3
+                }))
+            );
             await this.markRecordsValid(sProcessCode, aPassedRecordIDs, true);
         }
         if (aFailedRecordIDs.length) {
@@ -1364,33 +1400,54 @@ class OtherBillables extends Processor {
 
     async processIntercompanyso(sProcessCode, bBreakExecution) {
         LOG.info(`=== Entering processIntercompanyso: process=${sProcessCode}, totalRecords=${this.records.length} ===`);
-
+        ProcessLogger.removeLogs(this.records.map(r => r.ID), null, sProcessCode);
         // ─── Step 3.0: Classify IC records ─────────────────────────────────────────────────────────
         LOG.info('Step 3.0: Classifying records for IC processing');
         const aRecordsForProcessing = [];
         const aSkippedRecords = [];
+        const icupdateexceptionarray = []
         for (const rec of this.records) {
-            // only IC records at this step, and only if they haven't already had an IC line created
             if (this.shouldRecordProcess(rec, sProcessCode) &&
                 rec.woType === 'IC' &&
                 !rec.sapPosnrIc) {
-                aRecordsForProcessing.push({
-                    ...rec
-                });
+                aRecordsForProcessing.push({ ...rec });
             } else {
-                aSkippedRecords.push({
-                    ...rec
-                });
+                if (this.shouldRecordProcess(rec, sProcessCode) &&
+                    (rec.woType !== 'IC' || rec.sapPosnrIc)) {
+                    // FIX: mark at current step 'G' so processLevel_code moves out of previousProcessStepCodes
+                    icupdateexceptionarray.push(rec.ID);
+                    await this.markRecordsValid(sProcessCode, [rec.ID], true);
+                    continue;
+                }
+                aSkippedRecords.push({ ...rec });
             }
         }
         LOG.info(`Step 3.0: toProcess=${aRecordsForProcessing.length}, skipped=${aSkippedRecords.length}`);
         await ProcessLogger.removeLogs(aRecordsForProcessing.map(r => r.ID), null, sProcessCode);
         this.updateProcessingState(sProcessCode);
-        if (!aRecordsForProcessing.length) {
+        if (!aRecordsForProcessing.length && !icupdateexceptionarray.length) {
             LOG.info('Step 3.0: no IC records → exit');
+            ProcessLogger.addLogs(aSkippedRecords.map(r => ({
+                record_ID: r.ID,
+                message: 'Skipped IC processing (no IC line required)',
+                process_code: sProcessCode,
+                type: 3
+            })));
             return {
                 hasError: false,
                 continue: true
+            };
+        } else if (icupdateexceptionarray.length > 0) {
+            // ADD THIS
+            await ProcessLogger.addLogs(icupdateexceptionarray.map((sId) => ({
+                record_ID: sId,
+                message: 'Skipped IC processing (no IC line required)',
+                process_code: sProcessCode,
+                type: 3
+            })));
+            return {
+                hasError: false,
+                continue: true,
             };
         }
 
@@ -1761,7 +1818,7 @@ class OtherBillables extends Processor {
 
         if (aPassedRecordIDs.length) {
             await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
-            await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({ record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3 })));
+            await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({ record_ID: sId, message: `SapVbelnIC is ${this.records.find(r => r.ID === sId).sapVbelnIc}`, process_code: sProcessCode, type: 3 })));
             await this.markRecordsValid(sProcessCode, aPassedRecordIDs, true);
         }
         if (aFailedRecordIDs.length) {
@@ -1783,6 +1840,7 @@ class OtherBillables extends Processor {
 
     // Step 5: Update or Create Purchase Order
     async processPurchaseOrder(sProcessCode, bBreakExecution) {
+        ProcessLogger.removeLogs(this.records.map(r => r.ID), null, sProcessCode);
         const LOG = this.LOG || console;
         LOG.info(`[processPurchaseOrder] ENTRY  Starting PO processing, step code=${sProcessCode}`);
         // this.updateProcessingState(sProcessCode);
@@ -1790,6 +1848,12 @@ class OtherBillables extends Processor {
         // Only process step '5'
         if (sProcessCode !== '5') {
             LOG.info('[processPurchaseOrder] SKIP  not step 5');
+            ProcessLogger.addLogs(this.records.map(r => ({
+                record_ID: r.ID,
+                message: `Skipping PO processing (not step 5)`,
+                process_code: String(sProcessCode),
+                type: 3
+            })));
             return {
                 hasError: false,
                 continue: true
@@ -1804,10 +1868,34 @@ class OtherBillables extends Processor {
         await this._expandSelectionToGroups();
         let recs = this.records.filter(r => r.processLevel_code === '5');
         LOG.info(`[Step 5.1] Retrieved ${recs.length} records`);
-        if (!recs.length) return {
-            hasError: false,
-            continue: true
-        };
+
+        if (!recs.length) {
+            // FIX: advance shouldProcess records to current step '5'
+            const recordsToAdvance = this.records
+                .filter(r => this.shouldRecordProcess(r, sProcessCode))
+                .map(r => r.ID);
+
+            if (recordsToAdvance.length) {
+                await this.markRecordsValid(sProcessCode, recordsToAdvance, true);
+                await ProcessLogger.addLogs(recordsToAdvance.map(id => ({
+                    record_ID: id,
+                    message: `No records found for processing at step 5, skipping`,
+                    process_code: String(sProcessCode),
+                    type: 3
+                })));
+            } else {
+                ProcessLogger.addLogs(this.records.map(r => ({
+                    record_ID: r.ID,
+                    message: `No records found for processing at step 5`,
+                    process_code: String(sProcessCode),
+                    type: 3
+                })));
+            }
+            return {
+                hasError: false,
+                continue: true
+            };
+        }
 
         // 5.1b) Skip CP/CR orders — mark complete (code '9') and remove them
         const cpcrIDs = recs
@@ -1823,8 +1911,29 @@ class OtherBillables extends Processor {
                 .where({ ID: cpcrIDs });
             recs = recs.filter(r => !cpcrIDs.includes(r.ID));
         }
+
         if (!recs.length) {
-            // nothing left to do
+            // FIX: advance shouldProcess records to current step '5'
+            const recordsToAdvance = this.records
+                .filter(r => this.shouldRecordProcess(r, sProcessCode))
+                .map(r => r.ID);
+
+            if (recordsToAdvance.length) {
+                await this.markRecordsValid(sProcessCode, recordsToAdvance, true);
+                await ProcessLogger.addLogs(recordsToAdvance.map(id => ({
+                    record_ID: id,
+                    message: `No records left after skipping CP/CR orders`,
+                    process_code: String(sProcessCode),
+                    type: 3
+                })));
+            } else {
+                ProcessLogger.addLogs(this.records.map(r => ({
+                    record_ID: r.ID,
+                    message: `No records left to process after skipping CP/CR orders`,
+                    process_code: String(sProcessCode),
+                    type: 3
+                })));
+            }
             return {
                 hasError: false,
                 continue: true
@@ -1838,7 +1947,7 @@ class OtherBillables extends Processor {
 
         const groups = new Map();
         for (const r of recs) {
-            const parts = [r.contractNo, r.invoiceNoWN, r.employeeNo, r.tempusWorkOrder];
+            const parts = [r.contractNo, r.wnInvoiceNo, r.sapEmployeeNo, r.wnWorkOrder];
             if (hasAdw(r.additionalDayOfWork)) {
                 parts.push(`ADW:${String(r.additionalDayOfWork).trim()}`);
             }
@@ -2192,8 +2301,8 @@ class OtherBillables extends Processor {
                             TaxJurisdiction: taxJurValue,
                             AccountAssignmentCategory: 'Z',
                             YY1_SDDocumentPD_PDI: soHdr.SalesOrder,       // link back to SO
-                            YY1_WNInvoice_PDI: rec.invoiceNoWN || '',      // from your file
-                            YY1_WNWorkOrder_PDI: rec.tempusWorkOrder || '',// from your file
+                            YY1_WNInvoice_PDI: rec.wnInvoiceNo || '',      // from your file
+                            YY1_WNWorkOrder_PDI: rec.wnWorkOrder || '',// from your file
                             YY1_WeekEnd_PDI: toODataDateOnly(rec.weekEndDate), // weekend date
                             _PurOrdAccountAssignment: [{
                                 AccountAssignmentNumber: '1',
@@ -2285,8 +2394,8 @@ class OtherBillables extends Processor {
                         NetPriceAmount: unitRate,          // VENDOR RATE (per hour)
                         TaxCode: tCodeFallback,
                         YY1_SDDocumentPD_PDI: vbeln,       // SO no.
-                        YY1_WNInvoice_PDI: rec.invoiceNoWN || '',
-                        YY1_WNWorkOrder_PDI: rec.tempusWorkOrder || '',
+                        YY1_WNInvoice_PDI: rec.wnInvoiceNo || '',
+                        YY1_WNWorkOrder_PDI: rec.wnWorkOrder || '',
                         YY1_WeekEnd_PDI: toODataDateOnly(rec.weekEndDate),
                         TaxJurisdiction: jurFallback,
                         AccountAssignmentCategory: 'Z',
@@ -2376,6 +2485,14 @@ class OtherBillables extends Processor {
         }
         if (passed.length) {
             // move successes to 'B' so they’re skipped next time
+            await ProcessLogger.addLogs(
+                passed.map((id) => ({
+                    record_ID: id,
+                    message: `Purchase Document No. ${this.records.find(r => r.ID === id)?.purchaseDocumentNoSAP || '<unknown>'} created successfully`,
+                    process_code: sProcessCode,
+                    type: 3
+                }))
+            );
             await this.markRecordsValid('B', passed, true);
         }
         this.updateExclusionSet({ passed, failed, skipped: [], bBreakExecution });
@@ -2384,6 +2501,7 @@ class OtherBillables extends Processor {
         try {
             if (passed.length) {
                 LOG.info(`[AUTO] Chaining ${passed.length} PO-passed row(s) to processSupplierInvoice('B')`);
+                await this._fetchRecords(this.recordIDs);
                 await this.processSupplierInvoice('B', false);
             }
         } catch (e) {
@@ -2397,261 +2515,295 @@ class OtherBillables extends Processor {
 
     /*** Step B: MIRO (Incoming Invoice) creation ***/
     async processSupplierInvoice(sProcessCode, bBreakExecution) {
-        LOG.info(`[processSupplierInvoice] ENTRY (code=${sProcessCode})`);
-        // this.updateProcessingState(sProcessCode);
+    LOG.info(`[processSupplierInvoice] ENTRY (code=${sProcessCode})`);
+    ProcessLogger.removeLogs(this.recordIDs, null, sProcessCode);
+    
+    if (sProcessCode !== 'B') {
+        LOG.info('[processSupplierInvoice] SKIP – not at MIRO step (B)');
 
-        if (sProcessCode !== 'B') {
-            LOG.info('[processSupplierInvoice] SKIP – not at MIRO step (B)');
-            return {
-                hasError: false,
-                continue: true
-            };
+        // FIX: advance shouldProcess records to current step 'B'
+        const recordsToAdvance = this.records
+            .filter(r => this.shouldRecordProcess(r, sProcessCode))
+            .map(r => r.ID);
+
+        if (recordsToAdvance.length) {
+            await this.markRecordsValid(sProcessCode, recordsToAdvance, true);
+            await ProcessLogger.addLogs(recordsToAdvance.map(id => ({
+                record_ID: id,
+                message: `Skipped MIRO step (code=${sProcessCode})`,
+                process_code: sProcessCode,
+                type: 3
+            })));
+        } else {
+            ProcessLogger.addLogs(
+                this.records.map(r => ({
+                    record_ID: r.ID,
+                    message: `Skipped MIRO step (code=${sProcessCode})`,
+                    process_code: sProcessCode,
+                    type: 3
+                }))
+            );
         }
-
-        // helper to format JS Date/ISO → OData “/Date(…)/” wrapper
-        const toODataDate = d => {
-            const ms = (d instanceof Date) ? d.getTime() : new Date(d).getTime();
-            return `/Date(${ms})/`;
+        return {
+            hasError: false,
+            continue: true
         };
+    }
 
-        // ==== item-number helpers (add once, near your requires) ====
-        const toCanonItem = s => {
-            const n = Number(String(s ?? '').replace(/^0+/, '')) || 0; // "000010" -> 10
-            return String(n);
+    // helper to format JS Date/ISO → OData "/Date(…)/" wrapper
+    const toODataDate = d => {
+        const ms = (d instanceof Date) ? d.getTime() : new Date(d).getTime();
+        return `/Date(${ms})/`;
+    };
+
+    const toCanonItem = s => {
+        const n = Number(String(s ?? '').replace(/^0+/, '')) || 0;
+        return String(n);
+    };
+    const canonToSO = canon => String(Number(canon)).padStart(6, '0');
+    const canonToPO = canon => String(Number(canon)).padStart(5, '0');
+
+    // 1) re-fetch batch records at B
+    await this._fetchRecords(this.recordIDs);
+    await this._expandSelectionToGroups();
+
+    const toProcess = this.records.filter(r => r.processLevel_code === 'B');
+    LOG.info(`[processSupplierInvoice] ${toProcess.length} records to invoice (step B)`);
+
+    if (!toProcess.length) {
+        // FIX: advance shouldProcess records to current step 'B'
+        const recordsToAdvance = this.records
+            .filter(r => this.shouldRecordProcess(r, sProcessCode))
+            .map(r => r.ID);
+
+        if (recordsToAdvance.length) {
+            await this.markRecordsValid(sProcessCode, recordsToAdvance, true);
+            await ProcessLogger.addLogs(recordsToAdvance.map(id => ({
+                record_ID: id,
+                message: `No records to invoice at step B, skipping`,
+                process_code: sProcessCode,
+                type: 3
+            })));
+        } else {
+            ProcessLogger.addLogs(
+                this.records.map(r => ({
+                    record_ID: r.ID,
+                    message: `No records to invoice (step B)`,
+                    process_code: sProcessCode,
+                    type: 3
+                }))
+            );
+        }
+        return {
+            hasError: false,
+            continue: true
         };
-        const canonToSO = canon => String(Number(canon)).padStart(6, '0'); // "10" -> "000010"
-        const canonToPO = canon => String(Number(canon)).padStart(5, '0'); // "10" -> "00010"
+    }
 
+    // 2) group by PO|Item|WO|Invoice
+    const groups = new Map();
+    toProcess.forEach(r => {
+        const key = [r.purchaseDocumentNoSAP, r.purchaseDocumentItemSAP, r.fgWorkOrderID, r.fgInvoiceID].join('|');
+        (groups.get(key) || groups.set(key, []).get(key)).push(r);
+    });
+    LOG.info(`[processSupplierInvoice] ${groups.size} unique PO/Item/WO/Inv groups`);
 
-        // 1) re-fetch batch records at B
-        await this._fetchRecords(this.recordIDs);
+    // 3) prepare communicator
+    const invApi = this.supplierInvoiceAPI;
+    await invApi.initConnection();
+    await this.supplierLFA1API.initConnection();
 
-        await this._expandSelectionToGroups();
+    const errorLogs = [],
+        passed = [],
+        failed = [];
 
-        const toProcess = this.records.filter(r => r.processLevel_code === 'B');
-        LOG.info(`[processSupplierInvoice] ${toProcess.length} records to invoice (step B)`);
+    // 4) process each group
+    for (const [key, recs] of groups.entries()) {
+        const rec = recs[0];
+        const {
+            purchaseDocumentNoSAP: poNumber,
+            purchaseDocumentItemSAP: poItem
+        } = rec;
+        LOG.info(`→ Creating MIRO for PO ${poNumber}, Item ${poItem} (group ${key})`);
 
-        // 2) group by PO|Item|WO|Invoice
-        const groups = new Map();
-        toProcess.forEach(r => {
-            const key = [r.purchaseDocumentNoSAP, r.purchaseDocumentItemSAP, r.fgWorkOrderID, r.fgInvoiceID].join('|');
-            (groups.get(key) || groups.set(key, []).get(key)).push(r);
-        });
-        LOG.info(`[processSupplierInvoice] ${groups.size} unique PO/Item/WO/Inv groups`);
+        try {
+            // a) PO header — CompanyCode, Currency, Supplier
+            const po = await this.purchaseOrderAPI.executeQuery(
+                SELECT.one.from('PurchaseOrder')
+                    .columns(['CompanyCode', 'DocumentCurrency', 'Supplier'])
+                    .where({ PurchaseOrder: poNumber })
+            );
+            if (!po) {
+                throw new Error(`PO ${poNumber} header not found`);
+            }
 
-        // 3) prepare communicator
-        const invApi = this.supplierInvoiceAPI;
-        await invApi.initConnection();
-        await this.supplierLFA1API.initConnection();
+            const invoicingParty = po.Supplier || '40151';
 
-        const errorLogs = [],
-            passed = [],
-            failed = [];
+            const lfa1Row = await this.supplierLFA1API.executeQuery(
+                SELECT.one
+                    .from('YY1_Supplier_LFA1')
+                    .columns(['Supplier', 'SupplierStandardCarrierAccess'])
+                    .where({ Supplier: invoicingParty })
+            );
 
-        // 4) process each group
-        for (const [key, recs] of groups.entries()) {
-            const rec = recs[0];
-            const {
-                purchaseDocumentNoSAP: poNumber,
-                purchaseDocumentItemSAP: poItem
-            } = rec;
-            LOG.info(`→ Creating MIRO for PO ${poNumber}, Item ${poItem} (group ${key})`);
+            const supplierCarrierAccess = lfa1Row?.SupplierStandardCarrierAccess ?? null;
+            const paymentBlockingReason = supplierCarrierAccess
+                ? String(supplierCarrierAccess).trim().slice(0, 2).toUpperCase()
+                : undefined;
 
-            try {
-                // a) PO header — CompanyCode, Currency, Supplier
-                const po = await this.purchaseOrderAPI.executeQuery(
-                    SELECT.one.from('PurchaseOrder')
-                        .columns(['CompanyCode', 'DocumentCurrency', 'Supplier'])
-                        .where({
-                            PurchaseOrder: poNumber
-                        })
-                );
-                if (!po) {
-                    throw new Error(`PO ${poNumber} header not found`);
-                }
-
-                // fallback supplier if none on PO
-                const invoicingParty = po.Supplier || '40151';
-
-
-                // inside try { ... } after computing invoicingParty:
-                const lfa1Row = await this.supplierLFA1API.executeQuery(
-                    SELECT.one
-                        .from('YY1_Supplier_LFA1') // <-- entity set from Portman: .../YY1_SUPPLIER_LFA1_CDS/YY1_Supplier_LFA1
-                        .columns(['Supplier', 'SupplierStandardCarrierAccess'])
-                        .where({ Supplier: invoicingParty })
-                );
-
-                const supplierCarrierAccess = lfa1Row?.SupplierStandardCarrierAccess ?? null;
-                const paymentBlockingReason = supplierCarrierAccess
-                    ? String(supplierCarrierAccess).trim().slice(0, 2).toUpperCase()
-                    : undefined;
-
-                // b) PO item
-                const item = await this.purchaseOrderAPI.executeQuery(
-                    SELECT.one.from('PurchaseOrderItem')
-                        .columns([
-                            'OrderQuantity', 'NetPriceAmount',
-                            'TaxCode', 'TaxJurisdiction', 'Plant',
-                            'PurchaseOrderQuantityUnit', 'Material'
-                        ])
-                        .where({
-                            PurchaseOrder: poNumber,
-                            PurchaseOrderItem: poItem
-                        })
-                );
-                if (!item) {
-                    throw new Error(`PO item ${poItem} not found on ${poNumber}`);
-                }
-
-                // c) build today in OData format
-                const todayOData = toODataDate(new Date());
-
-                // d) full MIRO payload
-                const payload = {
-                    CompanyCode: po.CompanyCode,
-                    DocumentDate: todayOData,
-                    PostingDate: todayOData,
-                    SupplierInvoiceIDByInvcgParty: rec.fgInvoiceID || poNumber,
-                    InvoicingParty: invoicingParty,
-                    PaymentBlockingReason: paymentBlockingReason,
-                    DocumentCurrency: po.DocumentCurrency || 'USD',
-                    InvoiceGrossAmount: item.NetPriceAmount.toString(),
-                    PaymentTerms: rec.paymentTerms || '0001',
-                    DueCalculationBaseDate: todayOData,
-                    AssignmentReference: rec.invoiceNoWN,
-                    // HeaderText:                    rec.contractNo,       
-                    ReconciliationAccount: rec.reconciliationAccount || '212100',
-                    TaxIsCalculatedAutomatically: true,
-
-                    to_SuplrInvcItemPurOrdRef: {
-                        results: [{
-                            SupplierInvoiceItem: '1',
-                            PurchaseOrder: poNumber,
-                            PurchaseOrderItem: poItem,
-                            Plant: item.Plant,
-                            TaxCode: item.TaxCode,
-                            TaxJurisdiction: item.TaxJurisdiction,
-                            DocumentCurrency: po.DocumentCurrency || 'USD',
-                            SupplierInvoiceItemAmount: item.NetPriceAmount.toString(),
-                            PurchaseOrderQuantityUnit: item.PurchaseOrderQuantityUnit,
-                            PurchaseOrderQtyUnitSAPCode: item.PurchaseOrderQuantityUnit,
-                            PurchaseOrderQtyUnitISOCode: '_01',
-                            QuantityInPurchaseOrderUnit: item.OrderQuantity.toString(),
-                            PurchaseOrderPriceUnit: item.PurchaseOrderQuantityUnit,
-                            PurchaseOrderPriceUnitSAPCode: item.PurchaseOrderQuantityUnit,
-                            PurchaseOrderPriceUnitISOCode: '_01',
-                            QtyInPurchaseOrderPriceUnit: item.OrderQuantity.toString()
-                        }]
-                    },
-
-                    to_SuplrInvcItemMaterial: {
-                        results: [{
-                            SupplierInvoiceItem: '1',
-                            Material: item.Material,
-                            ValuationArea: po.CompanyCode,
-                            TaxCode: item.TaxCode,
-                            TaxJurisdiction: item.TaxJurisdiction,
-                            TaxCountry: rec.supplyingCountry || 'US',
-                            TaxDeterminationDate: todayOData,
-                            DocumentCurrency: po.DocumentCurrency || 'USD',
-                            SupplierInvoiceItemAmount: '0.00',
-                            QuantityUnit: item.PurchaseOrderQuantityUnit,
-                            SuplrInvcItmQtyUnitSAPCode: item.PurchaseOrderQuantityUnit,
-                            SuplrInvcItmQtyUnitISOCode: '',
-                            Quantity: item.OrderQuantity.toString(),
-                            DebitCreditCode: 'S'
-                        }]
-                    }
-                };
-
-                // e) call communicator, and explicitly fail if no invoice returned
-                let res;
-                try {
-                    res = await invApi.createSupplierInvoice(payload);
-                } catch (e) {
-                    // network / unexpected errors
-                    throw new Error(`MIRO call threw: ${e.message}`);
-                }
-                if (!res.SupplierInvoice) {
-                    // communicator returned an error payload instead of throwing
-                    const msg = res.error || 'no SupplierInvoice returned';
-                    throw new Error(`MIRO failed: ${msg}`);
-                }
-                const invNumber = res.SupplierInvoice;
-                const FiscalYear = res.FiscalYear;
-                LOG.info(`MIRO created: ${invNumber}/${FiscalYear}`);
-
-
-                // f) advance all recs in this group to step “9”
-                const ids = recs.map(r => r.ID);
-                await UPDATE(this.recordsEntity)
-                    .set({
-                        processLevel_code: '9',
-                        invoiceDocumentNoSAP: invNumber,
-                        invoiceFiscalYearSAP: FiscalYear
-                    })
+            // b) PO item
+            const item = await this.purchaseOrderAPI.executeQuery(
+                SELECT.one.from('PurchaseOrderItem')
+                    .columns([
+                        'OrderQuantity', 'NetPriceAmount',
+                        'TaxCode', 'TaxJurisdiction', 'Plant',
+                        'PurchaseOrderQuantityUnit', 'Material'
+                    ])
                     .where({
-                        ID: ids
-                    });
+                        PurchaseOrder: poNumber,
+                        PurchaseOrderItem: poItem
+                    })
+            );
+            if (!item) {
+                throw new Error(`PO item ${poItem} not found on ${poNumber}`);
+            }
 
-                passed.push(...ids);
-            } catch (err) {
-                LOG.error(`Group ${key} MIRO failed → ${err.message}`);
-                for (const r of recs) {
-                    errorLogs.push({
-                        record_ID: r.ID,
-                        message: err.message, process_code: sProcessCode
-                    });
-                    failed.push(r.ID);
+            const todayOData = toODataDate(new Date());
+
+            const payload = {
+                CompanyCode: po.CompanyCode,
+                DocumentDate: todayOData,
+                PostingDate: todayOData,
+                SupplierInvoiceIDByInvcgParty: rec.fgInvoiceID || poNumber,
+                InvoicingParty: invoicingParty,
+                PaymentBlockingReason: paymentBlockingReason,
+                DocumentCurrency: po.DocumentCurrency || 'USD',
+                InvoiceGrossAmount: item.NetPriceAmount.toString(),
+                PaymentTerms: rec.paymentTerms || '0001',
+                DueCalculationBaseDate: todayOData,
+                AssignmentReference: rec.wnInvoiceNo,
+                ReconciliationAccount: rec.reconciliationAccount || '212100',
+                TaxIsCalculatedAutomatically: true,
+                to_SuplrInvcItemPurOrdRef: {
+                    results: [{
+                        SupplierInvoiceItem: '1',
+                        PurchaseOrder: poNumber,
+                        PurchaseOrderItem: poItem,
+                        Plant: item.Plant,
+                        TaxCode: item.TaxCode,
+                        TaxJurisdiction: item.TaxJurisdiction,
+                        DocumentCurrency: po.DocumentCurrency || 'USD',
+                        SupplierInvoiceItemAmount: item.NetPriceAmount.toString(),
+                        PurchaseOrderQuantityUnit: item.PurchaseOrderQuantityUnit,
+                        PurchaseOrderQtyUnitSAPCode: item.PurchaseOrderQuantityUnit,
+                        PurchaseOrderQtyUnitISOCode: '_01',
+                        QuantityInPurchaseOrderUnit: item.OrderQuantity.toString(),
+                        PurchaseOrderPriceUnit: item.PurchaseOrderQuantityUnit,
+                        PurchaseOrderPriceUnitSAPCode: item.PurchaseOrderQuantityUnit,
+                        PurchaseOrderPriceUnitISOCode: '_01',
+                        QtyInPurchaseOrderPriceUnit: item.OrderQuantity.toString()
+                    }]
+                },
+                to_SuplrInvcItemMaterial: {
+                    results: [{
+                        SupplierInvoiceItem: '1',
+                        Material: item.Material,
+                        ValuationArea: po.CompanyCode,
+                        TaxCode: item.TaxCode,
+                        TaxJurisdiction: item.TaxJurisdiction,
+                        TaxCountry: rec.supplyingCountry || 'US',
+                        TaxDeterminationDate: todayOData,
+                        DocumentCurrency: po.DocumentCurrency || 'USD',
+                        SupplierInvoiceItemAmount: '0.00',
+                        QuantityUnit: item.PurchaseOrderQuantityUnit,
+                        SuplrInvcItmQtyUnitSAPCode: item.PurchaseOrderQuantityUnit,
+                        SuplrInvcItmQtyUnitISOCode: '',
+                        Quantity: item.OrderQuantity.toString(),
+                        DebitCreditCode: 'S'
+                    }]
                 }
+            };
+
+            let res;
+            try {
+                res = await invApi.createSupplierInvoice(payload);
+            } catch (e) {
+                throw new Error(`MIRO call threw: ${e.message}`);
+            }
+            if (!res.SupplierInvoice) {
+                const msg = res.error || 'no SupplierInvoice returned';
+                throw new Error(`MIRO failed: ${msg}`);
+            }
+
+            const invNumber = res.SupplierInvoice;
+            const FiscalYear = res.FiscalYear;
+            LOG.info(`MIRO created: ${invNumber}/${FiscalYear}`);
+
+            await ProcessLogger.removeLogs(recs.map(r => r.ID), null, sProcessCode);
+            await ProcessLogger.addLogs(
+                recs.map((r) => ({
+                    record_ID: r.ID,
+                    message: `Supplier Invoice created successfully with Invoice Document No: ${invNumber}`,
+                    process_code: sProcessCode,
+                    type: 3
+                }))
+            );
+
+            // f) advance all recs in this group to step '9'
+            const ids = recs.map(r => r.ID);
+            await UPDATE(this.recordsEntity)
+                .set({
+                    processLevel_code: '9',
+                    invoiceDocumentNoSAP: invNumber,
+                    invoiceFiscalYearSAP: FiscalYear
+                })
+                .where({ ID: ids });
+
+            passed.push(...ids);
+        } catch (err) {
+            LOG.error(`Group ${key} MIRO failed → ${err.message}`);
+            for (const r of recs) {
+                errorLogs.push({
+                    record_ID: r.ID,
+                    message: err.message,
+                    process_code: sProcessCode
+                });
+                failed.push(r.ID);
             }
         }
-
-        // 5) finalize logs & validity
-        LOG.info('[processSupplierInvoice] Finalizing MIRO step');
-        if (failed.length) {
-            await ProcessLogger.removeLogs(failed, null, sProcessCode);
-            await ProcessLogger.addLogs(errorLogs);
-            // keep failures at 'B' so they’ll be retried next time
-            // await this.markRecordsValid('B', failed, false);
-            await this.markRecordsValid('B', failed, false);
-            // explicitly leave them at step B
-            await UPDATE(this.recordsEntity)
-                .set({
-                    processLevel_code: 'B'
-                })
-                .where({
-                    ID: failed
-                });
-        }
-        if (passed.length) {
-            // move successes to '9' so they’re skipped next time
-            // await this.markRecordsValid('9', passed, true);
-            await this.markRecordsValid('9', passed, true);
-            // and bump them to step 9 in the DB
-            await UPDATE(this.recordsEntity)
-                .set({
-                    processLevel_code: '9'
-                })
-                .where({
-                    ID: passed
-                });
-        }
-        this.updateExclusionSet({
-            passed,
-            failed,
-            skipped: [],
-            bBreakExecution
-        });
-        // return {
-        //     hasError: failed.length > 0,
-        //     continue: true
-        // };
-
-        this.recordIDs = new Set(passed); // if you have a final “complete” state
-        return { hasError: failed.length > 0, continue: true };
     }
+
+    // 5) finalize logs & validity
+    LOG.info('[processSupplierInvoice] Finalizing MIRO step');
+    if (failed.length) {
+        await ProcessLogger.removeLogs(failed, null, sProcessCode);
+        await ProcessLogger.addLogs(errorLogs);
+        await this.markRecordsValid('B', failed, false);
+        await UPDATE(this.recordsEntity)
+            .set({ processLevel_code: 'B' })
+            .where({ ID: failed });
+    }
+
+    if (passed.length) {
+        await this.markRecordsValid('9', passed, true);
+        await UPDATE(this.recordsEntity)
+            .set({ processLevel_code: '9' })
+            .where({ ID: passed });
+    }
+
+    this.updateExclusionSet({
+        passed,
+        failed,
+        skipped: [],
+        bBreakExecution
+    });
+
+    // FIX: set recordIDs to ALL records so markRecordsCompleted 
+    // in step '9' can pick them up for Interface Complete log
+    this.recordIDs = new Set([...passed, ...failed]);
+
+    return { hasError: failed.length > 0, continue: true };
+}
 
 }
 
