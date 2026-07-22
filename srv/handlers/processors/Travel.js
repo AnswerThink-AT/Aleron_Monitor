@@ -20,6 +20,7 @@ const EmpTimeData = require('../communicators/EmpTimeData');
 const SalesContract = require('../communicators/SalesContract');
 const EnterpriseProject = require('../communicators/EnterpriseProject');
 const SupplierLFA1Comm = require('../communicators/SupplierLFA1');
+const SequenceHelper = require('../common/SequenceHelpertrip');
 const {
     determineConditionType
 } = require('../common/pricingHelper');
@@ -30,7 +31,7 @@ class Travel extends Processor {
         LOG.info(`[constructor] options=${JSON.stringify(options)}`);
         this.recordsEntity = 'com.aleron.monitor.Travel';
         this.columnsForRecords = this._getColumnsForFetch();
-         this.supplierLFA1API = this.supplierLFA1API || new SupplierLFA1Comm();
+        this.supplierLFA1API = this.supplierLFA1API || new SupplierLFA1Comm();
 
     }
 
@@ -51,87 +52,87 @@ class Travel extends Processor {
         ];
     }
 
-        async getNextLineItem(soNumber, poNumber) {
-            // 1) SO max
-            const soTop = await this.salesOrderAPI.executeQuery(
-                SELECT.one.from('A_SalesOrderItem')
+    async getNextLineItem(soNumber, poNumber) {
+        // 1) SO max
+        const soTop = await this.salesOrderAPI.executeQuery(
+            SELECT.one.from('A_SalesOrderItem')
                 .columns(['SalesOrderItem'])
                 .where({
                     SalesOrder: soNumber
                 })
                 .orderBy('SalesOrderItem desc')
-            );
-            const soMax = parseInt(soTop?.SalesOrderItem || '0', 10);
-    
-            // 2) PO max
-            let poMax = 0;
-            if (poNumber) {
-                const poTop = await this.purchaseOrderAPI.executeQuery(
-                    SELECT.one.from('PurchaseOrderItem')
+        );
+        const soMax = parseInt(soTop?.SalesOrderItem || '0', 10);
+
+        // 2) PO max
+        let poMax = 0;
+        if (poNumber) {
+            const poTop = await this.purchaseOrderAPI.executeQuery(
+                SELECT.one.from('PurchaseOrderItem')
                     .columns(['PurchaseOrderItem'])
                     .where({
                         PurchaseOrder: poNumber
                     })
                     .orderBy('PurchaseOrderItem desc')
-                );
-                poMax = parseInt(poTop?.PurchaseOrderItem || '0', 10);
-            }
-    
-            // 3) next = max + 10, zero-pad
-            const next = Math.max(soMax, poMax) + 10;
-            return String(next).padStart(5, '0');
+            );
+            poMax = parseInt(poTop?.PurchaseOrderItem || '0', 10);
         }
-    
+
+        // 3) next = max + 10, zero-pad
+        const next = Math.max(soMax, poMax) + 10;
+        return String(next).padStart(5, '0');
+    }
+
 
     async prepareCommunicators() {
-    LOG.info('[prepareCommunicators] starting communicator setup');
+        LOG.info('[prepareCommunicators] starting communicator setup');
 
-    // Sales Order communicator
-    this.salesOrderAPI = new SalesOrderComm();
-    this.oAPI = this.salesOrderAPI.getConnection();
-    LOG.info('[prepareCommunicators] salesOrderAPI communicator ready');
+        // Sales Order communicator
+        this.salesOrderAPI = new SalesOrderComm();
+        this.oAPI = this.salesOrderAPI.getConnection();
+        LOG.info('[prepareCommunicators] salesOrderAPI communicator ready');
 
-    // Purchase Order communicator
-    this.purchaseOrderAPI = new PurchaseOrder();
-    this.poAPI = this.purchaseOrderAPI.getConnection();
-    LOG.info('[prepareCommunicators] purchaseOrderAPI communicator ready');
+        // Purchase Order communicator
+        this.purchaseOrderAPI = new PurchaseOrder();
+        this.poAPI = this.purchaseOrderAPI.getConnection();
+        LOG.info('[prepareCommunicators] purchaseOrderAPI communicator ready');
 
-    // Sales VC Data communicators
-    this.salesVCData1Api = new SalesVCData1();
-    await this.salesVCData1Api.getConnection();
+        // Sales VC Data communicators
+        this.salesVCData1Api = new SalesVCData1();
+        await this.salesVCData1Api.getConnection();
 
-    this.salesVCData2Api = new SalesVCData2();
-    await this.salesVCData2Api.getConnection();
+        this.salesVCData2Api = new SalesVCData2();
+        await this.salesVCData2Api.getConnection();
 
-    // Business Partner communicator
-    this.businessPartnerAPI = new BusinessPartner();
-    this.bpAPI = this.businessPartnerAPI.getConnection();
-    LOG.info('[prepareCommunicators] businessPartnerAPI communicator ready');
+        // Business Partner communicator
+        this.businessPartnerAPI = new BusinessPartner();
+        this.bpAPI = this.businessPartnerAPI.getConnection();
+        LOG.info('[prepareCommunicators] businessPartnerAPI communicator ready');
 
-    // Supplier Invoice communicator
-    this.supplierInvoiceAPI = new SupplierInvoice();
-    this.siAPI = this.supplierInvoiceAPI.getConnection();
-    LOG.info('[prepareCommunicators] supplierInvoiceAPI communicator ready');
+        // Supplier Invoice communicator
+        this.supplierInvoiceAPI = new SupplierInvoice();
+        this.siAPI = this.supplierInvoiceAPI.getConnection();
+        LOG.info('[prepareCommunicators] supplierInvoiceAPI communicator ready');
 
-    // Employee Time Data communicator
-    this.empTimeDataAPI = new EmpTimeData();
-    if (typeof this.empTimeDataAPI.initConnection === 'function') {
-        this.empTimeDataAPI.initConnection();
+        // Employee Time Data communicator
+        this.empTimeDataAPI = new EmpTimeData();
+        if (typeof this.empTimeDataAPI.initConnection === 'function') {
+            this.empTimeDataAPI.initConnection();
+        }
+        LOG.info('[prepareCommunicators] empTimeDataAPI communicator ready');
+
+        // Sales Contract communicator
+        this.salesContractAPI = new SalesContract();
+        this.scAPI = this.salesContractAPI.getConnection();
+        LOG.info('[prepareCommunicators] salesContractAPI communicator ready');
+
+        // Enterprise Project communicator
+        this.enterpriseProjectAPI = new EnterpriseProject();
+        this.epAPI = this.enterpriseProjectAPI.getConnection();
+        LOG.info('[prepareCommunicators] enterpriseProjectAPI communicator ready');
+
+        LOG.info('[prepareCommunicators] all communicators ready');
     }
-    LOG.info('[prepareCommunicators] empTimeDataAPI communicator ready');
-
-    // Sales Contract communicator
-    this.salesContractAPI = new SalesContract();
-    this.scAPI = this.salesContractAPI.getConnection();
-    LOG.info('[prepareCommunicators] salesContractAPI communicator ready');
-
-    // Enterprise Project communicator
-    this.enterpriseProjectAPI = new EnterpriseProject();
-    this.epAPI = this.enterpriseProjectAPI.getConnection();
-    LOG.info('[prepareCommunicators] enterpriseProjectAPI communicator ready');
-
-    LOG.info('[prepareCommunicators] all communicators ready');
-}
 
     // Step 1: Validate
     async validateRecords(sProcessCode, bBreakExecution) {
@@ -148,15 +149,15 @@ class Travel extends Processor {
                 continue: true
             };
         }
-    
+
         // clean logs once at start
         await ProcessLogger.removeLogs([...this.recordIDs], null, sProcessCode);
-    
+
         // STEP 1: Filter & prepare
         LOG.info(`[validateRecords] STEP 1 BEGIN: Filter by processCode='${sProcessCode}'`);
         const aRecordsForProcessing = [];
         const aRecordIDs = [];
-    
+
         for (const rec of this.records) {
             LOG.info(`Record ${rec.ID} → processLevel_code='${rec.processLevel_code}', valid='${rec.valid}'`);
             if (this.shouldRecordProcess(rec, sProcessCode)) {
@@ -168,183 +169,183 @@ class Travel extends Processor {
                 LOG.info(`Record ${rec.ID} → SKIPPED`);
             }
         }
-    
+
         LOG.info(`→ Removing previous logs for these IDs: ${aRecordIDs.join(',')}`);
         await ProcessLogger.removeLogs(aRecordIDs, null, sProcessCode);
         this.updateProcessingState(sProcessCode);
-    
+
         if (!aRecordsForProcessing.length) {
             LOG.info(`[validateRecords] STEP 1 END: No records to process`);
             return { hasError: false, continue: true };
         }
         LOG.info(`[validateRecords] STEP 1 CONTINUE: processing IDs=${aRecordIDs.join(',')}`);
-    
+
         // —————————————————————————————
-    // STEP 1.0x: Contract type enrichment (before grouping)
-    // —————————————————————————————
-    LOG.info(`STEP 1.0x: Enriching wnWorkOrder based on contract type rules`);
+        // STEP 1.0x: Contract type enrichment (before grouping)
+        // —————————————————————————————
+        LOG.info(`STEP 1.0x: Enriching wnWorkOrder based on contract type rules`);
 
-    for (const rec of aRecordsForProcessing) {
-        try {
-            LOG.info(`STEP 1.0x: Record ${rec.ID} → Input: contractNo='${rec.contractNo}', wnWorkOrder='${rec.wnWorkOrder}'`);
+        for (const rec of aRecordsForProcessing) {
+            try {
+                LOG.info(`STEP 1.0x: Record ${rec.ID} → Input: contractNo='${rec.contractNo}', wnWorkOrder='${rec.wnWorkOrder}'`);
 
-            // lookup in custom mapping table
-            const csOrder = await SELECT.one
-                .from('com.aleron.monitor.CUSTOMERSALEORDERS')
-                .columns(['CONTRACTTYPE', 'CONTRACT'])
-                .where({ CONTRACT: rec.contractNo });
+                // lookup in custom mapping table
+                const csOrder = await SELECT.one
+                    .from('com.aleron.monitor.CUSTOMERSALEORDERS')
+                    .columns(['CONTRACTTYPE', 'CONTRACT'])
+                    .where({ CONTRACT: rec.contractNo });
 
-            if (!csOrder) {
-                LOG.info(`STEP 1.0x: Record ${rec.ID} → No matching CUSTOMER SALE ORDER → skipping enrichment`);
-                continue;
-            }
-
-            const contractType = csOrder.CONTRACTTYPE;
-            LOG.info(`STEP 1.0x: Record ${rec.ID} → Found contractType='${contractType}'`);
-
-            // — Case 1: CONTRACTTYPE = 1 —
-if (contractType === '1' && rec.wnWorkOrder) {
-
-    LOG.info(
-        `STEP 1.0x: Record ${rec.ID} → Looking up SalesOrderItem with wnWorkOrder='${rec.wnWorkOrder}', item='000010'`
-    );
-
-    let soItem = await this.salesOrderAPI.executeQuery(
-        SELECT.one.from('A_SalesOrderItem')
-            .columns(['SalesOrder'])
-            .where({
-                YY1_WNWorkOrder_SD_SDI: rec.wnWorkOrder,
-                SalesOrderItem: '000010'
-            })
-    );
-
-    // ----------------------------
-    // NEW ELSE CASE (fallback)
-    // ----------------------------
-    if (!soItem) {
-        LOG.info(
-            `STEP 1.0x: Record ${rec.ID} → No SalesOrderItem found via YY1_WNWorkOrder_SD_SDI, ` +
-            `trying fallback: A_SalesOrder with YY1_AlphanumericSalesO_SDH='${rec.wnWorkOrder}'`
-        );
-
-        const soHdrFallback = await this.salesOrderAPI.executeQuery(
-            SELECT.one.from('A_SalesOrder')
-                .columns(['SalesOrder'])   // we only need SalesOrder
-                .where({ YY1_AlphanumericSalesO_SDH: rec.wnWorkOrder })
-        );
-
-        if (soHdrFallback && soHdrFallback.SalesOrder) {
-            const newWO = soHdrFallback.SalesOrder;   // 
-            LOG.info(
-                `STEP 1.0x: Record ${rec.ID} (fallback) → Updating wnWorkOrder '${rec.wnWorkOrder}' → '${newWO}'`
-            );
-
-            rec.wnWorkOrder = newWO;
-            await UPDATE(this.recordsEntity)
-                .set({ wnWorkOrder: newWO })
-                .where({ ID: rec.ID });
-
-            // fallback succeeded, continue with rest of validation
-        } else {
-            LOG.error(
-                `STEP 1.0x: Record ${rec.ID} → Fallback SalesOrder lookup also failed → ERROR OUT`
-            );
-            continue;
-        }
-    } else {
-        // ----------------------------
-        // ORIGINAL LOGIC CONTINUES HERE
-        // ----------------------------
-        LOG.info(
-            `STEP 1.0x: Record ${rec.ID} → Found SalesOrder='${soItem.SalesOrder}', fetching alphanumeric`
-        );
-
-        const soHdr = await this.salesOrderAPI.executeQuery(
-            SELECT.one.from('A_SalesOrder')
-                .columns(['YY1_AlphanumericSalesO_SDH'])
-                .where({ SalesOrder: soItem.SalesOrder })
-        );
-
-        if (soHdr && soHdr.YY1_AlphanumericSalesO_SDH) {
-            const newWO = soHdr.YY1_AlphanumericSalesO_SDH;
-            LOG.info(
-                `STEP 1.0x: Record ${rec.ID} → Updating wnWorkOrder '${rec.wnWorkOrder}' → '${newWO}'`
-            );
-
-            rec.wnWorkOrder = newWO;
-
-            await UPDATE(this.recordsEntity)
-                .set({ wnWorkOrder: newWO })
-                .where({ ID: rec.ID });
-        } else {
-            LOG.info(
-                `STEP 1.0x: Record ${rec.ID} → No alphanumeric found for SalesOrder='${soItem.SalesOrder}'`
-            );
-        }
-    }
-}
-
-            // — Case 2: CONTRACTTYPE = 2 —
-            else if (contractType === '2' && rec.wnWorkOrder) {
-                LOG.info(`STEP 1.0x: Record ${rec.ID} → Looking up SalesOrder by AssignmentReference='${rec.wnWorkOrder}'`);
-
-                const soHdr2 = await this.salesOrderAPI.executeQuery(
-                    SELECT.one.from('A_SalesOrder')
-                        .columns(['YY1_AlphanumericSalesO_SDH'])
-                        .where({ AssignmentReference: rec.wnWorkOrder })
-                );
-
-                if (soHdr2 && soHdr2.YY1_AlphanumericSalesO_SDH) {
-                    const newWO = soHdr2.YY1_AlphanumericSalesO_SDH;
-                    LOG.info(`STEP 1.0x: Record ${rec.ID} → Updating wnWorkOrder '${rec.wnWorkOrder}' → '${newWO}'`);
-                    rec.wnWorkOrder = newWO;
-                    await UPDATE(this.recordsEntity)
-                        .set({ wnWorkOrder: newWO })
-                        .where({ ID: rec.ID });
-                } else {
-                    LOG.info(`STEP 1.0x: Record ${rec.ID} → No alphanumeric found for AssignmentReference='${rec.wnWorkOrder}'`);
+                if (!csOrder) {
+                    LOG.info(`STEP 1.0x: Record ${rec.ID} → No matching CUSTOMER SALE ORDER → skipping enrichment`);
+                    continue;
                 }
-            }
 
-            // — Else: do nothing —
-            else {
-                LOG.info(`STEP 1.0x: Record ${rec.ID} → Skipped enrichment (contractType='${contractType}', wnWorkOrder='${rec.wnWorkOrder}')`);
-            }
+                const contractType = csOrder.CONTRACTTYPE;
+                LOG.info(`STEP 1.0x: Record ${rec.ID} → Found contractType='${contractType}'`);
 
-        } catch (err) {
-            LOG.error(`STEP 1.0x FAILED for record ${rec.ID} → ${err.message}`);
-            LOG.error(`STEP 1.0x FAILED stack → ${err.stack}`);
+                // — Case 1: CONTRACTTYPE = 1 —
+                if (contractType === '1' && rec.wnWorkOrder) {
+
+                    LOG.info(
+                        `STEP 1.0x: Record ${rec.ID} → Looking up SalesOrderItem with wnWorkOrder='${rec.wnWorkOrder}', item='000010'`
+                    );
+
+                    let soItem = await this.salesOrderAPI.executeQuery(
+                        SELECT.one.from('A_SalesOrderItem')
+                            .columns(['SalesOrder'])
+                            .where({
+                                YY1_WNWorkOrder_SD_SDI: rec.wnWorkOrder,
+                                SalesOrderItem: '000010'
+                            })
+                    );
+
+                    // ----------------------------
+                    // NEW ELSE CASE (fallback)
+                    // ----------------------------
+                    if (!soItem) {
+                        LOG.info(
+                            `STEP 1.0x: Record ${rec.ID} → No SalesOrderItem found via YY1_WNWorkOrder_SD_SDI, ` +
+                            `trying fallback: A_SalesOrder with YY1_AlphanumericSalesO_SDH='${rec.wnWorkOrder}'`
+                        );
+
+                        const soHdrFallback = await this.salesOrderAPI.executeQuery(
+                            SELECT.one.from('A_SalesOrder')
+                                .columns(['SalesOrder'])   // we only need SalesOrder
+                                .where({ YY1_AlphanumericSalesO_SDH: rec.wnWorkOrder })
+                        );
+
+                        if (soHdrFallback && soHdrFallback.SalesOrder) {
+                            const newWO = soHdrFallback.SalesOrder;   // 
+                            LOG.info(
+                                `STEP 1.0x: Record ${rec.ID} (fallback) → Updating wnWorkOrder '${rec.wnWorkOrder}' → '${newWO}'`
+                            );
+
+                            rec.wnWorkOrder = newWO;
+                            await UPDATE(this.recordsEntity)
+                                .set({ wnWorkOrder: newWO })
+                                .where({ ID: rec.ID });
+
+                            // fallback succeeded, continue with rest of validation
+                        } else {
+                            LOG.error(
+                                `STEP 1.0x: Record ${rec.ID} → Fallback SalesOrder lookup also failed → ERROR OUT`
+                            );
+                            continue;
+                        }
+                    } else {
+                        // ----------------------------
+                        // ORIGINAL LOGIC CONTINUES HERE
+                        // ----------------------------
+                        LOG.info(
+                            `STEP 1.0x: Record ${rec.ID} → Found SalesOrder='${soItem.SalesOrder}', fetching alphanumeric`
+                        );
+
+                        const soHdr = await this.salesOrderAPI.executeQuery(
+                            SELECT.one.from('A_SalesOrder')
+                                .columns(['YY1_AlphanumericSalesO_SDH'])
+                                .where({ SalesOrder: soItem.SalesOrder })
+                        );
+
+                        if (soHdr && soHdr.YY1_AlphanumericSalesO_SDH) {
+                            const newWO = soHdr.YY1_AlphanumericSalesO_SDH;
+                            LOG.info(
+                                `STEP 1.0x: Record ${rec.ID} → Updating wnWorkOrder '${rec.wnWorkOrder}' → '${newWO}'`
+                            );
+
+                            rec.wnWorkOrder = newWO;
+
+                            await UPDATE(this.recordsEntity)
+                                .set({ wnWorkOrder: newWO })
+                                .where({ ID: rec.ID });
+                        } else {
+                            LOG.info(
+                                `STEP 1.0x: Record ${rec.ID} → No alphanumeric found for SalesOrder='${soItem.SalesOrder}'`
+                            );
+                        }
+                    }
+                }
+
+                // — Case 2: CONTRACTTYPE = 2 —
+                else if (contractType === '2' && rec.wnWorkOrder) {
+                    LOG.info(`STEP 1.0x: Record ${rec.ID} → Looking up SalesOrder by AssignmentReference='${rec.wnWorkOrder}'`);
+
+                    const soHdr2 = await this.salesOrderAPI.executeQuery(
+                        SELECT.one.from('A_SalesOrder')
+                            .columns(['YY1_AlphanumericSalesO_SDH'])
+                            .where({ AssignmentReference: rec.wnWorkOrder })
+                    );
+
+                    if (soHdr2 && soHdr2.YY1_AlphanumericSalesO_SDH) {
+                        const newWO = soHdr2.YY1_AlphanumericSalesO_SDH;
+                        LOG.info(`STEP 1.0x: Record ${rec.ID} → Updating wnWorkOrder '${rec.wnWorkOrder}' → '${newWO}'`);
+                        rec.wnWorkOrder = newWO;
+                        await UPDATE(this.recordsEntity)
+                            .set({ wnWorkOrder: newWO })
+                            .where({ ID: rec.ID });
+                    } else {
+                        LOG.info(`STEP 1.0x: Record ${rec.ID} → No alphanumeric found for AssignmentReference='${rec.wnWorkOrder}'`);
+                    }
+                }
+
+                // — Else: do nothing —
+                else {
+                    LOG.info(`STEP 1.0x: Record ${rec.ID} → Skipped enrichment (contractType='${contractType}', wnWorkOrder='${rec.wnWorkOrder}')`);
+                }
+
+            } catch (err) {
+                LOG.error(`STEP 1.0x FAILED for record ${rec.ID} → ${err.message}`);
+                LOG.error(`STEP 1.0x FAILED stack → ${err.stack}`);
+            }
         }
-    }
-    LOG.info(`STEP 1.0x DONE → proceeding to Step 1.1 grouping`);
+        LOG.info(`STEP 1.0x DONE → proceeding to Step 1.1 grouping`);
 
- 
-    // STEP 1.1: Grouping
-    LOG.info(`[validateRecords] STEP 1.1 BEGIN: Grouping ${aRecordsForProcessing.length} records`);
-    const groups = {};
-    for (const rec of aRecordsForProcessing) {
-        const key = [
-            rec.woType,
-            rec.wnWorkOrder,
-            rec.wnInvoiceNo,
-            rec.endDate,
-            rec.currency
-        ].join('||');
-        (groups[key] = groups[key] || []).push(rec);
-    }
-    LOG.info(`[validateRecords] STEP 1.1 END: Created ${Object.keys(groups).length} groups`);
- 
- 
- 
+
+        // STEP 1.1: Grouping
+        LOG.info(`[validateRecords] STEP 1.1 BEGIN: Grouping ${aRecordsForProcessing.length} records`);
+        const groups = {};
+        for (const rec of aRecordsForProcessing) {
+            const key = [
+                rec.woType,
+                rec.wnWorkOrder,
+                rec.wnInvoiceNo,
+                rec.endDate,
+                rec.currency
+            ].join('||');
+            (groups[key] = groups[key] || []).push(rec);
+        }
+        LOG.info(`[validateRecords] STEP 1.1 END: Created ${Object.keys(groups).length} groups`);
+
+
+
         // STEP 1.2 / 1.3: DUPLICATE & FALIDATE per group
         for (const [key, group] of Object.entries(groups)) {
             LOG.info(`>>> ENTER GROUP ${key} (size=${group.length})`);
             const lead = group[0];
- 
+
             // STEP 1.2: DUPLICATE CHECK
             LOG.info(`Group ${key} → STEP 1.2 BEGIN`);
             let dupFailed = false;
- 
+
             if (['CP', 'CR'].includes(lead.woType)) {
                 // — fetch header
                 let soHdr = await this.salesOrderAPI.executeQuery(
@@ -365,7 +366,7 @@ if (contractType === '1' && rec.wnWorkOrder) {
                             })
                     );
                 }
- 
+
                 if (!soHdr.length) {
                     const msg = `No CP/CR order for '${lead.wnWorkOrder}'`;
                     LOG.error(`Group ${key} → STEP 1.2 FAILED: ${msg}`);
@@ -380,11 +381,11 @@ if (contractType === '1' && rec.wnWorkOrder) {
                     await UPDATE(this.recordsEntity)
                         .set({ salesDocumentNoSAP: SalesOrder })
                         .where({ ID: lead.ID });
- 
+
                     const invoiceKey = (CustomerGroup === 'ZI')
                         ? lead.wnInvoiceNo + 'IC'
                         : lead.wnInvoiceNo;
- 
+
                     const dupItems = await this.salesOrderAPI.executeQuery(
                         SELECT.from('A_SalesOrderItem')
                             .columns(['SalesOrderItem'])
@@ -397,13 +398,13 @@ if (contractType === '1' && rec.wnWorkOrder) {
                         const msg = `Duplicate WN_INV='${invoiceKey}' on item ${dupItems[0].SalesOrderItem}`;
                         LOG.error(`Group ${key} → STEP 1.2 FAILED: ${msg}`);
                         group.forEach(r => {
-                            aErrorLogs.push({ record_ID: r.ID, message: msg,  process_code: sProcessCode });
+                            aErrorLogs.push({ record_ID: r.ID, message: msg, process_code: sProcessCode });
                             aFailedRecordIDs.push(r.ID);
                         });
                         dupFailed = true;
                     }
                 }
- 
+
             } else if (['MS', 'SC'].includes(lead.woType)) {
                 // MS/SC path: check ZZWN_INVOICE
                 const dupItems = await this.salesOrderAPI.executeQuery(
@@ -415,22 +416,22 @@ if (contractType === '1' && rec.wnWorkOrder) {
                     const msg = `Duplicate WN_INV='${lead.wnInvoiceNo}' on item ${dupItems[0].SalesOrderItem}`;
                     LOG.error(`Group ${key} → STEP 1.2 FAILED: ${msg}`);
                     group.forEach(r => {
-                        aErrorLogs.push({ record_ID: r.ID, message: msg , process_code: sProcessCode});
+                        aErrorLogs.push({ record_ID: r.ID, message: msg, process_code: sProcessCode });
                         aFailedRecordIDs.push(r.ID);
                     });
                     dupFailed = true;
                 }
             }
- 
+
             if (dupFailed) {
                 LOG.info(`Group ${key} → STEP 1.2 END: FAILED`);
                 continue;
             }
             LOG.info(`Group ${key} → STEP 1.2 END: PASSED`);
- 
+
             // STEP 1.3: FALIDATE
             LOG.info(`Group ${key} → STEP 1.3 BEGIN`);
- 
+
             // 1) direct VBELN header check
             let soHdr2 = await this.salesOrderAPI.executeQuery(
                 SELECT.one.from('A_SalesOrderItem')
@@ -451,21 +452,21 @@ if (contractType === '1' && rec.wnWorkOrder) {
                         })
                 );
             }
- 
+
             if (!soHdr2) {
                 const msg = `No SAP SalesOrder found for WN='${lead.wnWorkOrder}'`;
                 LOG.error(`Group ${key} → STEP 1.3 FAILED: ${msg}`);
                 group.forEach(r => {
-                    aErrorLogs.push({ record_ID: r.ID, message: msg , process_code: sProcessCode});
+                    aErrorLogs.push({ record_ID: r.ID, message: msg, process_code: sProcessCode });
                     aFailedRecordIDs.push(r.ID);
                 });
                 LOG.info(`Group ${key} → STEP 1.3 END: FAILED`);
                 continue;
             }
- 
+
             const realSO = soHdr2.SalesOrder;
             LOG.info(`Group ${key} → STEP 1.3.1 PASSED: realSO='${realSO}'`);
- 
+
             // 3) fetch “dummy” item 00010
             const dummy = await this.salesOrderAPI.executeQuery(
                 SELECT.one.from('A_SalesOrderItem')
@@ -484,7 +485,7 @@ if (contractType === '1' && rec.wnWorkOrder) {
                 });
                 continue;
             }
- 
+
             // 4) compare week-end
             const raw = dummy.YY1_WeekEnd_SD_SDI;
             const ts = raw ? parseInt(raw.replace(/\D/g, ''), 10) : null;
@@ -493,12 +494,12 @@ if (contractType === '1' && rec.wnWorkOrder) {
                 const msg = `Duplicate week-end in dummy item for SalesOrder='${realSO}', weekEnd='${lead.weekEndDate}'`;
                 LOG.error(`Group ${key} → STEP 1.3 FAILED: ${msg}`);
                 group.forEach(r => {
-                    aErrorLogs.push({ record_ID: r.ID, message: msg , process_code: sProcessCode});
+                    aErrorLogs.push({ record_ID: r.ID, message: msg, process_code: sProcessCode });
                     aFailedRecordIDs.push(r.ID);
                 });
                 continue;
             }
- 
+
             // 5) fetch all items & check week-end duplicates
             const allItems = await this.salesOrderAPI.executeQuery(
                 SELECT.from('A_SalesOrderItem')
@@ -516,17 +517,17 @@ if (contractType === '1' && rec.wnWorkOrder) {
                 const msg = `Duplicate week-end in items [${ids}] for SalesOrder='${realSO}'`;
                 LOG.error(`Group ${key} → STEP 1.3 FAILED: ${msg}`);
                 group.forEach(r => {
-                    aErrorLogs.push({ record_ID: r.ID, message: msg , process_code: sProcessCode});
+                    aErrorLogs.push({ record_ID: r.ID, message: msg, process_code: sProcessCode });
                     aFailedRecordIDs.push(r.ID);
                 });
                 continue;
             }
- 
+
             // All checks passed
             group.forEach(r => aPassedRecordIDs.push(r.ID));
             LOG.info(`Group ${key} → STEP 1.3 END: PASSED`);
         }
- 
+
         // Persist results
         if (aErrorLogs.length) {
             await ProcessLogger.addLogs(aErrorLogs);
@@ -534,7 +535,7 @@ if (contractType === '1' && rec.wnWorkOrder) {
         }
         if (aPassedRecordIDs.length) {
             await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
-            await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3})));
+            await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({ record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3 })));
             await this.markRecordsValid(sProcessCode, aPassedRecordIDs, true);
             if (sProcessCode === '1') {
                 await UPDATE(this.recordsEntity)
@@ -545,7 +546,7 @@ if (contractType === '1' && rec.wnWorkOrder) {
                 });
             }
         }
- 
+
         this.updateExclusionSet({
             passed: aPassedRecordIDs,
             failed: aFailedRecordIDs,
@@ -562,547 +563,583 @@ if (contractType === '1' && rec.wnWorkOrder) {
 
     // Step 3: sales order update
     async processSalesOrder(sProcessCode, bBreakExecution) {
-    // 0) Clear all previous logs
-    await ProcessLogger.removeLogs([...this.recordIDs], null, sProcessCode);
-    await this._fetchRecords(this.recordIDs);
+        // 0) Clear all previous logs
+        await ProcessLogger.removeLogs([...this.recordIDs], null, sProcessCode);
+        await this._fetchRecords(this.recordIDs);
 
-    const aErrorLogs = [];
-    const aFailedRecordIDs = [];
-    const aPassedRecordIDs = [];
-    const aSkippedRecords = [];
+        const aErrorLogs = [];
+        const aFailedRecordIDs = [];
+        const aPassedRecordIDs = [];
+        const aSkippedRecords = [];
 
-    //
-    // 1) Process‐level gating
-    //
-    LOG.info(`[processSalesOrder] STEP 1.1: Checking process‐level '${sProcessCode}'`);
-    const aRecordsForProcessing = [];
-    const aRecordIDs = [];
-    this.records.forEach(rec => {
-        LOG.info(` → Record ${rec.ID}: processLevel='${rec.processLevel_code}', valid='${rec.valid}'`);
-        if (rec.processLevel_code === sProcessCode) {
-        aRecordsForProcessing.push(rec);
-        aRecordIDs.push(rec.ID);
-        LOG.info(`    INCLUDED`);
-        } else {
-        aSkippedRecords.push(rec);
-        LOG.info(`    SKIPPED`);
-        }
-    });
-
-    LOG.info(`[processSalesOrder] STEP 1.2: Removing old logs for [${aRecordIDs.join(',')}]`);
-    await ProcessLogger.removeLogs(aRecordIDs, null, sProcessCode);
-    this.updateProcessingState(sProcessCode);
-
-    if (!aRecordsForProcessing.length) {
-        LOG.info(`[processSalesOrder] STEP 1.3: No records to process → EXIT`);
-        return { hasError: false, continue: true };
-    }
-    LOG.info(`[processSalesOrder] STEP 1.3: ${aRecordsForProcessing.length} records WILL be processed`);
-
-    // 2) Grouping
-    LOG.info(`[processSalesOrder] STEP 2.1: Grouping ${aRecordsForProcessing.length} records`);
-    const groups = {};
-    aRecordsForProcessing.forEach(rec => {
-        const key = [rec.sapEmployeeNo, rec.wnWorkOrder, rec.wnInvoiceNo, rec.endDate, rec.currency].join('||');
-        (groups[key] = groups[key] || []).push(rec);
-    });
-    LOG.info(`[processSalesOrder] STEP 2.2: Created ${Object.keys(groups).length} group(s)`);
-    LOG.debug(`[processSalesOrder] STEP 2.3: Group sizes → ${JSON.stringify(
-        Object.fromEntries(Object.entries(groups).map(([k,v])=>[k,v.length]))
-    )}`);
-
-    // 3) Per‐group logic
-    for (const [key, group] of Object.entries(groups)) {
-        LOG.info(`\n>>> ENTER GROUP ${key} (size=${group.length})`);
-
-        // 3.1) SAP_POSNR skip
-        LOG.info(`Group ${key} → STEP 3.1: SAP_POSNR skip check`);
-        const hasPosnr = group.some(r => !!r.SAP_POSNR);
-        LOG.debug(`Group ${key} → Found SAP_POSNR: ${group.map(r=>r.SAP_POSNR).join(',')}`);
-        if (hasPosnr) {
-        LOG.info(`Group ${key} → SKIPPING (existing SAP_POSNR)`);
-        group.forEach(r => aSkippedRecords.push(r));
-        continue;
-        }
-
-        // 3.2) same process‐level check
-        LOG.info(`Group ${key} → STEP 3.2: verifying all processLevel_code === '${sProcessCode}'`);
-        group.forEach(r => LOG.debug(`  • Record ${r.ID} has processLevel_code='${r.processLevel_code}'`));
-        const bad = group.find(r => Number(r.processLevel_code) !== Number(sProcessCode));
-        if (bad) {
-        const msg = `Not all records at processLevel='${sProcessCode}'`;
-        LOG.error(`Group ${key} → STEP 3.2 FAILED: ${msg}`);
-        group.forEach(r => {
-            aErrorLogs.push({ record_ID: r.ID, message: msg, process_code: sProcessCode });
-            aFailedRecordIDs.push(r.ID);
-        });
-        continue;
-        }
-        LOG.info(`Group ${key} → STEP 3.2 PASSED`);
-
-        // 3.3) aggregate amounts
-        LOG.info(`Group ${key} → STEP 3.3: amount aggregation`);
-        const lead = { ...group[0] };
-        lead.amount = group.reduce((sum, r) => sum + (Number(r.amount) || 0), 0);
-        LOG.info(`Group ${key} → aggregated amount = ${lead.amount}`);
-
-        // 3.4) woType blank?
-        LOG.info(`Group ${key} → STEP 3.4: woType validation`);
-        if (!lead.woType) {
-        const msg = `woType is blank`;
-        LOG.error(`Group ${key} → STEP 3.4 FAILED: ${msg}`);
-        group.forEach(r => { aErrorLogs.push({ record_ID: r.ID, message: msg , process_code: sProcessCode}); aFailedRecordIDs.push(r.ID); });
-        continue;
-        }
-        if (!['CP','CR','MS','SC','IC'].includes(lead.woType)) {
-        const msg = `Invalid woType='${lead.woType}'`;
-        LOG.error(`Group ${key} → STEP 3.4 FAILED: ${msg}`);
-        group.forEach(r => { aErrorLogs.push({ record_ID: r.ID, message: msg, process_code: sProcessCode }); aFailedRecordIDs.push(r.ID); });
-        continue;
-        }
-        LOG.info(`Group ${key} → STEP 3.4 PASSED: woType='${lead.woType}'`);
-
-        // 3.5) IC skip
-        if (lead.woType === 'IC') {
-        LOG.info(`Group ${key} → woType='IC' → SKIPPING group for intercompany processing`);
-        group.forEach(r => aSkippedRecords.push(r));
-        continue;
-        }
-
-        // 3.6) branch CP/CR vs MS/SC + always capture fullHdr
-        let sapTrip = '';
-        let sapPo   = '';
-        let fullHdr; // will hold the A_SalesOrder header
-        let billTo = '';
-        let billingBlock = '';
-
-        if (['CP','CR'].includes(lead.woType)) {
-        // -----------------------------
-        // FIXED CP/CR BRANCH (no soItem)
-        // -----------------------------
-        LOG.info(`Group ${key} → STEP 3.6: CP/CR branch`);
-        LOG.info(`Group ${key} → STEP 3.6.1: resolving SalesOrder (CP/CR) by VBELN/WorkOrder`);
-
-        let soNumber = '';
-        let resolvedBy = '';
-
-        // Try 1: direct numeric VBELN (if file carries true SO)
-        if (/^\d+$/.test(lead.wnWorkOrder || '')) {
-            const tryHdr = await this.salesOrderAPI.executeQuery(
-            SELECT.one.from('A_SalesOrder').columns(['SalesOrder'])
-                .where({ SalesOrder: lead.wnWorkOrder })
-            );
-            if (tryHdr?.SalesOrder) { soNumber = tryHdr.SalesOrder; resolvedBy = 'direct VBELN'; }
-        }
-
-        // Try 2: header custom (alphanumeric work order)
-        if (!soNumber) {
-            const tryHdr2 = await this.salesOrderAPI.executeQuery(
-            SELECT.one.from('A_SalesOrder').columns(['SalesOrder'])
-                .where({ YY1_AlphanumericSalesO_SDH: lead.wnWorkOrder })
-            );
-            if (tryHdr2?.SalesOrder) { soNumber = tryHdr2.SalesOrder; resolvedBy = 'header YY1_AlphanumericSalesO_SDH'; }
-        }
-
-        // Try 3: item custom (work order at item)
-        if (!soNumber) {
-            const tryItem = await this.salesOrderAPI.executeQuery(
-            SELECT.one.from('A_SalesOrderItem').columns(['SalesOrder'])
-                .where({ YY1_WNWorkOrder_SD_SDI: lead.wnWorkOrder })
-            );
-            if (tryItem?.SalesOrder) { soNumber = tryItem.SalesOrder; resolvedBy = 'item YY1_WNWorkOrder_SD_SDI'; }
-        }
-
-        if (!soNumber) {
-            const msg = `Cannot resolve SalesOrder for VBELN/WorkOrder='${lead.wnWorkOrder}' (CP/CR)`;
-            LOG.error(`Group ${key} → STEP 3.6 FAILED: ${msg}`);
-            group.forEach(r => { aErrorLogs.push({ record_ID: r.ID, message: msg , process_code: sProcessCode}); aFailedRecordIDs.push(r.ID); });
-            continue;
-        }
-        LOG.info(`Group ${key} → STEP 3.6.2: resolved SO='${soNumber}' via ${resolvedBy}`);
-
-        // Fetch full header
-        fullHdr = await this.salesOrderAPI.executeQuery(
-            SELECT.one.from('A_SalesOrder').columns([
-            'SalesOrder','SalesOrderType','SalesOrganization','DistributionChannel',
-            'OrganizationDivision','PurchaseOrderByCustomer','CustomerPriceGroup',
-            'CustomerGroup','YY1_AlphanumericSalesO_SDH','SoldToParty','CustomerPaymentTerms'
-            ]).where({ SalesOrder: soNumber })
-        );
-
-        if (!fullHdr) {
-            const msg = `Cannot fetch header for SO='${soNumber}'`;
-            LOG.error(`Group ${key} → STEP 3.6 FAILED: ${msg}`);
-            group.forEach(r => { aErrorLogs.push({ record_ID: r.ID, message: msg, process_code: sProcessCode }); aFailedRecordIDs.push(r.ID); });
-            continue;
-        }
-
-        // (optional per spec) mark trip flag for CP/CR
-        sapTrip = '1';
-
-        } else {
-        // MS - SC branch
-        LOG.info(`Group ${key} → STEP 3.7: ${lead.woType} branch (MS/SC)`);
-
-        // 3.7.1 fetch SalesOrder via the item‐level custom work-order
-        LOG.info(`Group ${key} → STEP 3.7.1: fetching SalesOrder by WorkOrder='${lead.wnWorkOrder}'`);
-        const itemRec = await this.salesOrderAPI.executeQuery(
-            SELECT.one.from('A_SalesOrderItem')
-            .columns(['SalesOrder'])
-            .where({ YY1_WNWorkOrder_SD_SDI: lead.wnWorkOrder })
-        );
-        if (!itemRec?.SalesOrder) {
-            const msg = `Cannot fetch SalesOrder for WorkOrder='${lead.wnWorkOrder}'`;
-            LOG.error(`Group ${key} → STEP 3.7 FAILED: ${msg}`);
-            group.forEach(r => { aErrorLogs.push({ record_ID: r.ID, message: msg , process_code: sProcessCode}); aFailedRecordIDs.push(r.ID); });
-            continue;
-        }
-        const soNumber = itemRec.SalesOrder;
-
-        // fetch the full SalesOrder header as before
-        fullHdr = await this.salesOrderAPI.executeQuery(
-            SELECT.one.from('A_SalesOrder').columns([
-            'SalesOrder','SalesOrderType','SalesOrganization','DistributionChannel',
-            'OrganizationDivision','PurchaseOrderByCustomer','CustomerPriceGroup',
-            'CustomerGroup','YY1_AlphanumericSalesO_SDH','SoldToParty','CustomerPaymentTerms'
-            ]).where({ SalesOrder: soNumber })
-        );
-        if (!fullHdr) {
-            const msg = `Cannot fetch header for SO='${soNumber}'`;
-            LOG.error(`Group ${key} → STEP 3.7 FAILED: ${msg}`);
-            group.forEach(r => { aErrorLogs.push({ record_ID: r.ID, message: msg , process_code: sProcessCode}); aFailedRecordIDs.push(r.ID); });
-            continue;
-        }
-
-        // 3.7.x) partner‐function lookup
-        LOG.info(`Group ${key} → STEP 3.7.x: fetching header partners`);
-        const partners = await this.salesOrderAPI.executeQuery(
-            SELECT.from('A_SalesOrderHeaderPartner')
-            .columns(['PartnerFunction','Customer','Supplier','ReferenceBusinessPartner'])
-            .where({ SalesOrder: fullHdr.SalesOrder })
-        );
-
-        // ZR‐rejection (best-effort as in your current logic)
-        try {
-            const zr = partners.find(p => p.PartnerFunction === 'ZR');
-            const lastContact = zr?.ReferenceBusinessPartner;
-            if (lastContact && moment(lead.weekEndDate).isSameOrAfter(lastContact, 'day')) {
-            fullHdr.SO_REJ = 'ZR';
-            billingBlock = 'Z1';
-            LOG.info(`Group ${key} → ZR rejection applied`);
+        //
+        // 1) Process‐level gating
+        //
+        LOG.info(`[processSalesOrder] STEP 1.1: Checking process‐level '${sProcessCode}'`);
+        const aRecordsForProcessing = [];
+        const aRecordIDs = [];
+        this.records.forEach(rec => {
+            LOG.info(` → Record ${rec.ID}: processLevel='${rec.processLevel_code}', valid='${rec.valid}'`);
+            if (rec.processLevel_code === sProcessCode) {
+                aRecordsForProcessing.push(rec);
+                aRecordIDs.push(rec.ID);
+                LOG.info(`    INCLUDED`);
+            } else {
+                aSkippedRecords.push(rec);
+                LOG.info(`    SKIPPED`);
             }
-        } catch {
-            LOG.warn(`Group ${key} → ZR lookup failed, skipping`);
+        });
+
+        LOG.info(`[processSalesOrder] STEP 1.2: Removing old logs for [${aRecordIDs.join(',')}]`);
+        await ProcessLogger.removeLogs(aRecordIDs, null, sProcessCode);
+        this.updateProcessingState(sProcessCode);
+
+        if (!aRecordsForProcessing.length) {
+            LOG.info(`[processSalesOrder] STEP 1.3: No records to process → EXIT`);
+            return { hasError: false, continue: true };
         }
+        LOG.info(`[processSalesOrder] STEP 1.3: ${aRecordsForProcessing.length} records WILL be processed`);
 
-        // Bill‐to
-        const re = partners.find(p => p.PartnerFunction === 'RE');
-        billTo = re?.Customer || '';
+        // 2) Grouping
+        LOG.info(`[processSalesOrder] STEP 2.1: Grouping ${aRecordsForProcessing.length} records`);
+        const groups = {};
+        aRecordsForProcessing.forEach(rec => {
+            const key = [rec.sapEmployeeNo, rec.wnWorkOrder, rec.wnInvoiceNo, rec.endDate, rec.currency].join('||');
+            (groups[key] = groups[key] || []).push(rec);
+        });
+        LOG.info(`[processSalesOrder] STEP 2.2: Created ${Object.keys(groups).length} group(s)`);
+        LOG.debug(`[processSalesOrder] STEP 2.3: Group sizes → ${JSON.stringify(
+            Object.fromEntries(Object.entries(groups).map(([k, v]) => [k, v.length]))
+        )}`);
 
-        // 3.7.6) PO-indicator (existing logic)
-        LOG.info(`Group ${key} → STEP 3.7.6: checking Vendor_VendorRemit for SoldToParty='${fullHdr.SoldToParty}'`);
-        let poIndicator = '';
-        const vendMap = await SELECT.one.from('com.aleron.monitor.Vendor_VendorRemit')
-            .columns(['vendor'])
-            .where({ vendor: fullHdr.SoldToParty });
+        // 3) Per‐group logic
+        for (const [key, group] of Object.entries(groups)) {
+            LOG.info(`\n>>> ENTER GROUP ${key} (size=${group.length})`);
 
-        if (vendMap) {
-            LOG.info(`Group ${key} → 3.7.6: vendor mapping found → no PO`);
-            poIndicator = '';
-        } else {
-            LOG.info(`Group ${key} → 3.7.6: no vendor mapping → create PO`);
-            poIndicator = '1';
-        }
+            // 3.1) SAP_POSNR skip
+            LOG.info(`Group ${key} → STEP 3.1: SAP_POSNR skip check`);
+            const hasPosnr = group.some(r => !!r.SAP_POSNR);
+            LOG.debug(`Group ${key} → Found SAP_POSNR: ${group.map(r => r.SAP_POSNR).join(',')}`);
+            if (hasPosnr) {
+                LOG.info(`Group ${key} → SKIPPING (existing SAP_POSNR)`);
+                group.forEach(r => aSkippedRecords.push(r));
+                continue;
+            }
 
-        if (fullHdr.CustomerPriceGroup === 'ZM') {
-            LOG.info(`Group ${key} → 3.7.6: CustomerPriceGroup='ZM' → no PO`);
-            poIndicator = '';
-        }
+            // 3.2) same process‐level check
+            LOG.info(`Group ${key} → STEP 3.2: verifying all processLevel_code === '${sProcessCode}'`);
+            group.forEach(r => LOG.debug(`  • Record ${r.ID} has processLevel_code='${r.processLevel_code}'`));
+            const bad = group.find(r => Number(r.processLevel_code) !== Number(sProcessCode));
+            if (bad) {
+                const msg = `Not all records at processLevel='${sProcessCode}'`;
+                LOG.error(`Group ${key} → STEP 3.2 FAILED: ${msg}`);
+                group.forEach(r => {
+                    aErrorLogs.push({ record_ID: r.ID, message: msg, process_code: sProcessCode });
+                    aFailedRecordIDs.push(r.ID);
+                });
+                continue;
+            }
+            LOG.info(`Group ${key} → STEP 3.2 PASSED`);
 
-        sapPo = poIndicator;
+            // 3.3) aggregate amounts
+            LOG.info(`Group ${key} → STEP 3.3: amount aggregation`);
+            const lead = { ...group[0] };
+            lead.amount = group.reduce((sum, r) => sum + (Number(r.amount) || 0), 0);
+            LOG.info(`Group ${key} → aggregated amount = ${lead.amount}`);
 
-        // persist PORequiredSAP
-        LOG.info(`Group ${key} → STEP 3.7.7: setting PORequiredSAP='${sapPo}' for this group`);
-        await UPDATE(this.recordsEntity).set({ PORequiredSAP: sapPo }).where({ ID: group.map(r => r.ID) });
-        group.forEach(r => { r.PORequiredSAP = sapPo; });
-        }
+            // 3.4) woType blank?
+            LOG.info(`Group ${key} → STEP 3.4: woType validation`);
+            if (!lead.woType) {
+                const msg = `woType is blank`;
+                LOG.error(`Group ${key} → STEP 3.4 FAILED: ${msg}`);
+                group.forEach(r => { aErrorLogs.push({ record_ID: r.ID, message: msg, process_code: sProcessCode }); aFailedRecordIDs.push(r.ID); });
+                continue;
+            }
+            if (!['CP', 'CR', 'MS', 'SC', 'IC'].includes(lead.woType)) {
+                const msg = `Invalid woType='${lead.woType}'`;
+                LOG.error(`Group ${key} → STEP 3.4 FAILED: ${msg}`);
+                group.forEach(r => { aErrorLogs.push({ record_ID: r.ID, message: msg, process_code: sProcessCode }); aFailedRecordIDs.push(r.ID); });
+                continue;
+            }
+            LOG.info(`Group ${key} → STEP 3.4 PASSED: woType='${lead.woType}'`);
 
-        // // 3.8) locate existing PO & compute next item
-        // const vbeln = fullHdr.SalesOrder;
-        // LOG.info(`Group ${key} → STEP 3.8: locating existing PO by PDI for SO='${vbeln}'`);
-        // const poRec = await this.purchaseOrderAPI.executeQuery(
-        // SELECT.one.from('PurchaseOrderItem').columns(['PurchaseOrder']).where({ YY1_SDDocumentPD_PDI: vbeln })
-        // );
-        // let poNo = poRec?.PurchaseOrder || '';
-        // if (!poNo) LOG.warn(`Group ${key} → no existing PO, will create new`);
+            // 3.5) IC skip
+            if (lead.woType === 'IC') {
+                LOG.info(`Group ${key} → woType='IC' → SKIPPING group for intercompany processing`);
+                group.forEach(r => aSkippedRecords.push(r));
+                continue;
+            }
 
-        // const soTop = await this.salesOrderAPI.executeQuery(
-        // SELECT.one.from('A_SalesOrderItem').columns(['SalesOrderItem'])
-        //     .where({ SalesOrder: vbeln }).orderBy('SalesOrderItem desc')
-        // );
-        // const soMax = soTop?.SalesOrderItem || '00000';
+            // 3.6) branch CP/CR vs MS/SC + always capture fullHdr
+            let sapTrip = '';
+            let sapPo = '';
+            let fullHdr; // will hold the A_SalesOrder header
+            let billTo = '';
+            let billingBlock = '';
 
-        // let poMax = '00000';
-        // if (poNo) {
-        // const poLines = await this.purchaseOrderAPI.fetchPurchaseOrderLines(poNo);
-        // if (poLines.length) {
-        //     const maxNum = poLines.map(i => parseInt(i.PurchaseOrderItem, 10)).reduce((a,b)=>Math.max(a,b), 0);
-        //     poMax = String(maxNum).padStart(5, '0');
-        // }
-        // }
+            if (['CP', 'CR'].includes(lead.woType)) {
+                // -----------------------------
+                // FIXED CP/CR BRANCH (no soItem)
+                // -----------------------------
+                LOG.info(`Group ${key} → STEP 3.6: CP/CR branch`);
+                LOG.info(`Group ${key} → STEP 3.6.1: resolving SalesOrder (CP/CR) by VBELN/WorkOrder`);
 
-        // const highest = Math.max(parseInt(soMax,10), parseInt(poMax,10));
-        // const nextItem = String(highest + 10).padStart(5, '0');
+                let soNumber = '';
+                let resolvedBy = '';
 
-        // 3.8) locate existing PO & compute next item
-        const vbeln = fullHdr.SalesOrder;
-        LOG.info(`Group ${key} → STEP 3.8: locating existing PO by PDI for SO='${vbeln}'`);
-        const poRec = await this.purchaseOrderAPI.executeQuery(
-            SELECT.one.from('PurchaseOrderItem').columns(['PurchaseOrder']).where({ YY1_SDDocumentPD_PDI: vbeln })
-        );
-        let poNo = poRec?.PurchaseOrder || '';
-        if (!poNo) LOG.warn(`Group ${key} → no existing PO, will create new`);
+                // Try 1: direct numeric VBELN (if file carries true SO)
+                if (/^\d+$/.test(lead.wnWorkOrder || '')) {
+                    const tryHdr = await this.salesOrderAPI.executeQuery(
+                        SELECT.one.from('A_SalesOrder').columns(['SalesOrder'])
+                            .where({ SalesOrder: lead.wnWorkOrder })
+                    );
+                    if (tryHdr?.SalesOrder) { soNumber = tryHdr.SalesOrder; resolvedBy = 'direct VBELN'; }
+                }
 
-        // 🔹 use helper instead of manual soMax/poMax logic
-        const nextItem = await this.getNextLineItem(vbeln, poNo);
-        LOG.info(`Group ${key} → STEP 3.8: computed next item = '${nextItem}'`);
+                // Try 2: header custom (alphanumeric work order)
+                if (!soNumber) {
+                    const tryHdr2 = await this.salesOrderAPI.executeQuery(
+                        SELECT.one.from('A_SalesOrder').columns(['SalesOrder'])
+                            .where({ YY1_AlphanumericSalesO_SDH: lead.wnWorkOrder })
+                    );
+                    if (tryHdr2?.SalesOrder) { soNumber = tryHdr2.SalesOrder; resolvedBy = 'header YY1_AlphanumericSalesO_SDH'; }
+                }
 
-        // 3.8.x) Duplicate‐SO check
-        LOG.info(`Group ${key} → STEP 3.8.x: duplicate SO‐item check`);
-        const dupInvoice = fullHdr.CustomerGroup === 'ZI' ? `${lead.wnInvoiceNo}IC` : lead.wnInvoiceNo;
-        const existingItem = await this.salesOrderAPI.executeQuery(
-        SELECT.one.from('A_SalesOrderItem')
-            .columns(['SalesOrderItem'])
-            .where({ SalesOrder: vbeln, YY1_WNInvoice_SD_SDI: dupInvoice })
-        );
-        if (existingItem) {
-        const msg = `Duplicate invoice '${dupInvoice}' on SalesOrder '${vbeln}'`;
-        LOG.error(`Group ${key} → STEP 3.8.x FAILED: ${msg}`);
-        group.forEach(r => { aErrorLogs.push({ record_ID: r.ID, message: msg, process_code: sProcessCode }); aFailedRecordIDs.push(r.ID); });
-        continue; // skip this group entirely
-        }
+                // Try 3: item custom (work order at item)
+                if (!soNumber) {
+                    const tryItem = await this.salesOrderAPI.executeQuery(
+                        SELECT.one.from('A_SalesOrderItem').columns(['SalesOrder'])
+                            .where({ YY1_WNWorkOrder_SD_SDI: lead.wnWorkOrder })
+                    );
+                    if (tryItem?.SalesOrder) { soNumber = tryItem.SalesOrder; resolvedBy = 'item YY1_WNWorkOrder_SD_SDI'; }
+                }
 
-        // 3.9) dummy item + WBSElement check
-        LOG.info(`Group ${key} → STEP 3.9: fetching dummy item '00010'`);
-        const dummy = await this.salesOrderAPI.executeQuery(
-  SELECT.one.from('A_SalesOrderItem')
-    .columns([
-      'SalesOrderItem',
-      'Material',
-      'WBSElement',
-      'ProfitCenter',
-      'ProductionPlant',
-      'YY1_EEGroup_SD_SDI',
-      'YY1_WNInvoice_SD_SDI',
-      'YY1_PurchasingDoc_SD_SDI',
-      'YY1_StrTimeMarkup_SD_SDI',
-      'YY1_DoubTimeMarkup_SD_SDI',
-      'YY1_LegacyPurchase_SD_SDI',
-      'YY1_WeekEnd_SD_SDI',
-      'YY1_CustomURL_SDI',
-      'YY1_ExtensionUUID1_SDI',
-      'YY1_DuplicateWeek_SD_SDI',
-      'YY1_ACA_HRS_SDI',
-      'YY1_Royality_SD_SDI',
-      'YY1_CommodityCode_SD_SDI',
-      'YY1_ExtensionUUID2_SDI',
-      'YY1_SupplierInvoice_SD_SDI',
-      'YY1_InvoiceVATtxt_SD_SDI',
-      'YY1_CategoryCode_SD_SDI',
-      'YY1_OverTimeMarkup_SD_SDI',
-      'YY1_ACA_HRS_PRICE_SDI',
-      'YY1_CustomBillingType_SDI',
-      'YY1_ACA_RG_ONLY_SDI'
-    ])
-    .where({ SalesOrder: vbeln, SalesOrderItem: '00010' })
-);
+                if (!soNumber) {
+                    const msg = `Cannot resolve SalesOrder for VBELN/WorkOrder='${lead.wnWorkOrder}' (CP/CR)`;
+                    LOG.error(`Group ${key} → STEP 3.6 FAILED: ${msg}`);
+                    group.forEach(r => { aErrorLogs.push({ record_ID: r.ID, message: msg, process_code: sProcessCode }); aFailedRecordIDs.push(r.ID); });
+                    continue;
+                }
+                LOG.info(`Group ${key} → STEP 3.6.2: resolved SO='${soNumber}' via ${resolvedBy}`);
 
-        if (!dummy) { throw new Error(`Group ${key} → dummy item 00010 missing for SO='${vbeln}'`); }
-        if (!dummy.WBSElement) {
-        const msg = `Project Number is missing`;
-        LOG.error(`Group ${key} → STEP 3.9 FAILED: ${msg}`);
-        group.forEach(r => { aErrorLogs.push({ record_ID: r.ID, message: msg, process_code: sProcessCode }); aFailedRecordIDs.push(r.ID); });
-        continue;
-        }
+                // Fetch full header
+                fullHdr = await this.salesOrderAPI.executeQuery(
+                    SELECT.one.from('A_SalesOrder').columns([
+                        'SalesOrder', 'SalesOrderType', 'SalesOrganization', 'DistributionChannel',
+                        'OrganizationDivision', 'PurchaseOrderByCustomer', 'CustomerPriceGroup',
+                        'CustomerGroup', 'YY1_AlphanumericSalesO_SDH', 'SoldToParty', 'CustomerPaymentTerms'
+                    ]).where({ SalesOrder: soNumber })
+                );
 
-        // 3.11) build & post new SO‐Item (expense)
-        LOG.info(`Group ${key} → STEP 3.11: building expense payload`);
-        const toODataDate = date => {
-        const ms = +moment(date, ['YYYYMMDD','YYYY-MM-DD']).valueOf();
-        return `/Date(${ms})/`;
-        };
-        const prod = (lead.woType === 'MS' && fullHdr.SalesOrganization === '2100') ? 'MS_EXPENSE' : 'EXPENSE';
+                if (!fullHdr) {
+                    const msg = `Cannot fetch header for SO='${soNumber}'`;
+                    LOG.error(`Group ${key} → STEP 3.6 FAILED: ${msg}`);
+                    group.forEach(r => { aErrorLogs.push({ record_ID: r.ID, message: msg, process_code: sProcessCode }); aFailedRecordIDs.push(r.ID); });
+                    continue;
+                }
 
-        const linePayload = {
-        SalesOrder: vbeln,
-        SalesOrderItem: nextItem,
-        SalesOrderItemCategory: 'TAD',
-        Material: prod,                        // travel-specific product (MS_EXPENSE / EXPENSE)
-        RequestedQuantity: '1',
-        OrderQuantityUnit: 'EA',
-        PricingDate: toODataDate(moment()),
-        WBSElement: dummy.WBSElement,
-        ProfitCenter: dummy.ProfitCenter,
-        ProductionPlant: dummy.ProductionPlant,
+                // (optional per spec) mark trip flag for CP/CR
+                sapTrip = '1';
 
-        
-        YY1_EEGroup_SD_SDI: dummy.YY1_EEGroup_SD_SDI || '',
-        YY1_WNInvoice_SD_SDI: dupInvoice || '',
-        YY1_WNWorkOrder_SD_SDI: lead.wnWorkOrder || '',
-        YY1_PurchasingDoc_SD_SDI: dummy.YY1_PurchasingDoc_SD_SDI || '',
-        YY1_StrTimeMarkup_SD_SDI: dummy.YY1_StrTimeMarkup_SD_SDI || '',
-        YY1_DoubTimeMarkup_SD_SDI: dummy.YY1_DoubTimeMarkup_SD_SDI || '',
-        YY1_LegacyPurchase_SD_SDI: dummy.YY1_LegacyPurchase_SD_SDI || '',
-        YY1_WeekEnd_SD_SDI: toODataDate(lead.weekEndDate),
-        YY1_CustomURL_SDI: dummy.YY1_CustomURL_SDI || '',
-        YY1_ExtensionUUID1_SDI: dummy.YY1_ExtensionUUID1_SDI || '',
-        YY1_DuplicateWeek_SD_SDI: dummy.YY1_DuplicateWeek_SD_SDI || '',
-        YY1_ACA_HRS_SDI: dummy.YY1_ACA_HRS_SDI || '',
-        YY1_Royality_SD_SDI: dummy.YY1_Royality_SD_SDI || '',
-        YY1_CommodityCode_SD_SDI: dummy.YY1_CommodityCode_SD_SDI || '',
-        YY1_ExtensionUUID2_SDI: dummy.YY1_ExtensionUUID2_SDI || '',
-        YY1_SupplierInvoice_SD_SDI: dummy.YY1_SupplierInvoice_SD_SDI || '',
-        YY1_InvoiceVATtxt_SD_SDI: dummy.YY1_InvoiceVATtxt_SD_SDI || '',
-        YY1_CategoryCode_SD_SDI: dummy.YY1_CategoryCode_SD_SDI || '',
-        YY1_OverTimeMarkup_SD_SDI: dummy.YY1_OverTimeMarkup_SD_SDI || '',
-        YY1_ACA_HRS_PRICE_SDI: dummy.YY1_ACA_HRS_PRICE_SDI || '',
-        YY1_CustomBillingType_SDI: dummy.YY1_CustomBillingType_SDI || '',
-        YY1_ACA_RG_ONLY_SDI: dummy.YY1_ACA_RG_ONLY_SDI || '',
+            } else {
+                // MS - SC branch
+                LOG.info(`Group ${key} → STEP 3.7: ${lead.woType} branch (MS/SC)`);
 
-        // Existing travel-specific fields
-        ItemBillingBlockReason: billingBlock,
+                // 3.7.1 fetch SalesOrder via the item‐level custom work-order
+                LOG.info(`Group ${key} → STEP 3.7.1: fetching SalesOrder by WorkOrder='${lead.wnWorkOrder}'`);
+                const itemRec = await this.salesOrderAPI.executeQuery(
+                    SELECT.one.from('A_SalesOrderItem')
+                        .columns(['SalesOrder'])
+                        .where({ YY1_WNWorkOrder_SD_SDI: lead.wnWorkOrder })
+                );
+                if (!itemRec?.SalesOrder) {
+                    const msg = `Cannot fetch SalesOrder for WorkOrder='${lead.wnWorkOrder}'`;
+                    LOG.error(`Group ${key} → STEP 3.7 FAILED: ${msg}`);
+                    group.forEach(r => { aErrorLogs.push({ record_ID: r.ID, message: msg, process_code: sProcessCode }); aFailedRecordIDs.push(r.ID); });
+                    continue;
+                }
+                const soNumber = itemRec.SalesOrder;
 
-        to_PricingElement: {
-            results: [{
-            ConditionType: 'ZEXP',
-            ConditionRateValue: lead.amount.toFixed(2)
-            }]
-        },
-        to_ScheduleLine: [{
-            ScheduleLine: '0001',
-            RequestedDeliveryDate: toODataDate(lead.weekEndDate),
-            OrderQuantityUnit: 'EA',
-            ScheduleLineOrderQuantity: '1'
-        }]
-        };
+                // fetch the full SalesOrder header as before
+                fullHdr = await this.salesOrderAPI.executeQuery(
+                    SELECT.one.from('A_SalesOrder').columns([
+                        'SalesOrder', 'SalesOrderType', 'SalesOrganization', 'DistributionChannel',
+                        'OrganizationDivision', 'PurchaseOrderByCustomer', 'CustomerPriceGroup',
+                        'CustomerGroup', 'YY1_AlphanumericSalesO_SDH', 'SoldToParty', 'CustomerPaymentTerms'
+                    ]).where({ SalesOrder: soNumber })
+                );
+                if (!fullHdr) {
+                    const msg = `Cannot fetch header for SO='${soNumber}'`;
+                    LOG.error(`Group ${key} → STEP 3.7 FAILED: ${msg}`);
+                    group.forEach(r => { aErrorLogs.push({ record_ID: r.ID, message: msg, process_code: sProcessCode }); aFailedRecordIDs.push(r.ID); });
+                    continue;
+                }
+
+                // 3.7.x) partner‐function lookup
+                LOG.info(`Group ${key} → STEP 3.7.x: fetching header partners`);
+                const partners = await this.salesOrderAPI.executeQuery(
+                    SELECT.from('A_SalesOrderHeaderPartner')
+                        .columns(['PartnerFunction', 'Customer', 'Supplier', 'ReferenceBusinessPartner'])
+                        .where({ SalesOrder: fullHdr.SalesOrder })
+                );
+
+                // ZR‐rejection (best-effort as in your current logic)
+                try {
+                    const zr = partners.find(p => p.PartnerFunction === 'ZR');
+                    const lastContact = zr?.ReferenceBusinessPartner;
+                    if (lastContact && moment(lead.weekEndDate).isSameOrAfter(lastContact, 'day')) {
+                        fullHdr.SO_REJ = 'ZR';
+                        billingBlock = 'Z1';
+                        LOG.info(`Group ${key} → ZR rejection applied`);
+                    }
+                } catch {
+                    LOG.warn(`Group ${key} → ZR lookup failed, skipping`);
+                }
+
+                // Bill‐to
+                const re = partners.find(p => p.PartnerFunction === 'RE');
+                billTo = re?.Customer || '';
+
+                // 3.7.6) PO-indicator (existing logic)
+                LOG.info(`Group ${key} → STEP 3.7.6: checking Vendor_VendorRemit for SoldToParty='${fullHdr.SoldToParty}'`);
+                let poIndicator = '';
+                const vendMap = await SELECT.one.from('com.aleron.monitor.Vendor_VendorRemit')
+                    .columns(['vendor'])
+                    .where({ vendor: fullHdr.SoldToParty });
+
+                if (vendMap) {
+                    LOG.info(`Group ${key} → 3.7.6: vendor mapping found → no PO`);
+                    poIndicator = '';
+                } else {
+                    LOG.info(`Group ${key} → 3.7.6: no vendor mapping → create PO`);
+                    poIndicator = '1';
+                }
+
+                if (fullHdr.CustomerPriceGroup === 'ZM') {
+                    LOG.info(`Group ${key} → 3.7.6: CustomerPriceGroup='ZM' → no PO`);
+                    poIndicator = '';
+                }
+
+                sapPo = poIndicator;
+
+                // persist PORequiredSAP
+                LOG.info(`Group ${key} → STEP 3.7.7: setting PORequiredSAP='${sapPo}' for this group`);
+                await UPDATE(this.recordsEntity).set({ PORequiredSAP: sapPo }).where({ ID: group.map(r => r.ID) });
+                group.forEach(r => { r.PORequiredSAP = sapPo; });
+            }
+
+            // // 3.8) locate existing PO & compute next item
+            // const vbeln = fullHdr.SalesOrder;
+            // LOG.info(`Group ${key} → STEP 3.8: locating existing PO by PDI for SO='${vbeln}'`);
+            // const poRec = await this.purchaseOrderAPI.executeQuery(
+            // SELECT.one.from('PurchaseOrderItem').columns(['PurchaseOrder']).where({ YY1_SDDocumentPD_PDI: vbeln })
+            // );
+            // let poNo = poRec?.PurchaseOrder || '';
+            // if (!poNo) LOG.warn(`Group ${key} → no existing PO, will create new`);
+
+            // const soTop = await this.salesOrderAPI.executeQuery(
+            // SELECT.one.from('A_SalesOrderItem').columns(['SalesOrderItem'])
+            //     .where({ SalesOrder: vbeln }).orderBy('SalesOrderItem desc')
+            // );
+            // const soMax = soTop?.SalesOrderItem || '00000';
+
+            // let poMax = '00000';
+            // if (poNo) {
+            // const poLines = await this.purchaseOrderAPI.fetchPurchaseOrderLines(poNo);
+            // if (poLines.length) {
+            //     const maxNum = poLines.map(i => parseInt(i.PurchaseOrderItem, 10)).reduce((a,b)=>Math.max(a,b), 0);
+            //     poMax = String(maxNum).padStart(5, '0');
+            // }
+            // }
+
+            // const highest = Math.max(parseInt(soMax,10), parseInt(poMax,10));
+            // const nextItem = String(highest + 10).padStart(5, '0');
+
+            // 3.8) locate existing PO & compute next item
+            const vbeln = fullHdr.SalesOrder;
+            LOG.info(`Group ${key} → STEP 3.8: locating existing PO by PDI for SO='${vbeln}'`);
+            const poRec = await this.purchaseOrderAPI.executeQuery(
+                SELECT.one.from('PurchaseOrderItem').columns(['PurchaseOrder']).where({ YY1_SDDocumentPD_PDI: vbeln })
+            );
+            let poNo = poRec?.PurchaseOrder || '';
+            if (!poNo) LOG.warn(`Group ${key} → no existing PO, will create new`);
+
+            // 🔹 use helper instead of manual soMax/poMax logic
+            const nextItem = await this.getNextLineItem(vbeln, poNo);
+            LOG.info(`Group ${key} → STEP 3.8: computed next item = '${nextItem}'`);
+
+            // 3.8.x) Duplicate‐SO check
+            LOG.info(`Group ${key} → STEP 3.8.x: duplicate SO‐item check`);
+            const dupInvoice = fullHdr.CustomerGroup === 'ZI' ? `${lead.wnInvoiceNo}IC` : lead.wnInvoiceNo;
+            try {
+                var existingItem = await this.salesOrderAPI.executeQuery(
+                    SELECT.one.from('A_SalesOrderItem')
+                        .columns(['SalesOrderItem'])
+                        .where({ SalesOrder: vbeln, YY1_WNInvoice_SD_SDI: dupInvoice })
+                );
+
+            } catch (error) {
+                LOG.error(`Group ${key} → STEP 3.8.x ERROR: ${error.message}`);
+            }
+            if (existingItem) {
+                const msg = `Duplicate invoice '${dupInvoice}' on SalesOrder '${vbeln}'`;
+                LOG.error(`Group ${key} → STEP 3.8.x FAILED: ${msg}`);
+                group.forEach(r => { aErrorLogs.push({ record_ID: r.ID, message: msg, process_code: sProcessCode }); aFailedRecordIDs.push(r.ID); });
+                continue; // skip this group entirely
+            }
 
 
-        LOG.info(`Group ${key} → Payload:\n${JSON.stringify(linePayload, null, 2)}`);
+            // 3.9) dummy item + WBSElement check
+            try {
+                LOG.info(`Group ${key} → STEP 3.9: fetching dummy item '00010'`);
+                var dummy = await this.salesOrderAPI.executeQuery(
+                    SELECT.one.from('A_SalesOrderItem')
+                        .columns([
+                            'SalesOrderItem',
+                            'Material',
+                            'WBSElement',
+                            'ProfitCenter',
+                            'ProductionPlant',
+                            'YY1_EEGroup_SD_SDI',
+                            'YY1_WNInvoice_SD_SDI',
+                            'YY1_PurchasingDoc_SD_SDI',
+                            'YY1_StrTimeMarkup_SD_SDI',
+                            'YY1_DoubTimeMarkup_SD_SDI',
+                            'YY1_LegacyPurchase_SD_SDI',
+                            'YY1_WeekEnd_SD_SDI',
+                            'YY1_CustomURL_SDI',
+                            'YY1_ExtensionUUID1_SDI',
+                            'YY1_DuplicateWeek_SD_SDI',
+                            'YY1_ACA_HRS_SDI',
+                            'YY1_Royality_SD_SDI',
+                            'YY1_CommodityCode_SD_SDI',
+                            'YY1_ExtensionUUID2_SDI',
+                            'YY1_SupplierInvoice_SD_SDI',
+                            'YY1_InvoiceVATtxt_SD_SDI',
+                            'YY1_CategoryCode_SD_SDI',
+                            'YY1_OverTimeMarkup_SD_SDI',
+                            'YY1_ACA_HRS_PRICE_SDI',
+                            'YY1_CustomBillingType_SDI',
+                            'YY1_ACA_RG_ONLY_SDI'
+                        ])
+                        .where({ SalesOrder: vbeln, SalesOrderItem: '00010' })
+                );
 
-        LOG.info(`Group ${key} → STEP 3.12: calling createSalesOrderItems`);
-        const [createRes] = await this.salesOrderAPI.createSalesOrderItems([linePayload]);
-        LOG.info(`Group ${key} → response:\n${JSON.stringify(createRes, null, 2)}`);
+            } catch (error) {
+                LOG.error(`Group ${key} → STEP 3.9 ERROR: ${error.message}`);
+            }
 
-        if (createRes.hasError) {
-        const errMsg = Array.isArray(createRes.reason)
-            ? createRes.reason.map(e => e.message || JSON.stringify(e)).join(' • ')
-            : (createRes.reason.message || String(createRes.reason));
-        group.forEach(r => { aErrorLogs.push({ record_ID: r.ID, message: errMsg, process_code: sProcessCode }); aFailedRecordIDs.push(r.ID); });
-        await ProcessLogger.addLogs(aErrorLogs);
-        await this.markRecordsValid(sProcessCode, aFailedRecordIDs, false);
-        continue;
-        } else {
-        group.forEach(r => aPassedRecordIDs.push(r.ID));
-        await UPDATE(this.recordsEntity)
-            .set({ salesItemNoSAP: nextItem, salesDocumentNoSAP: vbeln })
-            .where({ ID: group.map(r => r.ID) });
+            if (!dummy) { throw new Error(`Group ${key} → dummy item 00010 missing for SO='${vbeln}'`); }
+            if (!dummy.WBSElement) {
+                const msg = `Project Number is missing`;
+                LOG.error(`Group ${key} → STEP 3.9 FAILED: ${msg}`);
+                group.forEach(r => { aErrorLogs.push({ record_ID: r.ID, message: msg, process_code: sProcessCode }); aFailedRecordIDs.push(r.ID); });
+                continue;
+            }
 
-        // 3.15) VC1 insert
-        LOG.info(`[processSalesOrder] STEP 3.15: inserting VC1 for SO='${vbeln}', item='${nextItem}'`);
-        const vc1 = {
-            SalesOrderNumber: vbeln,
-            SalesOrderItemNum: nextItem,
-            SAP_Description: lead.description || '',
-            Billing_Document_Number: lead.billingDocNo || '',
-            YY1_ACA_RG_ONLY: lead.acaRgOnly || '',
-            YY2_ACA_HRS: lead.acaHrs || 0,
-            YY3_ACA_HRS_PRICE: lead.acaHrsPrice || 0,
-            YY4_ACA_TOTAL_HRS_PRICE: lead.acaTotalHrsPrice || 0,
-            YY5_LINE_ITEM_NUMBER: +nextItem,
-            YY8_WEEK_ENDING2: lead.timeSheetEndDate,
-        };
-        LOG.info(`VC1 payload → ${JSON.stringify(vc1)}`);
 
-        let vc1Res;
-        try {
-            vc1Res = await this.salesVCData1Api.executeQuery(INSERT.into('YY1_SALESVCDATA_1').entries(vc1));
-            LOG.info(`VC1 raw response → ${JSON.stringify(vc1Res)}`);
-        } catch (err) {
-            LOG.error(`VC1 insert FAILED: ${err.message}`);
-            LOG.error(`VC1 payload was: ${JSON.stringify(vc1)}`);
-            throw err;
-        }
-
-        const vc1Uuid = Array.isArray(vc1Res) ? vc1Res[0]?.SAP_UUID : vc1Res.SAP_UUID;
-        if (vc1Uuid) {
-            LOG.info(`VC1 returned UUID → ${vc1Uuid}`);
-            await UPDATE(this.recordsEntity).set({ vcData1UUID: vc1Uuid }).where({ ID: group.map(r => r.ID) });
-        } else {
-            LOG.warn(`VC1 insert did not return a UUID`);
-        }
-
-        // 3.17) TRIP inserts (Header, Item, Cost)
-        try {
-            const TripNumber = Math.floor(Date.now() / 1000);
-            const totalAmount = group.reduce((sum, r) => sum + (Number(r.amount) || 0), 0);
-
-            const headerEntry = {
-            TripNumber, Personnel: lead.sapEmployeeNo,
-            StartOfTrip: moment(lead.beginDate,'YYYYMMDD').toDate(),
-            EndOfTrip:   moment(lead.endDate,'YYYYMMDD').toDate(),
-            ContractNo: lead.contractNo, WnInvoiceNo: lead.wnInvoiceNo,
-            SapEmployeeNo: lead.sapEmployeeNo, WnWorkOrder: lead.wnWorkOrder,
-            WoType: lead.woType, WeekEndDate: lead.weekEndDate,
-            TotalAmount: totalAmount, Currency: lead.currency
+            // 3.11) build & post new SO‐Item (expense)
+            LOG.info(`Group ${key} → STEP 3.11: building expense payload`);
+            const toODataDate = date => {
+                const ms = +moment(date, ['YYYYMMDD', 'YYYY-MM-DD']).valueOf();
+                return `/Date(${ms})/`;
             };
-            LOG.info(`[processSalesOrder] STEP 3.17: inserting TRIPHeader → ${JSON.stringify(headerEntry)}`);
-            await cds.run(INSERT.into('com.aleron.monitor.TRIPHeader').entries(headerEntry));
+            const prod = (lead.woType === 'MS' && fullHdr.SalesOrganization === '2100') ? 'MS_EXPENSE' : 'EXPENSE';
 
-            const itemEntry = {
-            TripNumber, Personnel: lead.sapEmployeeNo,
-            StartOfTrip: moment(lead.beginDate,'YYYYMMDD').toDate(),
-            EndOfTrip:   moment(lead.endDate,'YYYYMMDD').toDate(),
-            ExpenseReceiptNumber: '', TripExpenseType: lead.tripExpenseType,
-            Amount: totalAmount, Currency: lead.currency,
-            From: lead.FromLocation || '', To: lead.ToLocation || '',
-            ReceiptsDocumentNumber: '', UrlLink: ''
+            const linePayload = {
+                SalesOrder: vbeln,
+                SalesOrderItem: nextItem,
+                SalesOrderItemCategory: 'TAD',
+                Material: prod,                        // travel-specific product (MS_EXPENSE / EXPENSE)
+                RequestedQuantity: '1',
+                OrderQuantityUnit: 'EA',
+                PricingDate: toODataDate(moment()),
+                WBSElement: dummy.WBSElement,
+                ProfitCenter: dummy.ProfitCenter,
+                ProductionPlant: dummy.ProductionPlant,
+
+
+                YY1_EEGroup_SD_SDI: dummy.YY1_EEGroup_SD_SDI || '',
+                YY1_WNInvoice_SD_SDI: dupInvoice || '',
+                YY1_WNWorkOrder_SD_SDI: lead.wnWorkOrder || '',
+                YY1_PurchasingDoc_SD_SDI: dummy.YY1_PurchasingDoc_SD_SDI || '',
+                YY1_StrTimeMarkup_SD_SDI: dummy.YY1_StrTimeMarkup_SD_SDI || '',
+                YY1_DoubTimeMarkup_SD_SDI: dummy.YY1_DoubTimeMarkup_SD_SDI || '',
+                YY1_LegacyPurchase_SD_SDI: dummy.YY1_LegacyPurchase_SD_SDI || '',
+                YY1_WeekEnd_SD_SDI: toODataDate(lead.weekEndDate),
+                YY1_CustomURL_SDI: dummy.YY1_CustomURL_SDI || '',
+                YY1_ExtensionUUID1_SDI: dummy.YY1_ExtensionUUID1_SDI || '',
+                YY1_DuplicateWeek_SD_SDI: dummy.YY1_DuplicateWeek_SD_SDI || '',
+                YY1_ACA_HRS_SDI: dummy.YY1_ACA_HRS_SDI || '',
+                YY1_Royality_SD_SDI: dummy.YY1_Royality_SD_SDI || '',
+                YY1_CommodityCode_SD_SDI: dummy.YY1_CommodityCode_SD_SDI || '',
+                YY1_ExtensionUUID2_SDI: dummy.YY1_ExtensionUUID2_SDI || '',
+                YY1_SupplierInvoice_SD_SDI: dummy.YY1_SupplierInvoice_SD_SDI || '',
+                YY1_InvoiceVATtxt_SD_SDI: dummy.YY1_InvoiceVATtxt_SD_SDI || '',
+                YY1_CategoryCode_SD_SDI: dummy.YY1_CategoryCode_SD_SDI || '',
+                YY1_OverTimeMarkup_SD_SDI: dummy.YY1_OverTimeMarkup_SD_SDI || '',
+                YY1_ACA_HRS_PRICE_SDI: dummy.YY1_ACA_HRS_PRICE_SDI || '',
+                YY1_CustomBillingType_SDI: dummy.YY1_CustomBillingType_SDI || '',
+                YY1_ACA_RG_ONLY_SDI: dummy.YY1_ACA_RG_ONLY_SDI || '',
+
+                // Existing travel-specific fields
+                ItemBillingBlockReason: billingBlock,
+
+                to_PricingElement: {
+                    results: [{
+                        ConditionType: 'ZEXP',
+                        ConditionRateValue: lead.amount.toFixed(2)
+                    }]
+                },
+                to_ScheduleLine: [{
+                    ScheduleLine: '0001',
+                    RequestedDeliveryDate: toODataDate(lead.weekEndDate),
+                    OrderQuantityUnit: 'EA',
+                    ScheduleLineOrderQuantity: '1'
+                }]
             };
-            LOG.info(`[processSalesOrder] STEP 3.17: inserting aggregated TRIPItem → ${JSON.stringify(itemEntry)}`);
-            await cds.run(INSERT.into('com.aleron.monitor.TRIPItem').entries(itemEntry));
 
-            const costEntry = {
-            TripNumber, Personnel: lead.sapEmployeeNo,
-            StartOfTrip: moment(lead.beginDate,'YYYYMMDD').toDate(),
-            EndOfTrip:   moment(lead.endDate,'YYYYMMDD').toDate(),
-            CostDistributionPercentage: 100,
-            Project: lead.projectNumberSAP || ''
-            };
-            LOG.info(`[processSalesOrder] STEP 3.17: inserting TRIPCost → ${JSON.stringify(costEntry)}`);
-            await cds.run(INSERT.into('com.aleron.monitor.TRIPCost').entries(costEntry));
 
-        } catch (err) {
-            LOG.warn(`Group ${key} → STEP 3.17 TRIP insert failed, skipping group: ${err.message}`);
-            group.forEach(r => aSkippedRecords.push(r));
+            LOG.info(`Group ${key} → Payload:\n${JSON.stringify(linePayload, null, 2)}`);
+
+            LOG.info(`Group ${key} → STEP 3.12: calling createSalesOrderItems`);
+            const [createRes] = await this.salesOrderAPI.createSalesOrderItems([linePayload]);
+            LOG.info(`Group ${key} → response:\n${JSON.stringify(createRes, null, 2)}`);
+
+            if (createRes.hasError) {
+                const errMsg = Array.isArray(createRes.reason)
+                    ? createRes.reason.map(e => e.message || JSON.stringify(e)).join(' • ')
+                    : (createRes.reason.message || String(createRes.reason));
+                group.forEach(r => { aErrorLogs.push({ record_ID: r.ID, message: errMsg, process_code: sProcessCode }); aFailedRecordIDs.push(r.ID); });
+                await ProcessLogger.addLogs(aErrorLogs);
+                await this.markRecordsValid(sProcessCode, aFailedRecordIDs, false);
+                continue;
+            } else {
+                group.forEach(r => aPassedRecordIDs.push(r.ID));
+                await UPDATE(this.recordsEntity)
+                    .set({ salesItemNoSAP: nextItem, salesDocumentNoSAP: vbeln })
+                    .where({ ID: group.map(r => r.ID) });
+
+                // 3.15) VC1 insert
+                LOG.info(`[processSalesOrder] STEP 3.15: inserting VC1 for SO='${vbeln}', item='${nextItem}'`);
+                const vc1 = {
+                    SalesOrderNumber: vbeln,
+                    SalesOrderItemNum: nextItem,
+                    SAP_Description: lead.description || '',
+                    Billing_Document_Number: lead.billingDocNo || '',
+                    YY1_ACA_RG_ONLY: lead.acaRgOnly || '',
+                    YY2_ACA_HRS: lead.acaHrs || 0,
+                    YY3_ACA_HRS_PRICE: lead.acaHrsPrice || 0,
+                    YY4_ACA_TOTAL_HRS_PRICE: lead.acaTotalHrsPrice || 0,
+                    YY5_LINE_ITEM_NUMBER: +nextItem,
+                    YY8_WEEK_ENDING2: lead.timeSheetEndDate,
+                };
+                LOG.info(`VC1 payload → ${JSON.stringify(vc1)}`);
+
+                let vc1Res;
+                try {
+                    vc1Res = await this.salesVCData1Api.executeQuery(INSERT.into('YY1_SALESVCDATA_1').entries(vc1));
+                    LOG.info(`VC1 raw response → ${JSON.stringify(vc1Res)}`);
+                } catch (err) {
+                    LOG.error(`VC1 insert FAILED: ${err.message}`);
+                    LOG.error(`VC1 payload was: ${JSON.stringify(vc1)}`);
+                    throw err;
+                }
+
+                const vc1Uuid = Array.isArray(vc1Res) ? vc1Res[0]?.SAP_UUID : vc1Res.SAP_UUID;
+                if (vc1Uuid) {
+                    LOG.info(`VC1 returned UUID → ${vc1Uuid}`);
+                    var Vcdata = [];
+                    group.forEach(r => Vcdata.push(r.ID));
+                    await UPDATE(this.recordsEntity).set({ vcData1UUID: vc1Uuid }).where({ ID: group.map(r => r.ID) });
+                    await ProcessLogger.addLogs(Vcdata.map((sId) => ({ record_ID: sId, message: `VC1 data successfully inserted with UUID: ${vc1Uuid} for record ${sId} and sales order ${vbeln}`, process_code: sProcessCode, type: 3 })));
+
+                } else {
+                    LOG.warn(`VC1 insert did not return a UUID`);
+                    group.forEach(r => { aErrorLogs.push({ record_ID: r.ID, message: `VC1 data inserted failed for record ${r.ID} and sales order ${vbeln}`, process_code: sProcessCode }); });
+                    await ProcessLogger.addLogs(aErrorLogs);
+                }
+
+                // 3.17) TRIP inserts (Header, Item, Cost)
+                // Sequence helper factory
+                try {
+                    const TripNumber = Math.floor(Date.now() / 1000);
+                    const totalAmount = group.reduce((sum, r) => sum + (Number(r.amount) || 0), 0);
+
+                    const headerEntry = {
+                        TripNumber, Personnel: lead.sapEmployeeNo,
+                        StartOfTrip: moment(lead.beginDate, 'YYYYMMDD').toDate(),
+                        EndOfTrip: moment(lead.endDate, 'YYYYMMDD').toDate(),
+                        ContractNo: lead.contractNo, WnInvoiceNo: lead.wnInvoiceNo,
+                        SapEmployeeNo: lead.sapEmployeeNo, WnWorkOrder: lead.wnWorkOrder,
+                        WoType: lead.woType, WeekEndDate: lead.weekEndDate,
+                        TotalAmount: totalAmount, Currency: lead.currency
+                    };
+                    LOG.info(`[processSalesOrder] STEP 3.17: inserting TRIPHeader → ${JSON.stringify(headerEntry)}`);
+                    try {
+                        await cds.run(INSERT.into('com.aleron.monitor.TRIPHeader').entries(headerEntry));
+                        const itemEntry = {
+                            TripNumber, Personnel: lead.sapEmployeeNo,
+                            StartOfTrip: moment(lead.beginDate, 'YYYYMMDD').toDate(),
+                            EndOfTrip: moment(lead.endDate, 'YYYYMMDD').toDate(),
+                            ExpenseReceiptNumber: '', TripExpenseType: lead.tripExpenseType,
+                            Amount: totalAmount, Currency: lead.currency,
+                            From: lead.FromLocation || '', To: lead.ToLocation || '',
+                            ReceiptsDocumentNumber: '', UrlLink: ''
+                        };
+                        LOG.info(`[processSalesOrder] STEP 3.17: inserting aggregated TRIPItem → ${JSON.stringify(itemEntry)}`);
+                        try {
+                            await cds.run(INSERT.into('com.aleron.monitor.TRIPItem').entries(itemEntry));
+                            const costEntry = {
+                                TripNumber, Personnel: lead.sapEmployeeNo,
+                                StartOfTrip: moment(lead.beginDate, 'YYYYMMDD').toDate(),
+                                EndOfTrip: moment(lead.endDate, 'YYYYMMDD').toDate(),
+                                CostDistributionPercentage: 100,
+                                Project: lead.projectNumberSAP || ''
+                            };
+                            LOG.info(`[processSalesOrder] STEP 3.17: inserting TRIPCost → ${JSON.stringify(costEntry)}`);
+                            await cds.run(INSERT.into('com.aleron.monitor.TRIPCost').entries(costEntry));
+                        } catch (error) {
+                            LOG.warn(`Group ${key} → STEP 3.17 TRIP insert failed, skipping group: ${err.message}`);
+                            group.forEach(r => aSkippedRecords.push(r));
+                            group.forEach(r => { aErrorLogs.push({ record_ID: r.ID, message: `Failed to insert TRIP with error ${err.message} for Employee ${r.sapEmployeeNo}`, process_code: sProcessCode }); });
+                            await ProcessLogger.addLogs(aErrorLogs);
+                        }
+
+                    } catch (error) {
+                        LOG.warn(`Group ${key} → STEP 3.17 TRIP insert failed, skipping group: ${err.message}`);
+                        group.forEach(r => aSkippedRecords.push(r));
+                        group.forEach(r => { aErrorLogs.push({ record_ID: r.ID, message: `Failed to insert TRIP with error ${err.message} for Employee ${r.sapEmployeeNo}`, process_code: sProcessCode }); });
+                        await ProcessLogger.addLogs(aErrorLogs);
+                    }
+                    var tripdata = [];
+                    group.forEach(r => tripdata.push(r.ID));
+                    await ProcessLogger.addLogs(tripdata.map((sId) => ({ record_ID: sId, message: `${TripNumber} Trip created for Employee ${r.sapEmployeeNo}`, process_code: sProcessCode, type: 3 })));
+                } catch (err) {
+                    LOG.warn(`Group ${key} → STEP 3.17 TRIP insert failed, skipping group: ${err.message}`);
+                    group.forEach(r => aSkippedRecords.push(r));
+                    group.forEach(r => { aErrorLogs.push({ record_ID: r.ID, message: `Failed to insert TRIP with error ${err.message} for Employee ${r.sapEmployeeNo}`, process_code: sProcessCode }); });
+                    await ProcessLogger.addLogs(aErrorLogs);
+                }
+            }
         }
+
+        // 4) Persist & mark
+        if (aErrorLogs.length) {
+            await ProcessLogger.addLogs(aErrorLogs);
+            await this.markRecordsValid(sProcessCode, aFailedRecordIDs, false);
         }
-    }
+        if (aPassedRecordIDs.length) {
+            await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
+            await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({ record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3 })));
+            await this.markRecordsValid(sProcessCode, aPassedRecordIDs, true);
+            await UPDATE(this.recordsEntity).set({ processLevel_code: 'G' }).where({ ID: aPassedRecordIDs });
+            this.records.forEach(r => { if (aPassedRecordIDs.includes(r.ID)) r.processLevel_code = 'G'; });
+        }
 
-    // 4) Persist & mark
-    if (aErrorLogs.length) {
-        await ProcessLogger.addLogs(aErrorLogs);
-        await this.markRecordsValid(sProcessCode, aFailedRecordIDs, false);
-    }
-    if (aPassedRecordIDs.length) {
-        await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
-        await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3})));
-        await this.markRecordsValid(sProcessCode, aPassedRecordIDs, true);
-        await UPDATE(this.recordsEntity).set({ processLevel_code: 'G' }).where({ ID: aPassedRecordIDs });
-        this.records.forEach(r => { if (aPassedRecordIDs.includes(r.ID)) r.processLevel_code = 'G'; });
-    }
-
-    // 5) Exclusion set & return
-    this.updateExclusionSet({ passed: aPassedRecordIDs, failed: aFailedRecordIDs, skipped: aSkippedRecords, bBreakExecution });
-    return { hasError: aFailedRecordIDs.length > 0, continue: aFailedRecordIDs.length === 0 };
+        // 5) Exclusion set & return
+        this.updateExclusionSet({ passed: aPassedRecordIDs, failed: aFailedRecordIDs, skipped: aSkippedRecords, bBreakExecution });
+        return { hasError: aFailedRecordIDs.length > 0, continue: aFailedRecordIDs.length === 0 };
     }
 
 
@@ -1123,8 +1160,8 @@ if (contractType === '1' && rec.wnWorkOrder) {
         this.records.forEach(rec => {
             LOG.info(` → Record ${rec.ID}: level='${rec.processLevel_code}', valid='${rec.valid}'`);
             // if (rec.processLevel_code === sProcessCode && rec.valid) {
-                // if (this.shouldRecordProcess(rec, sProcessCode)) {
-                if (rec.processLevel_code === sProcessCode) {
+            // if (this.shouldRecordProcess(rec, sProcessCode)) {
+            if (rec.processLevel_code === sProcessCode) {
                 aRecordsForProcessing.push(rec);
                 aRecordIDs.push(rec.ID);
                 LOG.info(`    INCLUDED`);
@@ -1200,13 +1237,13 @@ if (contractType === '1' && rec.wnWorkOrder) {
             LOG.info(`Group ${key} → fetching header for IC SO='${icSo}'`);
             const icHdr = await this.salesOrderAPI.executeQuery(
                 SELECT.one.from('A_SalesOrder')
-                .columns([
-                    'SalesOrder', 'DistributionChannel', 'CustomerPriceGroup',
-                    'SoldToParty', 'SalesOrganization', 'CustomerPaymentTerms'
-                ])
-                .where({
-                    SalesOrder: icSo
-                })
+                    .columns([
+                        'SalesOrder', 'DistributionChannel', 'CustomerPriceGroup',
+                        'SoldToParty', 'SalesOrganization', 'CustomerPaymentTerms'
+                    ])
+                    .where({
+                        SalesOrder: icSo
+                    })
             );
             if (!icHdr) {
                 const msg = `Cannot fetch header for IC SO='${icSo}'`;
@@ -1241,10 +1278,10 @@ if (contractType === '1' && rec.wnWorkOrder) {
             LOG.info(`Group ${key} → fetching partners for IC SO`);
             const partners = await this.salesOrderAPI.executeQuery(
                 SELECT.from('A_SalesOrderHeaderPartner')
-                .columns(['PartnerFunction', 'Customer', 'Supplier'])
-                .where({
-                    SalesOrder: icSo
-                })
+                    .columns(['PartnerFunction', 'Customer', 'Supplier'])
+                    .where({
+                        SalesOrder: icSo
+                    })
             );
             const zr = partners.find(p => p.PartnerFunction === 'ZR');
             const lifnr = zr?.Supplier || '';
@@ -1264,14 +1301,14 @@ if (contractType === '1' && rec.wnWorkOrder) {
             LOG.info(`Group ${key} → fetching dummy item '00010'`);
             const dummy = await this.salesOrderAPI.executeQuery(
                 SELECT.one.from('A_SalesOrderItem')
-                .columns([
-                    'SalesOrderItem', 'Material', 'WBSElement', 'ProfitCenter',
-                    'YY1_PurchasingDoc_SD_SDI', 'ProductionPlant'
-                ])
-                .where({
-                    SalesOrder: icSo,
-                    SalesOrderItem: '00010'
-                })
+                    .columns([
+                        'SalesOrderItem', 'Material', 'WBSElement', 'ProfitCenter',
+                        'YY1_PurchasingDoc_SD_SDI', 'ProductionPlant'
+                    ])
+                    .where({
+                        SalesOrder: icSo,
+                        SalesOrderItem: '00010'
+                    })
             );
             if (!dummy) {
                 const msg = `No dummy item 00010 for IC SO='${icSo}'`;
@@ -1306,28 +1343,28 @@ if (contractType === '1' && rec.wnWorkOrder) {
             LOG.info(`Group ${key} → computing next item`);
             const soTop = await this.salesOrderAPI.executeQuery(
                 SELECT.one.from('A_SalesOrderItem')
-                .columns(['SalesOrderItem'])
-                .where({
-                    SalesOrder: icSo
-                })
-                .orderBy('SalesOrderItem desc')
+                    .columns(['SalesOrderItem'])
+                    .where({
+                        SalesOrder: icSo
+                    })
+                    .orderBy('SalesOrderItem desc')
             );
             const soMax = soTop?.SalesOrderItem || '00000';
             let poMax = '00000';
             if (sapPoIC === '2') {
                 const poRec = await this.purchaseOrderAPI.executeQuery(
                     SELECT.one.from('PurchaseOrderItem')
-                    .columns(['PurchaseOrder'])
-                    .where({
-                        YY1_SDDocumentPD_PDI: icSo
-                    })
+                        .columns(['PurchaseOrder'])
+                        .where({
+                            YY1_SDDocumentPD_PDI: icSo
+                        })
                 );
                 if (poRec?.PurchaseOrder) {
                     const lines = await this.purchaseOrderAPI.fetchPurchaseOrderLines(poRec.PurchaseOrder);
                     if (lines.length) {
                         poMax = String(
                             lines.map(l => parseInt(l.PurchaseOrderItem, 10))
-                            .reduce((a, b) => Math.max(a, b), 0)
+                                .reduce((a, b) => Math.max(a, b), 0)
                         ).padStart(5, '0');
                     }
                 }
@@ -1339,11 +1376,11 @@ if (contractType === '1' && rec.wnWorkOrder) {
             LOG.info(`Group ${key} → duplicate check for invoice='${lead.wnInvoiceNo}'`);
             const dup = await this.salesOrderAPI.executeQuery(
                 SELECT.one.from('A_SalesOrderItem')
-                .columns(['SalesOrderItem'])
-                .where({
-                    SalesOrder: icSo,
-                    YY1_WNInvoice_SD_SDI: lead.wnInvoiceNo
-                })
+                    .columns(['SalesOrderItem'])
+                    .where({
+                        SalesOrder: icSo,
+                        YY1_WNInvoice_SD_SDI: lead.wnInvoiceNo
+                    })
             );
             if (dup) {
                 const msg = `Duplicate IC invoice='${lead.wnInvoiceNo}' on SO='${icSo}'`;
@@ -1362,7 +1399,7 @@ if (contractType === '1' && rec.wnWorkOrder) {
 
             // 3.8) build & post IC SO‐Item
             LOG.info(`Group ${key} → building IC payload SO='${icSo}', item='${nextItem}'`);
-            const toODataDate = d => `/Date(${moment(d,['YYYYMMDD','YYYY-MM-DD']).valueOf()})/`;
+            const toODataDate = d => `/Date(${moment(d, ['YYYYMMDD', 'YYYY-MM-DD']).valueOf()})/`;
             const icPayload = {
                 SalesOrder: icSo,
                 SalesOrderItem: nextItem,
@@ -1541,7 +1578,7 @@ if (contractType === '1' && rec.wnWorkOrder) {
         }
         if (aPassedRecordIDs.length) {
             await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
-            await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3})));
+            await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({ record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3 })));
             await this.markRecordsValid(sProcessCode, aPassedRecordIDs, true);
 
             // bump to next step 5
@@ -1971,7 +2008,7 @@ if (contractType === '1' && rec.wnWorkOrder) {
                             Plant: soHdr.SalesOrganization,
                             NetPriceAmount: safePoAmount,
                             // PurchaseOrderQuantityUnit: soItem.OrderQuantityUnit || 'LAB',
-                             PurchaseOrderQuantityUnit: 'EA',
+                            PurchaseOrderQuantityUnit: 'EA',
                             // === FIX: quantity = hours, price = vendor rate ===
                             OrderQuantity: useQty,
                             NetPriceQuantity: useQty,
@@ -2054,7 +2091,7 @@ if (contractType === '1' && rec.wnWorkOrder) {
                     const matFallback = soItem.Material || rec.material || '100000046';
                     const plantFallback = soItem.ProductionPlant || rec.ProductionPlant || '1200';
                     // const unitFallback = soItem.OrderQuantityUnit || rec.orderUnit || 'LAB';
-                     const unitFallback = 'EA';
+                    const unitFallback = 'EA';
                     const currFallback = soHdr.TransactionCurrency || rec.currency || 'USD';
                     const tCodeFallback = soItem.TaxCode || rec.taxCode || 'I0';
                     const jurFallback = rec.taxJurisdiction || '2600000000';
@@ -2192,7 +2229,7 @@ if (contractType === '1' && rec.wnWorkOrder) {
 
     /*** Step B: MIRO (Incoming Invoice) creation ***/
     async processSupplierInvoice(sProcessCode, bBreakExecution) {
-                LOG.info(`[processSupplierInvoice] ENTRY (code=${sProcessCode})`);
+        LOG.info(`[processSupplierInvoice] ENTRY (code=${sProcessCode})`);
         // this.updateProcessingState(sProcessCode);
 
         if (sProcessCode !== 'B') {
@@ -2266,18 +2303,18 @@ if (contractType === '1' && rec.wnWorkOrder) {
                 const invoicingParty = po.Supplier || '40151';
 
 
-             // inside try { ... } after computing invoicingParty:
+                // inside try { ... } after computing invoicingParty:
                 const lfa1Row = await this.supplierLFA1API.executeQuery(
-                SELECT.one
-                    .from('YY1_Supplier_LFA1') // <-- entity set from Portman: .../YY1_SUPPLIER_LFA1_CDS/YY1_Supplier_LFA1
-                    .columns(['Supplier', 'SupplierStandardCarrierAccess'])
-                    .where({ Supplier: invoicingParty })
+                    SELECT.one
+                        .from('YY1_Supplier_LFA1') // <-- entity set from Portman: .../YY1_SUPPLIER_LFA1_CDS/YY1_Supplier_LFA1
+                        .columns(['Supplier', 'SupplierStandardCarrierAccess'])
+                        .where({ Supplier: invoicingParty })
                 );
 
                 const supplierCarrierAccess = lfa1Row?.SupplierStandardCarrierAccess ?? null;
                 const paymentBlockingReason = supplierCarrierAccess
-                ? String(supplierCarrierAccess).trim().slice(0, 2).toUpperCase()
-                : undefined;
+                    ? String(supplierCarrierAccess).trim().slice(0, 2).toUpperCase()
+                    : undefined;
 
                 // b) PO item
                 const item = await this.purchaseOrderAPI.executeQuery(
@@ -2393,7 +2430,7 @@ if (contractType === '1' && rec.wnWorkOrder) {
                 for (const r of recs) {
                     errorLogs.push({
                         record_ID: r.ID,
-                        message: err.message , process_code: sProcessCode
+                        message: err.message, process_code: sProcessCode
                     });
                     failed.push(r.ID);
                 }
@@ -2443,6 +2480,26 @@ if (contractType === '1' && rec.wnWorkOrder) {
 
         this.recordIDs = new Set(passed); // if you have a final “complete” state
         return { hasError: failed.length > 0, continue: true };
+    }
+    //Step A Trip Management
+    async TripManage(sProcessCode, bBreakExecution) {
+        await ProcessLogger.removeLogs([...this.recordIDs], null, sProcessCode);
+        await this._fetchRecords(this.recordIDs);
+        LOG.info(`[processTripManagement] ENTRY (code=${sProcessCode})`);
+        // this.updateProcessingState(sProcessCode);
+
+        if (sProcessCode !== 'A') {
+            LOG.info('[processTripManagement] SKIP – not at Trip Management step (A)');
+            return {
+                hasError: false,
+                continue: true
+            };
+        }
+
+        // 1) re-fetch batch records at A
+        await this._fetchRecords(this.recordIDs);
+        const toProcess = this.records.filter(r => r.processLevel_code === 'A');
+        LOG.info(`[processTripManagement] ${toProcess.length} records to process (step A)`);
     }
 
 
