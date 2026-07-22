@@ -221,16 +221,54 @@ class Bonus_G extends Processor {
         }
 
         LOG.info('[VAL] fetching reference data (SC/SO/SOItem/FieldValidations)…');
+        const prefetch = await this.salesOrderAPI.executeQuery(
+        SELECT.from('A_SalesOrder')
+            .columns(['SalesOrder', 'AdditionalCustomerGroup2'])
+            .where({ SalesOrder: { in: [...new Set(aSalesOrderWhere)] } }));
+
+        const aZWNSalesOrders = prefetch
+            .filter(o => o.AdditionalCustomerGroup2 === 'ZWN')
+            .map(o => o.SalesOrder);
+
+        const aNonZWNSalesOrders = prefetch
+            .filter(o => o.AdditionalCustomerGroup2 !== 'ZWN')
+            .map(o => o.SalesOrder);
+
+        const aSalesItemQueries = [];
+
+        if (aZWNSalesOrders.length) {
+            aSalesItemQueries.push(
+                this.salesOrderAPI.executeQuery(
+                    SELECT.from('A_SalesOrderItem')
+                        .columns(['SalesOrder', 'SalesOrderItem', 'YY1_WeekEnd_SD_SDI',
+                            'SalesOrderItemCategory', 'YY1_WNWorkOrder_SD_SDI'])
+                        .where({ SalesOrder: { in: aZWNSalesOrders }, SalesOrderItem: '10' })
+                )
+            );
+        }
+
+        if (aNonZWNSalesOrders.length) {
+            aSalesItemQueries.push(
+                this.salesOrderAPI.executeQuery(
+                    SELECT.from('A_SalesOrderItem')
+                        .columns(['SalesOrder', 'SalesOrderItem', 'YY1_WeekEnd_SD_SDI',
+                            'SalesOrderItemCategory', 'YY1_WNWorkOrder_SD_SDI'])
+                        .where({
+                            YY1_WNWorkOrder_SD_SDI: { in: [...new Set(aNonZWNSalesOrders)] },
+                            SalesOrderItem: '10'
+                        })
+                )
+            );
+        }
+
         const [
             { reason: anySalesContractErr, value: aSalesContracts },
             { reason: anySalesOrderErr, value: aSalesOrders },
-            { reason: anySalesOrderItemErr, value: aSalesOrderItems },
+            salesOrderItemResults,
             { reason: anyFieldValidationErr, value: aFieldValidations }
         ] = await Promise.allSettled([
-            // Sales Contract Information with explicit fallback + logs
             this._fetchSalesContracts(aSalesContractIDs),
 
-            // Sales Orders
             this.salesOrderAPI.executeQuery(
                 SELECT.from('A_SalesOrder')
                     .columns(['SalesOrder', 'SalesOrganization', 'DistributionChannel', 'OrganizationDivision', 'SoldToParty',
@@ -238,18 +276,8 @@ class Bonus_G extends Processor {
                     .where({ YY1_AlphanumericSalesO_SDH: { in: [...new Set(aSalesOrderWhere)] } })
             ),
 
-            // Sales Order Items (first item only)
-            this.salesOrderAPI.executeQuery(
-                SELECT.from('A_SalesOrderItem')
-                    .columns(['SalesOrder', 'SalesOrderItem', 'YY1_WeekEnd_SD_SDI',
-                        'SalesOrderItemCategory', 'YY1_WNWorkOrder_SD_SDI'])
-                    .where({
-                        YY1_WNWorkOrder_SD_SDI: { in: [...new Set(aSalesOrderWhere)] },
-                        SalesOrderItem: '10'
-                    })
-            ),
+            Promise.all(aSalesItemQueries),
 
-            // Field Validations
             SELECT.from(FieldValidations)
                 .columns(['field', 'validation', 'term'])
                 .where({
@@ -257,6 +285,9 @@ class Bonus_G extends Processor {
                     validation: { in: [mFieldValidationTypeEnum.blank.val, mFieldValidationTypeEnum.mandatory.val] },
                 }),
         ]);
+
+        const anySalesOrderItemErr = salesOrderItemResults.reason;
+        const aSalesOrderItems = salesOrderItemResults.value?.flat() ?? [];
 
         if (anySalesContractErr) LOG.error(`[VAL] SC error: ${anySalesContractErr.message}`);
         if (anySalesOrderErr) LOG.error(`[VAL] SO error: ${anySalesOrderErr.message}`);
@@ -1462,19 +1493,51 @@ class Bonus_G extends Processor {
   // -------- Phase 1: SO first item + CustomFieldsToVC
   const t1 = Date.now();
   try {
-    const [
-      soFirstItem, customFields
-    ] = await Promise.allSettled([
-      this.salesOrderAPI?.executeQuery(
-        SELECT.from('A_SalesOrderItem')
-          .columns(['SalesOrder','SalesOrderItem','YY1_PurchasingDoc_SD_SDI','SalesOrderItemCategory','YY1_WNWorkOrder_SD_SDI','Material','WBSElement','ProductionPlant'])
-          .where({ YY1_WNWorkOrder_SD_SDI: { in: [...new Set(aWNWorkOrderWhere)] }, SalesOrderItem: '10' })
-      ),
-      SELECT.from('com.aleron.monitor.CustomFieldsToVC')
-        .columns(['customValue','fieldName'])
-        .where({ customValue: { in: aCustomerFieldNamesWhere } }),
-    ]);
+    const prefetch = await this.salesOrderAPI.executeQuery(
+    SELECT.from('A_SalesOrder')
+        .columns(['SalesOrder', 'AdditionalCustomerGroup2'])
+        .where({ SalesOrder: { in: [...new Set(aWNWorkOrderWhere)] } }));
 
+    const aZWNSalesOrders = prefetch
+        .filter(o => o.AdditionalCustomerGroup2 === 'ZWN')
+        .map(o => o.SalesOrder);
+
+    const aNonZWNSalesOrders = prefetch
+        .filter(o => o.AdditionalCustomerGroup2 !== 'ZWN')
+        .map(o => o.SalesOrder);
+
+    const aSalesItemQueries = [];
+
+    if (aZWNSalesOrders.length) {
+        aSalesItemQueries.push(
+            this.salesOrderAPI?.executeQuery(
+                SELECT.from('A_SalesOrderItem')
+                    .columns(['SalesOrder', 'SalesOrderItem', 'YY1_PurchasingDoc_SD_SDI', 'SalesOrderItemCategory',
+                        'YY1_WNWorkOrder_SD_SDI', 'Material', 'WBSElement', 'ProductionPlant'])
+                    .where({ SalesOrder: { in: aZWNSalesOrders }, SalesOrderItem: '10' })
+            )
+        );
+    }
+
+    if (aNonZWNSalesOrders.length) {
+        aSalesItemQueries.push(
+            this.salesOrderAPI?.executeQuery(
+                SELECT.from('A_SalesOrderItem')
+                    .columns(['SalesOrder', 'SalesOrderItem', 'YY1_PurchasingDoc_SD_SDI', 'SalesOrderItemCategory',
+                        'YY1_WNWorkOrder_SD_SDI', 'Material', 'WBSElement', 'ProductionPlant'])
+                    .where({ YY1_WNWorkOrder_SD_SDI: { in: [...new Set(aNonZWNSalesOrders)] }, SalesOrderItem: '10' })
+            )
+        );
+    }
+
+    const [
+        soFirstItem, customFields
+    ] = await Promise.allSettled([
+        Promise.all(aSalesItemQueries),
+        SELECT.from('com.aleron.monitor.CustomFieldsToVC')
+            .columns(['customValue', 'fieldName'])
+            .where({ customValue: { in: aCustomerFieldNamesWhere } }),
+    ]);
     if (soFirstItem.status !== 'fulfilled') {
       log(this.LOG, 'error', 'Phase1:SOFirstItem:rejected', { reason: safe(soFirstItem.reason) });
     } else {
@@ -4551,7 +4614,7 @@ async processSupplierInvoice(sProcessCode, bBreakExecution) {
               return {
                   hasError: false,
                   continue: true,
-              };
+              }; 
           } else if (processpurchaseexceptionarray.length > 0) {
               await ProcessLogger.addLogs(processpurchaseexceptionarray.map((sId) => ({ record_ID: sId, message: 'The process code skipped due to PORequiredSAP is empty', process_code: sProcessCode, type: 3 })));
               return {
