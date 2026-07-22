@@ -1313,24 +1313,62 @@ class DrugBackgroundCheckProcessor extends Processor {
         }
 
         try {
+            const prefetch = await this.salesOrderAPI.executeQuery(
+                SELECT.from('A_SalesOrder')
+                    .columns(['SalesOrder', 'AdditionalCustomerGroup2'])
+                    .where({ SalesOrder: { in: [...new Set(aworkOrderWNWhere)] } })
+            );
+
+            const aZWNSalesOrders = prefetch
+                .filter(o => o.AdditionalCustomerGroup2 === 'ZWN')
+                .map(o => o.SalesOrder);
+
+            const aNonZWNSalesOrders = prefetch
+                .filter(o => o.AdditionalCustomerGroup2 !== 'ZWN')
+                .map(o => o.SalesOrder);
+                
+            const aSalesItemQueries = [];
+
+            if (aZWNSalesOrders.length) {
+                aSalesItemQueries.push(
+                    this.salesOrderAPI.executeQuery(
+                        SELECT.from('A_SalesOrderItem')
+                            .columns(['SalesOrder', 'SalesOrderItem', 'YY1_PurchasingDoc_SD_SDI', 'SalesOrderItemCategory',
+                                'YY1_WNWorkOrder_SD_SDI', 'Material', 'WBSElement', 'ProductionPlant'])
+                            .where({
+                                SalesOrder: { in: aZWNSalesOrders },
+                                SalesOrderItem: '10'
+                            })
+                    )
+                );
+            }
+
+            if (aNonZWNSalesOrders.length) {
+                aSalesItemQueries.push(
+                    this.salesOrderAPI.executeQuery(
+                        SELECT.from('A_SalesOrderItem')
+                            .columns(['SalesOrder', 'SalesOrderItem', 'YY1_PurchasingDoc_SD_SDI', 'SalesOrderItemCategory',
+                                'YY1_WNWorkOrder_SD_SDI', 'Material', 'WBSElement', 'ProductionPlant'])
+                            .where({
+                                YY1_WNWorkOrder_SD_SDI: { in: [...new Set(aNonZWNSalesOrders)] },
+                                SalesOrderItem: '10'
+                            })
+                    )
+                );
+            }
+
             const [
-                { reason: anySalesOrderFirstItemErr, value: aSalesOrderFirstItems },
+                salesOrderResults,
                 { reason: anyCustomFieldsTOVCErr, value: aCustomFieldsTOVC },
             ] = await Promise.allSettled([
-                this.salesOrderAPI.executeQuery(
-                    SELECT.from('A_SalesOrderItem')
-                        .columns(['SalesOrder', 'SalesOrderItem', 'YY1_PurchasingDoc_SD_SDI', 'SalesOrderItemCategory',
-                            'YY1_WNWorkOrder_SD_SDI', 'Material', 'WBSElement', 'ProductionPlant'])
-                        .where({
-                            YY1_WNWorkOrder_SD_SDI: { in: [...new Set(aworkOrderWNWhere)] },
-                            SalesOrderItem: '10'
-                        })
-                ),
-
+                Promise.all(aSalesItemQueries),
                 SELECT.from('com.aleron.monitor.CustomFieldsToVC')
                     .columns(['customValue', 'fieldName'])
                     .where({ customValue: { in: aCustomerFieldNamesWhere } }),
             ]);
+
+            const anySalesOrderFirstItemErr = salesOrderResults.reason;
+            const aSalesOrderFirstItems = salesOrderResults.value?.flat() ?? [];
 
             if (!anySalesOrderFirstItemErr?.message && aSalesOrderFirstItems?.length) {
                 aSalesOrderFirstItems.forEach((oSalesOrderItem) => {
