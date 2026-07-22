@@ -86,7 +86,7 @@ class Processor {
 
   async markRecordsCompleted(sProcessCode, bBreakExecution) {
     const aRecordsForProcessing = [];
-
+    await this._fetchRecords(this.recordIDs);
     for (const record of this.records) {
       if (this.shouldRecordProcess(record, sProcessCode)) {
         aRecordsForProcessing.push(record.ID);
@@ -303,6 +303,9 @@ class Processor {
       // aRecordID is Set so we are checking size insted of length
       if (stRecordID?.size) {
         oWhere.ID = {in: Array.from(stRecordID)};
+      }else if (stRecordID !== undefined && stRecordID !== null) {
+        this.records = [];
+        return true;
       }
       this.records = await SELECT.from(this.recordsEntity)
         .columns(this.columnsForRecords)

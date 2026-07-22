@@ -563,7 +563,7 @@ class Travel extends Processor {
     // Step 3: sales order update
     async processSalesOrder(sProcessCode, bBreakExecution) {
         // 0) Clear all previous logs
-        await ProcessLogger.removeLogs([...this.recordIDs], null, sProcessCode);
+        //await ProcessLogger.removeLogs([...this.recordIDs], null, sProcessCode);
         await this._fetchRecords(this.recordIDs);
 
         const aErrorLogs = [];
@@ -1010,7 +1010,7 @@ class Travel extends Processor {
                     ? createRes.reason.map(e => e.message || JSON.stringify(e)).join(' • ')
                     : (createRes.reason.message || String(createRes.reason));
                 group.forEach(r => { aErrorLogs.push({ record_ID: r.ID, message: errMsg, process_code: sProcessCode }); aFailedRecordIDs.push(r.ID); });
-                await ProcessLogger.addLogs(aErrorLogs);
+                //await ProcessLogger.addLogs(aErrorLogs);
                 await this.markRecordsValid(sProcessCode, aFailedRecordIDs, false);
                 continue;
             } else {
@@ -1142,7 +1142,7 @@ class Travel extends Processor {
                             process_code: sProcessCode
                         });
                     });
-                    await ProcessLogger.addLogs(aErrorLogs);
+                    //await ProcessLogger.addLogs(aErrorLogs);
                 }
             }
         }
@@ -1153,7 +1153,7 @@ class Travel extends Processor {
             await this.markRecordsValid(sProcessCode, aFailedRecordIDs, false);
         }
         if (aPassedRecordIDs.length) {
-            await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
+            //await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
             await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({ record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3 })));
             await this.markRecordsValid(sProcessCode, aPassedRecordIDs, true);
             await UPDATE(this.recordsEntity).set({ processLevel_code: 'G' }).where({ ID: aPassedRecordIDs });
