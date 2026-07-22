@@ -20,7 +20,6 @@ const EmpTimeData = require('../communicators/EmpTimeData');
 const SalesContract = require('../communicators/SalesContract');
 const EnterpriseProject = require('../communicators/EnterpriseProject');
 const SupplierLFA1Comm = require('../communicators/SupplierLFA1');
-const SequenceHelper = require('../common/SequenceHelpertrip');
 const {
     determineConditionType
 } = require('../common/pricingHelper');
@@ -1065,18 +1064,13 @@ class Travel extends Processor {
                 const { executeHttpRequest } = require('@sap-cloud-sdk/http-client');
 
                 try {
-                    const TripNumber = Math.floor(Date.now() / 1000);
                     const totalAmount = group.reduce((sum, r) => sum + (Number(r.amount) || 0), 0);
 
                     const sPers = lead.sapEmployeeNo;
-                    const sStart = moment(lead.beginDate, 'YYYYMMDD').toDate();
-                    const sEnd = moment(lead.endDate, 'YYYYMMDD').toDate();
+                    const sStart = moment(lead.beginDate, 'YYYYMMDD').format('YYYY-MM-DD');
+                    const sEnd = moment(lead.endDate, 'YYYYMMDD').format('YYYY-MM-DD');
 
                     const oHeaderPayload = {
-                        TripNumber,
-                        Personnel: sPers,
-                        StartOfTrip: sStart,
-                        EndOfTrip: sEnd,
                         ContractNo: lead.contractNo,
                         WnInvoiceNo: lead.wnInvoiceNo,
                         SapEmployeeNo: sPers,
@@ -1084,44 +1078,33 @@ class Travel extends Processor {
                         WoType: lead.woType,
                         WeekEndDate: lead.weekEndDate,
                         TotalAmount: totalAmount,
-                        Currency: lead.currency
+                        Currency: lead.currency,
+                        TripStatus_code: 0,
+                        Project: lead.internalOrder || '',
+                        Destination: "US",
                     };
 
                     const aItems = [
                         {
-                            TripNumber,
-                            Personnel: sPers,
-                            StartOfTrip: sStart,
-                            EndOfTrip: sEnd,
-                            ExpenseReceiptNumber: '',
+                            ExpenseReceiptNumber: '1',
                             TripExpenseType: lead.tripExpenseType,
                             Amount: totalAmount,
                             Currency: lead.currency,
                             From: lead.FromLocation || '',
                             To: lead.ToLocation || '',
-                            ReceiptsDocumentNumber: '',
+                            ReceiptsDocumentNumber: '1',
                             UrlLink: ''
                         }
                     ];
 
-                    const aCosts = [
-                        {
-                            TripNumber,
-                            Personnel: sPers,
-                            StartOfTrip: sStart,
-                            EndOfTrip: sEnd,
-                            CostDistributionPercentage: 100,
-                            Project: lead.projectNumberSAP || ''
-                        }
-                    ];
+                    const aCosts = undefined;
 
                     const oPayload = {
                         Personnel: sPers,
                         StartOfTrip: sStart,
                         EndOfTrip: sEnd,
                         Header: oHeaderPayload,
-                        Items: aItems,
-                        Costs: aCosts
+                        Items: aItems
                     };
 
                     LOG.info(`[processSalesOrder] STEP 3.17: sending Trip payload → ${JSON.stringify(oPayload)}`);
