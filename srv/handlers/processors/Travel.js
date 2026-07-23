@@ -47,7 +47,7 @@ class Travel extends Processor {
             'salesDocumentTypeSAP', 'fiscalYearSAP', 'invoiceDocumentNoSAP',
             'salesOrderICSAP', 'salesItemNoICSAP', 'distributionChannelSAP',
             'distributionChannelICSAP', 'salesOrderICUpdateRequired',
-            'employeeSubgroupSAP', 'projectNumberICSAP'
+            'employeeSubgroupSAP', 'projectNumberICSAP', 'skipTrip'
         ];
     }
 
@@ -1062,87 +1062,88 @@ class Travel extends Processor {
                 // 3.17) TRIP inserts (Header, Item, Cost)
                 // Sequence helper factory
                 const { executeHttpRequest } = require('@sap-cloud-sdk/http-client');
+                if (!lead.skipTrip) {
+                    try {
+                        const totalAmount = group.reduce((sum, r) => sum + (Number(r.amount) || 0), 0);
 
-                try {
-                    const totalAmount = group.reduce((sum, r) => sum + (Number(r.amount) || 0), 0);
+                        const sPers = lead.sapEmployeeNo;
+                        const sStart = moment(lead.beginDate, 'YYYYMMDD').format('YYYY-MM-DD');
+                        const sEnd = moment(lead.endDate, 'YYYYMMDD').format('YYYY-MM-DD');
 
-                    const sPers = lead.sapEmployeeNo;
-                    const sStart = moment(lead.beginDate, 'YYYYMMDD').format('YYYY-MM-DD');
-                    const sEnd = moment(lead.endDate, 'YYYYMMDD').format('YYYY-MM-DD');
-
-                    const oHeaderPayload = {
-                        ContractNo: lead.contractNo,
-                        WnInvoiceNo: lead.wnInvoiceNo,
-                        SapEmployeeNo: sPers,
-                        WnWorkOrder: lead.wnWorkOrder,
-                        WoType: lead.woType,
-                        WeekEndDate: lead.weekEndDate,
-                        TotalAmount: totalAmount,
-                        Currency: lead.currency,
-                        TripStatus_code: 0,
-                        Project: lead.internalOrder || '',
-                        Destination: "US",
-                    };
-
-                    const aItems = [
-                        {
-                            ExpenseReceiptNumber: '1',
-                            TripExpenseType: lead.tripExpenseType,
-                            Amount: totalAmount,
+                        const oHeaderPayload = {
+                            ContractNo: lead.contractNo,
+                            WnInvoiceNo: lead.wnInvoiceNo,
+                            SapEmployeeNo: sPers,
+                            WnWorkOrder: lead.wnWorkOrder,
+                            WoType: lead.woType,
+                            WeekEndDate: lead.weekEndDate,
+                            TotalAmount: totalAmount,
                             Currency: lead.currency,
-                            From: lead.FromLocation || '',
-                            To: lead.ToLocation || '',
-                            ReceiptsDocumentNumber: '1',
-                            UrlLink: ''
-                        }
-                    ];
+                            TripStatus_code: 0,
+                            Project: lead.internalOrder || '',
+                            Destination: "US",
+                        };
 
-                    const aCosts = undefined;
+                        const aItems = [
+                            {
+                                ExpenseReceiptNumber: '1',
+                                TripExpenseType: lead.tripExpenseType,
+                                Amount: totalAmount,
+                                Currency: lead.currency,
+                                From: lead.FromLocation || '',
+                                To: lead.ToLocation || '',
+                                ReceiptsDocumentNumber: '1',
+                                UrlLink: ''
+                            }
+                        ];
 
-                    const oPayload = {
-                        Personnel: sPers,
-                        StartOfTrip: sStart,
-                        EndOfTrip: sEnd,
-                        Header: oHeaderPayload,
-                        Items: aItems
-                    };
+                        const aCosts = undefined;
 
-                    LOG.info(`[processSalesOrder] STEP 3.17: sending Trip payload → ${JSON.stringify(oPayload)}`);
+                        const oPayload = {
+                            Personnel: sPers,
+                            StartOfTrip: sStart,
+                            EndOfTrip: sEnd,
+                            Header: oHeaderPayload,
+                            Items: aItems
+                        };
 
-                    const response = await executeHttpRequest(
-                        { destinationName: 'monitor_baseurl' },
-                        {
-                            method: 'POST',
-                            url: '/trip/Trip',
-                            data: oPayload,
-                            headers: { 'Content-Type': 'application/json' }
-                        }
-                    );
+                        LOG.info(`[processSalesOrder] STEP 3.17: sending Trip payload → ${JSON.stringify(oPayload)}`);
 
-                    LOG.info(`[processSalesOrder] STEP 3.17: Trip created → TripNumber=${response.data.TripNumber}`);
+                        const response = await executeHttpRequest(
+                            { destinationName: 'monitor_baseurl' },
+                            {
+                                method: 'POST',
+                                url: '/trip/Trip',
+                                data: oPayload,
+                                headers: { 'Content-Type': 'application/json' }
+                            }
+                        );
 
-                    const tripIds = group.map(r => r.ID);
-                    await ProcessLogger.addLogs(
-                        tripIds.map(sId => ({
-                            record_ID: sId,
-                            message: `${response.data.TripNumber} Trip created for Employee ${sPers}`,
-                            process_code: sProcessCode,
-                            type: 3
-                        }))
-                    );
+                        LOG.info(`[processSalesOrder] STEP 3.17: Trip created → TripNumber=${response.data.TripNumber}`);
 
-                } catch (error) {
-                    const errMsg = error.response?.data?.error?.message || error.message;
-                    LOG.warn(`Group ${key} → STEP 3.17 TRIP insert failed, skipping group: ${errMsg}`);
-                    group.forEach(r => aSkippedRecords.push(r));
-                    group.forEach(r => {
-                        aErrorLogs.push({
-                            record_ID: r.ID,
-                            message: `Failed to insert TRIP with error ${errMsg} for Employee ${r.sapEmployeeNo}`,
-                            process_code: sProcessCode
+                        const tripIds = group.map(r => r.ID);
+                        await ProcessLogger.addLogs(
+                            tripIds.map(sId => ({
+                                record_ID: sId,
+                                message: `${response.data.TripNumber} Trip created for Employee ${sPers}`,
+                                process_code: sProcessCode,
+                                type: 3
+                            }))
+                        );
+
+                    } catch (error) {
+                        const errMsg = error.response?.data?.error?.message || error.message;
+                        LOG.warn(`Group ${key} → STEP 3.17 TRIP insert failed, skipping group: ${errMsg}`);
+                        group.forEach(r => aSkippedRecords.push(r));
+                        group.forEach(r => {
+                            aErrorLogs.push({
+                                record_ID: r.ID,
+                                message: `Failed to insert TRIP with error ${errMsg} for Employee ${r.sapEmployeeNo}`,
+                                process_code: sProcessCode
+                            });
                         });
-                    });
-                    //await ProcessLogger.addLogs(aErrorLogs);
+                        //await ProcessLogger.addLogs(aErrorLogs);
+                    }
                 }
             }
         }
@@ -1538,59 +1539,92 @@ class Travel extends Processor {
             }
 
             // 3.12) Trip insert (one header + one aggregated item + cost)
-            try {
-                const TripNumber = Math.floor(Date.now() / 1000);
-                const totalAmount = lead.amount;
 
-                // header
-                await cds.run(
-                    INSERT.into('com.aleron.monitor.TRIPHeader').entries({
-                        TripNumber,
-                        Personnel: lead.sapEmployeeNo,
-                        StartOfTrip: moment(lead.beginDate, 'YYYYMMDD').toDate(),
-                        EndOfTrip: moment(lead.endDate, 'YYYYMMDD').toDate(),
+            // 3.17) TRIP inserts (Header, Item, Cost)
+            // Sequence helper factory
+            const { executeHttpRequest } = require('@sap-cloud-sdk/http-client');
+            if (!lead.skipTrip) {
+                try {
+                    const totalAmount = group.reduce((sum, r) => sum + (Number(r.amount) || 0), 0);
+
+                    const sPers = lead.sapEmployeeNo;
+                    const sStart = moment(lead.beginDate, 'YYYYMMDD').format('YYYY-MM-DD');
+                    const sEnd = moment(lead.endDate, 'YYYYMMDD').format('YYYY-MM-DD');
+
+                    const oHeaderPayload = {
                         ContractNo: lead.contractNo,
                         WnInvoiceNo: lead.wnInvoiceNo,
-                        SapEmployeeNo: lead.sapEmployeeNo,
+                        SapEmployeeNo: sPers,
                         WnWorkOrder: lead.wnWorkOrder,
                         WoType: lead.woType,
                         WeekEndDate: lead.weekEndDate,
                         TotalAmount: totalAmount,
-                        Currency: lead.currency
-                    })
-                );
-
-                // one aggregated item
-                await cds.run(
-                    INSERT.into('com.aleron.monitor.TRIPItem').entries({
-                        TripNumber,
-                        Personnel: lead.sapEmployeeNo,
-                        StartOfTrip: moment(lead.beginDate, 'YYYYMMDD').toDate(),
-                        EndOfTrip: moment(lead.endDate, 'YYYYMMDD').toDate(),
-                        TripExpenseType: lead.tripExpenseType,
-                        Amount: totalAmount,
                         Currency: lead.currency,
-                        From: '', // optional
-                        To: '', // optional
-                        ReceiptsDocumentNumber: '',
-                        UrlLink: ''
-                    })
-                );
+                        TripStatus_code: 0,
+                        Project: lead.internalOrder || '',
+                        Destination: "US",
+                    };
 
-                // cost
-                await cds.run(
-                    INSERT.into('com.aleron.monitor.TRIPCost').entries({
-                        TripNumber,
-                        Personnel: lead.sapEmployeeNo,
-                        StartOfTrip: moment(lead.beginDate, 'YYYYMMDD').toDate(),
-                        EndOfTrip: moment(lead.endDate, 'YYYYMMDD').toDate(),
-                        CostDistributionPercentage: 100,
-                        Project: lead.internalOrder || ''
-                    })
-                );
-            } catch (err) {
-                LOG.warn(`Group ${key} → Trip insert failed, skipping: ${err.message}`);
-                group.forEach(r => aSkippedRecords.push(r));
+                    const aItems = [
+                        {
+                            ExpenseReceiptNumber: '1',
+                            TripExpenseType: lead.tripExpenseType,
+                            Amount: totalAmount,
+                            Currency: lead.currency,
+                            From: lead.FromLocation || '',
+                            To: lead.ToLocation || '',
+                            ReceiptsDocumentNumber: '1',
+                            UrlLink: ''
+                        }
+                    ];
+
+                    const aCosts = undefined;
+
+                    const oPayload = {
+                        Personnel: sPers,
+                        StartOfTrip: sStart,
+                        EndOfTrip: sEnd,
+                        Header: oHeaderPayload,
+                        Items: aItems
+                    };
+
+                    LOG.info(`[processSalesOrder] STEP 3.17: sending Trip payload → ${JSON.stringify(oPayload)}`);
+
+                    const response = await executeHttpRequest(
+                        { destinationName: 'monitor_baseurl' },
+                        {
+                            method: 'POST',
+                            url: '/trip/Trip',
+                            data: oPayload,
+                            headers: { 'Content-Type': 'application/json' }
+                        }
+                    );
+
+                    LOG.info(`[processSalesOrder] STEP 3.17: Trip created → TripNumber=${response.data.TripNumber}`);
+
+                    const tripIds = group.map(r => r.ID);
+                    await ProcessLogger.addLogs(
+                        tripIds.map(sId => ({
+                            record_ID: sId,
+                            message: `${response.data.TripNumber} Trip created for Employee ${sPers}`,
+                            process_code: sProcessCode,
+                            type: 3
+                        }))
+                    );
+
+                } catch (error) {
+                    const errMsg = error.response?.data?.error?.message || error.message;
+                    LOG.warn(`Group ${key} → STEP 3.17 TRIP insert failed, skipping group: ${errMsg}`);
+                    group.forEach(r => aSkippedRecords.push(r));
+                    group.forEach(r => {
+                        aErrorLogs.push({
+                            record_ID: r.ID,
+                            message: `Failed to insert TRIP with error ${errMsg} for Employee ${r.sapEmployeeNo}`,
+                            process_code: sProcessCode
+                        });
+                    });
+                    //await ProcessLogger.addLogs(aErrorLogs);
+                }
             }
         }
 
@@ -1600,7 +1634,7 @@ class Travel extends Processor {
             await this.markRecordsValid(sProcessCode, aFailedRecordIDs, false);
         }
         if (aPassedRecordIDs.length) {
-            await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
+            //await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
             await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({ record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3 })));
             await this.markRecordsValid(sProcessCode, aPassedRecordIDs, true);
 
