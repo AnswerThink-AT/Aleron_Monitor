@@ -3763,3 +3763,7 @@ annotate service.Drug_Background_Check with @(
         }]
     }
 );
+annotate service.Travel with {
+    skipTrip @Common.FieldControl : #ReadOnly
+};
+

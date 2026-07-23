@@ -18,7 +18,7 @@ module.exports = async function syncEnterpriseProjects() {
   console.log(`[syncEnterpriseProjects] ▶ Connected to DB (kind=${db.kind}), cache=${cacheName}`);
 
   // 3) Build the OData SELECT for only the fields you need
-  const q = SELECT.from('A_EnterpriseProject').columns(
+  const q = SELECT.from('A_EnterpriseProject').columns([
     'ProjectUUID',
     'Project',
     'ProjectDescription',
@@ -29,7 +29,7 @@ module.exports = async function syncEnterpriseProjects() {
     'YY1_SalesOrder_PPH',
     'YY1_Employee_PPH',
     'YY1_EmployeeName_PPH'
-  );
+  ]).where({ ProcessingStatus: '10' });
 
   // 4) Fetch from S/4
   let allProjects;
