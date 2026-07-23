@@ -486,6 +486,8 @@ sap.ui.define(
                 //(rohit- 11/06) await this._createRecordsManually(oNewlyCreatedFile.ID, this._pendingRecords, interfaceID);
                 if (interfaceID === '2') {
                   var bSkipTrip = oAppModel.getProperty('/isCheckBoxSelected');
+                }else{
+                  var bSkipTrip = false;
                 }
                 await this._uploadInterfaceData(oNewlyCreatedFile.ID, interfaceID, oModel, bSkipTrip);
                 this._endTime = performance.now();
@@ -496,7 +498,7 @@ sap.ui.define(
                 this._pendingRecords = null; // Clear the pending records
               } catch (error) {
                 console.error('Error creating records:', error);
-                MessageBox.error('Error creating records: ' + error.message);
+                sap.m.MessageBox.error('Error creating records: ' + error.message);
                 return;
               }
             }
