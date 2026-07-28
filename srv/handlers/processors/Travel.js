@@ -538,7 +538,7 @@ class Travel extends Processor {
             await this.markRecordsValid(sProcessCode, aPassedRecordIDs, true);
             if (sProcessCode === '1') {
                 await UPDATE(this.recordsEntity)
-                    .set({ processLevel_code: '3' })
+                    .set({ valid: true, processLevel_code: '3' })
                     .where({ ID: aPassedRecordIDs });
                 this.records.forEach(r => {
                     if (aPassedRecordIDs.includes(r.ID)) r.processLevel_code = '3';
