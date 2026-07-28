@@ -1084,18 +1084,16 @@ class Travel extends Processor {
                             Destination: "US",
                         };
 
-                        const aItems = [
-                            {
-                                ExpenseReceiptNumber: '1',
-                                TripExpenseType: lead.tripExpenseType,
-                                Amount: totalAmount,
-                                Currency: lead.currency,
-                                From: lead.FromLocation || '',
-                                To: lead.ToLocation || '',
-                                ReceiptsDocumentNumber: '1',
-                                UrlLink: ''
-                            }
-                        ];
+                        const aItems = group.map((r, idx) => ({
+                            ExpenseReceiptNumber: String(idx + 1),
+                            TripExpenseType: r.tripExpenseType,
+                            Amount: Number(r.amount) || 0,
+                            Currency: r.currency,
+                            From: r.FromLocation || '',
+                            To: r.ToLocation || '',
+                            ReceiptsDocumentNumber: String(idx + 1),
+                            UrlLink: ''
+                        }));
 
                         const aCosts = undefined;
 
