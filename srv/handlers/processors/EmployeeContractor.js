@@ -3451,6 +3451,7 @@ Z38:{target:'CUST_COMMODITY_CODE2',vc:2},    // SERVICE DATE - FOR SDI IBM
     const oShipToParty = businessPartnerMap.get(`${record.soldToParty}_SH`);  // Defect _WE to _SH
     const oAddr = {
       CorrespondenceLanguage: 'EN',
+      AddresseeFullName: record.workLocation || '',
       StreetName: record.street,
       CityName: record.city,
       HouseNumber: record.doorNo,
