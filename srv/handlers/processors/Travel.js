@@ -1155,7 +1155,7 @@ class Travel extends Processor {
             //await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
             await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({ record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3 })));
             await this.markRecordsValid(sProcessCode, aPassedRecordIDs, true);
-            await UPDATE(this.recordsEntity).set({ processLevel_code: 'G' }).where({ ID: aPassedRecordIDs });
+            await UPDATE(this.recordsEntity).set({ processLevel_code: 'G' }).where({ ID: {in: aPassedRecordIDs} });
             this.records.forEach(r => { if (aPassedRecordIDs.includes(r.ID)) r.processLevel_code = 'G'; });
         }
 
@@ -1642,7 +1642,7 @@ class Travel extends Processor {
                     processLevel_code: '5'
                 })
                 .where({
-                    ID: aPassedRecordIDs
+                    ID: {in: aPassedRecordIDs }
                 });
             this.records.forEach(r => {
                 if (aPassedRecordIDs.includes(r.ID)) {
@@ -2519,7 +2519,7 @@ class Travel extends Processor {
                     processLevel_code: '9'
                 })
                 .where({
-                    ID: passed
+                    ID: { in: passed }
                 });
         }
         this.updateExclusionSet({
@@ -2537,7 +2537,7 @@ class Travel extends Processor {
         return { hasError: failed.length > 0, continue: true };
     }
     //Step A Trip Management
-    async TripManage(sProcessCode, bBreakExecution) {
+    /*async TripManage(sProcessCode, bBreakExecution) {
         await ProcessLogger.removeLogs([...this.recordIDs], null, sProcessCode);
         await this._fetchRecords(this.recordIDs);
         LOG.info(`[processTripManagement] ENTRY (code=${sProcessCode})`);
@@ -2555,7 +2555,7 @@ class Travel extends Processor {
         await this._fetchRecords(this.recordIDs);
         const toProcess = this.records.filter(r => r.processLevel_code === 'A');
         LOG.info(`[processTripManagement] ${toProcess.length} records to process (step A)`);
-    }
+    }*/
 
 
 }
