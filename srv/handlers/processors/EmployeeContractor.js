@@ -1,7 +1,7 @@
 // Interface type 'T'
 const moment = require('moment');
 const cds = require('@sap/cds');
-const LOG = cds.log('Monitor.Procesor-EmployeeContractor');
+const LOG = cds.log('Monitor.Processor-EmployeeContractor');
 const Processor = require('./BaseProcessor');
 const ProcessLogger = require('../common/ProcessLogger');
 
@@ -36,7 +36,7 @@ class EmployeeContractor extends Processor {
     super(options);
     // Processor Specific configuration
     this.recordsEntity = 'com.aleron.monitor.EmployeeHires';
-    this.LOG = cds.log('Monitor.Procesor-EmployeeContractor');
+    this.LOG = cds.log('Monitor.Processor-EmployeeContractor');
     this.columnsForRecords = this._getColumnsForFetch(this.recordsEntity);
 
     // Communicators used by EmployeeContractor Processor
@@ -330,7 +330,7 @@ class EmployeeContractor extends Processor {
 
         // Queue error (first wins, later is error)
         const msg = cds.i18n.messages.at('ERR_DUPLICATE_IN_FILE_SSN_AI', [ssn, aiUpper]);
-        aErrorLogs.push({ record_ID: rec.ID, message: msg, process_code: sProcessCode});
+        aErrorLogs.push({ record_ID: rec.ID, message: msg, process_code: sProcessCode });
         aFailedRecordIDs.push(rec.ID);
         dupeIds.push(rec.ID);
 
@@ -647,8 +647,8 @@ class EmployeeContractor extends Processor {
       }
     }
     if (aPassedRecordIDs.length) {
-      await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
-      await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3})));
+      //await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
+      //await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3})));
       await Promise.allSettled(
         aPassedRecordIDs.map(id => {
           const rec = this.records.find(r => r.ID === id);
@@ -663,7 +663,7 @@ class EmployeeContractor extends Processor {
 
       await Promise.allSettled([
         ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode),
-        ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3}))),
+        ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({ record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3 }))),
         // this.markRecordsValid(sProcessCode, aPassedRecordIDs, true),
         ...aPassedRecordIDs.filter(recordID => {
           const record = this.records.find(r => r.ID === recordID);
@@ -861,7 +861,7 @@ class EmployeeContractor extends Processor {
       try {
         if (fileIdsInScope.length) {
           const siblingRows = await SELECT.from(EmployeeHires)
-            .columns(['ID','file_ID','processLevel_code','valid','ssn','personnelNoSAP'])
+            .columns(['ID', 'file_ID', 'processLevel_code', 'valid', 'ssn', 'personnelNoSAP'])
             .where({ file_ID: { in: fileIdsInScope } });
 
           const mSsnToEmp = new Map();
@@ -908,7 +908,7 @@ class EmployeeContractor extends Processor {
             try {
               const empRows = await this.empCustInfoAPI.executeQuery(
                 SELECT.from('YY1_EMPLOYEE_CUSTOMER_INFO')
-                  .columns(['SSN','WORKER_ID'])
+                  .columns(['SSN', 'WORKER_ID'])
                   .where({ SSN: { in: remaining } })
               );
               const mECI = new Map();
@@ -977,7 +977,7 @@ class EmployeeContractor extends Processor {
       // ---------------- NEW BUSINESS LOGIC (per SSN group; run-date based) ----------------
       // CONFIG: ECI dates are START_DATE / END_DATE
       const ECI_VALID_FROM_COL = 'START_DATE';
-      const ECI_VALID_TO_COL   = 'END_DATE';
+      const ECI_VALID_TO_COL = 'END_DATE';
 
       const getAI = r =>
         (r.actionIndicator ?? r.actionIndicator_code ?? r.actionIndicatorSAP ?? r.action_code ?? '')
@@ -1000,7 +1000,7 @@ class EmployeeContractor extends Processor {
         if (m) return toDateOnlyUTC(new Date(Number(m[1])));
         // Add YYYYMMDD quick path
         if (/^\d{8}$/.test(s)) {
-          const y = +s.slice(0,4), mo = +s.slice(4,6) - 1, d = +s.slice(6,8);
+          const y = +s.slice(0, 4), mo = +s.slice(4, 6) - 1, d = +s.slice(6, 8);
           return toDateOnlyUTC(new Date(Date.UTC(y, mo, d)));
         }
         const d = new Date(s);
@@ -1056,8 +1056,8 @@ class EmployeeContractor extends Processor {
       const doSet = (rows, payload, guard = {}) =>
         rows.length
           ? Promise.allSettled(rows.map(x =>
-              UPDATE(EmployeeHires).set(payload).where(Object.assign({ ID: x.ID }, guard))
-            ))
+            UPDATE(EmployeeHires).set(payload).where(Object.assign({ ID: x.ID }, guard))
+          ))
           : Promise.resolve([]);
 
       let totalSfalse = 0, total2true = 0, totalErrors = 0;
@@ -1158,7 +1158,7 @@ class EmployeeContractor extends Processor {
         if (idx !== -1) {
           this.records[idx].contractNo = oSalesContract.SalesContract;
         }
-      
+
         if (oSalesContract.PurchaseOrderByCustomer) {
           await UPDATE('com.aleron.monitor.EmployeeHires')
             .set({ legacyContractNo: oSalesContract.PurchaseOrderByCustomer })
@@ -1313,6 +1313,7 @@ class EmployeeContractor extends Processor {
       }
       this.updateProcessingState(sProcessCode);
       if (!aRecordsForProcessing.length) {
+        
         LOG.info(`No records to process at step ${sProcessCode}`);
         return { hasError: false, continue: true };
       }
@@ -1326,7 +1327,7 @@ class EmployeeContractor extends Processor {
       try {
         if (fileIdsInScope.length) {
           const siblingRows = await SELECT.from(EmployeeHires)
-            .columns(['ID','file_ID','processLevel_code','valid','ssn','personnelNoSAP'])
+            .columns(['ID', 'file_ID', 'processLevel_code', 'valid', 'ssn', 'personnelNoSAP'])
             .where({ file_ID: { in: fileIdsInScope } });
 
           const mSsnToEmp = new Map();
@@ -1389,7 +1390,7 @@ class EmployeeContractor extends Processor {
             try {
               const empRows = await this.empCustInfoAPI.executeQuery(
                 SELECT.from('YY1_EMPLOYEE_CUSTOMER_INFO')
-                  .columns(['SSN','WORKER_ID'])
+                  .columns(['SSN', 'WORKER_ID'])
                   .where({ SSN: { in: remainingKeys } })
               );
               const mECI = new Map();
@@ -1450,7 +1451,7 @@ class EmployeeContractor extends Processor {
               .set({ valid: false })
               .where({ ID: rec.ID, processLevel_code: sProcessCode });   // stay at S
             aFailedRecordIDs.push(rec.ID);
-            aErrorLogs.push({ record_ID: rec.ID, message: 'Employee not yet created in S/4 (no personnel number found).',process_code: sProcessCode });
+            aErrorLogs.push({ record_ID: rec.ID, message: 'Employee not yet created in S/4 (no personnel number found).', process_code: sProcessCode });
             continue;
           }
           const res = await this.workforceAPI.executeQuery(
@@ -1470,16 +1471,16 @@ class EmployeeContractor extends Processor {
               .set({ valid: false })
               .where({ ID: rec.ID, processLevel_code: sProcessCode }); // stay at S
             aFailedRecordIDs.push(rec.ID);
-            aErrorLogs.push({ record_ID: rec.ID, message: 'Employee not Replicated In S/4',process_code: sProcessCode });
+            aErrorLogs.push({ record_ID: rec.ID, message: 'Employee not Replicated In S/4', process_code: sProcessCode });
           }
         } catch (e) {
           try {
             await UPDATE(EmployeeHires)
               .set({ valid: false })
               .where({ ID: rec.ID, processLevel_code: sProcessCode });   // stay at S
-          } catch (_) {}
+          } catch (_) { }
           aFailedRecordIDs.push(rec.ID);
-          aErrorLogs.push({ record_ID: rec.ID, message: `S/4 replication check failed: ${e.message}`,process_code: sProcessCode });
+          aErrorLogs.push({ record_ID: rec.ID, message: `S/4 replication check failed: ${e.message}`, process_code: sProcessCode });
           LOG.error(`S check error for ${rec.ID}: ${e.message}`);
         }
       }
@@ -1487,7 +1488,7 @@ class EmployeeContractor extends Processor {
       if (aErrorLogs.length) await ProcessLogger.addLogs(aErrorLogs);
       if (aPassedRecordIDs.length) {
         await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
-        await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3})));
+        await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({ record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3 })));
         this.markRecordsValid(sProcessCode, aPassedRecordIDs, true);
       }
       if (aFailedRecordIDs.length) this.markRecordsValid(sProcessCode, aFailedRecordIDs, false);
@@ -1552,7 +1553,7 @@ class EmployeeContractor extends Processor {
       sTaxCodeByCountyWhere = '',
       oBillingType = {};
 
-      let aCustomerFieldNamesWhere = [],
+    let aCustomerFieldNamesWhere = [],
       mCustomerFieldNameValue = new Map();
 
     // Prepare where conditions for all the calls
@@ -1629,6 +1630,7 @@ class EmployeeContractor extends Processor {
     this.updateProcessingState(sProcessCode);
     if (!aRecordsForProcessing.length) {
       // If Step doesn't need to be processed, simply return to avoid costly calls
+      
       return {
         hasError: false,
         continue: true,
@@ -1673,7 +1675,7 @@ class EmployeeContractor extends Processor {
           .where(`${sTaxCodeByCityWhere}`),
         SELECT.from('com.aleron.monitor.CustomFieldsToVC')
           .columns(['customValue', 'fieldName'])
-          .where({ customValue: { in: aCustomerFieldNamesWhere } }),  
+          .where({ customValue: { in: aCustomerFieldNamesWhere } }),
         this.billingTypeAPI.executeQuery(
           SELECT.one
             .from('YY1_BILLINGTYPE')
@@ -1774,7 +1776,7 @@ class EmployeeContractor extends Processor {
       ] = await Promise.allSettled([
         this.businesPartnerAPI.executeQuery(
           SELECT.from('A_CustSalesPartnerFunc')
-            .columns(['Customer', 'PartnerFunction', 'BPCustomerNumber','Supplier','PersonnelNumber','ContactPerson'])
+            .columns(['Customer', 'PartnerFunction', 'BPCustomerNumber', 'Supplier', 'PersonnelNumber', 'ContactPerson'])
             .where(`${sWhereForBusinessPartner}`),
         ),
         SELECT.from('com.aleron.monitor.TaxCodeByCounty')
@@ -1790,7 +1792,7 @@ class EmployeeContractor extends Processor {
         });
       }
       if (!anyTaxCodeByCountyErr?.message && aTaxCodeByCountyResults.length) {
-        aTaxCodeByCounty = aTaxCodeByCountyResults;        
+        aTaxCodeByCounty = aTaxCodeByCountyResults;
       }
     } catch (err) {
       this.LOG._error & this.LOG.error(err.message);
@@ -1837,7 +1839,7 @@ class EmployeeContractor extends Processor {
       //     return; // Skip this record
       //   }
       //   // Get the county from the address
-        // oRecord.county = oAddr.county;
+      // oRecord.county = oAddr.county;
       // }
 
       const sTaxCode = this._getTaxCodeForRecord({
@@ -2039,7 +2041,7 @@ class EmployeeContractor extends Processor {
     // Update the status of passed records
     if (aPassedRecordIDs.length) {
       await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
-      await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3})));
+      await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({ record_ID: sId, message: `Sales Order ${oRecord.salesDocumentNoSAP} (Item ${oRecord.salesItemNoSAP}) was created successfully. VC Data 1 UUID: ${oRecord.vcData1UUID}, VC Data 2 UUID: ${oRecord.vcData2UUID}.`, process_code: sProcessCode, type: 3 })));
       await UPDATE(EmployeeHires)
         .set({ valid: true, processLevel_code: sProcessCode })
         .where({ ID: { in: aPassedRecordIDs } });
@@ -2089,6 +2091,7 @@ class EmployeeContractor extends Processor {
     this.updateProcessingState(sProcessCode);
     if (!aRecordsForProcessing.length) {
       // If Step doesn't need to be processed, simply return to avoid costly calls
+      
       return {
         hasError: false,
         continue: true,
@@ -2145,6 +2148,19 @@ class EmployeeContractor extends Processor {
         });
       }
       if (aPassedRecordIDs.length) {
+        await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
+
+        await ProcessLogger.addLogs(
+          aPassedRecordIDs.map((sId) => {
+            const oRecord = this.records.find((r) => r.ID === sId);
+            return {
+              record_ID: sId,
+              message: `Sales Order partners ZR and ZV were deleted successfully for Sales Order ${oRecord.salesDocumentNoSAP}.`,
+              process_code: sProcessCode,
+              type: 3,
+            };
+          })
+        );
         await this.markRecordsValid(sProcessCode, aPassedRecordIDs, true);
       }
       if (aFailedRecordIDs.length) {
@@ -2885,58 +2901,58 @@ class EmployeeContractor extends Processor {
     // ---- Z-code mapping (incl. requested Z08 & Z11) ----
     /** @type {Record<string,{target:string, vc:1|2}|undefined>} */
     const Z_MAP = {
-      Z01:{target:'YY216_CUST_BUSINESS_UNIT',vc:2}, Z02:{target:'YY217_CUST_CHARGE_NUMBER',vc:2},
-      Z03:{target:'YY250_CUST_COST_CENTER2',vc:2},  Z04:{target:'YY220_CUST_COMPANY_CODE',vc:2},
-      Z05:{target:'YY221_CUST_DEPT_NUMBER',vc:2},   Z06:{target:'YY222_CUST_DOTS_NUMBER',vc:2},
-      Z07:{target:'YY223_CUST_RUI',vc:2},           Z08:{target:'YY144_WEEKLY_CLOCK_FEE',vc:2}, // <-- fix
-      Z09:{target:'YY224_CUST_ACCT_NUMBER',vc:2},   Z10:{target:'YY225_CUST_BUDGET_CENTER',vc:2},
-      Z11:{target:'YY226_CUST_CON_NUMBER',vc:2},    // <-- fix
-      Z12:{target:'YY227_CUST_VENDOR_NUMBER',vc:2},
-      Z16:{target:'YY228_CUST_ORG_CODE',vc:2},      Z17:{target:'YY229_CUST_LEGAL_ENTITY',vc:2},
-      Z18:{target:'YY230_CUST_ORACLE_NUMBER',vc:2}, Z19:{target:'YY231_CUST_UNIT_STORE_NUMBER',vc:2},
-      Z24:{target:'YY233_CUST_EMPLOYEE_NUMBER',vc:2}, Z25:{target:'YY234_CUST_AGREE_NUMBER',vc:2},
-      Z26:{target:'YY241_CUST_BGRD_CHECK_DATE',vc:2}, Z27:{target:'YY242_CUST_DIV_UNIT_NUMBER',vc:2},
-      Z28:{target:'YY236_CUST_FEPS_CODE',vc:2},     Z29:{target:'YY237_CUST_POSITION',vc:2},
-      Z31:{target:'YY235_CUST_TASK15',vc:2},        Z32:{target:'YY238_CUST_GL_CODE',vc:2},
-      Z33:{target:'YY240_CUST_BB_NUMBER',vc:2},     Z34:{target:'YY218_CUST_PROJECT_NUMBER',vc:2},
-      Z35:{target:'YY239_CUST_PURCHASE_AGREE',vc:2},Z37:{target:'YY237_CUST_POSITION',vc:2},
-      Z30:{target:'SUPPLIER_INVOICE_NUMBER',vc:2}, // SUPPLIER'S INVOICE (SUBCON SCENARIO)
-Z36:{target:'YY232_CUST_SVC_DATE',vc:2}, 
-Z38:{target:'CUST_COMMODITY_CODE2',vc:2},    // SERVICE DATE - FOR SDI IBM
-      Z39:{target:'CUST_CATERGORY_CODE2',vc:2},     Z40:{target:'YY6_SC_LINE_ITEM_NUMBER',vc:1},
-      Z42:{target:'ACCELERATED_FEE_DISC_VEN',vc:2}, Z43:{target:'YY3_ACA_HRS_PRICE',vc:1},
-      Z44:{target:'YY118_MARK_UP_RG',vc:1},         Z45:{target:'YY119_MARK_UP_OT',vc:1},
-      Z46:{target:'YY120_MARK_UP_DB',vc:1},
+      Z01: { target: 'YY216_CUST_BUSINESS_UNIT', vc: 2 }, Z02: { target: 'YY217_CUST_CHARGE_NUMBER', vc: 2 },
+      Z03: { target: 'YY250_CUST_COST_CENTER2', vc: 2 }, Z04: { target: 'YY220_CUST_COMPANY_CODE', vc: 2 },
+      Z05: { target: 'YY221_CUST_DEPT_NUMBER', vc: 2 }, Z06: { target: 'YY222_CUST_DOTS_NUMBER', vc: 2 },
+      Z07: { target: 'YY223_CUST_RUI', vc: 2 }, Z08: { target: 'YY144_WEEKLY_CLOCK_FEE', vc: 2 }, // <-- fix
+      Z09: { target: 'YY224_CUST_ACCT_NUMBER', vc: 2 }, Z10: { target: 'YY225_CUST_BUDGET_CENTER', vc: 2 },
+      Z11: { target: 'YY226_CUST_CON_NUMBER', vc: 2 },    // <-- fix
+      Z12: { target: 'YY227_CUST_VENDOR_NUMBER', vc: 2 },
+      Z16: { target: 'YY228_CUST_ORG_CODE', vc: 2 }, Z17: { target: 'YY229_CUST_LEGAL_ENTITY', vc: 2 },
+      Z18: { target: 'YY230_CUST_ORACLE_NUMBER', vc: 2 }, Z19: { target: 'YY231_CUST_UNIT_STORE_NUMBER', vc: 2 },
+      Z24: { target: 'YY233_CUST_EMPLOYEE_NUMBER', vc: 2 }, Z25: { target: 'YY234_CUST_AGREE_NUMBER', vc: 2 },
+      Z26: { target: 'YY241_CUST_BGRD_CHECK_DATE', vc: 2 }, Z27: { target: 'YY242_CUST_DIV_UNIT_NUMBER', vc: 2 },
+      Z28: { target: 'YY236_CUST_FEPS_CODE', vc: 2 }, Z29: { target: 'YY237_CUST_POSITION', vc: 2 },
+      Z31: { target: 'YY235_CUST_TASK15', vc: 2 }, Z32: { target: 'YY238_CUST_GL_CODE', vc: 2 },
+      Z33: { target: 'YY240_CUST_BB_NUMBER', vc: 2 }, Z34: { target: 'YY218_CUST_PROJECT_NUMBER', vc: 2 },
+      Z35: { target: 'YY239_CUST_PURCHASE_AGREE', vc: 2 }, Z37: { target: 'YY237_CUST_POSITION', vc: 2 },
+      Z30: { target: 'SUPPLIER_INVOICE_NUMBER', vc: 2 }, // SUPPLIER'S INVOICE (SUBCON SCENARIO)
+      Z36: { target: 'YY232_CUST_SVC_DATE', vc: 2 },
+      Z38: { target: 'CUST_COMMODITY_CODE2', vc: 2 },    // SERVICE DATE - FOR SDI IBM
+      Z39: { target: 'CUST_CATERGORY_CODE2', vc: 2 }, Z40: { target: 'YY6_SC_LINE_ITEM_NUMBER', vc: 1 },
+      Z42: { target: 'ACCELERATED_FEE_DISC_VEN', vc: 2 }, Z43: { target: 'YY3_ACA_HRS_PRICE', vc: 1 },
+      Z44: { target: 'YY118_MARK_UP_RG', vc: 1 }, Z45: { target: 'YY119_MARK_UP_OT', vc: 1 },
+      Z46: { target: 'YY120_MARK_UP_DB', vc: 1 },
     };
 
     // For quick format validation
     const DECIMAL_VC1 = new Set([
-      'YY3_ACA_HRS_PRICE','YY12_DAY1_SHIFT1_RG','YY13_DAY1_SHIFT1_OT','YY14_DAY1_SHIFT1_DB',
-      'YY15_DAY1_SHIFT2_RG','YY16_DAY1_SHIFT2_OT','YY17_DAY1_SHIFT2_DB','YY18_DAY1_SHIFT3_RG',
-      'YY19_DAY1_SHIFT3_OT','YY20_DAY1_SHIFT3_DB','YY100_SHIFT1_TOTAL_HRS_RG','YY101_SHIFT1_TOTAL_HRS_OT',
-      'YY102_SHIFT1_TOTAL_HRS_DB','YY103_SHIFT2_TOTAL_HRS_RG','YY104_SHIFT2_TOTAL_HRS_OT',
-      'YY105_SHIFT2_TOTAL_HRS_DB','YY106_SHIFT3_TOTAL_HRS_RG','YY107_SHIFT3_TOTAL_HRS_OT',
-      'YY108_SHIFT3_TOTAL_HRS_DB','YY109_SHIFT1_PRICE_RG','YY110_SHIFT1_PRICE_OT','YY111_SHIFT1_PRICE_DB',
-      'YY112_SHIFT2_PRICE_RG','YY113_SHIFT2_PRICE_OT','YY114_SHIFT2_PRICE_DB','YY115_SHIFT3_PRICE_RG',
-      'YY116_SHIFT3_PRICE_OT','YY117_SHIFT3_PRICE_DB','YY118_MARK_UP_RG','YY119_MARK_UP_OT',
-      'YY120_MARK_UP_DB','YY121_SHIFT1_TOTAL_PRICE_RG','YY122_SHIFT1_TOTAL_PRICE_OT',
-      'YY123_SHIFT1_TOTAL_PRICE_DB','YY124_SHIFT2_TOTAL_PRICE_RG','YY125_SHIFT2_TOTAL_PRICE_OT',
-      'YY126_SHIFT2_TOTAL_PRICE_DB','YY127_SHIFT3_TOTAL_PAY_RG','YY128_SHIFT3_TOTAL_PAY_OT',
+      'YY3_ACA_HRS_PRICE', 'YY12_DAY1_SHIFT1_RG', 'YY13_DAY1_SHIFT1_OT', 'YY14_DAY1_SHIFT1_DB',
+      'YY15_DAY1_SHIFT2_RG', 'YY16_DAY1_SHIFT2_OT', 'YY17_DAY1_SHIFT2_DB', 'YY18_DAY1_SHIFT3_RG',
+      'YY19_DAY1_SHIFT3_OT', 'YY20_DAY1_SHIFT3_DB', 'YY100_SHIFT1_TOTAL_HRS_RG', 'YY101_SHIFT1_TOTAL_HRS_OT',
+      'YY102_SHIFT1_TOTAL_HRS_DB', 'YY103_SHIFT2_TOTAL_HRS_RG', 'YY104_SHIFT2_TOTAL_HRS_OT',
+      'YY105_SHIFT2_TOTAL_HRS_DB', 'YY106_SHIFT3_TOTAL_HRS_RG', 'YY107_SHIFT3_TOTAL_HRS_OT',
+      'YY108_SHIFT3_TOTAL_HRS_DB', 'YY109_SHIFT1_PRICE_RG', 'YY110_SHIFT1_PRICE_OT', 'YY111_SHIFT1_PRICE_DB',
+      'YY112_SHIFT2_PRICE_RG', 'YY113_SHIFT2_PRICE_OT', 'YY114_SHIFT2_PRICE_DB', 'YY115_SHIFT3_PRICE_RG',
+      'YY116_SHIFT3_PRICE_OT', 'YY117_SHIFT3_PRICE_DB', 'YY118_MARK_UP_RG', 'YY119_MARK_UP_OT',
+      'YY120_MARK_UP_DB', 'YY121_SHIFT1_TOTAL_PRICE_RG', 'YY122_SHIFT1_TOTAL_PRICE_OT',
+      'YY123_SHIFT1_TOTAL_PRICE_DB', 'YY124_SHIFT2_TOTAL_PRICE_RG', 'YY125_SHIFT2_TOTAL_PRICE_OT',
+      'YY126_SHIFT2_TOTAL_PRICE_DB', 'YY127_SHIFT3_TOTAL_PAY_RG', 'YY128_SHIFT3_TOTAL_PAY_OT',
       'YY129_SHIFT3_TOTAL_PAY_DB',
     ]);
     const DATE_VC1 = new Set(['YY8_WEEK_ENDING2']);
 
     const DECIMAL_VC2 = new Set([
-      'YY134_DAILY_PAY_VENDOR','YY142_SALARY_PAY_VENDOR','YY144_WEEKLY_CLOCK_FEE',
-      'YY150_DAILY_PAY_DAYS','YY151_DAILY_PRICE','YY152_DAILY_TOTAL_RATE','YY203_SALARY',
-      'YY251_SHIFT1_PAY_RATE_RG','YY252_SHIFT1_PAY_RATE_OT','YY253_SHIFT1_PAY_RATE_DB',
-      'YY254_SHIFT2_PAY_RATE_RG','YY255_SHIFT2_PAY_RATE_OT','YY256_SHIFT2_PAY_RATE_DB',
-      'YY257_SHIFT3_PAY_RATE_RG','YY258_SHIFT3_PAY_RATE_OT','YY259_SHIFT3_PAY_RATE_DB',
-      'YY260_SHIFT1_TOTAL_PAY_RG','YY261_SHIFT1_TOTAL_PAY_OT','YY262_SHIFT1_TOTAL_PAY_DB',
-      'YY263_SHIFT2_TOTAL_PAY_RG','YY264_SHIFT2_TOTAL_PAY_OT','YY265_SHIFT2_TOTAL_PAY_DB',
-      'YY266_SHIFT3_TOTAL_PAY_RG','YY267_SHIFT3_TOTAL_PAY_OT','YY268_SHIFT3_TOTAL_PAY_DB',
+      'YY134_DAILY_PAY_VENDOR', 'YY142_SALARY_PAY_VENDOR', 'YY144_WEEKLY_CLOCK_FEE',
+      'YY150_DAILY_PAY_DAYS', 'YY151_DAILY_PRICE', 'YY152_DAILY_TOTAL_RATE', 'YY203_SALARY',
+      'YY251_SHIFT1_PAY_RATE_RG', 'YY252_SHIFT1_PAY_RATE_OT', 'YY253_SHIFT1_PAY_RATE_DB',
+      'YY254_SHIFT2_PAY_RATE_RG', 'YY255_SHIFT2_PAY_RATE_OT', 'YY256_SHIFT2_PAY_RATE_DB',
+      'YY257_SHIFT3_PAY_RATE_RG', 'YY258_SHIFT3_PAY_RATE_OT', 'YY259_SHIFT3_PAY_RATE_DB',
+      'YY260_SHIFT1_TOTAL_PAY_RG', 'YY261_SHIFT1_TOTAL_PAY_OT', 'YY262_SHIFT1_TOTAL_PAY_DB',
+      'YY263_SHIFT2_TOTAL_PAY_RG', 'YY264_SHIFT2_TOTAL_PAY_OT', 'YY265_SHIFT2_TOTAL_PAY_DB',
+      'YY266_SHIFT3_TOTAL_PAY_RG', 'YY267_SHIFT3_TOTAL_PAY_OT', 'YY268_SHIFT3_TOTAL_PAY_DB',
     ]);
-    const DATE_VC2 = new Set(['YY241_CUST_BGRD_CHECK_DATE','YY232_CUST_SVC_DATE']);
+    const DATE_VC2 = new Set(['YY241_CUST_BGRD_CHECK_DATE', 'YY232_CUST_SVC_DATE']);
 
     const toEmployeeType = (subgrp) => {
       const s = String(subgrp || '').toUpperCase();
@@ -2953,7 +2969,7 @@ Z38:{target:'CUST_COMMODITY_CODE2',vc:2},    // SERVICE DATE - FOR SDI IBM
 
     const fmtDateISO = (v) => {
       if (!v) return null;
-      const m = moment(v, ['YYYY-MM-DD','YYYY/MM/DD','YYYYMMDD','MM/DD/YYYY','DD/MM/YYYY'], true);
+      const m = moment(v, ['YYYY-MM-DD', 'YYYY/MM/DD', 'YYYYMMDD', 'MM/DD/YYYY', 'DD/MM/YYYY'], true);
       return m.isValid() ? m.format('YYYY-MM-DD') : null;
     };
 
@@ -3075,32 +3091,32 @@ Z38:{target:'CUST_COMMODITY_CODE2',vc:2},    // SERVICE DATE - FOR SDI IBM
           YY216_CUST_BUSINESS_UNIT: record.custBusUnitName,
           YY217_CUST_CHARGE_NUMBER: record.custChrgNo,
           YY218_CUST_PROJECT_NUMBER: record.projectNo,
-          YY219_CUST_COST_CENTER:   record.custCostCtr,
-          YY220_CUST_COMPANY_CODE:  record.custCompCode,
-          YY221_CUST_DEPT_NUMBER:   record.custDepNo,
-          YY222_CUST_DOTS_NUMBER:   record.custDOTSNo,
-          YY223_CUST_RUI:           record.custRUI,
-          YY224_CUST_ACCT_NUMBER:   record.custAccNo,
+          YY219_CUST_COST_CENTER: record.custCostCtr,
+          YY220_CUST_COMPANY_CODE: record.custCompCode,
+          YY221_CUST_DEPT_NUMBER: record.custDepNo,
+          YY222_CUST_DOTS_NUMBER: record.custDOTSNo,
+          YY223_CUST_RUI: record.custRUI,
+          YY224_CUST_ACCT_NUMBER: record.custAccNo,
           YY225_CUST_BUDGET_CENTER: record.custBudCtr,
-          YY226_CUST_CON_NUMBER:    record.custConNo,
+          YY226_CUST_CON_NUMBER: record.custConNo,
           YY227_CUST_VENDOR_NUMBER: record.sgVendNoAtCust,
-          YY228_CUST_ORG_CODE:      record.custOrgName,
-          YY229_CUST_LEGAL_ENTITY:  record.custLegEnt,
+          YY228_CUST_ORG_CODE: record.custOrgName,
+          YY229_CUST_LEGAL_ENTITY: record.custLegEnt,
           YY230_CUST_ORACLE_NUMBER: record.custOrcNo,
           YY231_CUST_UNIT_STORE_NUMBER: record.custUtStrNo,
-          YY232_CUST_SVC_DATE:      fmtDateISO(record.svcDatFrom),
+          YY232_CUST_SVC_DATE: fmtDateISO(record.svcDatFrom),
           YY233_CUST_EMPLOYEE_NUMBER: record.custEmpNo,
-          YY234_CUST_AGREE_NUMBER:  record.custAgrName,
-          YY235_CUST_TASK15:        record.taskNo,
-          YY236_CUST_FEPS_CODE:     record.custFEPSCode,
-          YY238_CUST_GL_CODE:       record.custGLCode,
+          YY234_CUST_AGREE_NUMBER: record.custAgrName,
+          YY235_CUST_TASK15: record.taskNo,
+          YY236_CUST_FEPS_CODE: record.custFEPSCode,
+          YY238_CUST_GL_CODE: record.custGLCode,
           YY239_CUST_PURCHASE_AGREE: record.purchaseAgreement,
-          YY240_CUST_BB_NUMBER:     record.bbNo,
+          YY240_CUST_BB_NUMBER: record.bbNo,
           YY241_CUST_BGRD_CHECK_DATE: fmtDateISO(record.custBgChkDate),
           YY242_CUST_DIV_UNIT_NUMBER: record.custDivUnit,
           YY243_CUST_POSITION_CODE: record.custPosCode,
           YY247_ZSD_WN_WORK_ORDER_VCSD: record.wnWork,
-          YY250_CUST_COST_CENTER2:  record.custCostCtr,
+          YY250_CUST_COST_CENTER2: record.custCostCtr,
           YY251_SHIFT1_PAY_RATE_RG: fmtDecimal(record.shiftRGFirst),
           YY252_SHIFT1_PAY_RATE_OT: fmtDecimal(record.shiftOTFirst),
           YY253_SHIFT1_PAY_RATE_DB: fmtDecimal(record.shiftDTFirst),
@@ -3201,7 +3217,7 @@ Z38:{target:'CUST_COMMODITY_CODE2',vc:2},    // SERVICE DATE - FOR SDI IBM
         }
       } catch (e) {
         LOG.info(`[VC] VC2 INSERT exception recID=${recID}: ${e?.message}`);
-        aErrorLogs.push({ record_ID: recID, message: e?.message || 'VC2 INSERT exception' , process_code: sProcessCode});
+        aErrorLogs.push({ record_ID: recID, message: e?.message || 'VC2 INSERT exception', process_code: sProcessCode });
         aFailedRecordIDs.push(recID);
         const idx = aPassedRecordIDs.indexOf(recID);
         if (idx !== -1) aPassedRecordIDs.splice(idx, 1);
@@ -3209,7 +3225,7 @@ Z38:{target:'CUST_COMMODITY_CODE2',vc:2},    // SERVICE DATE - FOR SDI IBM
       }
       if (insertedSalesVCData2?.message) {
         LOG.info(`[VC] VC2 service error recID=${recID}: ${insertedSalesVCData2.message}`);
-        aErrorLogs.push({ record_ID: recID, message: insertedSalesVCData2.message , process_code: sProcessCode});
+        aErrorLogs.push({ record_ID: recID, message: insertedSalesVCData2.message, process_code: sProcessCode });
         aFailedRecordIDs.push(recID);
         const idx = aPassedRecordIDs.indexOf(recID);
         if (idx !== -1) aPassedRecordIDs.splice(idx, 1);
@@ -3302,12 +3318,12 @@ Z38:{target:'CUST_COMMODITY_CODE2',vc:2},    // SERVICE DATE - FOR SDI IBM
           WBSElement: record.projectNumberSAP,
           CustomerPurchaseOrderDate: record.custPODateLbr,
           to_ScheduleLine: [this._prepareDataForScheduleLine({ record })],
-          to_Text:[],
+          to_Text: [],
         },
       ],
       to_Partner: this._preparePartnerFunctions({ record, businessPartnerMap, taxCode, recEmplNo, personnelNoSAP, empResponsible }),
       errors: [],
-      
+
     };
 
     if (record.sourcedSDC) {
@@ -3505,22 +3521,22 @@ Z38:{target:'CUST_COMMODITY_CODE2',vc:2},    // SERVICE DATE - FOR SDI IBM
     if (Object.keys(foundFields).length > 0) {
       const oContactInfo = businessPartnerMap.get(`${record.soldToParty}_Z4`);
       if (!oContactInfo) {
-      // Error
-    } else {
-      const oContactAddr = {
-        OrganizationName1: foundFields.Z14 ||record.custManName,
-        PhoneNumber: foundFields.Z15 ||record.custManPhone,
-        EmailAddress: foundFields.Z13 ||record.custManEmail,
-      };
+        // Error
+      } else {
+        const oContactAddr = {
+          OrganizationName1: foundFields.Z14 || record.custManName,
+          PhoneNumber: foundFields.Z15 || record.custManPhone,
+          EmailAddress: foundFields.Z13 || record.custManEmail,
+        };
 
-      // const oContact = businessPartnerMap.get(`${record.soldToParty}_Z4`);
-      aPartnerFunctions.push({
-        PartnerFunction: 'Z4',
-        ContactPerson: oContactInfo.ContactPerson,
-        // Customer: oContactInfo?.BPCustomerNumber || oShipToParty.BPCustomerNumber,
-        to_Address: [oContactAddr],
-      });
-    }
+        // const oContact = businessPartnerMap.get(`${record.soldToParty}_Z4`);
+        aPartnerFunctions.push({
+          PartnerFunction: 'Z4',
+          ContactPerson: oContactInfo.ContactPerson,
+          // Customer: oContactInfo?.BPCustomerNumber || oShipToParty.BPCustomerNumber,
+          to_Address: [oContactAddr],
+        });
+      }
     }
     // Customer contact info
     // if (record.custManEmail || record.custManName || record.custManPhone) {
@@ -3540,7 +3556,7 @@ Z38:{target:'CUST_COMMODITY_CODE2',vc:2},    // SERVICE DATE - FOR SDI IBM
     return aPartnerFunctions;
   }
 
-  _getTaxCodeForRecord({ record, aTaxCodeByProvince, aTaxCodeByCity, aTaxCodeByCounty,aAddresses }) {
+  _getTaxCodeForRecord({ record, aTaxCodeByProvince, aTaxCodeByCity, aTaxCodeByCounty, aAddresses }) {
     let sTaxCode = null,
       oTaxCode;
     let laddr = null;
@@ -3564,9 +3580,9 @@ Z38:{target:'CUST_COMMODITY_CODE2',vc:2},    // SERVICE DATE - FOR SDI IBM
         if (oTaxCode) {
           sTaxCode = oTaxCode.taxJurisdiction;
         } else {
-            laddr  = aAddresses.find(
+          laddr = aAddresses.find(
             (addr) =>
-              addr.zipcode === record.postalCode              
+              addr.zipcode === record.postalCode
           );
           record.county = laddr?.county?.toUpperCase();
           oTaxCode = aTaxCodeByCounty.find(
@@ -3620,6 +3636,7 @@ Z38:{target:'CUST_COMMODITY_CODE2',vc:2},    // SERVICE DATE - FOR SDI IBM
     this.updateProcessingState(sProcessCode);
     if (!aRecordsForProcessing.length) {
       // If Step doesn't need to be processed, simply return to avoid costly calls
+      
       return {
         hasError: false,
         continue: true,
@@ -3741,7 +3758,24 @@ Z38:{target:'CUST_COMMODITY_CODE2',vc:2},    // SERVICE DATE - FOR SDI IBM
 
     if (aPassedRecordIDs.length) {
       await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
-      await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3})));
+      const aSuccessLogs = aPassedRecordIDs.map((sId) => {
+        const oRecord = this.records.find((r) => r.ID === sId);
+        let sMessage;
+        if (sProcessCode === '4') {
+          sMessage = `Enterprise Project ${oRecord.projectNumberSAP} was created successfully with Project UUID ${oRecord.projectUUID}.`;
+        } else if (sProcessCode === 'C') {
+          sMessage = `Enterprise Project ${oRecord.projectNumberSAP} was updated with Sales Order ${oRecord.salesDocumentNoSAP} and released successfully.`;
+        } else {
+          sMessage = cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]);
+        }
+        return {
+          record_ID: sId,
+          message: sMessage,
+          process_code: sProcessCode,
+          type: 3
+        };
+      });
+      await ProcessLogger.addLogs(aSuccessLogs);
       this.markRecordsValid(sProcessCode, aPassedRecordIDs, true)
     }
 
@@ -3783,6 +3817,7 @@ Z38:{target:'CUST_COMMODITY_CODE2',vc:2},    // SERVICE DATE - FOR SDI IBM
     this.updateProcessingState(sProcessCode);
     if (!aRecordsForProcessing.length) {
       // If Step doesn't need to be processed, simply return to avoid costly calls
+      
       return {
         hasError: false,
         continue: true,
@@ -3953,7 +3988,17 @@ Z38:{target:'CUST_COMMODITY_CODE2',vc:2},    // SERVICE DATE - FOR SDI IBM
 
     if (aPassedRecordIDs.length) {
       await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
-      await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3})));
+      await ProcessLogger.addLogs(
+        aPassedRecordIDs.map((sId) => {
+          const oRecord = this.records.find((r) => r.ID === sId);
+          return {
+            record_ID: sId,
+            message: `Employee Customer Info was created successfully for Worker ID ${oRecord.personnelNoSAP}, Project ${oRecord.projectNumberSAP}, and Sales Order ${oRecord.salesDocumentNoSAP}.`,
+            process_code: sProcessCode,
+            type: 3,
+          };
+        })
+      );
     }
 
     this.updateExclusionSet({
@@ -4033,7 +4078,7 @@ Z38:{target:'CUST_COMMODITY_CODE2',vc:2},    // SERVICE DATE - FOR SDI IBM
   //   //     );
   //   //   }
   //   // }
-    
+
   //   // new code 3-1837
   //   // Create two inserts per record with CostDistribution: '1' and '2'  
   // //   rec.personnelNoSAP and startDate
@@ -4181,13 +4226,13 @@ Z38:{target:'CUST_COMMODITY_CODE2',vc:2},    // SERVICE DATE - FOR SDI IBM
   //   //     );
   //   //   }
   //   // }
-    
+
   //   // new code 3-1837
   //   // Create two inserts per record with CostDistribution: '1' and '2'  
   //   for (let i = 0; i < aRecordsForProcessing.length; i++) {
   //     const rec = aRecordsForProcessing[i];
   //     const newStartDate = moment(rec.beginDate).format('YYYY-MM-DD');
-      
+
   //     try {
   //       // Query for existing records where StartDate < newStartDate and EndDate > newStartDate
   //       const existingRecords = await this.HrCostDistObjAPI.executeQuery(
@@ -4216,7 +4261,7 @@ Z38:{target:'CUST_COMMODITY_CODE2',vc:2},    // SERVICE DATE - FOR SDI IBM
   //       if (existingRecords && existingRecords.length > 0) {
   //         // Existing records found - need to close them and create new ones
   //         this.LOG._info && this.LOG.info(`Found ${existingRecords.length} existing records for WorkerID ${rec.personnelNoSAP}`);
-          
+
   //         // Calculate the end date for existing records (new start date - 1 day)
   //         const closingEndDate = moment(rec.beginDate).subtract(1, 'days').format('YYYY-MM-DD');
 
@@ -4230,7 +4275,7 @@ Z38:{target:'CUST_COMMODITY_CODE2',vc:2},    // SERVICE DATE - FOR SDI IBM
   //               EndDate: closingEndDate, // Set EndDate to new StartDate - 1 day
   //               CostDistribution: '01'
   //             };
-              
+
   //             const insertClosed1 = await this.HrCostDistObjAPI.executeQuery(
   //               INSERT.into('YY1_HRCOSTDISTRIBUTIONOBJ').entries(closedRecord1)
   //             );
@@ -4247,7 +4292,7 @@ Z38:{target:'CUST_COMMODITY_CODE2',vc:2},    // SERVICE DATE - FOR SDI IBM
   //               EndDate: closingEndDate, // Set EndDate to new StartDate - 1 day
   //               CostDistribution: '02'
   //             };
-              
+
   //             const insertClosed2 = await this.HrCostDistObjAPI.executeQuery(
   //               INSERT.into('YY1_HRCOSTDISTRIBUTIONOBJ').entries(closedRecord2)
   //             );
@@ -4324,7 +4369,7 @@ Z38:{target:'CUST_COMMODITY_CODE2',vc:2},    // SERVICE DATE - FOR SDI IBM
   //           allOperationsSuccess = false;
   //           const msg1 = ins1.status === 'rejected' ? ins1.reason?.message : ins1.value?.message;
   //           const msg2 = ins2.status === 'rejected' ? ins2.reason?.message : ins2.value?.message;
-            
+
   //           if (!ok1) errors.push(`[CostDistribution 01] ${msg1 || 'Unknown error'}`);
   //           if (!ok2) errors.push(`[CostDistribution 02] ${msg2 || 'Unknown error'}`);
   //         }
@@ -4383,7 +4428,7 @@ Z38:{target:'CUST_COMMODITY_CODE2',vc:2},    // SERVICE DATE - FOR SDI IBM
   //   };
   // }
 
- async processHrCostDistObj(sProcessCode, bBreakExecution) {
+  async processHrCostDistObj(sProcessCode, bBreakExecution) {
     this.LOG._info && this.LOG.info('Logging _processHrCostDistObj');
 
     let aRecordsForProcessing = [],
@@ -4408,6 +4453,14 @@ Z38:{target:'CUST_COMMODITY_CODE2',vc:2},    // SERVICE DATE - FOR SDI IBM
 
     this.updateProcessingState(sProcessCode);
     if (!aRecordsForProcessing.length) {
+      await ProcessLogger.addLogs(
+        aSkippedRecords.map((record) => ({
+          record_ID: record.ID,
+          message: `No Records for process step ${sProcessCode}.`,
+          process_code: sProcessCode,
+          type: 3,
+        }))
+      );
       return {
         hasError: false,
         continue: true,
@@ -4447,13 +4500,13 @@ Z38:{target:'CUST_COMMODITY_CODE2',vc:2},    // SERVICE DATE - FOR SDI IBM
     //     );
     //   }
     // }
-    
+
     // new code 3-1837
     // Create two inserts per record with CostDistribution: '1' and '2'  
     for (let i = 0; i < aRecordsForProcessing.length; i++) {
       const rec = aRecordsForProcessing[i];
       const newStartDate = moment(rec.beginDate).format('YYYY-MM-DD');
-      
+
       try {
         // Query for existing records where StartDate < newStartDate and EndDate > newStartDate
         const existingRecords = await this.HrCostDistObjAPI.executeQuery(
@@ -4482,10 +4535,10 @@ Z38:{target:'CUST_COMMODITY_CODE2',vc:2},    // SERVICE DATE - FOR SDI IBM
         if (existingRecords && existingRecords.length > 0) {
           // Existing records found - need to close them and create new ones
           this.LOG._info && this.LOG.info(`Found ${existingRecords.length} existing records for WorkerID ${rec.personnelNoSAP}`);
-          
+
           // Calculate the end date for existing records (new start date - 1 day)
           const closingEndDate = moment(rec.beginDate).subtract(1, 'days').format('YYYY-MM-DD');
-          
+
           // Get the original StartDate from the first existing record (all should have same StartDate)
           const originalStartDate = existingRecords[0].StartDate;
 
@@ -4514,7 +4567,7 @@ Z38:{target:'CUST_COMMODITY_CODE2',vc:2},    // SERVICE DATE - FOR SDI IBM
                 EndDate: closingEndDate,
                 CostDistribution: '01'
               };
-              
+
               const insertClosed1 = await this.HrCostDistObjAPI.executeQuery(
                 INSERT.into('YY1_HRCOSTDISTRIBUTIONOBJ').entries(closedRecord1)
               );
@@ -4530,7 +4583,7 @@ Z38:{target:'CUST_COMMODITY_CODE2',vc:2},    // SERVICE DATE - FOR SDI IBM
                 EndDate: closingEndDate,
                 CostDistribution: '02'
               };
-              
+
               const insertClosed2 = await this.HrCostDistObjAPI.executeQuery(
                 INSERT.into('YY1_HRCOSTDISTRIBUTIONOBJ').entries(closedRecord2)
               );
@@ -4540,7 +4593,7 @@ Z38:{target:'CUST_COMMODITY_CODE2',vc:2},    // SERVICE DATE - FOR SDI IBM
                 errors.push(`Failed to close existing record with CostDistribution 02: ${insertClosed2?.message || 'Unknown error'}`);
               }
 
-               const newRecord1 = {
+              const newRecord1 = {
                 ...base,
                 CostDistribution: '01'
               };
@@ -4592,7 +4645,7 @@ Z38:{target:'CUST_COMMODITY_CODE2',vc:2},    // SERVICE DATE - FOR SDI IBM
             allOperationsSuccess = false;
             const msg1 = ins1.status === 'rejected' ? ins1.reason?.message : ins1.value?.message;
             const msg2 = ins2.status === 'rejected' ? ins2.reason?.message : ins2.value?.message;
-            
+
             if (!ok1) errors.push(`[CostDistribution 01] ${msg1 || 'Unknown error'}`);
             if (!ok2) errors.push(`[CostDistribution 02] ${msg2 || 'Unknown error'}`);
           }
@@ -4609,7 +4662,7 @@ Z38:{target:'CUST_COMMODITY_CODE2',vc:2},    // SERVICE DATE - FOR SDI IBM
 
           aErrorLogs.push({
             record_ID: rec.ID,
-            message: errorMessage.trim(),process_code: sProcessCode
+            message: errorMessage.trim(), process_code: sProcessCode
           });
           aFailedRecordIDs.push(rec.ID);
 
@@ -4636,7 +4689,18 @@ Z38:{target:'CUST_COMMODITY_CODE2',vc:2},    // SERVICE DATE - FOR SDI IBM
 
     if (aPassedRecordIDs.length) {
       await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
-      await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3})));
+      await ProcessLogger.addLogs(
+        aPassedRecordIDs.map((sId) => {
+          const oRecord = this.records.find((r) => r.ID === sId);
+          return {
+            record_ID: sId,
+            message: `HR Cost Distribution was updated successfully for Worker ID ${oRecord.personnelNoSAP}, Project ${oRecord.projectNumberSAP}, with Cost Distributions 01 and 02.`,
+            process_code: sProcessCode,
+            type: 3,
+          };
+        })
+      );
+
     }
 
     this.updateExclusionSet({
