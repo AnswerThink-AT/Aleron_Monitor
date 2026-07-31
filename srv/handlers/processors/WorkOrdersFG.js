@@ -211,8 +211,8 @@ class WorkOrdersFG extends Processor {
       // {reason: anySalesContractHeaderErr, value: aSalesContractHeaders},
       { reason: anySalesContractPrimaryErr, value: aSalesContractPrimaryResults },
       { reason: anySalesContractFallbackErr, value: aSalesContractFallbackResults },
-      {reason: anySalesContractItemPrimaryErr, value: aSalesContractItemPrimaryResults},
-      {reason: anySalesContractItemFallbackErr, value: aSalesContractItemFallbackResults},
+      { reason: anySalesContractItemPrimaryErr, value: aSalesContractItemPrimaryResults },
+      { reason: anySalesContractItemFallbackErr, value: aSalesContractItemFallbackResults },
       { reason: anyVendorMasterErr, value: aVendorMasterItems },
     ] = await Promise.allSettled([
       // Country Region Call 
@@ -229,7 +229,7 @@ class WorkOrdersFG extends Processor {
       // ),
       this.salesOrderAPI.executeQuery(
         SELECT.from('SalesOrder')
-          .columns(['SalesOrder', 'AssignmentReference','YY1_AlphanumericSalesO_SDH'])
+          .columns(['SalesOrder', 'AssignmentReference', 'YY1_AlphanumericSalesO_SDH'])
           .where({
             AssignmentReference: { in: aSalesOrderConditions.map(cond => cond.AssignmentReference) }
           }).limit(10000)
@@ -261,58 +261,58 @@ class WorkOrdersFG extends Processor {
             PurchaseOrderByCustomer: { in: aSalesContractHeaderConditions.map(cond => cond.SalesContract) },
             SoldToParty: { in: aSalesContractHeaderConditions.map(cond => cond.SoldToParty) }
           }).limit(10000)
-        ),
-  /////
+      ),
+      /////
       this.salesContractAPI.executeQuery(
-            SELECT.from('SalesContractItem')
-              .columns(['SalesContract', 'Product','PurchaseOrderByCustomer'])
-              .where({
-                SalesContract: { in: aSalesContractItemConditions.map(cond => cond.SalesContract) },
-                Product: { in: aSalesContractItemConditions.map(cond => cond.Product) }
-              }).limit(10000)
-          ),
-          this.salesContractAPI.executeQuery(
-            SELECT.from('SalesContractItem')
-              .columns(['SalesContract', 'Product','PurchaseOrderByCustomer'])
-              .where({
-                PurchaseOrderByCustomer: { in: aSalesContractItemConditions.map(cond => cond.SalesContract) },
-                Product: { in: aSalesContractItemConditions.map(cond => cond.Product) }
-              }).limit(10000)
-          ),
-        // Partner Function calls
-        // this.businesPartnerAPI.executeQuery(
-        //   aBusinessConditions.map((bp) => {
-        //     return SELECT.one
-        //       .from('A_BusinessPartner')
-        //       .columns(['AuthorizationGroup'])
-        //       .where({
-        //         AuthorizationGroup: bp.AuthorizationGroup
-        //       });
-        //   }),
-        // ), 
-        this.businesPartnerAPI.executeQuery(
-          SELECT.from('A_BusinessPartner')
-            .columns(['AuthorizationGroup'])
-            .where({
-              AuthorizationGroup: { in: aBusinessConditions.map(cond => cond.AuthorizationGroup) }
-            }).limit(10000)
-        )  
+        SELECT.from('SalesContractItem')
+          .columns(['SalesContract', 'Product', 'PurchaseOrderByCustomer'])
+          .where({
+            SalesContract: { in: aSalesContractItemConditions.map(cond => cond.SalesContract) },
+            Product: { in: aSalesContractItemConditions.map(cond => cond.Product) }
+          }).limit(10000)
+      ),
+      this.salesContractAPI.executeQuery(
+        SELECT.from('SalesContractItem')
+          .columns(['SalesContract', 'Product', 'PurchaseOrderByCustomer'])
+          .where({
+            PurchaseOrderByCustomer: { in: aSalesContractItemConditions.map(cond => cond.SalesContract) },
+            Product: { in: aSalesContractItemConditions.map(cond => cond.Product) }
+          }).limit(10000)
+      ),
+      // Partner Function calls
+      // this.businesPartnerAPI.executeQuery(
+      //   aBusinessConditions.map((bp) => {
+      //     return SELECT.one
+      //       .from('A_BusinessPartner')
+      //       .columns(['AuthorizationGroup'])
+      //       .where({
+      //         AuthorizationGroup: bp.AuthorizationGroup
+      //       });
+      //   }),
+      // ), 
+      this.businesPartnerAPI.executeQuery(
+        SELECT.from('A_BusinessPartner')
+          .columns(['AuthorizationGroup'])
+          .where({
+            AuthorizationGroup: { in: aBusinessConditions.map(cond => cond.AuthorizationGroup) }
+          }).limit(10000)
+      )
     ]);
 
     if (anySalesOrderErr) {
-      LOG._error && LOG.error(anySalesOrderErr.message);      
+      LOG._error && LOG.error(anySalesOrderErr.message);
     }
 
-    
+
     if (!anySalesContractPrimaryErr && aSalesContractPrimaryResults && aSalesContractPrimaryResults.length > 0) {
       aSalesContractHeaders.push(...aSalesContractPrimaryResults);
     }
-    
+
     if (!anySalesContractFallbackErr && aSalesContractFallbackResults && aSalesContractFallbackResults.length > 0) {
       const primarySalesContracts = new Set(aSalesContractHeaders.map(r => r.SalesContract));
       const fallbackOnly = aSalesContractFallbackResults.filter(r => !primarySalesContracts.has(r.SalesContract));
       aSalesContractHeaders.push(...fallbackOnly);
-      
+
       if (fallbackOnly.length > 0) {
         this.LOG._info && this.LOG.info(`Found ${fallbackOnly.length} SalesContract records using PurchaseOrderByCustomer fallback`);
       }
@@ -322,36 +322,36 @@ class WorkOrdersFG extends Processor {
     //   LOG._error && LOG.error(anySalesContractHeaderErr.message);
     // }
 
-      // Combine SalesContractItem results (primary + fallback)
-      if (!anySalesContractItemPrimaryErr && aSalesContractItemPrimaryResults && aSalesContractItemPrimaryResults.length > 0) {
-        aSalesContractItems.push(...aSalesContractItemPrimaryResults);
+    // Combine SalesContractItem results (primary + fallback)
+    if (!anySalesContractItemPrimaryErr && aSalesContractItemPrimaryResults && aSalesContractItemPrimaryResults.length > 0) {
+      aSalesContractItems.push(...aSalesContractItemPrimaryResults);
+    }
+
+    if (!anySalesContractItemFallbackErr && aSalesContractItemFallbackResults && aSalesContractItemFallbackResults.length > 0) {
+      const primarySalesContractItems = new Set(aSalesContractItems.map(r => `${r.SalesContract}-${r.Product}`));
+      const fallbackOnly = aSalesContractItemFallbackResults.filter(r => !primarySalesContractItems.has(`${r.SalesContract}-${r.Product}`));
+      aSalesContractItems.push(...fallbackOnly);
+
+      if (fallbackOnly.length > 0) {
+        this.LOG._info && this.LOG.info(`Found ${fallbackOnly.length} SalesContractItem records using PurchaseOrderByCustomer fallback`);
       }
-      
-      if (!anySalesContractItemFallbackErr && aSalesContractItemFallbackResults && aSalesContractItemFallbackResults.length > 0) {
-        const primarySalesContractItems = new Set(aSalesContractItems.map(r => `${r.SalesContract}-${r.Product}`));
-        const fallbackOnly = aSalesContractItemFallbackResults.filter(r => !primarySalesContractItems.has(`${r.SalesContract}-${r.Product}`));
-        aSalesContractItems.push(...fallbackOnly);
-        
-        if (fallbackOnly.length > 0) {
-          this.LOG._info && this.LOG.info(`Found ${fallbackOnly.length} SalesContractItem records using PurchaseOrderByCustomer fallback`);
-        }
-      }
-      
-      // Log any errors
-      if (anySalesContractItemPrimaryErr) {
-        LOG._error && LOG.error(`Error in primary SalesContractItem query: ${anySalesContractItemPrimaryErr.message}`);
-      }
-      if (anySalesContractItemFallbackErr) {
-        LOG._error && LOG.error(`Error in fallback SalesContractItem query: ${anySalesContractItemFallbackErr.message}`);
-      }
+    }
+
+    // Log any errors
+    if (anySalesContractItemPrimaryErr) {
+      LOG._error && LOG.error(`Error in primary SalesContractItem query: ${anySalesContractItemPrimaryErr.message}`);
+    }
+    if (anySalesContractItemFallbackErr) {
+      LOG._error && LOG.error(`Error in fallback SalesContractItem query: ${anySalesContractItemFallbackErr.message}`);
+    }
 
     if (anyVendorMasterErr) {
       LOG._error && LOG.error(anyVendorMasterErr.message);
     }
 
     const processedWorkOrderIDs = new Set();
-    
-    
+
+
     if (aSalesOrders && Array.isArray(aSalesOrders)) {
       aSalesOrders.forEach(so => {
         if (so.AssignmentReference) {
@@ -372,7 +372,7 @@ class WorkOrdersFG extends Processor {
       if (isWnValid && isSsValid) {
         aErrorLogs.push({
           record_ID: record.ID,
-          message: "Only one contract must be provided — WN_CONTRACT or SS_CONTRACT, not both.",process_code: sProcessCode
+          message: "Only one contract must be provided — WN_CONTRACT or SS_CONTRACT, not both.", process_code: sProcessCode
         });
         aFailedRecordIDs.push(record.ID);
         hasRecordFailed = true;
@@ -381,7 +381,7 @@ class WorkOrdersFG extends Processor {
       if (!isWnValid && !isSsValid) {
         aErrorLogs.push({
           record_ID: record.ID,
-          message: "At least one contract must be provided — WN_CONTRACT or SS_CONTRACT.",process_code: sProcessCode
+          message: "At least one contract must be provided — WN_CONTRACT or SS_CONTRACT.", process_code: sProcessCode
         });
         aFailedRecordIDs.push(record.ID);
         hasRecordFailed = true;
@@ -471,7 +471,7 @@ class WorkOrdersFG extends Processor {
           //   `Validation error for record ${record.ID}: errors=${JSON.stringify(oSalesOrderRes.errors)}`
           // );
           const resultError = oSalesOrderRes.errors.find(error =>
-            error.message.includes('Alphanumeric Sales Order')|| error.message.includes('is already loaded in SAP')
+            error.message.includes('Alphanumeric Sales Order') || error.message.includes('is already loaded in SAP')
           );
 
           this.LOG._info && this.LOG.info(
@@ -481,8 +481,8 @@ class WorkOrdersFG extends Processor {
           if (resultError) {
             // Error is from result - update entity
             this.LOG._info && this.LOG.info(
-                `Updating record ${record.ID} to processLevel='Z', rejected=true, valid=false`
-              );
+              `Updating record ${record.ID} to processLevel='Z', rejected=true, valid=false`
+            );
             try {
               await Promise.allSettled([
                 ProcessLogger.addLogs(oSalesOrderRes.errors),
@@ -496,7 +496,7 @@ class WorkOrdersFG extends Processor {
               //   `Update results for record ${record.ID}: ${JSON.stringify(updateResults.map(r => ({status: r.status, value: r.value})))}`
               // );
 
-               const recordIndex = this.records.findIndex(r => r.ID === record.ID);
+              const recordIndex = this.records.findIndex(r => r.ID === record.ID);
               if (recordIndex !== -1) {
                 this.records[recordIndex].rejected = true;
                 this.records[recordIndex].processLevel_code = 'Z';
@@ -523,8 +523,8 @@ class WorkOrdersFG extends Processor {
           } else {
             // Error is from normal record validation - existing logic
             oSalesOrderRes.errors.forEach((error) => {
-                    error.process_code = sProcessCode;
-                });
+              error.process_code = sProcessCode;
+            });
             aErrorLogs.push(...oSalesOrderRes.errors);
             aFailedRecordIDs.push(record.ID);
             hasRecordFailed = true;
@@ -536,29 +536,29 @@ class WorkOrdersFG extends Processor {
         const oSalesContHeaderRes = await this._validateSalesContHeader(record, aSalesContractHeaders);
         if (oSalesContHeaderRes.hasError) {
           oSalesContHeaderRes.errors.forEach((error) => {
-                    error.process_code = sProcessCode;
-                });
+            error.process_code = sProcessCode;
+          });
           aErrorLogs.push(...oSalesContHeaderRes.errors);
 
-          
+
           aFailedRecordIDs.push(record.ID);
 
           hasRecordFailed = true;
-        }else {
+        } else {
           // Store the updated contract value for database update                    
           record.wnContract = oSalesContHeaderRes.updatedContract;
           const idx = this.records.findIndex(r => r.ID === record.ID);
-         if (idx !== -1) {
-           this.records[idx].wnContract = oSalesContHeaderRes.updatedContract;
-         }
+          if (idx !== -1) {
+            this.records[idx].wnContract = oSalesContHeaderRes.updatedContract;
+          }
         }
 
         // Check Sales Contract Item
         const oSalesContItemRes = this._validateSalesContItem(record, aSalesContractItems);
         if (oSalesContItemRes.hasError) {
           oSalesContItemRes.errors.forEach((error) => {
-                    error.process_code = sProcessCode;
-                });
+            error.process_code = sProcessCode;
+          });
           aErrorLogs.push(...oSalesContItemRes.errors);
           aFailedRecordIDs.push(record.ID);
           hasRecordFailed = true;
@@ -619,7 +619,7 @@ class WorkOrdersFG extends Processor {
                     employeeSubgroupSAP: salesOrderItem.YY1_EEGroup_SD_SDI
                   })
                   .where({ ID: record.ID });
-              
+
                 if (!hasRecordFailed) {
                   aPassedRecordIDs.push(record.ID);
                 }
@@ -644,7 +644,7 @@ class WorkOrdersFG extends Processor {
       }
 
     }
-const aFailedRecordIDsFiltered = aFailedRecordIDs.filter(id => !aRejectedRecordIDs.includes(id));
+    const aFailedRecordIDsFiltered = aFailedRecordIDs.filter(id => !aRejectedRecordIDs.includes(id));
     // If errors are there, log them and update failed records
     if (aErrorLogs.length) {
       try {
@@ -674,7 +674,7 @@ const aFailedRecordIDsFiltered = aFailedRecordIDs.filter(id => !aRejectedRecordI
         this.LOG._error && this.LOG.error(err.message);
       }
     }
-    
+
     if (aPassedRecordIDs.length) {
       // await Promise.allSettled(
       //   aPassedRecordIDs.map(id => {
@@ -690,7 +690,7 @@ const aFailedRecordIDsFiltered = aFailedRecordIDs.filter(id => !aRejectedRecordI
 
       await Promise.allSettled([
         ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode),
-        ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3}))),
+        ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({ record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3 }))),
         this.markRecordsValid(sProcessCode, aPassedRecordIDs, true),
       ]);
       this.LOG._info &&
@@ -950,7 +950,7 @@ const aFailedRecordIDsFiltered = aFailedRecordIDs.filter(id => !aRejectedRecordI
                 this.records[recordIndex].projectNumberSAP = insertedProject.Project;
                 this.records[recordIndex].projectUUID = insertedProject.ProjectUUID;
               }
-              
+
               await UPDATE('MonitorService.WorkOrders_FG')
                 .set({
                   projectNumberSAP: insertedProject.Project,
@@ -1006,7 +1006,7 @@ const aFailedRecordIDsFiltered = aFailedRecordIDs.filter(id => !aRejectedRecordI
           LOG.error(
             `Error processing record ID ${aRecordsForProcessing[i].ID}: ${updatedProject.message}`,
           );
-        }else if(releaseProject.message){
+        } else if (releaseProject.message) {
           aErrorLogs.push({
             record_ID: aRecordsForProcessing[i].ID,
             message: `${releaseProject.message}`, process_code: sProcessCode
@@ -1015,7 +1015,7 @@ const aFailedRecordIDsFiltered = aFailedRecordIDs.filter(id => !aRejectedRecordI
           LOG.error(
             `Error processing record ID ${aRecordsForProcessing[i].ID}: ${releaseProject.message}`,
           );
-        }  else {
+        } else {
           await UPDATE('MonitorService.WorkOrders_FG')
             .set({
               valid: true,
@@ -1037,7 +1037,25 @@ const aFailedRecordIDsFiltered = aFailedRecordIDs.filter(id => !aRejectedRecordI
 
     if (aPassedRecordIDs.length) {
       await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
-      await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3})));
+      await ProcessLogger.addLogs(
+        aPassedRecordIDs.map((sId) => {
+          const oRecord = this.records.find((r) => r.ID === sId);
+          let sMessage;
+          if (sProcessCode === '4') {
+            if (oRecord.ssContract) {
+              sMessage = `Enterprise Project creation was skipped because an SS Contract (${oRecord.ssContract}) is associated with the record.`;
+            } else {
+              sMessage = `Enterprise Project ${oRecord.projectNumberSAP} was created successfully with Project UUID ${oRecord.projectUUID}.`;
+            }
+          } else if (sProcessCode === 'C') {
+            sMessage = `Enterprise Project ${oRecord.projectNumberSAP} was updated with Sales Order ${oRecord.salesDocumentNoSAP} and released successfully.`;
+          }
+
+          return {
+            record_ID: sId, message: sMessage, process_code: sProcessCode, type: 3,
+          };
+        })
+      );
       await UPDATE(WorkOrders_FG)
         .set({ valid: true, processLevel_code: sProcessCode })
         .where({ ID: { in: aPassedRecordIDs } });
@@ -1083,31 +1101,31 @@ const aFailedRecordIDsFiltered = aFailedRecordIDs.filter(id => !aRejectedRecordI
   async _validateSalesContHeader(oRecord, aSalesContracts) {
     let hasError = false,
       aErrors = [];
-     const oSalesContract = aSalesContracts.find((sc) => oRecord.soldTo === sc.SoldToParty && (oRecord.wnContract === sc.SalesContract || oRecord.wnContract === sc.PurchaseOrderByCustomer)); 
-         let updatedContract = oRecord.wnContract;  
-         // If found via fallback (PurchaseOrderByCustomer), update the record
-           if (oSalesContract && oRecord.wnContract === oSalesContract.PurchaseOrderByCustomer) {
-            this.LOG._info && this.LOG.info(`Found SalesContract via fallback for record ${oRecord.ID}: ${oRecord.wnContract} -> ${oSalesContract.SalesContract}`);
-            oRecord.wnContract = oSalesContract.SalesContract;
-            updatedContract = oSalesContract.SalesContract;
-            if (oSalesContract.PurchaseOrderByCustomer) {
-              await UPDATE(WorkOrders_FG)
-                .set({ legacyContractNo: oSalesContract.PurchaseOrderByCustomer })
-                .where({ ID: oRecord.ID });
-            }
-          } 
-      if (!oSalesContract) {
-          hasError = true;
-          aErrors.push({
-            record_ID: oRecord.ID,
-            message: cds.i18n.messages.at('msg.contractNotCreated'),
-          });
-        }   
-        return {
-          hasError,
-          errors: aErrors,
-          updatedContract: updatedContract
-        };   
+    const oSalesContract = aSalesContracts.find((sc) => oRecord.soldTo === sc.SoldToParty && (oRecord.wnContract === sc.SalesContract || oRecord.wnContract === sc.PurchaseOrderByCustomer));
+    let updatedContract = oRecord.wnContract;
+    // If found via fallback (PurchaseOrderByCustomer), update the record
+    if (oSalesContract && oRecord.wnContract === oSalesContract.PurchaseOrderByCustomer) {
+      this.LOG._info && this.LOG.info(`Found SalesContract via fallback for record ${oRecord.ID}: ${oRecord.wnContract} -> ${oSalesContract.SalesContract}`);
+      oRecord.wnContract = oSalesContract.SalesContract;
+      updatedContract = oSalesContract.SalesContract;
+      if (oSalesContract.PurchaseOrderByCustomer) {
+        await UPDATE(WorkOrders_FG)
+          .set({ legacyContractNo: oSalesContract.PurchaseOrderByCustomer })
+          .where({ ID: oRecord.ID });
+      }
+    }
+    if (!oSalesContract) {
+      hasError = true;
+      aErrors.push({
+        record_ID: oRecord.ID,
+        message: cds.i18n.messages.at('msg.contractNotCreated'),
+      });
+    }
+    return {
+      hasError,
+      errors: aErrors,
+      updatedContract: updatedContract
+    };
   }
 
 
@@ -1373,7 +1391,7 @@ const aFailedRecordIDsFiltered = aFailedRecordIDs.filter(id => !aRejectedRecordI
       ] = await Promise.allSettled([
         this.businesPartnerAPI.executeQuery(
           SELECT.from('A_CustSalesPartnerFunc')
-            .columns(['Customer', 'PartnerFunction', 'BPCustomerNumber','Supplier','PersonnelNumber','ContactPerson'])
+            .columns(['Customer', 'PartnerFunction', 'BPCustomerNumber', 'Supplier', 'PersonnelNumber', 'ContactPerson'])
             .where(`${sWhereForBusinessPartner}`),
         ),
         SELECT.from('com.aleron.monitor.TaxCodeByCounty')
@@ -1779,7 +1797,7 @@ const aFailedRecordIDsFiltered = aFailedRecordIDs.filter(id => !aRejectedRecordI
     // Step 4: Create SalesOrders in S/4HANA via OData
     // const aSalesOrderResults = await this.salesOrderAPI.createSalesOrders(aPayloads);
 
-     let aSalesOrderResults = [];
+    let aSalesOrderResults = [];
     if (aPayloads.length > 0) {
       aSalesOrderResults = await this.salesOrderAPI.createSalesOrders(aPayloads);
     } else {
@@ -1894,7 +1912,20 @@ const aFailedRecordIDsFiltered = aFailedRecordIDs.filter(id => !aRejectedRecordI
     // Update the status of passed records
     if (aPassedRecordIDs.length) {
       await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
-      await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3})));
+      await ProcessLogger.addLogs(
+        aPassedRecordIDs.map((sId) => {
+          const oRecord = this.records.find((r) => r.ID === sId);
+
+          return {
+            record_ID: sId,
+            message:
+              `Sales Order ${oRecord.salesDocumentNoSAP} with Item ${oRecord.salesItemNoSAP} was created successfully. ` +
+              `VC Data 1 UUID: ${oRecord.vcData1UUID}, VC Data 2 UUID: ${oRecord.vcData2UUID}.`,
+            process_code: sProcessCode,
+            type: 3,
+          };
+        })
+      );
       await UPDATE(WorkOrders_FG)
         .set({ valid: true, processLevel_code: sProcessCode })
         .where({ ID: { in: aPassedRecordIDs } });
@@ -1953,7 +1984,7 @@ const aFailedRecordIDsFiltered = aFailedRecordIDs.filter(id => !aRejectedRecordI
       DistributionChannel: salesContract.DistributionChannel,
       OrganizationDivision: salesContract.OrganizationDivision,
       SalesOffice: record.salesOffice,
-      PurchaseOrderByCustomer:record.purchaseOrder,
+      PurchaseOrderByCustomer: record.purchaseOrder,
       PurchaseOrderByShipToParty: record.businessUnitCode,//'100',
       SDDocumentReason: '',
       PricingDate: `/Date(${+moment()})/`,
@@ -2021,14 +2052,14 @@ const aFailedRecordIDsFiltered = aFailedRecordIDs.filter(id => !aRejectedRecordI
               Supplier: record.vendor
             })
         );
-        
+
         if (vendorMaster) {
           // Set partner function based on account group           
           oReturnData.to_Item[0].to_Partner.push({
             PartnerFunction: 'ZV',
             Supplier: record.vendor
           });
-          
+
         }
       } catch (error) {
         this.LOG._error && this.LOG.error(`Error checking vendor for item partner: ${error.message}`);
@@ -2343,7 +2374,7 @@ const aFailedRecordIDsFiltered = aFailedRecordIDs.filter(id => !aRejectedRecordI
               Country: siteDetails.country_code.substring(0, 2),
               PostalCode: siteDetails.zipCode,
               TaxJurisdiction: siteDetails.taxJurCode,
-              DistrictName: siteDetails.county,             
+              DistrictName: siteDetails.county,
               OrganizationName1: record.siteName?.substring(0, 40)
             }]
           });
@@ -2375,7 +2406,7 @@ const aFailedRecordIDsFiltered = aFailedRecordIDs.filter(id => !aRejectedRecordI
           const siteDetails = await SELECT.one.from('com.aleron.monitor.FGSiteCodeToAddressMapping')
             .where({
               siteCodeName: record.siteCode,
-              customerNo:ownerPartner.Customer
+              customerNo: ownerPartner.Customer
             });
 
           if (siteDetails) {
@@ -2390,7 +2421,7 @@ const aFailedRecordIDsFiltered = aFailedRecordIDs.filter(id => !aRejectedRecordI
                 Country: siteDetails.country_code?.substring(0, 2),
                 PostalCode: siteDetails.zipCode,
                 TaxJurisdiction: siteDetails.taxJurCode,
-                DistrictName: siteDetails.county,                
+                DistrictName: siteDetails.county,
                 OrganizationName1: record.managerName?.substring(0, 40),
                 OrganizationName2: `WO OWNER ID ${record.ownerId}`
               }]
@@ -2417,7 +2448,7 @@ const aFailedRecordIDsFiltered = aFailedRecordIDs.filter(id => !aRejectedRecordI
 
 
     // ZF
-     if (record.firstName) {
+    if (record.firstName) {
       try {
         // Search for ZF partner function in the business partner map
         const zfPartner = Array.from(businessPartnerMap.entries())
@@ -2430,10 +2461,10 @@ const aFailedRecordIDsFiltered = aFailedRecordIDs.filter(id => !aRejectedRecordI
           const siteDetails = await SELECT.one.from('com.aleron.monitor.FGSiteCodeToAddressMapping')
             .where({
               siteCodeName: record.siteCode,
-              customerNo:zfPartner.Customer
+              customerNo: zfPartner.Customer
             });
 
-          if (siteDetails) {            
+          if (siteDetails) {
             try {
               const zfPartnerData = {
                 PartnerFunction: 'ZF',
@@ -2450,10 +2481,10 @@ const aFailedRecordIDsFiltered = aFailedRecordIDs.filter(id => !aRejectedRecordI
                   // Language: 'EN',
                   OrganizationName1: `${record.firstName || ''} ${record.lastName || ''}`.trim().substring(0, 40)
                 }]
-              };           
-              
+              };
+
               aPartnerFunctions.push(zfPartnerData);
-              
+
             } catch (pushError) {
               console.error('Error adding ZF partner:', pushError);
               aErrors.push({
@@ -2599,7 +2630,7 @@ const aFailedRecordIDsFiltered = aFailedRecordIDs.filter(id => !aRejectedRecordI
 
     if (aPassedRecordIDs.length) {
       await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
-      await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3})));
+      await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({ record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3 })));
       await UPDATE(WorkOrders_FG)
         .set({ valid: true, processLevel_code: sProcessCode })
         .where({ ID: { in: aPassedRecordIDs } });
@@ -2954,7 +2985,7 @@ const aFailedRecordIDsFiltered = aFailedRecordIDs.filter(id => !aRejectedRecordI
 
     if (aPassedRecordIDs.length) {
       await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
-      await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3})));
+      await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({ record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3 })));
       await UPDATE(WorkOrders_FG)
         .set({ valid: true, processLevel_code: sProcessCode })
         .where({ ID: { in: aPassedRecordIDs } });
@@ -3412,366 +3443,366 @@ const aFailedRecordIDsFiltered = aFailedRecordIDs.filter(id => !aRejectedRecordI
  * - Same communicators and INSERT targets (YY1_SALESVCDATA_1 / _2).
  */
 
-async _prepareVCData(records, mPayloadMap, aPassedRecordIDs, aFailedRecordIDs, aErrorLogs) {
-  const LOG = this.LOG || console;
-  const moment = require('moment');
+  async _prepareVCData(records, mPayloadMap, aPassedRecordIDs, aFailedRecordIDs, aErrorLogs) {
+    const LOG = this.LOG || console;
+    const moment = require('moment');
 
-  if (!aPassedRecordIDs || aPassedRecordIDs.length === 0) {
-    LOG.info('[VC] No passed records to process VC Data. Skipping VC Data preparation.');
-    return;
-  }
-
-  // // Early return if no payload mapping
-  // if (!mPayloadMap || mPayloadMap.size === 0) {
-  //   LOG.info('[VC] No payload mapping available. Skipping VC Data preparation.');
-  //   return;
-  // }
-
-  const SalesVCData_1 = new SalesVCData_1Comm();
-  const SalesVCData_2 = new SalesVCData_2Comm();
-
-  // Optional 6th argument compat: Map<recordID, [{customerFieldName, fieldName, customerFieldValue}, ...]>
-  const mCustomerFieldNameValue =
-    (arguments && arguments.length > 5 && arguments[5] instanceof Map)
-      ? arguments[5]
-      : (this && this.mCustomerFieldNameValue instanceof Map ? this.mCustomerFieldNameValue : new Map());
-
-  const mEmployeeType = { Salary: 'SAL', Daily: 'DAY', Hourly: 'HOU' };
-
-  // ---- Z-code mapping with VC routing (same targets you listed) ----
-  /** @type {Record<string,{target:string, vc:1|2}|undefined>} */
-  const Z_MAP = Object.freeze({
-    Z01:{target:'YY216_CUST_BUSINESS_UNIT',vc:2},
-    Z02:{target:'YY217_CUST_CHARGE_NUMBER',vc:2},
-    Z03:{target:'YY250_CUST_COST_CENTER2',vc:2},
-    Z04:{target:'YY220_CUST_COMPANY_CODE',vc:2},
-    Z05:{target:'YY221_CUST_DEPT_NUMBER',vc:2},
-    Z06:{target:'YY222_CUST_DOTS_NUMBER',vc:2},
-    Z07:{target:'YY223_CUST_RUI',vc:2},
-    Z08:{target:'YY144_WEEKLY_CLOCK_FEE',vc:2},          // override base if present
-    Z09:{target:'YY224_CUST_ACCT_NUMBER',vc:2},
-    Z10:{target:'YY225_CUST_BUDGET_CENTER',vc:2},
-    Z11:{target:'YY226_CUST_CON_NUMBER',vc:2},
-    Z12:{target:'YY227_CUST_VENDOR_NUMBER',vc:2},
-    // Z13..Z15: ignore
-    Z16:{target:'YY228_CUST_ORG_CODE',vc:2},
-    Z17:{target:'YY229_CUST_LEGAL_ENTITY',vc:2},
-    Z18:{target:'YY230_CUST_ORACLE_NUMBER',vc:2},
-    Z19:{target:'YY231_CUST_UNIT_STORE_NUMBER',vc:2},
-    // Z20..Z23: ignore
-    Z24:{target:'YY233_CUST_EMPLOYEE_NUMBER',vc:2},
-    Z25:{target:'YY234_CUST_AGREE_NUMBER',vc:2},
-    Z26:{target:'YY241_CUST_BGRD_CHECK_DATE',vc:2},
-    Z27:{target:'YY242_CUST_DIV_UNIT_NUMBER',vc:2},
-    Z28:{target:'YY236_CUST_FEPS_CODE',vc:2},
-    Z29:{target:'YY237_CUST_POSITION',vc:2},
-    // Z30: ignore
-    Z31:{target:'YY235_CUST_TASK15',vc:2},
-    Z32:{target:'YY238_CUST_GL_CODE',vc:2},
-    Z33:{target:'YY240_CUST_BB_NUMBER',vc:2},
-    Z34:{target:'YY218_CUST_PROJECT_NUMBER',vc:2},
-    Z35:{target:'YY239_CUST_PURCHASE_AGREE',vc:2},
-    // Z36: ignore
-    Z37:{target:'YY237_CUST_POSITION',vc:2},
-    // Z38: ignore
-    Z39:{target:'CUST_CATERGORY_CODE2',vc:2},             // non-YY VC2
-    Z40:{target:'YY6_SC_LINE_ITEM_NUMBER',vc:1},          // VC1
-    // Z41: ignore
-    Z42:{target:'ACCELERATED_FEE_DISC_VEN',vc:2},         // non-YY VC2
-    Z43:{target:'YY3_ACA_HRS_PRICE',vc:1},                // VC1
-    Z44:{target:'YY118_MARK_UP_RG',vc:1},
-    Z45:{target:'YY119_MARK_UP_OT',vc:1},
-    Z46:{target:'YY120_MARK_UP_DB',vc:1},
-    Z30:{target:'SUPPLIER_INVOICE_NUMBER',vc:2}, // SUPPLIER'S INVOICE (SUBCON SCENARIO)
-Z36:{target:'YY232_CUST_SVC_DATE',vc:2}, 
-  });
-
-  // ---- Validation sets (limited to fields used by this interface + safe extras) ----
-  const DECIMAL_VC1 = new Set([
-    'YY3_ACA_HRS_PRICE','YY12_DAY1_SHIFT1_RG','YY13_DAY1_SHIFT1_OT','YY14_DAY1_SHIFT1_DB',
-    'YY15_DAY1_SHIFT2_RG','YY16_DAY1_SHIFT2_OT','YY17_DAY1_SHIFT2_DB','YY18_DAY1_SHIFT3_RG',
-    'YY19_DAY1_SHIFT3_OT','YY20_DAY1_SHIFT3_DB','YY100_SHIFT1_TOTAL_HRS_RG','YY101_SHIFT1_TOTAL_HRS_OT',
-    'YY102_SHIFT1_TOTAL_HRS_DB','YY103_SHIFT2_TOTAL_HRS_RG','YY104_SHIFT2_TOTAL_HRS_OT',
-    'YY105_SHIFT2_TOTAL_HRS_DB','YY106_SHIFT3_TOTAL_HRS_RG','YY107_SHIFT3_TOTAL_HRS_OT',
-    'YY108_SHIFT3_TOTAL_HRS_DB','YY109_SHIFT1_PRICE_RG','YY110_SHIFT1_PRICE_OT',
-    'YY121_SHIFT1_TOTAL_PRICE_RG','YY122_SHIFT1_TOTAL_PRICE_OT','YY123_SHIFT1_TOTAL_PRICE_DB',
-    'YY124_SHIFT2_TOTAL_PRICE_RG','YY125_SHIFT2_TOTAL_PRICE_OT','YY126_SHIFT2_TOTAL_PRICE_DB',
-    'YY127_SHIFT3_TOTAL_PAY_RG','YY128_SHIFT3_TOTAL_PAY_OT','YY129_SHIFT3_TOTAL_PAY_DB',
-    'YY118_MARK_UP_RG','YY119_MARK_UP_OT','YY120_MARK_UP_DB'
-  ]);
-  const DATE_VC1 = new Set(['YY8_WEEK_ENDING2']); // not used in this minimal base, but allowed if provided via Z or later
-
-  const DECIMAL_VC2 = new Set([
-    'YY134_DAILY_PAY_VENDOR','YY142_SALARY_PAY_VENDOR','YY144_WEEKLY_CLOCK_FEE',
-    'YY150_DAILY_PAY_DAYS','YY151_DAILY_PRICE','YY152_DAILY_TOTAL_RATE','YY203_SALARY',
-    'YY251_SHIFT1_PAY_RATE_RG','YY252_SHIFT1_PAY_RATE_OT','YY253_SHIFT1_PAY_RATE_DB',
-    'YY254_SHIFT2_PAY_RATE_RG','YY255_SHIFT2_PAY_RATE_OT','YY256_SHIFT2_PAY_RATE_DB',
-    'YY260_SHIFT1_TOTAL_PAY_RG','YY261_SHIFT1_TOTAL_PAY_OT','YY262_SHIFT1_TOTAL_PAY_DB',
-    'YY263_SHIFT2_TOTAL_PAY_RG','YY264_SHIFT2_TOTAL_PAY_OT','YY265_SHIFT2_TOTAL_PAY_DB',
-    'YY266_SHIFT3_TOTAL_PAY_RG','YY267_SHIFT3_TOTAL_PAY_OT','YY268_SHIFT3_TOTAL_PAY_DB',
-    'YY135_DAILY_TOTAL_VENDOR','YY137_HOLIDAY_TOTAL_VENDOR'
-  ]);
-  const DATE_VC2 = new Set(['YY241_CUST_BGRD_CHECK_DATE','YY232_CUST_SVC_DATE']);
-
-  // ---- Helpers (same as Interface T) ----
-  const toEmployeeType = (subgrp) => {
-    const s = String(subgrp || '').toUpperCase();
-    if (s.includes('SAL')) return mEmployeeType.Salary;
-    if (s.includes('DAY')) return mEmployeeType.Daily;
-    return mEmployeeType.Hourly;
-  };
-
-  const fmtDecimal = (v) => {
-    if (v === null || v === undefined || v === '') return '0.00';
-    const n = Number(v);
-    return Number.isFinite(n) ? n.toFixed(2) : null; // null → invalid
-  };
-
-  const fmtDateISO = (v) => {
-    if (!v) return null;
-    const m = moment(v, ['YYYY-MM-DD','YYYY/MM/DD','YYYYMMDD','MM/DD/YYYY','DD/MM/YYYY'], true);
-    return m.isValid() ? m.format('YYYY-MM-DD') : null;
-  };
-
-  const validateFormats = (obj, decSet, dateSet, which, recID, errs) => {
-    for (const [k, v] of Object.entries(obj)) {
-      if (decSet.has(k)) {
-        if (!(v === null || v === '' || Number.isFinite(Number(v)))) {
-          const msg = `${which}: ${k} must be decimal (got '${v}')`;
-          LOG.info(`[VC] ${msg} recID=${recID}`);
-          errs.push({ record_ID: recID, message: msg });
-        }
-      }
-      if (dateSet.has(k)) {
-        if (!(v === null || moment(v, 'YYYY-MM-DD', true).isValid())) {
-          const msg = `${which}: ${k} invalid date (got '${v}')`;
-          LOG.info(`[VC] ${msg} recID=${recID}`);
-          errs.push({ record_ID: recID, message: msg });
-        }
-      }
+    if (!aPassedRecordIDs || aPassedRecordIDs.length === 0) {
+      LOG.info('[VC] No passed records to process VC Data. Skipping VC Data preparation.');
+      return;
     }
-  };
 
-  LOG.info(`[VC] Mapping records to payloads…`);
+    // // Early return if no payload mapping
+    // if (!mPayloadMap || mPayloadMap.size === 0) {
+    //   LOG.info('[VC] No payload mapping available. Skipping VC Data preparation.');
+    //   return;
+    // }
 
-  const prepared = records
-    .filter((r) => !aFailedRecordIDs.includes(r.ID))
-    .map((record) => {
-      const oMapEntry = mPayloadMap.get(record.ID);
-      if (!(oMapEntry && oMapEntry.salesOrder)) return null;
+    const SalesVCData_1 = new SalesVCData_1Comm();
+    const SalesVCData_2 = new SalesVCData_2Comm();
 
-      // Employee type + shift (T logic)
-      const employeeType = toEmployeeType(record.employeeSubgroup);
-      const shift = employeeType === mEmployeeType.Hourly ? 1 : 0.0;
+    // Optional 6th argument compat: Map<recordID, [{customerFieldName, fieldName, customerFieldValue}, ...]>
+    const mCustomerFieldNameValue =
+      (arguments && arguments.length > 5 && arguments[5] instanceof Map)
+        ? arguments[5]
+        : (this && this.mCustomerFieldNameValue instanceof Map ? this.mCustomerFieldNameValue : new Map());
 
-      // Build custom field maps from Z codes (normalize on the way in)
-      const cf = mCustomerFieldNameValue.get(record.ID) || [];
-      const VC1Fields = {};
-      const VC2Fields = {};
-      for (const entry of cf) {
-        const z = (entry.customerFieldName || '').trim();
-        const cfg = Z_MAP[z];
-        if (!cfg || !cfg.target) continue;
+    const mEmployeeType = { Salary: 'SAL', Daily: 'DAY', Hourly: 'HOU' };
 
-        const key = cfg.target;
-        let value = entry.customerFieldValue;
+    // ---- Z-code mapping with VC routing (same targets you listed) ----
+    /** @type {Record<string,{target:string, vc:1|2}|undefined>} */
+    const Z_MAP = Object.freeze({
+      Z01: { target: 'YY216_CUST_BUSINESS_UNIT', vc: 2 },
+      Z02: { target: 'YY217_CUST_CHARGE_NUMBER', vc: 2 },
+      Z03: { target: 'YY250_CUST_COST_CENTER2', vc: 2 },
+      Z04: { target: 'YY220_CUST_COMPANY_CODE', vc: 2 },
+      Z05: { target: 'YY221_CUST_DEPT_NUMBER', vc: 2 },
+      Z06: { target: 'YY222_CUST_DOTS_NUMBER', vc: 2 },
+      Z07: { target: 'YY223_CUST_RUI', vc: 2 },
+      Z08: { target: 'YY144_WEEKLY_CLOCK_FEE', vc: 2 },          // override base if present
+      Z09: { target: 'YY224_CUST_ACCT_NUMBER', vc: 2 },
+      Z10: { target: 'YY225_CUST_BUDGET_CENTER', vc: 2 },
+      Z11: { target: 'YY226_CUST_CON_NUMBER', vc: 2 },
+      Z12: { target: 'YY227_CUST_VENDOR_NUMBER', vc: 2 },
+      // Z13..Z15: ignore
+      Z16: { target: 'YY228_CUST_ORG_CODE', vc: 2 },
+      Z17: { target: 'YY229_CUST_LEGAL_ENTITY', vc: 2 },
+      Z18: { target: 'YY230_CUST_ORACLE_NUMBER', vc: 2 },
+      Z19: { target: 'YY231_CUST_UNIT_STORE_NUMBER', vc: 2 },
+      // Z20..Z23: ignore
+      Z24: { target: 'YY233_CUST_EMPLOYEE_NUMBER', vc: 2 },
+      Z25: { target: 'YY234_CUST_AGREE_NUMBER', vc: 2 },
+      Z26: { target: 'YY241_CUST_BGRD_CHECK_DATE', vc: 2 },
+      Z27: { target: 'YY242_CUST_DIV_UNIT_NUMBER', vc: 2 },
+      Z28: { target: 'YY236_CUST_FEPS_CODE', vc: 2 },
+      Z29: { target: 'YY237_CUST_POSITION', vc: 2 },
+      // Z30: ignore
+      Z31: { target: 'YY235_CUST_TASK15', vc: 2 },
+      Z32: { target: 'YY238_CUST_GL_CODE', vc: 2 },
+      Z33: { target: 'YY240_CUST_BB_NUMBER', vc: 2 },
+      Z34: { target: 'YY218_CUST_PROJECT_NUMBER', vc: 2 },
+      Z35: { target: 'YY239_CUST_PURCHASE_AGREE', vc: 2 },
+      // Z36: ignore
+      Z37: { target: 'YY237_CUST_POSITION', vc: 2 },
+      // Z38: ignore
+      Z39: { target: 'CUST_CATERGORY_CODE2', vc: 2 },             // non-YY VC2
+      Z40: { target: 'YY6_SC_LINE_ITEM_NUMBER', vc: 1 },          // VC1
+      // Z41: ignore
+      Z42: { target: 'ACCELERATED_FEE_DISC_VEN', vc: 2 },         // non-YY VC2
+      Z43: { target: 'YY3_ACA_HRS_PRICE', vc: 1 },                // VC1
+      Z44: { target: 'YY118_MARK_UP_RG', vc: 1 },
+      Z45: { target: 'YY119_MARK_UP_OT', vc: 1 },
+      Z46: { target: 'YY120_MARK_UP_DB', vc: 1 },
+      Z30: { target: 'SUPPLIER_INVOICE_NUMBER', vc: 2 }, // SUPPLIER'S INVOICE (SUBCON SCENARIO)
+      Z36: { target: 'YY232_CUST_SVC_DATE', vc: 2 },
+    });
 
-        if (DATE_VC2.has(key)) value = fmtDateISO(value);
-        if (DECIMAL_VC2.has(key)) value = fmtDecimal(value);
+    // ---- Validation sets (limited to fields used by this interface + safe extras) ----
+    const DECIMAL_VC1 = new Set([
+      'YY3_ACA_HRS_PRICE', 'YY12_DAY1_SHIFT1_RG', 'YY13_DAY1_SHIFT1_OT', 'YY14_DAY1_SHIFT1_DB',
+      'YY15_DAY1_SHIFT2_RG', 'YY16_DAY1_SHIFT2_OT', 'YY17_DAY1_SHIFT2_DB', 'YY18_DAY1_SHIFT3_RG',
+      'YY19_DAY1_SHIFT3_OT', 'YY20_DAY1_SHIFT3_DB', 'YY100_SHIFT1_TOTAL_HRS_RG', 'YY101_SHIFT1_TOTAL_HRS_OT',
+      'YY102_SHIFT1_TOTAL_HRS_DB', 'YY103_SHIFT2_TOTAL_HRS_RG', 'YY104_SHIFT2_TOTAL_HRS_OT',
+      'YY105_SHIFT2_TOTAL_HRS_DB', 'YY106_SHIFT3_TOTAL_HRS_RG', 'YY107_SHIFT3_TOTAL_HRS_OT',
+      'YY108_SHIFT3_TOTAL_HRS_DB', 'YY109_SHIFT1_PRICE_RG', 'YY110_SHIFT1_PRICE_OT',
+      'YY121_SHIFT1_TOTAL_PRICE_RG', 'YY122_SHIFT1_TOTAL_PRICE_OT', 'YY123_SHIFT1_TOTAL_PRICE_DB',
+      'YY124_SHIFT2_TOTAL_PRICE_RG', 'YY125_SHIFT2_TOTAL_PRICE_OT', 'YY126_SHIFT2_TOTAL_PRICE_DB',
+      'YY127_SHIFT3_TOTAL_PAY_RG', 'YY128_SHIFT3_TOTAL_PAY_OT', 'YY129_SHIFT3_TOTAL_PAY_DB',
+      'YY118_MARK_UP_RG', 'YY119_MARK_UP_OT', 'YY120_MARK_UP_DB'
+    ]);
+    const DATE_VC1 = new Set(['YY8_WEEK_ENDING2']); // not used in this minimal base, but allowed if provided via Z or later
 
-        if (cfg.vc === 1) VC1Fields[key] = value;
-        else VC2Fields[key] = value;
+    const DECIMAL_VC2 = new Set([
+      'YY134_DAILY_PAY_VENDOR', 'YY142_SALARY_PAY_VENDOR', 'YY144_WEEKLY_CLOCK_FEE',
+      'YY150_DAILY_PAY_DAYS', 'YY151_DAILY_PRICE', 'YY152_DAILY_TOTAL_RATE', 'YY203_SALARY',
+      'YY251_SHIFT1_PAY_RATE_RG', 'YY252_SHIFT1_PAY_RATE_OT', 'YY253_SHIFT1_PAY_RATE_DB',
+      'YY254_SHIFT2_PAY_RATE_RG', 'YY255_SHIFT2_PAY_RATE_OT', 'YY256_SHIFT2_PAY_RATE_DB',
+      'YY260_SHIFT1_TOTAL_PAY_RG', 'YY261_SHIFT1_TOTAL_PAY_OT', 'YY262_SHIFT1_TOTAL_PAY_DB',
+      'YY263_SHIFT2_TOTAL_PAY_RG', 'YY264_SHIFT2_TOTAL_PAY_OT', 'YY265_SHIFT2_TOTAL_PAY_DB',
+      'YY266_SHIFT3_TOTAL_PAY_RG', 'YY267_SHIFT3_TOTAL_PAY_OT', 'YY268_SHIFT3_TOTAL_PAY_DB',
+      'YY135_DAILY_TOTAL_VENDOR', 'YY137_HOLIDAY_TOTAL_VENDOR'
+    ]);
+    const DATE_VC2 = new Set(['YY241_CUST_BGRD_CHECK_DATE', 'YY232_CUST_SVC_DATE']);
+
+    // ---- Helpers (same as Interface T) ----
+    const toEmployeeType = (subgrp) => {
+      const s = String(subgrp || '').toUpperCase();
+      if (s.includes('SAL')) return mEmployeeType.Salary;
+      if (s.includes('DAY')) return mEmployeeType.Daily;
+      return mEmployeeType.Hourly;
+    };
+
+    const fmtDecimal = (v) => {
+      if (v === null || v === undefined || v === '') return '0.00';
+      const n = Number(v);
+      return Number.isFinite(n) ? n.toFixed(2) : null; // null → invalid
+    };
+
+    const fmtDateISO = (v) => {
+      if (!v) return null;
+      const m = moment(v, ['YYYY-MM-DD', 'YYYY/MM/DD', 'YYYYMMDD', 'MM/DD/YYYY', 'DD/MM/YYYY'], true);
+      return m.isValid() ? m.format('YYYY-MM-DD') : null;
+    };
+
+    const validateFormats = (obj, decSet, dateSet, which, recID, errs) => {
+      for (const [k, v] of Object.entries(obj)) {
+        if (decSet.has(k)) {
+          if (!(v === null || v === '' || Number.isFinite(Number(v)))) {
+            const msg = `${which}: ${k} must be decimal (got '${v}')`;
+            LOG.info(`[VC] ${msg} recID=${recID}`);
+            errs.push({ record_ID: recID, message: msg });
+          }
+        }
+        if (dateSet.has(k)) {
+          if (!(v === null || moment(v, 'YYYY-MM-DD', true).isValid())) {
+            const msg = `${which}: ${k} invalid date (got '${v}')`;
+            LOG.info(`[VC] ${msg} recID=${recID}`);
+            errs.push({ record_ID: recID, message: msg });
+          }
+        }
       }
+    };
 
-      // ---- minimal VC1 base mapping (kept), normalized to decimals ----
-      const salesVC1 = {
-        SalesOrderNumber: String(oMapEntry.salesOrder),
-        SalesOrderItemNum: '10',
+    LOG.info(`[VC] Mapping records to payloads…`);
 
-        // Hours/quantities: keep your “1” constants but normalize
-        YY12_DAY1_SHIFT1_RG: fmtDecimal(1),
-        YY13_DAY1_SHIFT1_OT: fmtDecimal(1),
-        YY14_DAY1_SHIFT1_DB: fmtDecimal(1),
-        YY15_DAY1_SHIFT2_RG: fmtDecimal(1),
-        YY16_DAY1_SHIFT2_OT: fmtDecimal(1),
-        YY17_DAY1_SHIFT2_DB: fmtDecimal(1),
-        YY18_DAY1_SHIFT3_RG: fmtDecimal(1),
-        YY19_DAY1_SHIFT3_OT: fmtDecimal(1),
-        YY20_DAY1_SHIFT3_DB: fmtDecimal(1),
-        YY100_SHIFT1_TOTAL_HRS_RG: fmtDecimal(1),
-        YY101_SHIFT1_TOTAL_HRS_OT: fmtDecimal(1),
-        YY102_SHIFT1_TOTAL_HRS_DB: fmtDecimal(1),
-        YY103_SHIFT2_TOTAL_HRS_RG: fmtDecimal(1),
-        YY104_SHIFT2_TOTAL_HRS_OT: fmtDecimal(1),
-        YY105_SHIFT2_TOTAL_HRS_DB: fmtDecimal(1),
-        YY106_SHIFT3_TOTAL_HRS_RG: fmtDecimal(1),
-        YY107_SHIFT3_TOTAL_HRS_OT: fmtDecimal(1),
-        YY108_SHIFT3_TOTAL_HRS_DB: fmtDecimal(1),
+    const prepared = records
+      .filter((r) => !aFailedRecordIDs.includes(r.ID))
+      .map((record) => {
+        const oMapEntry = mPayloadMap.get(record.ID);
+        if (!(oMapEntry && oMapEntry.salesOrder)) return null;
 
-        // Prices/totals: keep your constants (1 / 0) but normalize
-        YY109_SHIFT1_PRICE_RG: fmtDecimal(1),
-        YY110_SHIFT1_PRICE_OT: fmtDecimal(1),
+        // Employee type + shift (T logic)
+        const employeeType = toEmployeeType(record.employeeSubgroup);
+        const shift = employeeType === mEmployeeType.Hourly ? 1 : 0.0;
 
-        YY121_SHIFT1_TOTAL_PRICE_RG: fmtDecimal(0),
-        YY122_SHIFT1_TOTAL_PRICE_OT: fmtDecimal(0),
-        YY123_SHIFT1_TOTAL_PRICE_DB: fmtDecimal(0),
-        YY124_SHIFT2_TOTAL_PRICE_RG: fmtDecimal(0),
-        YY125_SHIFT2_TOTAL_PRICE_OT: fmtDecimal(0),
-        YY126_SHIFT2_TOTAL_PRICE_DB: fmtDecimal(0),
-        YY127_SHIFT3_TOTAL_PAY_RG: fmtDecimal(0),
-        YY128_SHIFT3_TOTAL_PAY_OT: fmtDecimal(0),
-        YY129_SHIFT3_TOTAL_PAY_DB: fmtDecimal(0),
+        // Build custom field maps from Z codes (normalize on the way in)
+        const cf = mCustomerFieldNameValue.get(record.ID) || [];
+        const VC1Fields = {};
+        const VC2Fields = {};
+        for (const entry of cf) {
+          const z = (entry.customerFieldName || '').trim();
+          const cfg = Z_MAP[z];
+          if (!cfg || !cfg.target) continue;
 
-        // Allow Z-mapped VC1 overrides
-        ...VC1Fields,
-      };
+          const key = cfg.target;
+          let value = entry.customerFieldValue;
 
-      // ---- minimal VC2 base mapping (kept), add fee base + normalize ----
-      const baseVC2 = {
-        Sales_Order_Number: String(oMapEntry.salesOrder),
-        Sales_Order_Item_Num: '10',
+          if (DATE_VC2.has(key)) value = fmtDateISO(value);
+          if (DECIMAL_VC2.has(key)) value = fmtDecimal(value);
 
-        YY137_HOLIDAY_TOTAL_VENDOR: fmtDecimal(0),
+          if (cfg.vc === 1) VC1Fields[key] = value;
+          else VC2Fields[key] = value;
+        }
 
-        // Your base rates 251..256
-        YY251_SHIFT1_PAY_RATE_RG: fmtDecimal(1),
-        YY252_SHIFT1_PAY_RATE_OT: fmtDecimal(1),
-        YY253_SHIFT1_PAY_RATE_DB: fmtDecimal(1),
-        YY254_SHIFT2_PAY_RATE_RG: fmtDecimal(1),
-        YY255_SHIFT2_PAY_RATE_OT: fmtDecimal(1),
-        YY256_SHIFT2_PAY_RATE_DB: fmtDecimal(1),
+        // ---- minimal VC1 base mapping (kept), normalized to decimals ----
+        const salesVC1 = {
+          SalesOrderNumber: String(oMapEntry.salesOrder),
+          SalesOrderItemNum: '10',
 
-        // Add base for weekly clock fee so Z08 can override consistently (like Interface T)
-        YY144_WEEKLY_CLOCK_FEE: fmtDecimal(record?.custWkTimeFee),
+          // Hours/quantities: keep your “1” constants but normalize
+          YY12_DAY1_SHIFT1_RG: fmtDecimal(1),
+          YY13_DAY1_SHIFT1_OT: fmtDecimal(1),
+          YY14_DAY1_SHIFT1_DB: fmtDecimal(1),
+          YY15_DAY1_SHIFT2_RG: fmtDecimal(1),
+          YY16_DAY1_SHIFT2_OT: fmtDecimal(1),
+          YY17_DAY1_SHIFT2_DB: fmtDecimal(1),
+          YY18_DAY1_SHIFT3_RG: fmtDecimal(1),
+          YY19_DAY1_SHIFT3_OT: fmtDecimal(1),
+          YY20_DAY1_SHIFT3_DB: fmtDecimal(1),
+          YY100_SHIFT1_TOTAL_HRS_RG: fmtDecimal(1),
+          YY101_SHIFT1_TOTAL_HRS_OT: fmtDecimal(1),
+          YY102_SHIFT1_TOTAL_HRS_DB: fmtDecimal(1),
+          YY103_SHIFT2_TOTAL_HRS_RG: fmtDecimal(1),
+          YY104_SHIFT2_TOTAL_HRS_OT: fmtDecimal(1),
+          YY105_SHIFT2_TOTAL_HRS_DB: fmtDecimal(1),
+          YY106_SHIFT3_TOTAL_HRS_RG: fmtDecimal(1),
+          YY107_SHIFT3_TOTAL_HRS_OT: fmtDecimal(1),
+          YY108_SHIFT3_TOTAL_HRS_DB: fmtDecimal(1),
 
-        // Leave other optional VC2 fields unset unless provided by Z
-      };
+          // Prices/totals: keep your constants (1 / 0) but normalize
+          YY109_SHIFT1_PRICE_RG: fmtDecimal(1),
+          YY110_SHIFT1_PRICE_OT: fmtDecimal(1),
 
-      // Apply Z overrides (incl. Z08 → YY144_WEEKLY_CLOCK_FEE)
-      const salesVC2 = { ...baseVC2, ...VC2Fields };
+          YY121_SHIFT1_TOTAL_PRICE_RG: fmtDecimal(0),
+          YY122_SHIFT1_TOTAL_PRICE_OT: fmtDecimal(0),
+          YY123_SHIFT1_TOTAL_PRICE_DB: fmtDecimal(0),
+          YY124_SHIFT2_TOTAL_PRICE_RG: fmtDecimal(0),
+          YY125_SHIFT2_TOTAL_PRICE_OT: fmtDecimal(0),
+          YY126_SHIFT2_TOTAL_PRICE_DB: fmtDecimal(0),
+          YY127_SHIFT3_TOTAL_PAY_RG: fmtDecimal(0),
+          YY128_SHIFT3_TOTAL_PAY_OT: fmtDecimal(0),
+          YY129_SHIFT3_TOTAL_PAY_DB: fmtDecimal(0),
 
-      // Validate formats (collect, don’t hard-stop)
-      const localErrs = [];
-      validateFormats(salesVC1, DECIMAL_VC1, DATE_VC1, 'VC1', record.ID, localErrs);
-      validateFormats(salesVC2, DECIMAL_VC2, DATE_VC2, 'VC2', record.ID, localErrs);
-      if (localErrs.length) {
-        localErrs.forEach((err) => {
-          err.process_code = sProcessCode;
-        });
-        aErrorLogs.push(...localErrs);
-        aFailedRecordIDs.push(record.ID);
-        const idx = aPassedRecordIDs.indexOf(record.ID);
-        if (idx !== -1) aPassedRecordIDs.splice(idx, 1);
-        LOG.info(`[VC] Validation failed; skipping inserts recID=${record.ID}`);
-        return null;
-      }
+          // Allow Z-mapped VC1 overrides
+          ...VC1Fields,
+        };
 
-      // readable debug log
-      try {
-        LOG.info(`[VC] Constructed payloads for record ${record.ID}`, {
+        // ---- minimal VC2 base mapping (kept), add fee base + normalize ----
+        const baseVC2 = {
+          Sales_Order_Number: String(oMapEntry.salesOrder),
+          Sales_Order_Item_Num: '10',
+
+          YY137_HOLIDAY_TOTAL_VENDOR: fmtDecimal(0),
+
+          // Your base rates 251..256
+          YY251_SHIFT1_PAY_RATE_RG: fmtDecimal(1),
+          YY252_SHIFT1_PAY_RATE_OT: fmtDecimal(1),
+          YY253_SHIFT1_PAY_RATE_DB: fmtDecimal(1),
+          YY254_SHIFT2_PAY_RATE_RG: fmtDecimal(1),
+          YY255_SHIFT2_PAY_RATE_OT: fmtDecimal(1),
+          YY256_SHIFT2_PAY_RATE_DB: fmtDecimal(1),
+
+          // Add base for weekly clock fee so Z08 can override consistently (like Interface T)
+          YY144_WEEKLY_CLOCK_FEE: fmtDecimal(record?.custWkTimeFee),
+
+          // Leave other optional VC2 fields unset unless provided by Z
+        };
+
+        // Apply Z overrides (incl. Z08 → YY144_WEEKLY_CLOCK_FEE)
+        const salesVC2 = { ...baseVC2, ...VC2Fields };
+
+        // Validate formats (collect, don’t hard-stop)
+        const localErrs = [];
+        validateFormats(salesVC1, DECIMAL_VC1, DATE_VC1, 'VC1', record.ID, localErrs);
+        validateFormats(salesVC2, DECIMAL_VC2, DATE_VC2, 'VC2', record.ID, localErrs);
+        if (localErrs.length) {
+          localErrs.forEach((err) => {
+            err.process_code = sProcessCode;
+          });
+          aErrorLogs.push(...localErrs);
+          aFailedRecordIDs.push(record.ID);
+          const idx = aPassedRecordIDs.indexOf(record.ID);
+          if (idx !== -1) aPassedRecordIDs.splice(idx, 1);
+          LOG.info(`[VC] Validation failed; skipping inserts recID=${record.ID}`);
+          return null;
+        }
+
+        // readable debug log
+        try {
+          LOG.info(`[VC] Constructed payloads for record ${record.ID}`, {
+            recID: record.ID,
+            salesOrder: String(oMapEntry.salesOrder),
+            vc1Payload: JSON.stringify(salesVC1, null, 2),
+            vc2Payload: JSON.stringify(salesVC2, null, 2),
+          });
+        } catch (e) { }
+
+        return {
+          salesVC1,
+          salesVC2,
           recID: record.ID,
-          salesOrder: String(oMapEntry.salesOrder),
+          vcData1UUID: record.vcData1UUID,
+          vcData2UUID: record.vcData2UUID,
+        };
+      })
+      .filter(Boolean);
+
+    // Insert loop (no hard stop; UUID-aware; try/catch around each call)
+    for (const row of prepared) {
+      const { salesVC1, salesVC2, recID } = row;
+      let insertedSalesVCData1, insertedSalesVCData2;
+
+      // pre-insert log
+      try {
+        LOG.info(`[VC] PRE-INSERT for record ${recID}`, {
+          recID,
+          hasVC1Already: !!row.vcData1UUID,
+          hasVC2Already: !!row.vcData2UUID,
           vc1Payload: JSON.stringify(salesVC1, null, 2),
           vc2Payload: JSON.stringify(salesVC2, null, 2),
         });
-      } catch (e) {}
+      } catch (e) { }
 
-      return {
-        salesVC1,
-        salesVC2,
-        recID: record.ID,
-        vcData1UUID: record.vcData1UUID,
-        vcData2UUID: record.vcData2UUID,
-      };
-    })
-    .filter(Boolean);
-
-  // Insert loop (no hard stop; UUID-aware; try/catch around each call)
-  for (const row of prepared) {
-    const { salesVC1, salesVC2, recID } = row;
-    let insertedSalesVCData1, insertedSalesVCData2;
-
-    // pre-insert log
-    try {
-      LOG.info(`[VC] PRE-INSERT for record ${recID}`, {
-        recID,
-        hasVC1Already: !!row.vcData1UUID,
-        hasVC2Already: !!row.vcData2UUID,
-        vc1Payload: JSON.stringify(salesVC1, null, 2),
-        vc2Payload: JSON.stringify(salesVC2, null, 2),
-      });
-    } catch (e) {}
-
-    // VC1
-    try {
-      if (!row.vcData1UUID) {
-        insertedSalesVCData1 = await SalesVCData_1.executeQuery(
-          INSERT.into('YY1_SALESVCDATA_1').entries(salesVC1),
-        );
-      } else {
-        LOG.info(`[VC] Skipping VC1 insert (UUID exists) recID=${recID}`);
+      // VC1
+      try {
+        if (!row.vcData1UUID) {
+          insertedSalesVCData1 = await SalesVCData_1.executeQuery(
+            INSERT.into('YY1_SALESVCDATA_1').entries(salesVC1),
+          );
+        } else {
+          LOG.info(`[VC] Skipping VC1 insert (UUID exists) recID=${recID}`);
+        }
+      } catch (e) {
+        LOG.info(`[VC] VC1 INSERT exception recID=${recID}: ${e?.message}`);
+        aErrorLogs.push({ record_ID: recID, message: e?.message || 'VC1 INSERT exception', process_code: sProcessCode });
+        aFailedRecordIDs.push(recID);
+        const idx = aPassedRecordIDs.indexOf(recID);
+        if (idx !== -1) aPassedRecordIDs.splice(idx, 1);
+        continue;
       }
-    } catch (e) {
-      LOG.info(`[VC] VC1 INSERT exception recID=${recID}: ${e?.message}`);
-      aErrorLogs.push({ record_ID: recID, message: e?.message || 'VC1 INSERT exception', process_code: sProcessCode });
-      aFailedRecordIDs.push(recID);
-      const idx = aPassedRecordIDs.indexOf(recID);
-      if (idx !== -1) aPassedRecordIDs.splice(idx, 1);
-      continue;
-    }
-    if (insertedSalesVCData1?.message) {
-      aErrorLogs.push({ record_ID: recID, message: insertedSalesVCData1.message, process_code: sProcessCode });
-      aFailedRecordIDs.push(recID);
-      const idx = aPassedRecordIDs.indexOf(recID);
-      if (idx !== -1) aPassedRecordIDs.splice(idx, 1);
-      continue;
-    }
-
-    // VC2
-    try {
-      if (!row.vcData2UUID) {
-        insertedSalesVCData2 = await SalesVCData_2.executeQuery(
-          INSERT.into('YY1_SALESVCDATA_2').entries(salesVC2),
-        );
-      } else {
-        LOG.info(`[VC] Skipping VC2 insert (UUID exists) recID=${recID}`);
+      if (insertedSalesVCData1?.message) {
+        aErrorLogs.push({ record_ID: recID, message: insertedSalesVCData1.message, process_code: sProcessCode });
+        aFailedRecordIDs.push(recID);
+        const idx = aPassedRecordIDs.indexOf(recID);
+        if (idx !== -1) aPassedRecordIDs.splice(idx, 1);
+        continue;
       }
-    } catch (e) {
-      LOG.info(`[VC] VC2 INSERT exception recID=${recID}: ${e?.message}`);
-      aErrorLogs.push({ record_ID: recID, message: e?.message || 'VC2 INSERT exception', process_code: sProcessCode });
-      aFailedRecordIDs.push(recID);
-      const idx = aPassedRecordIDs.indexOf(recID);
-      if (idx !== -1) aPassedRecordIDs.splice(idx, 1);
-      continue;
-    }
-    if (insertedSalesVCData2?.message) {
-      aErrorLogs.push({ record_ID: recID, message: insertedSalesVCData2.message , process_code: sProcessCode});
-      aFailedRecordIDs.push(recID);
-      const idx = aPassedRecordIDs.indexOf(recID);
-      if (idx !== -1) aPassedRecordIDs.splice(idx, 1);
-      continue;
-    }
 
-    // map UUIDs back
-    const oMapEntry = mPayloadMap.get(recID) || {};
-    if (insertedSalesVCData1?.SAP_UUID || row.vcData1UUID) {
-      oMapEntry.vcData1UUID = insertedSalesVCData1?.SAP_UUID ?? row.vcData1UUID;
-    }
-    if (insertedSalesVCData2?.SAP_UUID || row.vcData2UUID) {
-      oMapEntry.vcData2UUID = insertedSalesVCData2?.SAP_UUID ?? row.vcData2UUID;
-    }
-    mPayloadMap.set(recID, oMapEntry);
+      // VC2
+      try {
+        if (!row.vcData2UUID) {
+          insertedSalesVCData2 = await SalesVCData_2.executeQuery(
+            INSERT.into('YY1_SALESVCDATA_2').entries(salesVC2),
+          );
+        } else {
+          LOG.info(`[VC] Skipping VC2 insert (UUID exists) recID=${recID}`);
+        }
+      } catch (e) {
+        LOG.info(`[VC] VC2 INSERT exception recID=${recID}: ${e?.message}`);
+        aErrorLogs.push({ record_ID: recID, message: e?.message || 'VC2 INSERT exception', process_code: sProcessCode });
+        aFailedRecordIDs.push(recID);
+        const idx = aPassedRecordIDs.indexOf(recID);
+        if (idx !== -1) aPassedRecordIDs.splice(idx, 1);
+        continue;
+      }
+      if (insertedSalesVCData2?.message) {
+        aErrorLogs.push({ record_ID: recID, message: insertedSalesVCData2.message, process_code: sProcessCode });
+        aFailedRecordIDs.push(recID);
+        const idx = aPassedRecordIDs.indexOf(recID);
+        if (idx !== -1) aPassedRecordIDs.splice(idx, 1);
+        continue;
+      }
 
-    // post-insert log
-    try {
-      LOG.info(`[VC] POST-INSERT result for record ${recID}`, {
-        recID,
-        vc1Result: JSON.stringify(insertedSalesVCData1 || {}, null, 2),
-        vc2Result: JSON.stringify(insertedSalesVCData2 || {}, null, 2),
-      });
-    } catch (e) {}
+      // map UUIDs back
+      const oMapEntry = mPayloadMap.get(recID) || {};
+      if (insertedSalesVCData1?.SAP_UUID || row.vcData1UUID) {
+        oMapEntry.vcData1UUID = insertedSalesVCData1?.SAP_UUID ?? row.vcData1UUID;
+      }
+      if (insertedSalesVCData2?.SAP_UUID || row.vcData2UUID) {
+        oMapEntry.vcData2UUID = insertedSalesVCData2?.SAP_UUID ?? row.vcData2UUID;
+      }
+      mPayloadMap.set(recID, oMapEntry);
+
+      // post-insert log
+      try {
+        LOG.info(`[VC] POST-INSERT result for record ${recID}`, {
+          recID,
+          vc1Result: JSON.stringify(insertedSalesVCData1 || {}, null, 2),
+          vc2Result: JSON.stringify(insertedSalesVCData2 || {}, null, 2),
+        });
+      } catch (e) { }
+    }
   }
-}
 
 
 
