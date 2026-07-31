@@ -1897,9 +1897,9 @@ class OtherBillables extends Processor {
 
         // 5.1) Fetch batch records
         LOG.info('[Step 5.1] Re-fetching batch records');
-        await this._fetchRecords(this.recordIDs);
+        //await this._fetchRecords(this.recordIDs);
 
-        await this._expandSelectionToGroups();
+        //await this._expandSelectionToGroups();
         let recs = this.records.filter(r => r.processLevel_code === '5');
         LOG.info(`[Step 5.1] Retrieved ${recs.length} records`);
 
@@ -2535,7 +2535,7 @@ class OtherBillables extends Processor {
         try {
             if (passed.length) {
                 LOG.info(`[AUTO] Chaining ${passed.length} PO-passed row(s) to processSupplierInvoice('B')`);
-                await this._fetchRecords(this.recordIDs);
+                //await this._fetchRecords(this.recordIDs);
                 await this.processSupplierInvoice('B', false);
             }
         } catch (e) {
@@ -2598,8 +2598,8 @@ class OtherBillables extends Processor {
         const canonToPO = canon => String(Number(canon)).padStart(5, '0');
 
         // 1) re-fetch batch records at B
-        await this._fetchRecords(this.recordIDs);
-        await this._expandSelectionToGroups();
+        //await this._fetchRecords(this.recordIDs);
+        //await this._expandSelectionToGroups();
 
         const toProcess = this.records.filter(r => r.processLevel_code === 'B');
         LOG.info(`[processSupplierInvoice] ${toProcess.length} records to invoice (step B)`);

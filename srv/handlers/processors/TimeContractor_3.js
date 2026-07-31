@@ -191,68 +191,68 @@ class TimeContractor_3 extends Processor {
 
     /** Expand this.recordIDs so single-row “Process” includes its whole group */
     async _expandSelectionToGroups() {
-    // nothing to do if no seed selection
-    if (!this.recordIDs || !this.recordIDs.size) return;
+        // nothing to do if no seed selection
+        if (!this.recordIDs || !this.recordIDs.size) return;
 
-    // ensure we have fresh rows for the current selection
-    await this._fetchRecords(this.recordIDs);
+        // ensure we have fresh rows for the current selection
+        // await this._fetchRecords(this.recordIDs);
 
-    // pull the seed rows (those that are currently selected)
-    const seeds = [];
-    const byId = new Map(this.records.map(r => [r.ID, r]));
-    for (const id of this.recordIDs) {
-        const r = byId.get(id);
-        if (r) seeds.push(r);
-    }
-    if (!seeds.length) return;
-
-    // de-dupe by the SAME tuple you use for grouping throughout this interface
-    const K = r => [
-        r.contractNo, r.invoiceNoWN, r.employeeNo,
-        r.tempusWorkOrder, r.salesDocumentType, r.orderNo, r.weekEndDate
-    ].map(v => v ?? '∅').join('|');
-
-    const seen = new Set();
-    const uniqSeeds = [];
-    for (const s of seeds) {
-        const k = K(s);
-        if (!seen.has(k)) { seen.add(k); uniqSeeds.push(s); }
-    }
-    if (!uniqSeeds.length) return;
-
-    // build CQN WHERE:  (A=? AND B=? AND ... ) OR (A2=? AND B2=? AND ... )
-    const F = ['contractNo','invoiceNoWN','employeeNo','tempusWorkOrder','salesDocumentType','orderNo','weekEndDate'];
-
-    const orConds = uniqSeeds.map(s => {
-        const and = [];
-        for (const f of F) {
-        and.push({ ref: [f] });
-        const v = s[f];
-        if (v == null) and.push('is','null');
-        else and.push('=', { val: v });
-        and.push('and');
+        // pull the seed rows (those that are currently selected)
+        const seeds = [];
+        const byId = new Map(this.records.map(r => [r.ID, r]));
+        for (const id of this.recordIDs) {
+            const r = byId.get(id);
+            if (r) seeds.push(r);
         }
-        and.pop(); // remove trailing 'and'
-        return ['(', ...and, ')'];
-    });
+        if (!seeds.length) return;
 
-    // stitch ORs together
-    let whereExpr = orConds[0];
-    for (let i = 1; i < orConds.length; i++) {
-        whereExpr = [...whereExpr, 'or', ...orConds[i]];
-    }
+        // de-dupe by the SAME tuple you use for grouping throughout this interface
+        const K = r => [
+            r.contractNo, r.invoiceNoWN, r.employeeNo,
+            r.tempusWorkOrder, r.salesDocumentType, r.orderNo, r.weekEndDate
+        ].map(v => v ?? '∅').join('|');
 
-    // fetch ALL siblings across all selected tuples
-    const siblings = await SELECT.from(this.recordsEntity).columns(['ID']).where(whereExpr);
-    const extra = (siblings || [])
-        .map(x => x.ID)
-        .filter(id => !this.recordIDs.has(id));
+        const seen = new Set();
+        const uniqSeeds = [];
+        for (const s of seeds) {
+            const k = K(s);
+            if (!seen.has(k)) { seen.add(k); uniqSeeds.push(s); }
+        }
+        if (!uniqSeeds.length) return;
 
-    if (extra.length) {
-        for (const id of extra) this.recordIDs.add(id);
-        await this._fetchRecords(this.recordIDs);
-        (this.LOG || console).info(`[group-expand] expanded to ${this.recordIDs.size} rows (added ${extra.length})`);
-    }
+        // build CQN WHERE:  (A=? AND B=? AND ... ) OR (A2=? AND B2=? AND ... )
+        const F = ['contractNo', 'invoiceNoWN', 'employeeNo', 'tempusWorkOrder', 'salesDocumentType', 'orderNo', 'weekEndDate', 'file_ID'];
+
+        const orConds = uniqSeeds.map(s => {
+            const and = [];
+            for (const f of F) {
+                and.push({ ref: [f] });
+                const v = s[f];
+                if (v == null) and.push('is', 'null');
+                else and.push('=', { val: v });
+                and.push('and');
+            }
+            and.pop(); // remove trailing 'and'
+            return ['(', ...and, ')'];
+        });
+
+        // stitch ORs together
+        let whereExpr = orConds[0];
+        for (let i = 1; i < orConds.length; i++) {
+            whereExpr = [...whereExpr, 'or', ...orConds[i]];
+        }
+
+        // fetch ALL siblings across all selected tuples
+        const siblings = await SELECT.from(this.recordsEntity).columns(['ID']).where(whereExpr);
+        const extra = (siblings || [])
+            .map(x => x.ID)
+            .filter(id => !this.recordIDs.has(id));
+
+        if (extra.length) {
+            for (const id of extra) this.recordIDs.add(id);
+            //await this._fetchRecords(this.recordIDs);
+            (this.LOG || console).info(`[group-expand] expanded to ${this.recordIDs.size} rows (added ${extra.length})`);
+        }
     }
 
 
@@ -315,7 +315,7 @@ class TimeContractor_3 extends Processor {
     async validateRecords(sProcessCode, bBreakExecution) {
         const LOG = this.LOG || console;
         const step = String(sProcessCode || '').toUpperCase(); // normalize
-
+        ProcessLogger.removeLogs([...this.recordIDs], null, sProcessCode);
         LOG.info(`[validateRecords] ENTRY (processCode=${step}, breakExecution=${bBreakExecution})`);
 
         // === State ===
@@ -478,7 +478,7 @@ class TimeContractor_3 extends Processor {
                 LOG.error(`STEP 0.1 FAILED → ${msg}`);
                 await ProcessLogger.addLogs([{
                     record_ID: this.file.ID,
-                    message: msg,process_code: sProcessCode
+                    message: msg, process_code: sProcessCode
                 }]);
                 return {
                     hasError: true,
@@ -490,7 +490,7 @@ class TimeContractor_3 extends Processor {
             LOG.error(`STEP 0.1 FAILED (exception) → ${e.message}`);
             await ProcessLogger.addLogs([{
                 record_ID: this.file.ID,
-                message: `InterfaceSteps lookup failed: ${e.message}`,process_code: sProcessCode
+                message: `InterfaceSteps lookup failed: ${e.message}`, process_code: sProcessCode
             }]);
             return {
                 hasError: true,
@@ -510,9 +510,9 @@ class TimeContractor_3 extends Processor {
         // ——————————————————————————————————————————
         // STEP 1: FETCH & SELECT
         // ——————————————————————————————————————————
-        await this._fetchRecords(this.recordIDs);
+        // await this._fetchRecords(this.recordIDs);
 
-        await this._expandSelectionToGroups();   // <<< keep group intact for “Process”
+        //await this._expandSelectionToGroups();   // <<< keep group intact for “Process”
 
         const ALL_LEVELS = new Set(['0', '1', 'T', '3', '5', '9', 'G', 'B']);
         const PROCESS_ALL_FILTER = {
@@ -715,43 +715,69 @@ class TimeContractor_3 extends Processor {
 
             // —— B) Resolve Sales Order once per group
             let soNo = null;
-            {
-                LOG.info(`Group '${key}' → STEP B: lookup SalesOrder for WO='${one.tempusWorkOrder}'`);
-                const byWn = await SO('B: via A_SalesOrderItem (YY1_WNWorkOrder + 000010)',
-                    SELECT.from('A_SalesOrderItem').columns(['SalesOrder']).where({
-                        YY1_WNWorkOrder_SD_SDI: one.tempusWorkOrder,
-                        SalesOrderItem: '000010'
-                    }).limit(1)
+
+            let header = await SO(
+                'B: Get SalesOrder Header',
+                SELECT.from('A_SalesOrder')
+                    .columns(['SalesOrder', 'AdditionalCustomerGroup2'])
+                    .where({ SalesOrder: one.tempusWorkOrder })
+                    .limit(1)
+            );
+
+            if (header.length && header[0].AdditionalCustomerGroup2 === 'ZWN') {
+                LOG.info('ZWN customer detected. Using new lookup logic.');
+
+                const item = await SO(
+                    'B: ZWN SalesOrderItem lookup',
+                    SELECT.from('A_SalesOrderItem')
+                        .columns(['SalesOrder'])
+                        .where({
+                            SalesOrder: one.tempusWorkOrder,
+                            SalesOrderItem: '000010'
+                        })
+                        .limit(1)
                 );
-                LOG.info(`STEP B OUTPUT → A_SalesOrderItem rows=${byWn.length}`);
+
+                if (item.length) {
+                    soNo = item[0].SalesOrder;
+                }
+            } else {
+                const byWn = await SO(
+                    'B: WNWorkOrder lookup',
+                    SELECT.from('A_SalesOrderItem')
+                        .columns(['SalesOrder'])
+                        .where({
+                            YY1_WNWorkOrder_SD_SDI: one.tempusWorkOrder,
+                            SalesOrderItem: '000010'
+                        })
+                        .limit(1)
+                );
+
                 if (byWn.length) {
                     soNo = byWn[0].SalesOrder;
-                    LOG.info(`Found via WNWorkOrder → SO='${soNo}'`);
                 } else {
-                    const bySo = await SO('B: via A_SalesOrder (YY1_AlphanumericSalesO_SDH)',
-                        SELECT.from('A_SalesOrder').columns(['SalesOrder']).where({
-                            YY1_AlphanumericSalesO_SDH: one.tempusWorkOrder
-                        }).limit(1)
+                    const bySo = await SO(
+                        'B: Alphanumeric lookup',
+                        SELECT.from('A_SalesOrder')
+                            .columns(['SalesOrder'])
+                            .where({ YY1_AlphanumericSalesO_SDH: one.tempusWorkOrder })
+                            .limit(1)
                     );
-                    LOG.info(`STEP B OUTPUT → A_SalesOrder rows=${bySo.length}`);
+
                     if (bySo.length) {
                         soNo = bySo[0].SalesOrder;
-                        LOG.info(`Found via SalesOrder match → SO='${soNo}'`);
                     }
                 }
-                if (!soNo) {
-                    const msg = `No SalesOrder with item 000010 for WO='${one.tempusWorkOrder}'`;
-                    LOG.error(`STEP B FAILED → ${msg}`);
-                    for (const r of grp) {
-                        aErrorLogs.push({
-                            record_ID: r.ID,
-                            message: msg, process_code: sProcessCode
-                        });
-                        if (!aFailedRecordIDs.includes(r.ID)) aFailedRecordIDs.push(r.ID);
-                    }
-                    continue;
+            }
+
+            if (!soNo) {
+                const msg = `No SalesOrder found for WO='${one.tempusWorkOrder}'`;
+                LOG.error(`STEP B FAILED → ${msg}`);
+                for (const r of grp) {
+                    aErrorLogs.push({ record_ID: r.ID, message: msg, process_code: sProcessCode });
+                    if (!aFailedRecordIDs.includes(r.ID)) aFailedRecordIDs.push(r.ID);
                 }
-                LOG.info(`STEP B PASSED → SO='${soNo}'`);
+                continue;
             }
 
             // —— B.2) DistributionChannel (group-level)
@@ -1165,6 +1191,7 @@ class TimeContractor_3 extends Processor {
                             in: promotable
                         }
                     });
+                await ProcessLogger.addLogs(promotable.map((sId) => ({ record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3 })));
                 LOG.info(`STEP 3.5: Promoted ${promotable.length} record(s) to 'T'`);
                 this.recordIDs = new Set(promotable);
                 // === STEP 3.6: Auto-chain the clean group(s) straight into PROCESS-TIME ===
@@ -1193,7 +1220,7 @@ class TimeContractor_3 extends Processor {
 
         try {
             // re-fetch the batch so we can see newly promoted-to-‘T’ records
-            await this._fetchRecords(this.recordIDs);
+            // await this._fetchRecords(this.recordIDs);
 
             const idsAtT = this.records
                 .filter(r => r.processLevel_code === 'T' && r.rejected === false)
@@ -1296,9 +1323,9 @@ class TimeContractor_3 extends Processor {
 
         // ---------- STEP 2: Re-fetch latest batch ----------
         LOG.info(`STEP 2: Re-fetching records [${[...this.recordIDs].join(', ')}]`);
-        await this._fetchRecords(this.recordIDs);
+        // await this._fetchRecords(this.recordIDs);
 
-        await this._expandSelectionToGroups();
+        //await this._expandSelectionToGroups();
 
         LOG.info(`STEP 2: Retrieved ${this.records.length} records`);
 
@@ -1372,7 +1399,7 @@ class TimeContractor_3 extends Processor {
                             LOG.warn(`STEP 4: ${msg} for ${stillMissing.length} contract(s) → ${stillMissing.join(', ')}`);
                             for (const rec of toProcess) {
                                 if (rec.contractNo && stillMissing.includes(rec.contractNo)) {
-                                    errorLogs.push({ record_ID: rec.ID, message: msg,process_code: sProcessCode });
+                                    errorLogs.push({ record_ID: rec.ID, message: msg, process_code: sProcessCode });
                                     failed.push(rec.ID);
                                 }
                             }
@@ -1382,7 +1409,7 @@ class TimeContractor_3 extends Processor {
                         LOG.error(`STEP 4 Fallback FAILED → ${msg}`);
                         for (const rec of toProcess) {
                             if (rec.contractNo && missingContracts.includes(rec.contractNo)) {
-                                errorLogs.push({ record_ID: rec.ID, message: msg,process_code: sProcessCode });
+                                errorLogs.push({ record_ID: rec.ID, message: msg, process_code: sProcessCode });
                                 failed.push(rec.ID);
                             }
                         }
@@ -1394,7 +1421,7 @@ class TimeContractor_3 extends Processor {
                 const msg = `ERR_SALES_FETCH_FAILED: ${reason}`;
                 for (const rec of toProcess) {
                     if (rec.contractNo && contractIDs.includes(rec.contractNo)) {
-                        errorLogs.push({ record_ID: rec.ID, message: msg ,process_code: sProcessCode});
+                        errorLogs.push({ record_ID: rec.ID, message: msg, process_code: sProcessCode });
                         failed.push(rec.ID);
                     }
                 }
@@ -1415,7 +1442,7 @@ class TimeContractor_3 extends Processor {
                 for (const rec of toProcess) {
                     const empKey = normEmp(rec.employeeNo);
                     if (empKey && empIDs.includes(empKey)) {
-                        errorLogs.push({ record_ID: rec.ID, message: msg,process_code: sProcessCode });
+                        errorLogs.push({ record_ID: rec.ID, message: msg, process_code: sProcessCode });
                         failed.push(rec.ID);
                     }
                 }
@@ -1426,7 +1453,7 @@ class TimeContractor_3 extends Processor {
             const msg = `ERR_STEP4_UNHANDLED: ${e.message || e}`;
             LOG.error(`STEP 4 FAILED → ${msg}`);
             for (const rec of toProcess) {
-                errorLogs.push({ record_ID: rec.ID, message: msg,process_code: sProcessCode });
+                errorLogs.push({ record_ID: rec.ID, message: msg, process_code: sProcessCode });
                 failed.push(rec.ID);
             }
         }
@@ -1517,7 +1544,7 @@ class TimeContractor_3 extends Processor {
                 const msg = errs.join(', ');
                 LOG.warn(`STEP 5: Missing data for record ${rec.ID} → ${msg}, NOT calling API`);
                 records.push(rec);
-                errorLogs.push({ record_ID: rec.ID, message: msg ,process_code: sProcessCode});
+                errorLogs.push({ record_ID: rec.ID, message: msg, process_code: sProcessCode });
                 failed.push(rec.ID);
                 continue;
             }
@@ -1592,11 +1619,11 @@ class TimeContractor_3 extends Processor {
                     insertedUUIDsByRecord.set(rec.ID, arr);
                 } else {
                     const msg = res.message || 'Unknown error';
-                    errorLogs.push({ record_ID: rec.ID, message: `BUCKET ${bucketTag}: ${msg}`,process_code: sProcessCode });
+                    errorLogs.push({ record_ID: rec.ID, message: `BUCKET ${bucketTag}: ${msg}`, process_code: sProcessCode });
                 }
             } catch (e) {
                 LOG.error(`   ← Rec ${rec.ID}, Bucket ${bucketTag}: Insert failed → ${e.message}`);
-                errorLogs.push({ record_ID: rec.ID, message: `BUCKET ${bucketTag}: ${e.message}`,process_code: sProcessCode });
+                errorLogs.push({ record_ID: rec.ID, message: `BUCKET ${bucketTag}: ${e.message}`, process_code: sProcessCode });
             }
         }
 
@@ -1679,7 +1706,7 @@ class TimeContractor_3 extends Processor {
                     } catch (e) {
                         const msg = `CLEANUP_DELETE_FAILED for UUID=${uuid}: ${e.message}`;
                         LOG.error(msg);
-                        errorLogs.push({ record_ID: recId, message: msg,process_code: sProcessCode });
+                        errorLogs.push({ record_ID: recId, message: msg, process_code: sProcessCode });
                     }
                 }
                 // Clear persisted UUIDs to avoid stale state
@@ -1706,7 +1733,17 @@ class TimeContractor_3 extends Processor {
         LOG.info(`STEP 8: Marking ${finalPassed.length} record(s) valid`);
         if (finalPassed.length) {
             await ProcessLogger.removeLogs(finalPassed, null, sProcessCode);
-            await ProcessLogger.addLogs(finalPassed.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3})));
+            await ProcessLogger.addLogs(
+                finalPassed.map((sId) => {
+                    const oRecord = this.records.find((r) => r.ID === sId);
+                    return {
+                        record_ID: sId,
+                        message: `Employee Time was created successfully for Employee ${oRecord.employeeNo}, Week Ending ${moment(oRecord.weekEndDate).format('YYYY-MM-DD')}, and Sales Order ${oRecord.salesDocumentNoSAP}.`,
+                        process_code: sProcessCode,
+                        type: 3,
+                    };
+                })
+            );
             await this.markRecordsValid(sProcessCode, finalPassed, true);
         }
 
@@ -1766,7 +1803,6 @@ class TimeContractor_3 extends Processor {
     async processSalesOrder(sProcessCode, bBreakExecution) {
         const LOG = this.LOG || console;
         LOG.info(`[processSalesOrder] ENTRY processSalesOrder (code=${sProcessCode}, break=${bBreakExecution})`);
-
         // date helpers
         const toODataDate = d => {
             if (!d) throw new Error(`Date is missing or undefined`);
@@ -1873,7 +1909,7 @@ class TimeContractor_3 extends Processor {
             Z34: { target: 'YY218_CUST_PROJECT_NUMBER', vc: 2 },
             Z35: { target: 'YY239_CUST_PURCHASE_AGREE', vc: 2 },
             Z37: { target: 'YY237_CUST_POSITION', vc: 2 },
-            Z38:{target:'CUST_COMMODITY_CODE2',vc:2},
+            Z38: { target: 'CUST_COMMODITY_CODE2', vc: 2 },
             Z39: { target: 'CUST_CATERGORY_CODE2', vc: 2 },
             Z40: { target: 'YY6_SC_LINE_ITEM_NUMBER', vc: 1 },
             Z42: { target: 'ACCELERATED_FEE_DISC_VEN', vc: 2 },
@@ -1894,9 +1930,9 @@ class TimeContractor_3 extends Processor {
 
         // -------- Step 2: Fetch valid records for process level 3 --------
         LOG.info(`[processSalesOrder][Step 2] Fetching records at process level 3 and valid`);
-        await this._fetchRecords(this.recordIDs);
+        // await this._fetchRecords(this.recordIDs);
 
-        await this._expandSelectionToGroups();
+        //await this._expandSelectionToGroups();
 
 
         const recs = this.records.filter(r => r.processLevel_code === '3');
@@ -2450,7 +2486,7 @@ class TimeContractor_3 extends Processor {
             } catch (e) {
                 LOG.error(`[processSalesOrder][Group ${groupCounter}][ERROR] Group ${key} failed: ${e.message}`);
                 for (const l of lines) {
-                    errorLogs.push({ record_ID: l.ID, message: e.message ,process_code: sProcessCode});
+                    errorLogs.push({ record_ID: l.ID, message: e.message, process_code: sProcessCode });
                     failed.push(l.ID);
                 }
             }
@@ -2466,7 +2502,17 @@ class TimeContractor_3 extends Processor {
         }
         if (passed.length) {
             await ProcessLogger.removeLogs(passed, null, sProcessCode);
-            await ProcessLogger.addLogs(passed.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', ['5']), process_code: '5', type: 3})));
+            await ProcessLogger.addLogs(
+                passed.map((sId) => {
+                    const oRecord = this.records.find((r) => r.ID === sId);
+                    return {
+                        record_ID: sId,
+                        message: `Sales Order Item ${oRecord.salesItemNoSAP} was created successfully for Sales Order ${oRecord.salesDocumentNoSAP}. ` + `VC Data 1 UUID: ${oRecord.vcData1UUID}, VC Data 2 UUID: ${oRecord.vcData2UUID}.`,
+                        process_code: '5',
+                        type: 3,
+                    };
+                })
+            );
             await this.markRecordsValid('5', passed, true); // move to 5
         }
 
@@ -2497,9 +2543,9 @@ class TimeContractor_3 extends Processor {
 
         // -------- Step 2: Fetch IC records at level G (same gating as discussed) --------
         LOG.info(`[processIntercompanyso][Step 2] Re-fetching batch records`);
-        await this._fetchRecords(this.recordIDs);
+        // await this._fetchRecords(this.recordIDs);
 
-        await this._expandSelectionToGroups();
+        //await this._expandSelectionToGroups();
         const recs = this.records.filter(
             r => r.processLevel_code === 'G' && r.distributionChannelSAP === 'IC'
         );
@@ -3060,7 +3106,7 @@ class TimeContractor_3 extends Processor {
             } catch (e) {
                 LOG.error(`[processIntercompanyso][Group ${groupCounter}][ERROR] Group ${key} failed: ${e.message}`);
                 for (const l of lines) {
-                    errorLogs.push({ record_ID: l.ID, message: e.message,process_code: sProcessCode });
+                    errorLogs.push({ record_ID: l.ID, message: e.message, process_code: sProcessCode });
                     failed.push(l.ID);
                 }
             }
@@ -3076,7 +3122,17 @@ class TimeContractor_3 extends Processor {
         }
         if (passed.length) {
             await ProcessLogger.removeLogs(passed, null, sProcessCode);
-            await ProcessLogger.addLogs(passed.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', ['5']), process_code: '5', type: 3})));
+            await ProcessLogger.addLogs(
+                passed.map((sId) => {
+                    const oRecord = this.records.find((r) => r.ID === sId);
+                    return {
+                        record_ID: sId,
+                        message: `Intercompany Sales Order Item ${oRecord.salesItemNoSAP} was created successfully for Sales Order ${oRecord.salesDocumentNoSAP}. ` + `VC Data 1 UUID: ${oRecord.vcData1UUID}, VC Data 2 UUID: ${oRecord.vcData2UUID}.`,
+                        process_code: '5',
+                        type: 3,
+                    };
+                })
+            );
             await this.markRecordsValid('5', passed, true);  // advance on success
         }
 
@@ -3112,9 +3168,9 @@ class TimeContractor_3 extends Processor {
 
         // 5.1) Fetch batch records
         LOG.info('[Step 5.1] Re-fetching batch records');
-        await this._fetchRecords(this.recordIDs);
+        // await this._fetchRecords(this.recordIDs);
 
-        await this._expandSelectionToGroups();
+        //await this._expandSelectionToGroups();
         let recs = this.records.filter(r => r.processLevel_code === '5');
         LOG.info(`[Step 5.1] Retrieved ${recs.length} records`);
         if (!recs.length) return {
@@ -3673,7 +3729,7 @@ class TimeContractor_3 extends Processor {
             } catch (e) {
                 LOG.error(`[Group ${key}] FAILED → ${e.message}`);
                 for (const l of lines) {
-                    errorLogs.push({ record_ID: l.ID, message: e.message ,process_code: sProcessCode});
+                    errorLogs.push({ record_ID: l.ID, message: e.message, process_code: sProcessCode });
                     failed.push(l.ID);
                 }
             }
@@ -3690,7 +3746,17 @@ class TimeContractor_3 extends Processor {
         if (passed.length) {
             // move successes to 'B' so they’re skipped next time
             await ProcessLogger.removeLogs(passed, null, sProcessCode);
-            await ProcessLogger.addLogs(passed.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', ['B']), process_code: 'B', type: 3})));
+            await ProcessLogger.addLogs(
+                passed.map((sId) => {
+                    const oRecord = this.records.find((r) => r.ID === sId);
+                    return {
+                        record_ID: sId,
+                        message: `Purchase Order ${oRecord.purchaseDocumentNoSAP} with Item ${oRecord.purchaseDocumentItemSAP} was processed successfully for Sales Order ${oRecord.salesDocumentNoSAP}. The record has been moved to the Supplier Invoice step.`,
+                        process_code: sProcessCode,
+                        type: 3,
+                    };
+                })
+            );
             await this.markRecordsValid('B', passed, true);
         }
         this.updateExclusionSet({ passed, failed, skipped: [], bBreakExecution });
@@ -3739,10 +3805,10 @@ class TimeContractor_3 extends Processor {
 
 
         // 1) re-fetch batch records at B
-        await this._fetchRecords(this.recordIDs);
+        // await this._fetchRecords(this.recordIDs);
 
-        await this._expandSelectionToGroups();
-        
+        //await this._expandSelectionToGroups();
+
         const toProcess = this.records.filter(r => r.processLevel_code === 'B');
         LOG.info(`[processSupplierInvoice] ${toProcess.length} records to invoice (step B)`);
 
@@ -3789,18 +3855,18 @@ class TimeContractor_3 extends Processor {
                 const invoicingParty = po.Supplier || '40151';
 
 
-             // inside try { ... } after computing invoicingParty:
-const lfa1Row = await this.supplierLFA1API.executeQuery(
-  SELECT.one
-    .from('YY1_Supplier_LFA1') // <-- entity set from Portman: .../YY1_SUPPLIER_LFA1_CDS/YY1_Supplier_LFA1
-    .columns(['Supplier', 'SupplierStandardCarrierAccess'])
-    .where({ Supplier: invoicingParty })
-);
+                // inside try { ... } after computing invoicingParty:
+                const lfa1Row = await this.supplierLFA1API.executeQuery(
+                    SELECT.one
+                        .from('YY1_Supplier_LFA1') // <-- entity set from Portman: .../YY1_SUPPLIER_LFA1_CDS/YY1_Supplier_LFA1
+                        .columns(['Supplier', 'SupplierStandardCarrierAccess'])
+                        .where({ Supplier: invoicingParty })
+                );
 
-const supplierCarrierAccess = lfa1Row?.SupplierStandardCarrierAccess ?? null;
-const paymentBlockingReason = supplierCarrierAccess
-  ? String(supplierCarrierAccess).trim().slice(0, 2).toUpperCase()
-  : undefined;
+                const supplierCarrierAccess = lfa1Row?.SupplierStandardCarrierAccess ?? null;
+                const paymentBlockingReason = supplierCarrierAccess
+                    ? String(supplierCarrierAccess).trim().slice(0, 2).toUpperCase()
+                    : undefined;
 
                 // b) PO item
                 const item = await this.purchaseOrderAPI.executeQuery(
@@ -3916,7 +3982,7 @@ const paymentBlockingReason = supplierCarrierAccess
                 for (const r of recs) {
                     errorLogs.push({
                         record_ID: r.ID,
-                        message: err.message,process_code: sProcessCode
+                        message: err.message, process_code: sProcessCode
                     });
                     failed.push(r.ID);
                 }
@@ -3944,7 +4010,17 @@ const paymentBlockingReason = supplierCarrierAccess
             // move successes to '9' so they’re skipped next time
             // await this.markRecordsValid('9', passed, true);
             await ProcessLogger.removeLogs(passed, null, sProcessCode);
-            await ProcessLogger.addLogs(passed.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', ['9']), process_code: '9', type: 3})));
+            await ProcessLogger.addLogs(
+                passed.map((sId) => {
+                    const oRecord = this.records.find((r) => r.ID === sId);
+                    return {
+                        record_ID: sId,
+                        message: `Supplier Invoice ${oRecord.invoiceDocumentNoSAP} was created successfully for Purchase Order ${oRecord.purchaseDocumentNoSAP}, Item ${oRecord.purchaseDocumentItemSAP}. Fiscal Year: ${oRecord.invoiceFiscalYearSAP}. Processing completed successfully.`,
+                        process_code: sProcessCode,
+                        type: 3
+                    };
+                })
+            );
             await this.markRecordsValid('9', passed, true);
             // and bump them to step 9 in the DB
             await UPDATE(this.recordsEntity)
