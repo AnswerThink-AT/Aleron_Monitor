@@ -1118,8 +1118,9 @@ class Travel extends Processor {
                         );
 
                         LOG.info(`[processSalesOrder] STEP 3.17: Trip created → TripNumber=${response.data.TripNumber}`);
-
+                        var tripNo = response.data.TripNumber;
                         const tripIds = group.map(r => r.ID);
+                        await UPDATE(this.recordsEntity).set({ tripNoSAP: tripNo }).where({ ID: {in: tripIds} });
                         await ProcessLogger.addLogs(
                             tripIds.map(sId => ({
                                 record_ID: sId,
@@ -1668,6 +1669,7 @@ class Travel extends Processor {
     // Step 5: Update or Create Purchase Order
     async processPurchaseOrder(sProcessCode, bBreakExecution) {
         const LOG = this.LOG || console;
+        var RemoveLogIds = [];
         LOG.info(`[processPurchaseOrder] ENTRY  Starting PO processing, step code=${sProcessCode}`);
         // this.updateProcessingState(sProcessCode);
 
@@ -1685,24 +1687,28 @@ class Travel extends Processor {
         LOG.info('[Step 5.1] Re-fetching batch records');
         await this._fetchRecords(this.recordIDs);
         let recs = this.records.filter(r => r.processLevel_code === '5');
+        
         LOG.info(`[Step 5.1] Retrieved ${recs.length} records`);
         if (!recs.length) return {
             hasError: false,
             continue: true
         };
-
+        RemoveLogIds = recs.map(r => r.ID);
+        await ProcessLogger.removeLogs(RemoveLogIds, null, sProcessCode);
         // 5.1b) Skip CP/CR orders — mark complete (code '9') and remove them
         const cpcrIDs = recs
-            .filter(r => ['CP', 'CR'].includes(r.distributionChannelSAP))
+            .filter(r => ['CP', 'CR'].includes(r.woType))
             .map(r => r.ID);
         if (cpcrIDs.length) {
             LOG.info(
                 `[Step 5.1b] Skipping CP/CR orders (IDs=${cpcrIDs.join(',')}); ` +
                 `marking processLevel='9'`
             );
+            
             await UPDATE(this.recordsEntity)
-                .set({ processLevel_code: '9' })
+                .set({ valid: true, processLevel_code: '9' })
                 .where({ ID: cpcrIDs });
+            await ProcessLogger.addLogs(cpcrIDs.map((sId) => ({record_ID: sId, message: 'Creation/Change of Purchase Order and Other Steps skipped due to WOtype is CP/CR', process_code: sProcessCode, type: 3})));
             recs = recs.filter(r => !cpcrIDs.includes(r.ID));
         }
         if (!recs.length) {
