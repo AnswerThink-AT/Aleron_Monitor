@@ -26,27 +26,27 @@ const { or } = require('@sap-cloud-sdk/odata-v2');
 // } = cds.entities('com.aleron.monitor');
 
 class TimeStaff_C extends Processor {
-    constructor(options) {
-      super(options);
-      this.recordsEntity = 'com.aleron.monitor.Times';
-      this.LOG = cds.log('Monitor.Processor-TimeContractor 3');
-      this.columnsForRecords = this._getColumnsForFetch(this.recordsEntity);
+  constructor(options) {
+    super(options);
+    this.recordsEntity = 'com.aleron.monitor.Times';
+    this.LOG = cds.log('Monitor.Processor-TimeContractor 3');
+    this.columnsForRecords = this._getColumnsForFetch(this.recordsEntity);
 
-      // Communicators used by TimeContractor 3 Processor
-      this.salesContractAPI = null;
-      this.enterpriseProjectAPI = null;
-    }
+    // Communicators used by TimeContractor 3 Processor
+    this.salesContractAPI = null;
+    this.enterpriseProjectAPI = null;
+  }
 
-    prepareCommunicators() {
-      this.LOG._info && this.LOG.info('Preparing Communicators');
-      this.salesContractAPI = new SalesContractComm();
-      this.enterpriseProjectAPI = new EnterpriseProjectComm();
-      this.empTimeDataAPI = new EmpTimeDataComm();
-    }
+  prepareCommunicators() {
+    this.LOG._info && this.LOG.info('Preparing Communicators');
+    this.salesContractAPI = new SalesContractComm();
+    this.enterpriseProjectAPI = new EnterpriseProjectComm();
+    this.empTimeDataAPI = new EmpTimeDataComm();
+  }
 
-    _getColumnsForFetch(sEntity) {
-      const mEntityColumns = {
-        'com.aleron.monitor.Times': [
+  _getColumnsForFetch(sEntity) {
+    const mEntityColumns = {
+      'com.aleron.monitor.Times': [
         'ID', 'file_ID', 'processLevel_code', 'valid',
         'contractNo',
         'legacyContractNo',
@@ -116,31 +116,31 @@ class TimeStaff_C extends Processor {
         'customerFieldValue14',
         'customerFieldName15',
         'customerFieldValue15',
-        ]
-      }
+      ]
+    }
 
-      return [...new Set(mEntityColumns[sEntity])];
-    };
+    return [...new Set(mEntityColumns[sEntity])];
+  };
 
-    async validateRecords(sProcessCode, bBreakExecution) {
-      try {
-        await ProcessLogger.removeLogs([...this.recordIDs], null, sProcessCode);
+  async validateRecords(sProcessCode, bBreakExecution) {
+    try {
+      await ProcessLogger.removeLogs([...this.recordIDs], null, sProcessCode);
 
       const aRecordsForProcessing = [],
-            aErrorLogs = [],
-            aFailedRecordIDs = [],
-            aPassedRecordIDs = [],
-            aSkippedRecords = [];
+        aErrorLogs = [],
+        aFailedRecordIDs = [],
+        aPassedRecordIDs = [],
+        aSkippedRecords = [];
 
       for (const record of this.records) {
         if (this.shouldRecordProcess(record, sProcessCode)) {
-          aRecordsForProcessing.push({...record});
+          aRecordsForProcessing.push({ ...record });
         } else {
-          aSkippedRecords.push({...record});
+          aSkippedRecords.push({ ...record });
           continue;
         }
       }
-      
+
       this.updateProcessingState(sProcessCode);
       if (!aRecordsForProcessing.length) {
         // If Step doesn't need to be processed, simply return to avoid costly calls
@@ -160,7 +160,7 @@ class TimeStaff_C extends Processor {
             message: cds.i18n.messages.at('ERR_EMP_NUMBER_MISSING'), process_code: sProcessCode
           });
           aFailedRecordIDs.push(oRecord.ID);
-          hasRecordFailed = true; 
+          hasRecordFailed = true;
         }
 
         if (!hasRecordFailed) {
@@ -193,7 +193,7 @@ class TimeStaff_C extends Processor {
       if (aPassedRecordIDs.length) {
         await Promise.allSettled([
           ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode),
-          ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3}))),
+          ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({ record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3 }))),
           this.markRecordsValid(sProcessCode, aPassedRecordIDs, true),
         ]);
         this.LOG._info && this.LOG.info(cds.i18n.messages.at('INFO_RECORDS_UPDATED', [sProcessCode, 'All']));
@@ -209,49 +209,49 @@ class TimeStaff_C extends Processor {
         hasError: aFailedRecordIDs.length > 0,
         continue: aFailedRecordIDs.length === 0,
       };
-      } catch (err) {
-        this.LOG._error && this.LOG.error(`validateRecords method error: ${err.message}`);
-        return {
-          hasError: true,
-          continue: false,
-        };
-      }
+    } catch (err) {
+      this.LOG._error && this.LOG.error(`validateRecords method error: ${err.message}`);
+      return {
+        hasError: true,
+        continue: false,
+      };
     }
+  }
 
-    async processTime(sProcessCode, bBreakExecution) {
-      try {
-        await ProcessLogger.removeLogs([...this.recordIDs], null, sProcessCode);
+  async processTime(sProcessCode, bBreakExecution) {
+    try {
+      await ProcessLogger.removeLogs([...this.recordIDs], null, sProcessCode);
 
-      const aRecordsForProcessing=[],
-          aErrorLogs = [],
-          aFailedRecordIDs = [],
-          aPassedRecordIDs = [],
-          aSkippedRecords = [];
-      
+      const aRecordsForProcessing = [],
+        aErrorLogs = [],
+        aFailedRecordIDs = [],
+        aPassedRecordIDs = [],
+        aSkippedRecords = [];
+
       const aSalesContractIDs = [],
-            aSalesContracts_Orgs = [],
-            aEmpIDs = [],
-            aProject_Emps = [],
-            mSalesContracts = new Map(),
-            mProjects = new Map();
-      
+        aSalesContracts_Orgs = [],
+        aEmpIDs = [],
+        aProject_Emps = [],
+        mSalesContracts = new Map(),
+        mProjects = new Map();
+
       for (const record of this.records) {
         if (this.shouldRecordProcess(record, sProcessCode) && !record.salesDocumentNoSAP) {
           // If record is on step level & is already valid, then skip
-          aRecordsForProcessing.push({...record});
+          aRecordsForProcessing.push({ ...record });
         } else {
-          aSkippedRecords.push({...record});
+          aSkippedRecords.push({ ...record });
           continue;
         }
 
-        if(record.contractNo){
+        if (record.contractNo) {
           aSalesContractIDs.push(record.contractNo);
         }
 
-        if(record.employeeNo){
+        if (record.employeeNo) {
           aEmpIDs.push(record.employeeNo);
         }
-        
+
       }
 
       this.updateProcessingState(sProcessCode);
@@ -263,33 +263,33 @@ class TimeStaff_C extends Processor {
         };
       }
 
-      try{
+      try {
         const [
           // {reason: anySalesContractErr, value: aSalesContracts},
-          {reason: anySalesContractPrimaryErr, value: aSalesContractPrimaryResults},
-          {reason: anySalesContractFallbackErr, value: aSalesContractFallbackResults},
-          {reason: anyProjectErr, value: aProjects},
+          { reason: anySalesContractPrimaryErr, value: aSalesContractPrimaryResults },
+          { reason: anySalesContractFallbackErr, value: aSalesContractFallbackResults },
+          { reason: anyProjectErr, value: aProjects },
         ] = await Promise.allSettled([
           // Sales Contract Information
           this.salesContractAPI.executeQuery(
             SELECT.from('SalesContract')
               .columns(['SalesContract', 'SalesOffice', 'SalesOrganization'])
-              .where({SalesContract: {in: [...new Set(aSalesContractIDs)]}}),
+              .where({ SalesContract: { in: [...new Set(aSalesContractIDs)] } }),
           ),
           // Fallback query using PurchaseOrderByCustomer field
           this.salesContractAPI.executeQuery(
             SELECT.from('SalesContract')
               .columns(['SalesContract', 'SalesOffice', 'SalesOrganization', 'PurchaseOrderByCustomer'])
-              .where({PurchaseOrderByCustomer: {in: [...new Set(aSalesContractIDs)]}}),
+              .where({ PurchaseOrderByCustomer: { in: [...new Set(aSalesContractIDs)] } }),
           ),
           // Enterprise Project Information
           this.enterpriseProjectAPI.executeQuery(
             SELECT.from('A_EnterpriseProject')
               .columns(['YY1_Employee_PPH', 'Project'])
-              .where({YY1_Employee_PPH: {in: [...new Set(aEmpIDs)]}}),
+              .where({ YY1_Employee_PPH: { in: [...new Set(aEmpIDs)] } }),
           )
         ]);
-  
+
         let aSalesContracts = [];
         if (!anySalesContractPrimaryErr && aSalesContractPrimaryResults && aSalesContractPrimaryResults.length > 0) {
           aSalesContracts.push(...aSalesContractPrimaryResults);
@@ -309,9 +309,9 @@ class TimeStaff_C extends Processor {
         if (!anyProjectErr?.message && aProjects.length) {
           aProjects.forEach((oProject) => {
             mProjects.set(oProject.YY1_Employee_PPH, oProject);
-          })        
+          })
         }
-      }catch(err){
+      } catch (err) {
         // this.LOG._error & this.LOG.error(err.message);
         this.LOG._error && this.LOG.error(err.message);
         return {
@@ -324,14 +324,14 @@ class TimeStaff_C extends Processor {
       const aErrors = [];
 
       // aRecordsForProcessing.forEach((oRecord) => 
-        for (const oRecord of aRecordsForProcessing){
+      for (const oRecord of aRecordsForProcessing) {
         const aRecordErrors = [];
 
         const oSalesContractRes = await this._validateSalesContract(oRecord, mSalesContracts);
         if (oSalesContractRes.hasError) {
           oSalesContractRes.errors.forEach((error) => {
-                    error.process_code = sProcessCode;
-                });
+            error.process_code = sProcessCode;
+          });
           aRecordErrors.push(...oSalesContractRes.errors);
           aFailedRecordIDs.push(oRecord.ID);
           aErrorLogs.push(...aRecordErrors);
@@ -373,12 +373,12 @@ class TimeStaff_C extends Processor {
         })
 
         aPayloads.push(oPayload);
-        
-      // });
-        }
 
-      for(let i=0; i<aPayloads.length; i++){
-        for(let j=0; j<aPayloads[i].length; j++){
+        // });
+      }
+
+      for (let i = 0; i < aPayloads.length; i++) {
+        for (let j = 0; j < aPayloads[i].length; j++) {
           try {
             const aEmpTimeDataResults = await this.empTimeDataAPI.executeQuery(
               INSERT.into('YY1_TIME_INFO_PA2002').entries(aPayloads[i][j]),
@@ -395,11 +395,11 @@ class TimeStaff_C extends Processor {
                 record_ID: recordID,
                 message: `${aEmpTimeDataResults?.message || 'Unknown error'}`, process_code: sProcessCode
               });
-        
+
               if (!aFailedRecordIDs.includes(recordID)) {
                 aFailedRecordIDs.push(recordID);
               }
-        
+
               LOG.error(
                 `Error processing record ID ${recordID}: ${aEmpTimeDataResults?.message || 'Unknown error'}`,
               );
@@ -410,11 +410,11 @@ class TimeStaff_C extends Processor {
               record_ID: recordID,
               message: `Database insert failed: ${err.message}`, process_code: sProcessCode
             });
-    
+
             if (!aFailedRecordIDs.includes(recordID)) {
               aFailedRecordIDs.push(recordID);
             }
-    
+
             LOG.error(
               `Database insert error for record ID ${recordID}: ${err.message}`,
             );
@@ -432,9 +432,9 @@ class TimeStaff_C extends Processor {
         }
       }
 
-      aPassedRecordIDs.length = 0;  
+      aPassedRecordIDs.length = 0;
       aPassedRecordIDs.push(...passedSet);
-      
+
       // If errors are there, log them and update failedrecord
       if (aErrorLogs.length) {
         try {
@@ -460,7 +460,20 @@ class TimeStaff_C extends Processor {
       if (aPassedRecordIDs.length) {
         await Promise.allSettled([
           ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode),
-          ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3}))),
+          ProcessLogger.addLogs(
+            aPassedRecordIDs.map((sId) => {
+              const oRecord = this.records.find((r) => r.ID === sId);
+
+              return {
+                record_ID: sId,
+                message:
+                  `Employee Time records were created successfully for Employee ${oRecord.employeeNo}, ` +
+                  `Project ${oRecord.projectNumberSAP}, and Sales Contract ${oRecord.contractNo}.`,
+                process_code: sProcessCode,
+                type: 3,
+              };
+            })
+          ),
           this.markRecordsValid(sProcessCode, aPassedRecordIDs, true),
         ]);
         this.LOG._info && this.LOG.info(cds.i18n.messages.at('INFO_RECORDS_UPDATED', [sProcessCode, 'All']));
@@ -476,186 +489,186 @@ class TimeStaff_C extends Processor {
         hasError: aFailedRecordIDs.length > 0,
         continue: aFailedRecordIDs.length === 0,
       };
-      } catch (err) {
-        this.LOG._error && this.LOG.error(`processTime method error: ${err.message}`);
-        return {
-          hasError: true,
-          continue: false,
-        };
-      }
-    }
-
-     async _validateSalesContract(oRecord, mSalesContracts) {
-      let hasError = false,
-        aErrors = [];
-
-      let updatedContract = oRecord.contractNo;
-      // Try to find by contractNo (primary)
-      let oSalesContract = mSalesContracts.get(oRecord.contractNo);
-      
-      // Fallback: Try to find by PurchaseOrderByCustomer
-      if (!oSalesContract) {
-        // Search through all sales contracts for fallback match
-        for (const [salesContractKey, salesContractValue] of mSalesContracts.entries()) {
-          if (salesContractValue.PurchaseOrderByCustomer === oRecord.contractNo) {
-            oSalesContract = salesContractValue;
-            // Fallback found: update contractNo to resolved SalesContract
-            oRecord.contractNo = salesContractValue.SalesContract;
-            updatedContract = salesContractValue.SalesContract;
-            
-            // Update the database with the legacy contract number
-            if (oSalesContract.PurchaseOrderByCustomer) {
-              try {
-                await UPDATE('com.aleron.monitor.Times')
-                  .set({ legacyContractNo: oSalesContract.PurchaseOrderByCustomer })
-                  .where({ ID: oRecord.ID });
-              } catch (err) {
-                this.LOG._error && this.LOG.error(`Failed to update legacy contract number: ${err.message}`);
-                // Continue processing even if update fails
-              }
-            }
-            break;
-          }
-        }
-      }
-
-      if (!oSalesContract) {
-        hasError = true;
-        aErrors.push({
-          record_ID: oRecord.ID,
-          message: cds.i18n.messages.at('ERR_SALES_CONTRACT_NOT_FOUND'),
-        });
-      }
-
+    } catch (err) {
+      this.LOG._error && this.LOG.error(`processTime method error: ${err.message}`);
       return {
-        hasError,
-        errors: aErrors,
-        updatedContract
+        hasError: true,
+        continue: false,
       };
     }
-    _prepareDataForStaffCreate({
-      record,
-      salesContract,
-      project, 
-    }){
-      const subtypeMap = {
-        shiftRGFirst: "1001",
-        shiftOTFirst: "1501",
-        shiftDTFirst: "2001",
-        shiftRGSecond: "1002",
-        shiftOTSecond: "1502",
-        shiftDTSecond: "2002",
-        shiftRGThird: "1003",
-        shiftOTThird: "1503",
-        shiftDTThird: "2003"
-      };
-
-      const oReturnData = [];
-
-      for (const [key, subtype] of Object.entries(subtypeMap)) {
-        if (record[key] !== "0.00") {
-          const total = Number(record?.shiftDTFirst || 0) + Number(record?.shiftDTSecond || 0) + Number(record?.shiftDTThird || 0) +
-                        Number(record?.shiftOTFirst || 0) + Number(record?.shiftOTSecond || 0) + Number(record?.shiftOTThird || 0) +
-                        Number(record?.shiftRGFirst || 0) + Number(record?.shiftRGSecond || 0) + Number(record?.shiftRGThird || 0);
-          const formattedTotal = total.toFixed(2);
-          oReturnData.push({
-            WORKER_ID: record.employeeNo, 
-            Subtype: subtype,
-            START_DATE: moment(record.beginDate).format('YYYY-MM-DD'),
-            END_DATE: moment(record.beginDate).format('YYYY-MM-DD'),
-            Type: subtype,
-            PAYROLL_HOURS: formattedTotal, 
-            CAL_DAYS: '0.00', 
-            ATT_HOURS: formattedTotal,
-            PremiumIndicator: '0000', 
-            Positionplans: '', 
-            Logicalsystemfordocumentpers: 'S4H', 
-            StartofBreak: 'PT00H00M00S', 
-            EndofBreak: 'PT00H00M00S', 
-            PaidBreakPeriod: '0.00', 
-            UnpaidBreakPeriod: '0.00', 
-            StartofBreak2: 'PT00H00M00S', 
-            EndofBreak2: 'PT00H00M00S', 
-            PaidBreakPeriod2: '0.00', 
-            UnpaidBreakPeriod2: '0.00', 
-            CompanyCode: salesContract?.SalesOrganization || '',
-            BusinessArea: salesContract?.SalesOffice || '',
-            ControllingArea: '1000',
-            WBSElement: record.orderNo,
-            NumberofHoursforActivityAllo: formattedTotal,
-            Seqnr: '',
-            Refex: ''
-          })
-        }
-      }
-      return oReturnData;
-    }
-
-    async _buildTimePayload(data){ // right mapping needs to be pushed
-  
-      // Convert JavaScript dates to SAP-style /Date(...)/
-      const formatSAPDate = (date) => `/Date(${new Date(date).getTime()})/`;
-      return {
-        WORKER_ID: data.workerId || "",
-        Subtype: data.subtype || '',
-        Name: data.name || "",
-        START_DATE: formatSAPDate(data.startDate), // need to write in right format
-        END_DATE: formatSAPDate(data.endDate), // need to write in right format
-        START_TIME: data.startTime || "PT00H00M00S",
-        END_TIME: data.endTime || "PT00H00M00S",
-        PREVIOUS_DAY: data.previousDay || "",
-        Type: data.type || "",
-        AttAbsDays: data.attAbsDays || "0.00",
-        PAYROLL_HOURS: data.payrollHours || "0.00",
-        PAYROLL_DAYS: data.payrollDays || "0.00",
-        CAL_DAYS: data.calDays || "0.00",
-        ATT_HOURS: data.attHours || "0.00",
-        WAGE_TYPE: data.wageType || "",
-        VALUATION: data.valuation || "0.00",
-        EXTRA_PAY: data.extraPay || "",
-        OVERTIME_TYPE: data.overtimeType || "",
-        PAY_SCALE_GRP: data.payScaleGrp || "",
-        PAY_SCALE_LEVEL: data.payScaleLevel || "",
-        PRE_NUMBER: data.preNumber || "",
-        PremiumIndicator: data.premiumIndicator || "",
-        ObjectType: data.objectType || "",
-        Positionplans: data.positionPlans || "",
-        Generationflag: data.generationFlag || "",
-        ExternalDocumentNumber: data.externalDocumentNumber || "",
-        Setnumberofhours: data.setNumberOfHours || "",
-        RecordisforFullDay: data.recordIsFullDay || "",
-        CurrencyKey: data.currencyKey || "",
-        Logicalsystem: data.logicalSystem || "",
-        ReferenceTransaction: data.referenceTransaction || "",
-        ReferenceDocumentNumber: data.referenceDocumentNumber || "",
-        ReferenceOrganizationalUnits: data.referenceOrgUnits || "",
-        Logicalsystemfordocumentpers: data.logicalSystemForDocPers || "",
-        Documentnumberfortimedata: data.docNumberForTimeData || "",
-        Worktaxarea: data.workTaxArea || "",
-        EvaluationTypeforAttendances: data.evaluationType || "",
-        DefinitionSetforIDs: data.definitionSet || "",
-        DefinitionSubsetforIDs: data.definitionSubset || "",
-        TimeDataIDType: data.timeDataIdType || "",
-        Nobreak: data.noBreak || "",
-        BreaksSpecifiedExplicitly: data.breaksExplicit || "",
-        StartofBreak: data.startBreak || "PT00H00M00S",
-        EndofBreak: data.endBreak || "PT00H00M00S",
-        PaidBreakPeriod: data.paidBreakPeriod || "0.00",
-        UnpaidBreakPeriod: data.unpaidBreakPeriod || "0.00",
-        StartofBreak2: data.startBreak2 || "PT00H00M00S",
-        EndofBreak2: data.endBreak2 || "PT00H00M00S",
-        PaidBreakPeriod2: data.paidBreakPeriod2 || "0.00",
-        UnpaidBreakPeriod2: data.unpaidBreakPeriod2 || "0.00",
-        NextDayIndicator: data.nextDayIndicator || "",
-        SequentialnumberforPDCmessag: data.seqNumberPDC || "",
-        CompanyCode: data.companyCode || "",
-        BusinessArea: data.businessArea || "",
-        ControllingArea: data.controllingArea || "",
-        WBSElement: data.wbsElement || "",
-        NumberofHoursforActivityAllo: data.hoursForActivity || "0.00"
-      };
   }
-    
+
+  async _validateSalesContract(oRecord, mSalesContracts) {
+    let hasError = false,
+      aErrors = [];
+
+    let updatedContract = oRecord.contractNo;
+    // Try to find by contractNo (primary)
+    let oSalesContract = mSalesContracts.get(oRecord.contractNo);
+
+    // Fallback: Try to find by PurchaseOrderByCustomer
+    if (!oSalesContract) {
+      // Search through all sales contracts for fallback match
+      for (const [salesContractKey, salesContractValue] of mSalesContracts.entries()) {
+        if (salesContractValue.PurchaseOrderByCustomer === oRecord.contractNo) {
+          oSalesContract = salesContractValue;
+          // Fallback found: update contractNo to resolved SalesContract
+          oRecord.contractNo = salesContractValue.SalesContract;
+          updatedContract = salesContractValue.SalesContract;
+
+          // Update the database with the legacy contract number
+          if (oSalesContract.PurchaseOrderByCustomer) {
+            try {
+              await UPDATE('com.aleron.monitor.Times')
+                .set({ legacyContractNo: oSalesContract.PurchaseOrderByCustomer })
+                .where({ ID: oRecord.ID });
+            } catch (err) {
+              this.LOG._error && this.LOG.error(`Failed to update legacy contract number: ${err.message}`);
+              // Continue processing even if update fails
+            }
+          }
+          break;
+        }
+      }
+    }
+
+    if (!oSalesContract) {
+      hasError = true;
+      aErrors.push({
+        record_ID: oRecord.ID,
+        message: cds.i18n.messages.at('ERR_SALES_CONTRACT_NOT_FOUND'),
+      });
+    }
+
+    return {
+      hasError,
+      errors: aErrors,
+      updatedContract
+    };
+  }
+  _prepareDataForStaffCreate({
+    record,
+    salesContract,
+    project,
+  }) {
+    const subtypeMap = {
+      shiftRGFirst: "1001",
+      shiftOTFirst: "1501",
+      shiftDTFirst: "2001",
+      shiftRGSecond: "1002",
+      shiftOTSecond: "1502",
+      shiftDTSecond: "2002",
+      shiftRGThird: "1003",
+      shiftOTThird: "1503",
+      shiftDTThird: "2003"
+    };
+
+    const oReturnData = [];
+
+    for (const [key, subtype] of Object.entries(subtypeMap)) {
+      if (record[key] !== "0.00") {
+        const total = Number(record?.shiftDTFirst || 0) + Number(record?.shiftDTSecond || 0) + Number(record?.shiftDTThird || 0) +
+          Number(record?.shiftOTFirst || 0) + Number(record?.shiftOTSecond || 0) + Number(record?.shiftOTThird || 0) +
+          Number(record?.shiftRGFirst || 0) + Number(record?.shiftRGSecond || 0) + Number(record?.shiftRGThird || 0);
+        const formattedTotal = total.toFixed(2);
+        oReturnData.push({
+          WORKER_ID: record.employeeNo,
+          Subtype: subtype,
+          START_DATE: moment(record.beginDate).format('YYYY-MM-DD'),
+          END_DATE: moment(record.beginDate).format('YYYY-MM-DD'),
+          Type: subtype,
+          PAYROLL_HOURS: formattedTotal,
+          CAL_DAYS: '0.00',
+          ATT_HOURS: formattedTotal,
+          PremiumIndicator: '0000',
+          Positionplans: '',
+          Logicalsystemfordocumentpers: 'S4H',
+          StartofBreak: 'PT00H00M00S',
+          EndofBreak: 'PT00H00M00S',
+          PaidBreakPeriod: '0.00',
+          UnpaidBreakPeriod: '0.00',
+          StartofBreak2: 'PT00H00M00S',
+          EndofBreak2: 'PT00H00M00S',
+          PaidBreakPeriod2: '0.00',
+          UnpaidBreakPeriod2: '0.00',
+          CompanyCode: salesContract?.SalesOrganization || '',
+          BusinessArea: salesContract?.SalesOffice || '',
+          ControllingArea: '1000',
+          WBSElement: record.orderNo,
+          NumberofHoursforActivityAllo: formattedTotal,
+          Seqnr: '',
+          Refex: ''
+        })
+      }
+    }
+    return oReturnData;
+  }
+
+  async _buildTimePayload(data) { // right mapping needs to be pushed
+
+    // Convert JavaScript dates to SAP-style /Date(...)/
+    const formatSAPDate = (date) => `/Date(${new Date(date).getTime()})/`;
+    return {
+      WORKER_ID: data.workerId || "",
+      Subtype: data.subtype || '',
+      Name: data.name || "",
+      START_DATE: formatSAPDate(data.startDate), // need to write in right format
+      END_DATE: formatSAPDate(data.endDate), // need to write in right format
+      START_TIME: data.startTime || "PT00H00M00S",
+      END_TIME: data.endTime || "PT00H00M00S",
+      PREVIOUS_DAY: data.previousDay || "",
+      Type: data.type || "",
+      AttAbsDays: data.attAbsDays || "0.00",
+      PAYROLL_HOURS: data.payrollHours || "0.00",
+      PAYROLL_DAYS: data.payrollDays || "0.00",
+      CAL_DAYS: data.calDays || "0.00",
+      ATT_HOURS: data.attHours || "0.00",
+      WAGE_TYPE: data.wageType || "",
+      VALUATION: data.valuation || "0.00",
+      EXTRA_PAY: data.extraPay || "",
+      OVERTIME_TYPE: data.overtimeType || "",
+      PAY_SCALE_GRP: data.payScaleGrp || "",
+      PAY_SCALE_LEVEL: data.payScaleLevel || "",
+      PRE_NUMBER: data.preNumber || "",
+      PremiumIndicator: data.premiumIndicator || "",
+      ObjectType: data.objectType || "",
+      Positionplans: data.positionPlans || "",
+      Generationflag: data.generationFlag || "",
+      ExternalDocumentNumber: data.externalDocumentNumber || "",
+      Setnumberofhours: data.setNumberOfHours || "",
+      RecordisforFullDay: data.recordIsFullDay || "",
+      CurrencyKey: data.currencyKey || "",
+      Logicalsystem: data.logicalSystem || "",
+      ReferenceTransaction: data.referenceTransaction || "",
+      ReferenceDocumentNumber: data.referenceDocumentNumber || "",
+      ReferenceOrganizationalUnits: data.referenceOrgUnits || "",
+      Logicalsystemfordocumentpers: data.logicalSystemForDocPers || "",
+      Documentnumberfortimedata: data.docNumberForTimeData || "",
+      Worktaxarea: data.workTaxArea || "",
+      EvaluationTypeforAttendances: data.evaluationType || "",
+      DefinitionSetforIDs: data.definitionSet || "",
+      DefinitionSubsetforIDs: data.definitionSubset || "",
+      TimeDataIDType: data.timeDataIdType || "",
+      Nobreak: data.noBreak || "",
+      BreaksSpecifiedExplicitly: data.breaksExplicit || "",
+      StartofBreak: data.startBreak || "PT00H00M00S",
+      EndofBreak: data.endBreak || "PT00H00M00S",
+      PaidBreakPeriod: data.paidBreakPeriod || "0.00",
+      UnpaidBreakPeriod: data.unpaidBreakPeriod || "0.00",
+      StartofBreak2: data.startBreak2 || "PT00H00M00S",
+      EndofBreak2: data.endBreak2 || "PT00H00M00S",
+      PaidBreakPeriod2: data.paidBreakPeriod2 || "0.00",
+      UnpaidBreakPeriod2: data.unpaidBreakPeriod2 || "0.00",
+      NextDayIndicator: data.nextDayIndicator || "",
+      SequentialnumberforPDCmessag: data.seqNumberPDC || "",
+      CompanyCode: data.companyCode || "",
+      BusinessArea: data.businessArea || "",
+      ControllingArea: data.controllingArea || "",
+      WBSElement: data.wbsElement || "",
+      NumberofHoursforActivityAllo: data.hoursForActivity || "0.00"
+    };
+  }
+
 
 }
 
