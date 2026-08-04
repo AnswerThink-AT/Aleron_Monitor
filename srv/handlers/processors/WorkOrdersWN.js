@@ -377,7 +377,7 @@ class WorkOrdersWN extends Processor {
       if (!oZipCode?.valid) {
         aErrorLogs.push({
           record_ID: oRecord.ID,
-          message: cds.i18n.messages.at('ERR_ZIPCODE_NOT_VALID'),process_code: sProcessCode
+          message: cds.i18n.messages.at('ERR_ZIPCODE_NOT_VALID'), process_code: sProcessCode
         });
         aFailedRecordIDs.push(oRecord.ID);
         hasRecordFailed = true;
@@ -430,7 +430,7 @@ class WorkOrdersWN extends Processor {
           message: cds.i18n.messages.at('ERR_SALES_ORDER_EXIST_WNWORKORDER', [
             oSalesOrderItem.SalesOrder,
             oRecord.workOrderWN
-          ]),process_code: sProcessCode
+          ]), process_code: sProcessCode
         });
         aFailedRecordIDs.push(oRecord.ID);
         hasRecordFailed = true;
@@ -456,7 +456,7 @@ class WorkOrdersWN extends Processor {
                 recordProcessLevelCode = '1';
               } else if (record.processLevel_code === '1') {
                 recordProcessLevelCode = '1';
-              } 
+              }
               // else if (record.processLevel_code === '2' && !record.valid) {
               //   recordProcessLevelCode = '1';
               // } 
@@ -473,7 +473,7 @@ class WorkOrdersWN extends Processor {
                 recordProcessLevelCode = '1';
               } else if (record.processLevel_code === '1') {
                 recordProcessLevelCode = '1';
-              } 
+              }
               // else if (record.processLevel_code === '2' && !record.valid) {
               //   recordProcessLevelCode = '1';
               // } 
@@ -482,8 +482,8 @@ class WorkOrdersWN extends Processor {
               }
             }
             return UPDATE(WorkOrders_WN)
-              .set({valid: false, processLevel_code: recordProcessLevelCode})
-              .where({ID: recordID});
+              .set({ valid: false, processLevel_code: recordProcessLevelCode })
+              .where({ ID: recordID });
           }),
         ]);
         this.LOG._info &&
@@ -512,45 +512,56 @@ class WorkOrdersWN extends Processor {
       );
       await Promise.allSettled([
         ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode),
-        ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3}))),
+        await ProcessLogger.addLogs(
+          aPassedRecordIDs.map((sId) => {
+            const oRecord = this.records.find((r) => r.ID === sId);
+            return {
+              record_ID: sId,
+              message: `Record validation completed successfully for Sales Contract ${oRecord.contractNo}, Work Order ${oRecord.workOrderWN}, and Remit Vendor ${oRecord.remitToVendor}.`,
+              process_code: sProcessCode,
+              type: 3,
+            };
+          })
+        ),
+        //ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3}))),
         // this.markRecordsValid(sProcessCode, aPassedRecordIDs, true),
         ...aPassedRecordIDs.filter(recordID => {
-            const record = this.records.find(r => r.ID === recordID);
-            let recordProcessLevelCode = sProcessCode;
-            if (record) {
-              if (record.processLevel_code === '0') {
-                recordProcessLevelCode = '1';
-              } else if (record.processLevel_code === '1') {
-                recordProcessLevelCode = '1';
-              } 
-              // else if (record.processLevel_code === '2' && !record.valid) {
-              //   recordProcessLevelCode = '1';
-              // } 
-              else {
-                recordProcessLevelCode = record.processLevel_code;
-              }
+          const record = this.records.find(r => r.ID === recordID);
+          let recordProcessLevelCode = sProcessCode;
+          if (record) {
+            if (record.processLevel_code === '0') {
+              recordProcessLevelCode = '1';
+            } else if (record.processLevel_code === '1') {
+              recordProcessLevelCode = '1';
             }
-            return recordProcessLevelCode === '1';
-          }).map(recordID => {
-            const record = this.records.find(r => r.ID === recordID);
-            let recordProcessLevelCode = sProcessCode;
-            if (record) {
-              if (record.processLevel_code === '0') {
-                recordProcessLevelCode = '1';
-              } else if (record.processLevel_code === '1') {
-                recordProcessLevelCode = '1';
-              } 
-              // else if (record.processLevel_code === '2' && !record.valid) {
-              //   recordProcessLevelCode = '1';
-              // } 
-              else {
-                recordProcessLevelCode = record.processLevel_code;
-              }
+            // else if (record.processLevel_code === '2' && !record.valid) {
+            //   recordProcessLevelCode = '1';
+            // } 
+            else {
+              recordProcessLevelCode = record.processLevel_code;
             }
-            return UPDATE(WorkOrders_WN)
-              .set({valid: true, processLevel_code: recordProcessLevelCode})
-              .where({ID: recordID});
-          }),
+          }
+          return recordProcessLevelCode === '1';
+        }).map(recordID => {
+          const record = this.records.find(r => r.ID === recordID);
+          let recordProcessLevelCode = sProcessCode;
+          if (record) {
+            if (record.processLevel_code === '0') {
+              recordProcessLevelCode = '1';
+            } else if (record.processLevel_code === '1') {
+              recordProcessLevelCode = '1';
+            }
+            // else if (record.processLevel_code === '2' && !record.valid) {
+            //   recordProcessLevelCode = '1';
+            // } 
+            else {
+              recordProcessLevelCode = record.processLevel_code;
+            }
+          }
+          return UPDATE(WorkOrders_WN)
+            .set({ valid: true, processLevel_code: recordProcessLevelCode })
+            .where({ ID: recordID });
+        }),
       ]);
       this.LOG._info && this.LOG.info(cds.i18n.messages.at('INFO_RECORDS_UPDATED', [sProcessCode, 'All']));
     }
@@ -588,14 +599,14 @@ class WorkOrdersWN extends Processor {
         hasError = true;
         aErrorLogs.push({
           record_ID: oRecord.ID,
-          message: cds.i18n.messages.at('ERR_MANDT_FIELD', [anyField]),process_code: sProcessCode
+          message: cds.i18n.messages.at('ERR_MANDT_FIELD', [anyField]), process_code: sProcessCode
         });
       }
       if (stBlankFields.has(anyField) && oRecord[anyField]) {
         hasError = true;
         aErrorLogs.push({
           record_ID: oRecord.ID,
-          message: cds.i18n.messages.at('ERR_BLANK_FIELD', [anyField]),process_code: sProcessCode
+          message: cds.i18n.messages.at('ERR_BLANK_FIELD', [anyField]), process_code: sProcessCode
         });
       }
     }
@@ -605,7 +616,7 @@ class WorkOrdersWN extends Processor {
     };
   }
 
-    async employeeHire(sProcessCode, bBreakExecution) {
+  async employeeHire(sProcessCode, bBreakExecution) {
     this.LOG._info && this.LOG.info('Starting employeeHire process');
 
     // =========================================================
@@ -615,95 +626,95 @@ class WorkOrdersWN extends Processor {
     // - DOES NOT change processLevel_code or valid
     // =========================================================
     try {
-        const trim = v => (v ?? '').toString().trim();
-        const uniq = arr => [...new Set(arr)];
-        const fileIdsAll = uniq(this.records.map(r => r.file_ID).filter(Boolean));
+      const trim = v => (v ?? '').toString().trim();
+      const uniq = arr => [...new Set(arr)];
+      const fileIdsAll = uniq(this.records.map(r => r.file_ID).filter(Boolean));
 
-        if (fileIdsAll.length) {
+      if (fileIdsAll.length) {
         const siblingRows = await SELECT.from(WorkOrders_WN)
-            .columns(['ID','file_ID','processLevel_code','valid','ssn','personnelNoSAP'])
-            .where({ file_ID: { in: fileIdsAll } });
+          .columns(['ID', 'file_ID', 'processLevel_code', 'valid', 'ssn', 'personnelNoSAP'])
+          .where({ file_ID: { in: fileIdsAll } });
 
         const mSsnToEmp = new Map();
         (siblingRows || []).forEach(r => {
-            const emp = trim(r.personnelNoSAP);
-            if (!emp) return;
-            const s = trim(r.ssn);
-            if (s && !mSsnToEmp.has(s)) mSsnToEmp.set(s, emp);
+          const emp = trim(r.personnelNoSAP);
+          if (!emp) return;
+          const s = trim(r.ssn);
+          if (s && !mSsnToEmp.has(s)) mSsnToEmp.set(s, emp);
         });
 
         const toFill = (siblingRows || [])
-            .filter(r => r.processLevel_code === 'U' && !trim(r.personnelNoSAP))
-            .map(r => {
+          .filter(r => r.processLevel_code === 'U' && !trim(r.personnelNoSAP))
+          .map(r => {
             const emp = mSsnToEmp.get(trim(r.ssn));
             return emp ? { id: r.ID, emp } : null;
-            })
-            .filter(Boolean);
+          })
+          .filter(Boolean);
 
         if (toFill.length) {
-            await Promise.allSettled(
+          await Promise.allSettled(
             toFill.map(x =>
-                UPDATE(WorkOrders_WN).set({ personnelNoSAP: x.emp }).where({ ID: x.id })
+              UPDATE(WorkOrders_WN).set({ personnelNoSAP: x.emp }).where({ ID: x.id })
             )
-            );
-            // sync in-memory
-            const filledMap = new Map(toFill.map(x => [String(x.id), x.emp]));
-            for (const r of this.records) {
+          );
+          // sync in-memory
+          const filledMap = new Map(toFill.map(x => [String(x.id), x.emp]));
+          for (const r of this.records) {
             const emp = filledMap.get(String(r.ID));
             if (emp) r.personnelNoSAP = emp;
-            }
-            this.LOG._info && this.LOG.info(
+          }
+          this.LOG._info && this.LOG.info(
             `[WO] Pre-pass U: filled personnelNoSAP on ${toFill.length} duplicate row(s) (SSN).`
-            );
+          );
         }
 
         // Optional: EmpCustInfo supplement for any remaining U blanks (SSN only)
         const stillBlankSSNs = (siblingRows || [])
-            .filter(r => r.processLevel_code === 'U' && !trim(r.personnelNoSAP))
-            .map(r => trim(r.ssn))
-            .filter(Boolean);
+          .filter(r => r.processLevel_code === 'U' && !trim(r.personnelNoSAP))
+          .map(r => trim(r.ssn))
+          .filter(Boolean);
         const remainingKeys = uniq(stillBlankSSNs.filter(k => !mSsnToEmp.has(k)));
 
         if (remainingKeys.length) {
-            const empRows = await this.empCustInfoAPI.executeQuery(
+          const empRows = await this.empCustInfoAPI.executeQuery(
             SELECT.from('YY1_EMPLOYEE_CUSTOMER_INFO')
-                .columns(['SSN','WORKER_ID'])
-                .where({ SSN: { in: remainingKeys } })
-            );
-            const mECI = new Map();
-            (empRows || []).forEach(r => {
+              .columns(['SSN', 'WORKER_ID'])
+              .where({ SSN: { in: remainingKeys } })
+          );
+          const mECI = new Map();
+          (empRows || []).forEach(r => {
             const s = trim(r.SSN);
             const w = trim(r.WORKER_ID);
             if (s && w && !mECI.has(s)) mECI.set(s, w);
-            });
+          });
 
-            const toFillECI = (siblingRows || [])
+          const toFillECI = (siblingRows || [])
             .filter(r => r.processLevel_code === 'U' && !trim(r.personnelNoSAP))
             .map(r => {
-                const emp = mECI.get(trim(r.ssn));
-                return emp ? { id: r.ID, emp } : null;
+              const emp = mECI.get(trim(r.ssn));
+              return emp ? { id: r.ID, emp } : null;
             })
             .filter(Boolean);
 
-            if (toFillECI.length) {
+          if (toFillECI.length) {
             await Promise.allSettled(
-                toFillECI.map(x =>
+              toFillECI.map(x =>
                 UPDATE(WorkOrders_WN).set({ personnelNoSAP: x.emp }).where({ ID: x.id })
-                )
+              )
             );
             const filled2 = new Map(toFillECI.map(x => [String(x.id), x.emp]));
             for (const r of this.records) {
-                const emp = filled2.get(String(r.ID));
-                if (emp) r.personnelNoSAP = emp;
+              const emp = filled2.get(String(r.ID));
+              if (emp) r.personnelNoSAP = emp;
             }
             this.LOG._info && this.LOG.info(
-                `[WO] Pre-pass U (EmpCustInfo): filled personnelNoSAP on ${toFillECI.length} duplicate row(s).`
+              `[WO] Pre-pass U (EmpCustInfo): filled personnelNoSAP on ${toFillECI.length} duplicate row(s).`
             );
-            }
+          }
         }
-        }
+      }
     } catch (e) {
-        this.LOG._error && this.LOG.error(`[WO] Pre-pass U failed: ${e.message}`);
+      this.LOG._error && this.LOG.error(`[WO] Pre-pass U failed: ${e.message}`);
     }
     // ---------------- END PRE-PASS ------------------------
 
@@ -735,7 +746,7 @@ class WorkOrdersWN extends Processor {
       const healed = await UPDATE(WorkOrders_WN)
         .set({ valid: true })
         .where({
-           processLevel_code: '2',
+          processLevel_code: '2',
           valid: false,
           personnelNoSAP: null
         });
@@ -753,146 +764,146 @@ class WorkOrdersWN extends Processor {
 
 
     let aRecordsForProcessing = [],
-        aSkippedRecords = [],
-        aErrorLogs = [],
-        aPassedRecordIDs = [],
-        aFailedRecordIDs = [];
+      aSkippedRecords = [],
+      aErrorLogs = [],
+      aPassedRecordIDs = [],
+      aFailedRecordIDs = [];
 
     // pick records for this step
     for (const record of this.records) {
-        if (this.shouldRecordProcess(record, sProcessCode)) {
+      if (this.shouldRecordProcess(record, sProcessCode)) {
         aRecordsForProcessing.push({ ...record });
-        } else {
+      } else {
         aSkippedRecords.push({ ...record });
-        }
+      }
     }
 
     this.updateProcessingState(sProcessCode);
     if (!aRecordsForProcessing.length) {
-        return { hasError: false, continue: true };
+      return { hasError: false, continue: true };
     }
 
     const trim = v => (v ?? '').toString().trim();
     const uniq = arr => [...new Set(arr)];
-    const ssnsAll    = uniq(aRecordsForProcessing.map(r => trim(r.ssn)).filter(Boolean));
+    const ssnsAll = uniq(aRecordsForProcessing.map(r => trim(r.ssn)).filter(Boolean));
     const fileIdsAll = uniq(aRecordsForProcessing.map(r => r.file_ID).filter(Boolean));
 
     // --------------- A) EmpCustInfo-first ---------------
     try {
-        if (ssnsAll.length) {
+      if (ssnsAll.length) {
         const empRows = await this.empCustInfoAPI.executeQuery(
-            SELECT.from('YY1_EMPLOYEE_CUSTOMER_INFO')
+          SELECT.from('YY1_EMPLOYEE_CUSTOMER_INFO')
             .columns(['SSN', 'WORKER_ID'])
             .where({ SSN: { in: ssnsAll } })
         );
 
         const mSsnToWorker = new Map();
         (empRows || []).forEach(r => {
-            const s = trim(r.SSN);
-            const w = trim(r.WORKER_ID);
-            if (s && w && !mSsnToWorker.has(s)) mSsnToWorker.set(s, w);
+          const s = trim(r.SSN);
+          const w = trim(r.WORKER_ID);
+          if (s && w && !mSsnToWorker.has(s)) mSsnToWorker.set(s, w);
         });
 
         if (mSsnToWorker.size) {
-            const upd = [];
-            const resolvedIds = [];
-            for (const rec of aRecordsForProcessing) {
+          const upd = [];
+          const resolvedIds = [];
+          for (const rec of aRecordsForProcessing) {
             const w = mSsnToWorker.get(trim(rec.ssn));
             if (!w) continue;
             rec.personnelNoSAP = w;
             upd.push(
-                UPDATE(WorkOrders_WN)
+              UPDATE(WorkOrders_WN)
                 .set({ personnelNoSAP: w, valid: true })
                 .where({ ID: rec.ID })
             );
             resolvedIds.push(rec.ID);
-            }
-            if (upd.length) await Promise.allSettled(upd);
-            if (resolvedIds.length) {
+          }
+          if (upd.length) await Promise.allSettled(upd);
+          if (resolvedIds.length) {
             await this.markRecordsValid(sProcessCode, resolvedIds, true);
             aPassedRecordIDs.push(...resolvedIds);
             this.LOG._info && this.LOG.info(`[WO] EmpCustInfo-first resolved ${resolvedIds.length} row(s).`);
-            }
+          }
         }
-        }
+      }
     } catch (e) {
-        this.LOG._error && this.LOG.error(`[WO] EmpCustInfo-first failed: ${e.message}`);
+      this.LOG._error && this.LOG.error(`[WO] EmpCustInfo-first failed: ${e.message}`);
     }
 
     // --------------- B) Release holds (only among current step-2 rows) ---------------
     try {
-        if (ssnsAll.length && fileIdsAll.length) {
+      if (ssnsAll.length && fileIdsAll.length) {
         const siblingRows = await SELECT.from(WorkOrders_WN)
-            .columns(['file_ID', 'ssn', 'personnelNoSAP'])
-            .where({ file_ID: { in: fileIdsAll }, ssn: { in: ssnsAll } });
+          .columns(['file_ID', 'ssn', 'personnelNoSAP'])
+          .where({ file_ID: { in: fileIdsAll }, ssn: { in: ssnsAll } });
 
         const mSsnToEmp = new Map();
         (siblingRows || []).forEach(r => {
-            const s = trim(r.ssn);
-            const e = trim(r.personnelNoSAP);
-            if (s && e && !mSsnToEmp.has(s)) mSsnToEmp.set(s, e);
+          const s = trim(r.ssn);
+          const e = trim(r.personnelNoSAP);
+          if (s && e && !mSsnToEmp.has(s)) mSsnToEmp.set(s, e);
         });
 
         const toRelease = aRecordsForProcessing
-            .filter(r => !trim(r.personnelNoSAP))
-            .map(r => ({ rec: r, emp: mSsnToEmp.get(trim(r.ssn)) }))
-            .filter(x => !!x.emp);
+          .filter(r => !trim(r.personnelNoSAP))
+          .map(r => ({ rec: r, emp: mSsnToEmp.get(trim(r.ssn)) }))
+          .filter(x => !!x.emp);
 
         if (toRelease.length) {
-            await Promise.allSettled(
+          await Promise.allSettled(
             toRelease.map(x =>
-                UPDATE(WorkOrders_WN)
+              UPDATE(WorkOrders_WN)
                 .set({ personnelNoSAP: x.emp, valid: true })
                 .where({ ID: x.rec.ID })
             )
-            );
-            const releasedIds = [];
-            toRelease.forEach(x => {
+          );
+          const releasedIds = [];
+          toRelease.forEach(x => {
             x.rec.personnelNoSAP = x.emp;
             releasedIds.push(x.rec.ID);
             aErrorLogs.push({
-                record_ID: x.rec.ID,
-                message: `Released hold: copied employee ${x.emp} from sibling row.`,process_code: sProcessCode
+              record_ID: x.rec.ID,
+              message: `Released hold: copied employee ${x.emp} from sibling row.`, process_code: sProcessCode
             });
-            });
-            if (releasedIds.length) {
+          });
+          if (releasedIds.length) {
             await this.markRecordsValid(sProcessCode, releasedIds, true);
             aPassedRecordIDs.push(...releasedIds);
             this.LOG._info && this.LOG.info(`[WO] Released ${releasedIds.length} follower(s) after writeback (PL=2).`);
-            }
+          }
         }
-        }
+      }
     } catch (e) {
-        this.LOG._error && this.LOG.error(`[WO] Release-holds failed: ${e.message}`);
+      this.LOG._error && this.LOG.error(`[WO] Release-holds failed: ${e.message}`);
     }
 
     // ---------- C) GROUP-STATE GUARD + First-time split ----------
     let mSsnDbState = new Map();
     try {
-        if (ssnsAll.length && fileIdsAll.length) {
+      if (ssnsAll.length && fileIdsAll.length) {
         const snap = await SELECT.from(WorkOrders_WN)
-            .columns(['ID', 'file_ID', 'ssn', 'personnelNoSAP', 'processLevel_code', 'valid'])
-            .where({ file_ID: { in: fileIdsAll }, ssn: { in: ssnsAll } });
+          .columns(['ID', 'file_ID', 'ssn', 'personnelNoSAP', 'processLevel_code', 'valid'])
+          .where({ file_ID: { in: fileIdsAll }, ssn: { in: ssnsAll } });
 
         (snap || []).forEach(r => {
-            const s = trim(r.ssn);
-            if (!s) return;
-            if (!mSsnDbState.has(s)) {
+          const s = trim(r.ssn);
+          if (!s) return;
+          if (!mSsnDbState.has(s)) {
             mSsnDbState.set(s, {
-                hasEmp: false,
-                hasLeaderHold: false,   // PL=2, valid=true, no emp
-                hasFollowerHoldU: false // PL=U, valid=false, no emp
+              hasEmp: false,
+              hasLeaderHold: false,   // PL=2, valid=true, no emp
+              hasFollowerHoldU: false // PL=U, valid=false, no emp
             });
-            }
-            const st = mSsnDbState.get(s);
-            const hasEmpNo = !!trim(r.personnelNoSAP);
-            if (hasEmpNo) st.hasEmp = true;
-            if (r.processLevel_code === '2' && !hasEmpNo && r.valid === true)  st.hasLeaderHold   = true;
-            if (r.processLevel_code === 'U' && !hasEmpNo && r.valid === false) st.hasFollowerHoldU = true;
+          }
+          const st = mSsnDbState.get(s);
+          const hasEmpNo = !!trim(r.personnelNoSAP);
+          if (hasEmpNo) st.hasEmp = true;
+          if (r.processLevel_code === '2' && !hasEmpNo && r.valid === true) st.hasLeaderHold = true;
+          if (r.processLevel_code === 'U' && !hasEmpNo && r.valid === false) st.hasFollowerHoldU = true;
         });
-        }
+      }
     } catch (e) {
-        this.LOG._error && this.LOG.error(`[WO] DB snapshot for guard failed: ${e.message}`);
+      this.LOG._error && this.LOG.error(`[WO] DB snapshot for guard failed: ${e.message}`);
     }
 
     const unresolved = aRecordsForProcessing.filter(r => !trim(r.personnelNoSAP));
@@ -900,75 +911,92 @@ class WorkOrdersWN extends Processor {
     const bySsn = new Map();
     const noSsn = [];
     for (const r of unresolved) {
-        const s = trim(r.ssn);
-        if (!s) { noSsn.push(r); continue; }
-        if (!bySsn.has(s)) bySsn.set(s, []);
-        bySsn.get(s).push(r);
+      const s = trim(r.ssn);
+      if (!s) { noSsn.push(r); continue; }
+      if (!bySsn.has(s)) bySsn.set(s, []);
+      bySsn.get(s).push(r);
     }
 
     for (const [ssn, list] of bySsn.entries()) {
-        const state = mSsnDbState.get(ssn) || { hasEmp: false, hasLeaderHold: false, hasFollowerHoldU: false };
+      const state = mSsnDbState.get(ssn) || { hasEmp: false, hasLeaderHold: false, hasFollowerHoldU: false };
 
-        if (state.hasEmp || state.hasLeaderHold || state.hasFollowerHoldU) {
+      if (state.hasEmp || state.hasLeaderHold || state.hasFollowerHoldU) {
         this.LOG._info && this.LOG.info(`[WO] SSN=${ssn}: holds already established; leaving statuses unchanged.`);
         list.forEach(r => {
-            aFailedRecordIDs.push(r.ID);
-            aErrorLogs.push({ record_ID: r.ID, message: `Employee Not Created.`,process_code: sProcessCode });
+          aFailedRecordIDs.push(r.ID);
+          aErrorLogs.push({ record_ID: r.ID, message: `Employee Not Created.`, process_code: sProcessCode });
         });
         continue;
-        }
+      }
 
-        // Fresh group (first run at this step)
-        list.sort((a, b) => String(a.ID).localeCompare(String(b.ID)));
-        const leader = list[0];
-        const followers = list.slice(1);
+      // Fresh group (first run at this step)
+      list.sort((a, b) => String(a.ID).localeCompare(String(b.ID)));
+      const leader = list[0];
+      const followers = list.slice(1);
 
-        await UPDATE(WorkOrders_WN).set({ processLevel_code: '2', valid: true }).where({ ID: leader.ID });
-        aFailedRecordIDs.push(leader.ID);
-        aErrorLogs.push({
+      await UPDATE(WorkOrders_WN).set({ processLevel_code: '2', valid: true }).where({ ID: leader.ID });
+      aFailedRecordIDs.push(leader.ID);
+      aErrorLogs.push({
         record_ID: leader.ID,
-        message: `Employee Not Created for SSN ${ssn}.`,process_code: sProcessCode
-        });
+        message: `Employee Not Created for SSN ${ssn}.`, process_code: sProcessCode
+      });
 
-        if (followers.length) {
+      if (followers.length) {
         await Promise.allSettled(
-            followers.map(f =>
+          followers.map(f =>
             UPDATE(WorkOrders_WN)
-                .set({ processLevel_code: 'U', valid: false }) // move duplicates to U
-                .where({ ID: f.ID })
-            )
+              .set({ processLevel_code: 'U', valid: false }) // move duplicates to U
+              .where({ ID: f.ID })
+          )
         );
         followers.forEach(f => {
-            aFailedRecordIDs.push(f.ID);
-            aErrorLogs.push({
+          aFailedRecordIDs.push(f.ID);
+          aErrorLogs.push({
             record_ID: f.ID,
-            message: `Duplicate SSN ${ssn}: moved to Step 'U' until leader gets employee number.`,process_code: sProcessCode
-            });
+            message: `Duplicate SSN ${ssn}: moved to Step 'U' until leader gets employee number.`, process_code: sProcessCode
+          });
         });
-        }
+      }
     }
 
     // No SSN at all: keep at PL=2 valid=true (cannot dedupe; CPI will create)
     if (noSsn.length) {
-        await Promise.allSettled(
+      await Promise.allSettled(
         noSsn.map(r =>
-            UPDATE(WorkOrders_WN).set({ processLevel_code: '2', valid: true }).where({ ID: r.ID })
+          UPDATE(WorkOrders_WN).set({ processLevel_code: '2', valid: true }).where({ ID: r.ID })
         )
-        );
-        noSsn.forEach(r => {
+      );
+      noSsn.forEach(r => {
         aFailedRecordIDs.push(r.ID);
-        aErrorLogs.push({ record_ID: r.ID, message: `Employee Not Created.`,process_code: sProcessCode });
-        });
+        aErrorLogs.push({ record_ID: r.ID, message: `Employee Not Created.`, process_code: sProcessCode });
+      });
     }
 
     if (aErrorLogs.length) await ProcessLogger.addLogs(aErrorLogs);
-    if (aPassedRecordIDs.length) await this.markRecordsValid(sProcessCode, aPassedRecordIDs, true);
+    //if (aPassedRecordIDs.length) await this.markRecordsValid(sProcessCode, aPassedRecordIDs, true);
+    if (aPassedRecordIDs.length) {
+      await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
 
+      await ProcessLogger.addLogs(
+        aPassedRecordIDs.map((sId) => {
+          const oRecord = this.records.find((r) => r.ID === sId);
+
+          return {
+            record_ID: sId,
+            message: `Employee ${oRecord.personnelNoSAP} was identified successfully for SSN ${oRecord.ssn}. The record is ready for further processing.`,
+            process_code: sProcessCode,
+            type: 3,
+          };
+        })
+      );
+
+      await this.markRecordsValid(sProcessCode, aPassedRecordIDs, true);
+    }
     this.updateExclusionSet({
-        passed: aPassedRecordIDs,
-        failed: aFailedRecordIDs,
-        skipped: aSkippedRecords,
-        bBreakExecution,
+      passed: aPassedRecordIDs,
+      failed: aFailedRecordIDs,
+      skipped: aSkippedRecords,
+      bBreakExecution,
     });
 
     // ---------------- FINAL-HEAL (SAFE for PL=2 only) ----------------
@@ -998,7 +1026,7 @@ class WorkOrdersWN extends Processor {
       const healed = await UPDATE(WorkOrders_WN)
         .set({ valid: true })
         .where({
-           processLevel_code: '2',
+          processLevel_code: '2',
           valid: false,
           personnelNoSAP: null
         });
@@ -1016,218 +1044,238 @@ class WorkOrdersWN extends Processor {
 
 
     return {
-        hasError: aFailedRecordIDs.length > 0,
-        continue: aFailedRecordIDs.length === 0,
+      hasError: aFailedRecordIDs.length > 0,
+      continue: aFailedRecordIDs.length === 0,
     };
-    }
+  }
 
 
-    async checkEmployeeCreationS4(sProcessCode, bBreakExecution) {
+  async checkEmployeeCreationS4(sProcessCode, bBreakExecution) {
     this.LOG._info && this.LOG.info("Starting checkEmployeeCreationS4 (Step 'U')");
 
     let aRecordsForProcessing = [],
-        aSkippedRecords = [],
-        aErrorLogs = [],
-        aFailedRecordIDs = [],
-        aPassedRecordIDs = [];
+      aSkippedRecords = [],
+      aErrorLogs = [],
+      aFailedRecordIDs = [],
+      aPassedRecordIDs = [];
 
     // Collect ONLY rows the UI intends to process in this click
     for (const record of this.records) {
-        
-        if (this.shouldRecordProcess(record, sProcessCode)) {
+
+      if (this.shouldRecordProcess(record, sProcessCode)) {
         aRecordsForProcessing.push({ ...record });
-        } else {
+      } else {
         aSkippedRecords.push({ ...record });
-        }
+      }
     }
 
     this.updateProcessingState(sProcessCode);
     if (!aRecordsForProcessing.length) {
-        return { hasError: false, continue: true };
+      return { hasError: false, continue: true };
     }
 
     const trim = v => (v ?? '').toString().trim();
     const uniq = arr => [...new Set(arr)];
 
     // Scope + selection set
-    const fileIdsAll   = uniq(aRecordsForProcessing.map(r => r.file_ID).filter(Boolean));
-    const selectedIds  = new Set(aRecordsForProcessing.map(r => String(r.ID))); // <- key change
+    const fileIdsAll = uniq(aRecordsForProcessing.map(r => r.file_ID).filter(Boolean));
+    const selectedIds = new Set(aRecordsForProcessing.map(r => String(r.ID))); // <- key change
 
     // helper
     const applyToMem = (m) => {
-    for (const r of this.records) {
-      const emp = m.get(String(r.ID));
-      if (emp) r.personnelNoSAP = emp;    }
-    for (const r of aRecordsForProcessing) {
-      const emp = m.get(String(r.ID));
-     if (emp) r.personnelNoSAP = emp;
-    }
-  };
+      for (const r of this.records) {
+        const emp = m.get(String(r.ID));
+        if (emp) r.personnelNoSAP = emp;
+      }
+      for (const r of aRecordsForProcessing) {
+        const emp = m.get(String(r.ID));
+        if (emp) r.personnelNoSAP = emp;
+      }
+    };
 
     // --------- PREFILL: copy employee numbers within the same file by SSN ----------
     try {
-        if (fileIdsAll.length) {
+      if (fileIdsAll.length) {
         const siblingRows = await SELECT.from(WorkOrders_WN)
-            .columns(['ID','file_ID','processLevel_code','valid','ssn','personnelNoSAP'])
-            .where({ file_ID: { in: fileIdsAll } });
+          .columns(['ID', 'file_ID', 'processLevel_code', 'valid', 'ssn', 'personnelNoSAP'])
+          .where({ file_ID: { in: fileIdsAll } });
 
         // SSN -> employee no. (from any row that already has one)
         const mSsnToEmp = new Map();
         (siblingRows || []).forEach(r => {
-            const emp = trim(r.personnelNoSAP);
-            if (!emp) return;
-            const s = trim(r.ssn);
-            if (s && !mSsnToEmp.has(s)) mSsnToEmp.set(s, emp);
+          const emp = trim(r.personnelNoSAP);
+          if (!emp) return;
+          const s = trim(r.ssn);
+          if (s && !mSsnToEmp.has(s)) mSsnToEmp.set(s, emp);
         });
 
         // Build updates ONLY for selected U rows missing the number
         const toFill = (siblingRows || [])
-            .filter(r =>
+          .filter(r =>
             r.processLevel_code === 'U' &&
             !trim(r.personnelNoSAP) &&
             selectedIds.has(String(r.ID))                       // <- only selected
-            )
-            .map(r => {
+          )
+          .map(r => {
             const emp = mSsnToEmp.get(trim(r.ssn));
             return emp ? { id: r.ID, emp } : null;
-            })
-            .filter(Boolean);
+          })
+          .filter(Boolean);
 
         if (toFill.length) {
-            await Promise.allSettled(
+          await Promise.allSettled(
             toFill.map(x =>
-                UPDATE(WorkOrders_WN)
+              UPDATE(WorkOrders_WN)
                 .set({ personnelNoSAP: x.emp }) // ONLY the number; no status flips
                 .where({ ID: x.id })
             )
-            );
+          );
 
-            // keep in-memory model synced for the rest of this run
-            // const justFilled = new Map(toFill.map(x => [String(x.id), x.emp]));
-            // for (const r of aRecordsForProcessing) {
-            // const emp = justFilled.get(String(r.ID));
-            // if (emp) r.personnelNoSAP = emp;
-            // }
+          // keep in-memory model synced for the rest of this run
+          // const justFilled = new Map(toFill.map(x => [String(x.id), x.emp]));
+          // for (const r of aRecordsForProcessing) {
+          // const emp = justFilled.get(String(r.ID));
+          // if (emp) r.personnelNoSAP = emp;
+          // }
 
-            const justFilled = new Map(toFill.map(x => [String(x.id), x.emp]));
-            applyToMem(justFilled);
+          const justFilled = new Map(toFill.map(x => [String(x.id), x.emp]));
+          applyToMem(justFilled);
 
-            toFill.forEach(x => {
+          toFill.forEach(x => {
             aErrorLogs.push({
-                record_ID: x.id,
-                message: `Employee number ${x.emp} copied from leader (S4 check; SSN match).`,process_code: sProcessCode
+              record_ID: x.id,
+              message: `Employee number ${x.emp} copied from leader (S4 check; SSN match).`, process_code: sProcessCode
             });
-            });
+          });
 
-            aPassedRecordIDs.push(...toFill.map(x => x.id));
-            this.LOG._info && this.LOG.info(
+          aPassedRecordIDs.push(...toFill.map(x => x.id));
+          this.LOG._info && this.LOG.info(
             `[U] Filled personnelNoSAP on ${toFill.length} selected duplicate row(s) (SSN only).`
-            );
+          );
         } else {
-            this.LOG._info && this.LOG.info(`[U] No selected duplicates needed filling (SSN only).`);
+          this.LOG._info && this.LOG.info(`[U] No selected duplicates needed filling (SSN only).`);
         }
 
         // ---- Optional: supplement from Emp-Cust-Info for selected rows still blank ----
         const stillBlankSelectedSSNs = (siblingRows || [])
-            .filter(r =>
+          .filter(r =>
             r.processLevel_code === 'U' &&
             !trim(r.personnelNoSAP) &&
             selectedIds.has(String(r.ID))                       // <- only selected
-            )
-            .map(r => trim(r.ssn))
-            .filter(Boolean);
+          )
+          .map(r => trim(r.ssn))
+          .filter(Boolean);
 
         const remainingKeys = uniq(stillBlankSelectedSSNs.filter(k => !mSsnToEmp.has(k)));
         if (remainingKeys.length) {
-            try {
+          try {
             const empRows = await this.empCustInfoAPI.executeQuery(
-                SELECT.from('YY1_EMPLOYEE_CUSTOMER_INFO')
-                .columns(['SSN','WORKER_ID'])
+              SELECT.from('YY1_EMPLOYEE_CUSTOMER_INFO')
+                .columns(['SSN', 'WORKER_ID'])
                 .where({ SSN: { in: remainingKeys } })
             );
             const mECI = new Map();
             (empRows || []).forEach(r => {
-                const s = trim(r.SSN);
-                const w = trim(r.WORKER_ID);
-                if (s && w && !mECI.has(s)) mECI.set(s, w);
+              const s = trim(r.SSN);
+              const w = trim(r.WORKER_ID);
+              if (s && w && !mECI.has(s)) mECI.set(s, w);
             });
 
             const toFillECI = (siblingRows || [])
-                .filter(r =>
+              .filter(r =>
                 r.processLevel_code === 'U' &&
                 !trim(r.personnelNoSAP) &&
                 selectedIds.has(String(r.ID))                   // <- only selected
-                )
-                .map(r => {
+              )
+              .map(r => {
                 const emp = mECI.get(trim(r.ssn));
                 return emp ? { id: r.ID, emp } : null;
-                })
-                .filter(Boolean);
+              })
+              .filter(Boolean);
 
             if (toFillECI.length) {
-                await Promise.allSettled(
+              await Promise.allSettled(
                 toFillECI.map(x =>
-                    UPDATE(WorkOrders_WN)
+                  UPDATE(WorkOrders_WN)
                     .set({ personnelNoSAP: x.emp })
                     .where({ ID: x.id })
                 )
-                );
-                
-                // const justFilled2 = new Map(toFillECI.map(x => [String(x.id), x.emp]));
-                // for (const r of aRecordsForProcessing) {
-                // const emp = justFilled2.get(String(r.ID));
-                // if (emp) r.personnelNoSAP = emp;
-                // }
+              );
 
-                const justFilled2 = new Map(toFillECI.map(x => [String(x.id), x.emp]));
-                applyToMem(justFilled2);
+              // const justFilled2 = new Map(toFillECI.map(x => [String(x.id), x.emp]));
+              // for (const r of aRecordsForProcessing) {
+              // const emp = justFilled2.get(String(r.ID));
+              // if (emp) r.personnelNoSAP = emp;
+              // }
 
-                toFillECI.forEach(x => {
+              const justFilled2 = new Map(toFillECI.map(x => [String(x.id), x.emp]));
+              applyToMem(justFilled2);
+
+              toFillECI.forEach(x => {
                 aErrorLogs.push({
-                    record_ID: x.id,
-                    message: `Employee number ${x.emp} copied from EmpCustInfo (S4 check; SSN).`,process_code: sProcessCode
+                  record_ID: x.id,
+                  message: `Employee number ${x.emp} copied from EmpCustInfo (S4 check; SSN).`, process_code: sProcessCode
                 });
-                });
-                aPassedRecordIDs.push(...toFillECI.map(x => x.id));
-                this.LOG._info && this.LOG.info(
+              });
+              aPassedRecordIDs.push(...toFillECI.map(x => x.id));
+              this.LOG._info && this.LOG.info(
                 `[U] Filled personnelNoSAP on ${toFillECI.length} selected row(s) from EmpCustInfo (SSN).`
-                );
+              );
             }
-            } catch (e) {
+          } catch (e) {
             this.LOG._error && this.LOG.error(`[U] EmpCustInfo supplemental fill failed: ${e.message}`);
-            }
+          }
         }
-        }
+      }
     } catch (e) {
-        this.LOG._error && this.LOG.error(`[U] Prefill from leaders failed: ${e.message}`);
+      this.LOG._error && this.LOG.error(`[U] Prefill from leaders failed: ${e.message}`);
     }
 
     // Only the selected U rows are evaluated for unresolved log entries
     const unresolved = aRecordsForProcessing.filter(r => !trim(r.personnelNoSAP));
     if (unresolved.length) {
-        unresolved.forEach(r => {
+      unresolved.forEach(r => {
         aFailedRecordIDs.push(r.ID);
         aErrorLogs.push({
-            record_ID: r.ID,
-            message: `Employee not yet created in S/4 (no personnel number found).`,process_code: sProcessCode
+          record_ID: r.ID,
+          message: `Employee not yet created in S/4 (no personnel number found).`, process_code: sProcessCode
         });
-        });
+      });
     }
 
-    if (aErrorLogs.length) await ProcessLogger.addLogs(aErrorLogs);
+    //if (aErrorLogs.length) await ProcessLogger.addLogs(aErrorLogs);
+    if (aErrorLogs.length) {
+      await ProcessLogger.addLogs(aErrorLogs);
+    }
+
+    if (aPassedRecordIDs.length) {
+      await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
+      await ProcessLogger.addLogs(
+        aPassedRecordIDs.map((sId) => {
+          const oRecord = this.records.find((r) => r.ID === sId);
+
+          return {
+            record_ID: sId,
+            message: `Employee ${oRecord.personnelNoSAP} was identified successfully for SSN ${oRecord.ssn}. The record is ready for S/4 employee creation validation.`,
+            process_code: sProcessCode,
+            type: 3,
+          };
+        })
+      );
+    }
 
     this.updateExclusionSet({
-        passed: aPassedRecordIDs,
-        failed: aFailedRecordIDs,
-        skipped: aSkippedRecords,
-        bBreakExecution,
+      passed: aPassedRecordIDs,
+      failed: aFailedRecordIDs,
+      skipped: aSkippedRecords,
+      bBreakExecution,
     });
 
     return {
-        hasError: aFailedRecordIDs.length > 0,
-        continue: aFailedRecordIDs.length === 0,
+      hasError: aFailedRecordIDs.length > 0,
+      continue: aFailedRecordIDs.length === 0,
     };
-    }
+  }
 
   // _validateSalesContract(oRecord, aSalesContracts, mDistChannelMap) {
   //   let hasError = false,
@@ -1367,28 +1415,28 @@ class WorkOrdersWN extends Processor {
       };
     }
 
-        // New code for personal number issue
-        // Refresh personnelNoSAP for records missing it before building payloads.
-        const trim = v => (v ?? '').toString().trim();
-        const idsNeedingEmp = aRecordsForProcessing
-          .filter(r => !trim(r.personnelNoSAP))
-          .map(r => r.ID);
-        if (idsNeedingEmp.length) {
-          const freshRows = await SELECT.from(WorkOrders_WN)
-            .columns(['ID','personnelNoSAP'])
-            .where({ ID: { in: idsNeedingEmp } });
-          const mFresh = new Map((freshRows || []).map(r => [String(r.ID), trim(r.personnelNoSAP)]));
-          // update the local working set
-         for (const r of aRecordsForProcessing) {
-            const emp = mFresh.get(String(r.ID));
-            if (emp) r.personnelNoSAP = emp;
-          }
-          // keep central memory in sync too
-          for (const r of this.records) {
-            const emp = mFresh.get(String(r.ID));
-            if (emp) r.personnelNoSAP = emp;
-          }
-       }
+    // New code for personal number issue
+    // Refresh personnelNoSAP for records missing it before building payloads.
+    const trim = v => (v ?? '').toString().trim();
+    const idsNeedingEmp = aRecordsForProcessing
+      .filter(r => !trim(r.personnelNoSAP))
+      .map(r => r.ID);
+    if (idsNeedingEmp.length) {
+      const freshRows = await SELECT.from(WorkOrders_WN)
+        .columns(['ID', 'personnelNoSAP'])
+        .where({ ID: { in: idsNeedingEmp } });
+      const mFresh = new Map((freshRows || []).map(r => [String(r.ID), trim(r.personnelNoSAP)]));
+      // update the local working set
+      for (const r of aRecordsForProcessing) {
+        const emp = mFresh.get(String(r.ID));
+        if (emp) r.personnelNoSAP = emp;
+      }
+      // keep central memory in sync too
+      for (const r of this.records) {
+        const emp = mFresh.get(String(r.ID));
+        if (emp) r.personnelNoSAP = emp;
+      }
+    }
 
 
 
@@ -1415,7 +1463,7 @@ class WorkOrdersWN extends Processor {
           if (!aRecordsForProcessing[i].personnelNoSAP) {
             aErrorLogs.push({
               record_ID: aRecordsForProcessing[i].ID,
-              message: cds.i18n.messages.at('ERR_EMP_NUMBER_MISSING'),process_code: sProcessCode
+              message: cds.i18n.messages.at('ERR_EMP_NUMBER_MISSING'), process_code: sProcessCode
             });
             aFailedRecordIDs.push(aRecordsForProcessing[i].ID);
             continue; // Skip this record
@@ -1447,7 +1495,7 @@ class WorkOrdersWN extends Processor {
           } else {
             aErrorLogs.push({
               record_ID: aRecordsForProcessing[i].ID,
-              message: `${insertedProject.message}`,process_code: sProcessCode
+              message: `${insertedProject.message}`, process_code: sProcessCode
             });
             aFailedRecordIDs.push(aRecordsForProcessing[i].ID);
             LOG.error(
@@ -1471,7 +1519,7 @@ class WorkOrdersWN extends Processor {
         if (updatedProject.message) {
           aErrorLogs.push({
             record_ID: aRecordsForProcessing[i].ID,
-            message: `${updatedProject.message}`,process_code: sProcessCode
+            message: `${updatedProject.message}`, process_code: sProcessCode
           });
           aFailedRecordIDs.push(aRecordsForProcessing[i].ID);
           LOG.error(
@@ -1480,7 +1528,7 @@ class WorkOrdersWN extends Processor {
         } else if (releaseProject.message) {
           aErrorLogs.push({
             record_ID: aRecordsForProcessing[i].ID,
-            message: `${releaseProject.message}`,process_code: sProcessCode
+            message: `${releaseProject.message}`, process_code: sProcessCode
           });
           aFailedRecordIDs.push(aRecordsForProcessing[i].ID);
           LOG.error(
@@ -1508,7 +1556,29 @@ class WorkOrdersWN extends Processor {
 
     if (aPassedRecordIDs.length) {
       await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
-      await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3})));
+
+      await ProcessLogger.addLogs(
+        aPassedRecordIDs.map((sId) => {
+          const oRecord = this.records.find((r) => r.ID === sId);
+
+          let sMessage;
+
+          if (sProcessCode === '4') {
+            sMessage = `Enterprise Project ${oRecord.projectNumberSAP} was created successfully for Employee ${oRecord.personnelNoSAP}. Project UUID: ${oRecord.projectUUID}.`;
+          } else if (sProcessCode === 'C') {
+            sMessage = `Enterprise Project ${oRecord.projectNumberSAP} was updated and released successfully with Sales Order ${oRecord.salesDocumentNoSAP}.`;
+          } else {
+            sMessage = cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]);
+          }
+
+          return {
+            record_ID: sId,
+            message: sMessage,
+            process_code: sProcessCode,
+            type: 3,
+          };
+        })
+      );
     }
 
     this.updateExclusionSet({
@@ -1797,7 +1867,7 @@ class WorkOrdersWN extends Processor {
       ] = await Promise.allSettled([
         this.businesPartnerAPI.executeQuery(
           SELECT.from('A_CustSalesPartnerFunc')
-            .columns(['Customer', 'PartnerFunction', 'BPCustomerNumber','Supplier','PersonnelNumber','ContactPerson'])
+            .columns(['Customer', 'PartnerFunction', 'BPCustomerNumber', 'Supplier', 'PersonnelNumber', 'ContactPerson'])
             .where(`${sWhereForBusinessPartner}`),
         ),
         this.businesPartnerAPI.executeQuery(
@@ -1909,7 +1979,7 @@ class WorkOrdersWN extends Processor {
       if (!oRecord.projectNumberSAP) {
         aErrors.push({
           record_ID: oRecord.ID,
-          message: cds.i18n.messages.at('ERR_PROJECT_NUMBER_MISSING'),process_code: sProcessCode
+          message: cds.i18n.messages.at('ERR_PROJECT_NUMBER_MISSING'), process_code: sProcessCode
         });
         aFailedRecordIDs.push(oRecord.ID);
         aErrorLogs.push(...aErrors);
@@ -1954,7 +2024,7 @@ class WorkOrdersWN extends Processor {
           message: cds.i18n.messages.at('ERR_TAX_CODE_NOT_FOUND', [
             oRecord.country_code,
             oRecord.region,
-          ]),process_code: sProcessCode
+          ]), process_code: sProcessCode
         });
         aFailedRecordIDs.push(oRecord.ID);
         aErrorLogs.push(...aErrors);
@@ -1964,7 +2034,7 @@ class WorkOrdersWN extends Processor {
       if (!['SC', 'MS', 'IC', 'CP'].includes(oRecord.salesDocumentType)) {
         aErrors.push({
           record_ID: oRecord.ID,
-          message: cds.i18n.messages.at('ERR_WO_TYPE'),process_code: sProcessCode
+          message: cds.i18n.messages.at('ERR_WO_TYPE'), process_code: sProcessCode
         });
         aFailedRecordIDs.push(oRecord.ID);
         aErrorLogs.push(...aErrors);
@@ -1974,7 +2044,7 @@ class WorkOrdersWN extends Processor {
       if (oRecord.salesDocumentType === 'CP') {
         aErrors.push({
           record_ID: oRecord.ID,
-          message: cds.i18n.messages.at('ERR_CONTRACT_PAYROLL'),process_code: sProcessCode
+          message: cds.i18n.messages.at('ERR_CONTRACT_PAYROLL'), process_code: sProcessCode
         });
         aFailedRecordIDs.push(oRecord.ID);
         aErrorLogs.push(...aErrors);
@@ -1985,7 +2055,7 @@ class WorkOrdersWN extends Processor {
       if (!oSalesContract) {
         aErrors.push({
           record_ID: oRecord.ID,
-          message: cds.i18n.messages.at('ERR_SALES_CONTRACT_NOT_FOUND'),process_code: sProcessCode
+          message: cds.i18n.messages.at('ERR_SALES_CONTRACT_NOT_FOUND'), process_code: sProcessCode
         });
         aFailedRecordIDs.push(oRecord.ID);
         aErrorLogs.push(...aErrors);
@@ -1996,7 +2066,7 @@ class WorkOrdersWN extends Processor {
       if (!oBillingType) {
         aErrors.push({
           record_ID: oRecord.ID,
-          message: cds.i18n.messages.at('ERR_BILLING_TYPE', ['ZW' + oRecord.salesDocumentType]),process_code: sProcessCode
+          message: cds.i18n.messages.at('ERR_BILLING_TYPE', ['ZW' + oRecord.salesDocumentType]), process_code: sProcessCode
         });
         aFailedRecordIDs.push(oRecord.ID);
         aErrorLogs.push(...aErrors);
@@ -2013,7 +2083,7 @@ class WorkOrdersWN extends Processor {
           message: cds.i18n.messages.at('ERR_MATERIAL_NOT_FOUND', [
             oRecord.materialNo,
             oRecord.contractNo
-          ]),process_code: sProcessCode
+          ]), process_code: sProcessCode
         });
         aFailedRecordIDs.push(oRecord.ID);
         aErrorLogs.push(...aErrors);
@@ -2053,7 +2123,7 @@ class WorkOrdersWN extends Processor {
         salesOrder: null, // To be updated in Step 4
         scheduleLinePayloadIndex: null, // To be updated in Step 5
         // partnerFunctionSAP: oSupplierAccs?.SupplierAccountGroup === 'ZRMT' ? 'ZR' : 'ZV'
-        partnerFunctionSAP:'ZV'
+        partnerFunctionSAP: 'ZV'
       });
     });
 
@@ -2086,13 +2156,13 @@ class WorkOrdersWN extends Processor {
           oResult.reason.forEach((oError) => {
             aErrorLogs.push({
               record_ID: sRecordID,
-              ...oError,process_code: sProcessCode
+              ...oError, process_code: sProcessCode
             });
           });
         } else {
           aErrorLogs.push({
             record_ID: sRecordID,
-            message: cds.i18n.messages.at('ERR_SALES_ORDER_CREATION_FAILED', [oResult.reason]),process_code: sProcessCode
+            message: cds.i18n.messages.at('ERR_SALES_ORDER_CREATION_FAILED', [oResult.reason]), process_code: sProcessCode
           });
         }
 
@@ -2179,7 +2249,18 @@ class WorkOrdersWN extends Processor {
     // Update the status of passed records
     if (aPassedRecordIDs.length) {
       await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
-      await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3})));
+      await ProcessLogger.addLogs(
+        aPassedRecordIDs.map((sId) => {
+          const oRecord = this.records.find((r) => r.ID === sId);
+
+          return {
+            record_ID: sId,
+            message: `Sales Order ${oRecord.salesDocumentNoSAP} with Item ${oRecord.salesItemNoSAP} was created successfully. VC Data 1 UUID: ${oRecord.vcData1UUID}, VC Data 2 UUID: ${oRecord.vcData2UUID}.`,
+            process_code: sProcessCode,
+            type: 3,
+          };
+        })
+      );
       await this.markRecordsValid(sProcessCode, aPassedRecordIDs, true);
     }
 
@@ -2289,7 +2370,7 @@ class WorkOrdersWN extends Processor {
           YY1_WeekEnd_SD_SDI: `/Date(${moment(record.beginDate, "YYYYMMDD").valueOf()})/`, // Defect
           to_ScheduleLine: [this._prepareDataForScheduleLine({ record })],
           to_Partner: [],
-          to_Text:[],
+          to_Text: [],
         },
       ],
       to_Partner: this._preparePartnerFunctions({ record, businessPartnerMap, vendorRemit, supplierAcc, personalNO, taxCode }),
@@ -2379,9 +2460,9 @@ class WorkOrdersWN extends Processor {
 
     if (record.remitToVendor) {
       oReturnData.to_Item[0].to_Partner.push({
-        PartnerFunction:'ZV',
+        PartnerFunction: 'ZV',
         Supplier: record.remitToVendor,
-      });    
+      });
     }
 
     // Fill custom fields
@@ -2510,7 +2591,7 @@ class WorkOrdersWN extends Processor {
       });
     }
 
-    
+
 
     const targetFields = ['Z13', 'Z14', 'Z15'];
     const foundFields = {};
@@ -2524,26 +2605,26 @@ class WorkOrdersWN extends Processor {
       }
     }
 
-// Z4
-if (Object.keys(foundFields).length > 0) {
+    // Z4
+    if (Object.keys(foundFields).length > 0) {
       const oContactInfo = businessPartnerMap.get(`${record.soldToParty}_Z4`);
       if (!oContactInfo) {
-      // Error
-    } else {
-      const oContactAddr = {
-        OrganizationName1: foundFields.Z14 ||record.custManName,
-        PhoneNumber: foundFields.Z15 ||record.custManPhone,
-        EmailAddress: foundFields.Z13 ||record.custManEmail,
-      };
+        // Error
+      } else {
+        const oContactAddr = {
+          OrganizationName1: foundFields.Z14 || record.custManName,
+          PhoneNumber: foundFields.Z15 || record.custManPhone,
+          EmailAddress: foundFields.Z13 || record.custManEmail,
+        };
 
-      // const oContact = businessPartnerMap.get(`${record.soldToParty}_Z4`);
-      aPartnerFunctions.push({
-        PartnerFunction: 'Z4',
-        ContactPerson: oContactInfo.ContactPerson,
-        // Customer: oContactInfo?.BPCustomerNumber ||| oShipToParty.BPCustomerNumber,
-        to_Address: [oContactAddr],
-      });
-    }
+        // const oContact = businessPartnerMap.get(`${record.soldToParty}_Z4`);
+        aPartnerFunctions.push({
+          PartnerFunction: 'Z4',
+          ContactPerson: oContactInfo.ContactPerson,
+          // Customer: oContactInfo?.BPCustomerNumber ||| oShipToParty.BPCustomerNumber,
+          to_Address: [oContactAddr],
+        });
+      }
     }
 
     // if (Object.keys(foundFields).length) {
@@ -2561,7 +2642,7 @@ if (Object.keys(foundFields).length > 0) {
     return aPartnerFunctions;
   }
 
-  _getTaxCodeForRecord({ record, aTaxCodeByProvince, aTaxCodeByCity, aTaxCodeByCounty,aAddresses }) {
+  _getTaxCodeForRecord({ record, aTaxCodeByProvince, aTaxCodeByCity, aTaxCodeByCounty, aAddresses }) {
     let sTaxCode = null,
       oTaxCode;
     let laddr = null;
@@ -2585,9 +2666,9 @@ if (Object.keys(foundFields).length > 0) {
         if (oTaxCode) {
           sTaxCode = oTaxCode.taxJurisdiction;
         } else {
-          laddr  = aAddresses.find(
+          laddr = aAddresses.find(
             (addr) =>
-              addr.zipcode === record.postalCode              
+              addr.zipcode === record.postalCode
           );
           record.county = laddr?.county.toUpperCase();
           oTaxCode = aTaxCodeByCounty.find(
@@ -2791,9 +2872,9 @@ if (Object.keys(foundFields).length > 0) {
   //   const SalesVCData_1 = new SalesVCData_1Comm();
   //   const SalesVCData_2 = new SalesVCData_2Comm();
 
-    
+
   //   // Z -> target mapping from your HANA table
-    
+
   //   const Z_MAP = Object.freeze({
   //     Z01: 'YY216_CUST_BUSINESS_UNIT',
   //     Z02: 'YY217_CUST_CHARGE_NUMBER',
@@ -3100,80 +3181,80 @@ if (Object.keys(foundFields).length > 0) {
     // ---- Z-code mapping with VC routing (same targets as your code; VC derived) ----
     /** @type {Record<string,{target:string, vc:1|2}|undefined>} */
     const Z_MAP = Object.freeze({
-      Z01:{target:'YY216_CUST_BUSINESS_UNIT',vc:2},
-      Z02:{target:'YY217_CUST_CHARGE_NUMBER',vc:2},
-      Z03:{target:'YY250_CUST_COST_CENTER2',vc:2},
-      Z04:{target:'YY220_CUST_COMPANY_CODE',vc:2},
-      Z05:{target:'YY221_CUST_DEPT_NUMBER',vc:2},
-      Z06:{target:'YY222_CUST_DOTS_NUMBER',vc:2},
-      Z07:{target:'YY223_CUST_RUI',vc:2},
-      Z08:{target:'YY144_WEEKLY_CLOCK_FEE',vc:2},          // override base if present
-      Z09:{target:'YY224_CUST_ACCT_NUMBER',vc:2},
-      Z10:{target:'YY225_CUST_BUDGET_CENTER',vc:2},
-      Z11:{target:'YY226_CUST_CON_NUMBER',vc:2},
-      Z12:{target:'YY227_CUST_VENDOR_NUMBER',vc:2},
+      Z01: { target: 'YY216_CUST_BUSINESS_UNIT', vc: 2 },
+      Z02: { target: 'YY217_CUST_CHARGE_NUMBER', vc: 2 },
+      Z03: { target: 'YY250_CUST_COST_CENTER2', vc: 2 },
+      Z04: { target: 'YY220_CUST_COMPANY_CODE', vc: 2 },
+      Z05: { target: 'YY221_CUST_DEPT_NUMBER', vc: 2 },
+      Z06: { target: 'YY222_CUST_DOTS_NUMBER', vc: 2 },
+      Z07: { target: 'YY223_CUST_RUI', vc: 2 },
+      Z08: { target: 'YY144_WEEKLY_CLOCK_FEE', vc: 2 },          // override base if present
+      Z09: { target: 'YY224_CUST_ACCT_NUMBER', vc: 2 },
+      Z10: { target: 'YY225_CUST_BUDGET_CENTER', vc: 2 },
+      Z11: { target: 'YY226_CUST_CON_NUMBER', vc: 2 },
+      Z12: { target: 'YY227_CUST_VENDOR_NUMBER', vc: 2 },
       // Z13..Z15: ignore
-      Z16:{target:'YY228_CUST_ORG_CODE',vc:2},
-      Z17:{target:'YY229_CUST_LEGAL_ENTITY',vc:2},
-      Z18:{target:'YY230_CUST_ORACLE_NUMBER',vc:2},
-      Z19:{target:'YY231_CUST_UNIT_STORE_NUMBER',vc:2},
+      Z16: { target: 'YY228_CUST_ORG_CODE', vc: 2 },
+      Z17: { target: 'YY229_CUST_LEGAL_ENTITY', vc: 2 },
+      Z18: { target: 'YY230_CUST_ORACLE_NUMBER', vc: 2 },
+      Z19: { target: 'YY231_CUST_UNIT_STORE_NUMBER', vc: 2 },
       // Z20..Z23: ignore
-      Z24:{target:'YY233_CUST_EMPLOYEE_NUMBER',vc:2},
-      Z25:{target:'YY234_CUST_AGREE_NUMBER',vc:2},
-      Z26:{target:'YY241_CUST_BGRD_CHECK_DATE',vc:2},
-      Z27:{target:'YY242_CUST_DIV_UNIT_NUMBER',vc:2},
-      Z28:{target:'YY236_CUST_FEPS_CODE',vc:2},
-      Z29:{target:'YY237_CUST_POSITION',vc:2},
+      Z24: { target: 'YY233_CUST_EMPLOYEE_NUMBER', vc: 2 },
+      Z25: { target: 'YY234_CUST_AGREE_NUMBER', vc: 2 },
+      Z26: { target: 'YY241_CUST_BGRD_CHECK_DATE', vc: 2 },
+      Z27: { target: 'YY242_CUST_DIV_UNIT_NUMBER', vc: 2 },
+      Z28: { target: 'YY236_CUST_FEPS_CODE', vc: 2 },
+      Z29: { target: 'YY237_CUST_POSITION', vc: 2 },
       // Z30: ignore
-      Z31:{target:'YY235_CUST_TASK15',vc:2},
-      Z32:{target:'YY238_CUST_GL_CODE',vc:2},
-      Z33:{target:'YY240_CUST_BB_NUMBER',vc:2},
-      Z34:{target:'YY218_CUST_PROJECT_NUMBER',vc:2},
-      Z35:{target:'YY239_CUST_PURCHASE_AGREE',vc:2},
+      Z31: { target: 'YY235_CUST_TASK15', vc: 2 },
+      Z32: { target: 'YY238_CUST_GL_CODE', vc: 2 },
+      Z33: { target: 'YY240_CUST_BB_NUMBER', vc: 2 },
+      Z34: { target: 'YY218_CUST_PROJECT_NUMBER', vc: 2 },
+      Z35: { target: 'YY239_CUST_PURCHASE_AGREE', vc: 2 },
       // Z36: ignore
-      Z37:{target:'YY237_CUST_POSITION',vc:2},
+      Z37: { target: 'YY237_CUST_POSITION', vc: 2 },
       // Z38: ignore
-      Z39:{target:'CUST_CATERGORY_CODE2',vc:2},             // non-YY VC2
-      Z40:{target:'YY6_SC_LINE_ITEM_NUMBER',vc:1},          // VC1
+      Z39: { target: 'CUST_CATERGORY_CODE2', vc: 2 },             // non-YY VC2
+      Z40: { target: 'YY6_SC_LINE_ITEM_NUMBER', vc: 1 },          // VC1
       // Z41: ignore
-      Z42:{target:'ACCELERATED_FEE_DISC_VEN',vc:2},         // non-YY VC2
-      Z43:{target:'YY3_ACA_HRS_PRICE',vc:1},                // VC1
-      Z44:{target:'YY118_MARK_UP_RG',vc:1},
-      Z45:{target:'YY119_MARK_UP_OT',vc:1},
-      Z46:{target:'YY120_MARK_UP_DB',vc:1},
-      Z30:{target:'SUPPLIER_INVOICE_NUMBER',vc:2}, // SUPPLIER'S INVOICE (SUBCON SCENARIO)
-Z36:{target:'YY232_CUST_SVC_DATE',vc:2}, 
-Z38:{target:'CUST_COMMODITY_CODE2',vc:2},
+      Z42: { target: 'ACCELERATED_FEE_DISC_VEN', vc: 2 },         // non-YY VC2
+      Z43: { target: 'YY3_ACA_HRS_PRICE', vc: 1 },                // VC1
+      Z44: { target: 'YY118_MARK_UP_RG', vc: 1 },
+      Z45: { target: 'YY119_MARK_UP_OT', vc: 1 },
+      Z46: { target: 'YY120_MARK_UP_DB', vc: 1 },
+      Z30: { target: 'SUPPLIER_INVOICE_NUMBER', vc: 2 }, // SUPPLIER'S INVOICE (SUBCON SCENARIO)
+      Z36: { target: 'YY232_CUST_SVC_DATE', vc: 2 },
+      Z38: { target: 'CUST_COMMODITY_CODE2', vc: 2 },
     });
 
     // ---- Validation sets (align with Interface T) ----
     const DECIMAL_VC1 = new Set([
-      'YY3_ACA_HRS_PRICE','YY12_DAY1_SHIFT1_RG','YY13_DAY1_SHIFT1_OT','YY14_DAY1_SHIFT1_DB',
-      'YY15_DAY1_SHIFT2_RG','YY16_DAY1_SHIFT2_OT','YY17_DAY1_SHIFT2_DB','YY18_DAY1_SHIFT3_RG',
-      'YY19_DAY1_SHIFT3_OT','YY20_DAY1_SHIFT3_DB','YY100_SHIFT1_TOTAL_HRS_RG','YY101_SHIFT1_TOTAL_HRS_OT',
-      'YY102_SHIFT1_TOTAL_HRS_DB','YY103_SHIFT2_TOTAL_HRS_RG','YY104_SHIFT2_TOTAL_HRS_OT',
-      'YY105_SHIFT2_TOTAL_HRS_DB','YY106_SHIFT3_TOTAL_HRS_RG','YY107_SHIFT3_TOTAL_HRS_OT',
-      'YY108_SHIFT3_TOTAL_HRS_DB','YY109_SHIFT1_PRICE_RG','YY110_SHIFT1_PRICE_OT','YY111_SHIFT1_PRICE_DB',
-      'YY112_SHIFT2_PRICE_RG','YY113_SHIFT2_PRICE_OT','YY114_SHIFT2_PRICE_DB','YY115_SHIFT3_PRICE_RG',
-      'YY116_SHIFT3_PRICE_OT','YY117_SHIFT3_PRICE_DB','YY118_MARK_UP_RG','YY119_MARK_UP_OT',
-      'YY120_MARK_UP_DB','YY121_SHIFT1_TOTAL_PRICE_RG','YY122_SHIFT1_TOTAL_PRICE_OT',
-      'YY123_SHIFT1_TOTAL_PRICE_DB','YY124_SHIFT2_TOTAL_PRICE_RG','YY125_SHIFT2_TOTAL_PRICE_OT',
-      'YY126_SHIFT2_TOTAL_PRICE_DB','YY127_SHIFT3_TOTAL_PAY_RG','YY128_SHIFT3_TOTAL_PAY_OT',
+      'YY3_ACA_HRS_PRICE', 'YY12_DAY1_SHIFT1_RG', 'YY13_DAY1_SHIFT1_OT', 'YY14_DAY1_SHIFT1_DB',
+      'YY15_DAY1_SHIFT2_RG', 'YY16_DAY1_SHIFT2_OT', 'YY17_DAY1_SHIFT2_DB', 'YY18_DAY1_SHIFT3_RG',
+      'YY19_DAY1_SHIFT3_OT', 'YY20_DAY1_SHIFT3_DB', 'YY100_SHIFT1_TOTAL_HRS_RG', 'YY101_SHIFT1_TOTAL_HRS_OT',
+      'YY102_SHIFT1_TOTAL_HRS_DB', 'YY103_SHIFT2_TOTAL_HRS_RG', 'YY104_SHIFT2_TOTAL_HRS_OT',
+      'YY105_SHIFT2_TOTAL_HRS_DB', 'YY106_SHIFT3_TOTAL_HRS_RG', 'YY107_SHIFT3_TOTAL_HRS_OT',
+      'YY108_SHIFT3_TOTAL_HRS_DB', 'YY109_SHIFT1_PRICE_RG', 'YY110_SHIFT1_PRICE_OT', 'YY111_SHIFT1_PRICE_DB',
+      'YY112_SHIFT2_PRICE_RG', 'YY113_SHIFT2_PRICE_OT', 'YY114_SHIFT2_PRICE_DB', 'YY115_SHIFT3_PRICE_RG',
+      'YY116_SHIFT3_PRICE_OT', 'YY117_SHIFT3_PRICE_DB', 'YY118_MARK_UP_RG', 'YY119_MARK_UP_OT',
+      'YY120_MARK_UP_DB', 'YY121_SHIFT1_TOTAL_PRICE_RG', 'YY122_SHIFT1_TOTAL_PRICE_OT',
+      'YY123_SHIFT1_TOTAL_PRICE_DB', 'YY124_SHIFT2_TOTAL_PRICE_RG', 'YY125_SHIFT2_TOTAL_PRICE_OT',
+      'YY126_SHIFT2_TOTAL_PRICE_DB', 'YY127_SHIFT3_TOTAL_PAY_RG', 'YY128_SHIFT3_TOTAL_PAY_OT',
       'YY129_SHIFT3_TOTAL_PAY_DB',
     ]);
     const DATE_VC1 = new Set(['YY8_WEEK_ENDING2']);
 
     const DECIMAL_VC2 = new Set([
-      'YY134_DAILY_PAY_VENDOR','YY142_SALARY_PAY_VENDOR','YY144_WEEKLY_CLOCK_FEE',
-      'YY150_DAILY_PAY_DAYS','YY151_DAILY_PRICE','YY152_DAILY_TOTAL_RATE','YY203_SALARY',
-      'YY251_SHIFT1_PAY_RATE_RG','YY252_SHIFT1_PAY_RATE_OT','YY253_SHIFT1_PAY_RATE_DB',
-      'YY254_SHIFT2_PAY_RATE_RG','YY255_SHIFT2_PAY_RATE_OT','YY256_SHIFT2_PAY_RATE_DB',
-      'YY257_SHIFT3_PAY_RATE_RG','YY258_SHIFT3_PAY_RATE_OT','YY259_SHIFT3_PAY_RATE_DB',
-      'YY260_SHIFT1_TOTAL_PAY_RG','YY261_SHIFT1_TOTAL_PAY_OT','YY262_SHIFT1_TOTAL_PAY_DB',
-      'YY263_SHIFT2_TOTAL_PAY_RG','YY264_SHIFT2_TOTAL_PAY_OT','YY265_SHIFT2_TOTAL_PAY_DB',
-      'YY266_SHIFT3_TOTAL_PAY_RG','YY267_SHIFT3_TOTAL_PAY_OT','YY268_SHIFT3_TOTAL_PAY_DB',
+      'YY134_DAILY_PAY_VENDOR', 'YY142_SALARY_PAY_VENDOR', 'YY144_WEEKLY_CLOCK_FEE',
+      'YY150_DAILY_PAY_DAYS', 'YY151_DAILY_PRICE', 'YY152_DAILY_TOTAL_RATE', 'YY203_SALARY',
+      'YY251_SHIFT1_PAY_RATE_RG', 'YY252_SHIFT1_PAY_RATE_OT', 'YY253_SHIFT1_PAY_RATE_DB',
+      'YY254_SHIFT2_PAY_RATE_RG', 'YY255_SHIFT2_PAY_RATE_OT', 'YY256_SHIFT2_PAY_RATE_DB',
+      'YY257_SHIFT3_PAY_RATE_RG', 'YY258_SHIFT3_PAY_RATE_OT', 'YY259_SHIFT3_PAY_RATE_DB',
+      'YY260_SHIFT1_TOTAL_PAY_RG', 'YY261_SHIFT1_TOTAL_PAY_OT', 'YY262_SHIFT1_TOTAL_PAY_DB',
+      'YY263_SHIFT2_TOTAL_PAY_RG', 'YY264_SHIFT2_TOTAL_PAY_OT', 'YY265_SHIFT2_TOTAL_PAY_DB',
+      'YY266_SHIFT3_TOTAL_PAY_RG', 'YY267_SHIFT3_TOTAL_PAY_OT', 'YY268_SHIFT3_TOTAL_PAY_DB',
     ]);
-    const DATE_VC2 = new Set(['YY241_CUST_BGRD_CHECK_DATE','YY232_CUST_SVC_DATE']);
+    const DATE_VC2 = new Set(['YY241_CUST_BGRD_CHECK_DATE', 'YY232_CUST_SVC_DATE']);
 
     // ---- Helpers (same as Interface T) ----
     const toEmployeeType = (subgrp) => {
@@ -3191,7 +3272,7 @@ Z38:{target:'CUST_COMMODITY_CODE2',vc:2},
 
     const fmtDateISO = (v) => {
       if (!v) return null;
-      const m = moment(v, ['YYYY-MM-DD','YYYY/MM/DD','YYYYMMDD','MM/DD/YYYY','DD/MM/YYYY'], true);
+      const m = moment(v, ['YYYY-MM-DD', 'YYYY/MM/DD', 'YYYYMMDD', 'MM/DD/YYYY', 'DD/MM/YYYY'], true);
       return m.isValid() ? m.format('YYYY-MM-DD') : null;
     };
 
@@ -3321,27 +3402,27 @@ Z38:{target:'CUST_COMMODITY_CODE2',vc:2},
           YY216_CUST_BUSINESS_UNIT: record.custBusUnitName,
           YY217_CUST_CHARGE_NUMBER: record.custChrgNo,
           YY218_CUST_PROJECT_NUMBER: record.projectNo,
-          YY219_CUST_COST_CENTER:   record.custCostCtr,
-          YY220_CUST_COMPANY_CODE:  record.custCompCode,
-          YY221_CUST_DEPT_NUMBER:   record.custDepNo,
-          YY222_CUST_DOTS_NUMBER:   record.custDOTSNo,
-          YY223_CUST_RUI:           record.custRUI,
-          YY224_CUST_ACCT_NUMBER:   record.custAccNo,
+          YY219_CUST_COST_CENTER: record.custCostCtr,
+          YY220_CUST_COMPANY_CODE: record.custCompCode,
+          YY221_CUST_DEPT_NUMBER: record.custDepNo,
+          YY222_CUST_DOTS_NUMBER: record.custDOTSNo,
+          YY223_CUST_RUI: record.custRUI,
+          YY224_CUST_ACCT_NUMBER: record.custAccNo,
           YY225_CUST_BUDGET_CENTER: record.custBudCtr,
-          YY226_CUST_CON_NUMBER:    record.custConNo,
+          YY226_CUST_CON_NUMBER: record.custConNo,
           YY227_CUST_VENDOR_NUMBER: record.sgVendNoAtCust,
-          YY228_CUST_ORG_CODE:      record.custOrgName,
-          YY229_CUST_LEGAL_ENTITY:  record.custLegEnt,
+          YY228_CUST_ORG_CODE: record.custOrgName,
+          YY229_CUST_LEGAL_ENTITY: record.custLegEnt,
           YY230_CUST_ORACLE_NUMBER: record.custOrcNo,
           YY231_CUST_UNIT_STORE_NUMBER: record.custUtStrNo,
-          YY232_CUST_SVC_DATE:      fmtDateISO(record.svcDatFrom),
+          YY232_CUST_SVC_DATE: fmtDateISO(record.svcDatFrom),
           YY233_CUST_EMPLOYEE_NUMBER: record.custEmpNo,
-          YY234_CUST_AGREE_NUMBER:  record.custAgrName,
-          YY235_CUST_TASK15:        record.taskNo,
-          YY236_CUST_FEPS_CODE:     record.custFEPSCode,
-          YY238_CUST_GL_CODE:       record.custGLCode,
+          YY234_CUST_AGREE_NUMBER: record.custAgrName,
+          YY235_CUST_TASK15: record.taskNo,
+          YY236_CUST_FEPS_CODE: record.custFEPSCode,
+          YY238_CUST_GL_CODE: record.custGLCode,
           YY239_CUST_PURCHASE_AGREE: record.purchaseAgreement,
-          YY240_CUST_BB_NUMBER:     record.bbNo,
+          YY240_CUST_BB_NUMBER: record.bbNo,
           YY241_CUST_BGRD_CHECK_DATE: fmtDateISO(record.custBgChkDate),
           YY242_CUST_DIV_UNIT_NUMBER: record.custDivUnit,
           YY243_CUST_POSITION_CODE: record.custPosCode,
@@ -3371,8 +3452,8 @@ Z38:{target:'CUST_COMMODITY_CODE2',vc:2},
         validateFormats(salesVC2, DECIMAL_VC2, DATE_VC2, 'VC2', record.ID, localErrs);
         if (localErrs.length) {
           localErrs.forEach((err) => {
-          err.process_code = sProcessCode;
-        });
+            err.process_code = sProcessCode;
+          });
           aErrorLogs.push(...localErrs);
           aFailedRecordIDs.push(record.ID);
           const idx = aPassedRecordIDs.indexOf(record.ID);
@@ -3389,7 +3470,7 @@ Z38:{target:'CUST_COMMODITY_CODE2',vc:2},
             vc1Payload: JSON.stringify(salesVC1, null, 2),
             vc2Payload: JSON.stringify(salesVC2, null, 2),
           });
-        } catch (e) {}
+        } catch (e) { }
 
         return {
           salesVC1,
@@ -3415,7 +3496,7 @@ Z38:{target:'CUST_COMMODITY_CODE2',vc:2},
           vc1Payload: JSON.stringify(salesVC1, null, 2),
           vc2Payload: JSON.stringify(salesVC2, null, 2),
         });
-      } catch (e) {}
+      } catch (e) { }
 
       // VC1 insert/skip with try/catch
       try {
@@ -3428,14 +3509,14 @@ Z38:{target:'CUST_COMMODITY_CODE2',vc:2},
         }
       } catch (e) {
         LOG.info(`[VC] VC1 INSERT exception recID=${recID}: ${e?.message}`);
-        aErrorLogs.push({ record_ID: recID, message: e?.message || 'VC1 INSERT exception' ,process_code: sProcessCode});
+        aErrorLogs.push({ record_ID: recID, message: e?.message || 'VC1 INSERT exception', process_code: sProcessCode });
         aFailedRecordIDs.push(recID);
         const idx = aPassedRecordIDs.indexOf(recID);
         if (idx !== -1) aPassedRecordIDs.splice(idx, 1);
         continue; // proceed to next record
       }
       if (insertedSalesVCData1?.message) {
-        aErrorLogs.push({ record_ID: recID, message: insertedSalesVCData1.message,process_code: sProcessCode });
+        aErrorLogs.push({ record_ID: recID, message: insertedSalesVCData1.message, process_code: sProcessCode });
         aFailedRecordIDs.push(recID);
         const idx = aPassedRecordIDs.indexOf(recID);
         if (idx !== -1) aPassedRecordIDs.splice(idx, 1);
@@ -3453,14 +3534,14 @@ Z38:{target:'CUST_COMMODITY_CODE2',vc:2},
         }
       } catch (e) {
         LOG.info(`[VC] VC2 INSERT exception recID=${recID}: ${e?.message}`);
-        aErrorLogs.push({ record_ID: recID, message: e?.message || 'VC2 INSERT exception',process_code: sProcessCode });
+        aErrorLogs.push({ record_ID: recID, message: e?.message || 'VC2 INSERT exception', process_code: sProcessCode });
         aFailedRecordIDs.push(recID);
         const idx = aPassedRecordIDs.indexOf(recID);
         if (idx !== -1) aPassedRecordIDs.splice(idx, 1);
         continue;
       }
       if (insertedSalesVCData2?.message) {
-        aErrorLogs.push({ record_ID: recID, message: insertedSalesVCData2.message ,process_code: sProcessCode});
+        aErrorLogs.push({ record_ID: recID, message: insertedSalesVCData2.message, process_code: sProcessCode });
         aFailedRecordIDs.push(recID);
         const idx = aPassedRecordIDs.indexOf(recID);
         if (idx !== -1) aPassedRecordIDs.splice(idx, 1);
@@ -3484,7 +3565,7 @@ Z38:{target:'CUST_COMMODITY_CODE2',vc:2},
           vc1Result: JSON.stringify(insertedSalesVCData1 || {}, null, 2),
           vc2Result: JSON.stringify(insertedSalesVCData2 || {}, null, 2),
         });
-      } catch (e) {}
+      } catch (e) { }
     }
   }
 
@@ -3549,7 +3630,7 @@ Z38:{target:'CUST_COMMODITY_CODE2',vc:2},
               oResult.reason.forEach((oError) => {
                 aErrorLogs.push({
                   record_ID: sRecordID,
-                  ...oError,process_code: sProcessCode
+                  ...oError, process_code: sProcessCode
                 });
               });
             } else {
@@ -3557,7 +3638,7 @@ Z38:{target:'CUST_COMMODITY_CODE2',vc:2},
                 record_ID: sRecordID,
                 message: cds.i18n.messages.at('ERR_SALES_ORDER_PARTNER_DELETION_FAILED', [
                   oResult.reason,
-                ]),process_code: sProcessCode
+                ]), process_code: sProcessCode
               });
             }
           }
@@ -3571,6 +3652,20 @@ Z38:{target:'CUST_COMMODITY_CODE2',vc:2},
         });
       }
       if (aPassedRecordIDs.length) {
+        await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
+
+        await ProcessLogger.addLogs(
+          aPassedRecordIDs.map((sId) => {
+            const oRecord = this.records.find((r) => r.ID === sId);
+            return {
+              record_ID: sId,
+              message: `Sales Order Partner ${oRecord.partnerFunctionSAP === 'ZR' ? 'ZV' : 'ZR'} was deleted successfully for Sales Order ${oRecord.salesDocumentNoSAP}.`,
+              process_code: sProcessCode,
+              type: 3,
+            };
+          })
+        );
+
         await this.markRecordsValid(sProcessCode, aPassedRecordIDs, true);
       }
       if (aFailedRecordIDs.length) {
@@ -3756,7 +3851,18 @@ Z38:{target:'CUST_COMMODITY_CODE2',vc:2},
 
     if (aPassedRecordIDs.length) {
       await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
-      await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3})));
+      await ProcessLogger.addLogs(
+        aPassedRecordIDs.map((sId) => {
+          const oRecord = this.records.find((r) => r.ID === sId);
+
+          return {
+            record_ID: sId,
+            message: `Employee Customer Info was created successfully for Employee ${oRecord.personnelNoSAP}, Project ${oRecord.projectNumberSAP}, Sales Order ${oRecord.salesDocumentNoSAP}, and Contract ${oRecord.contractNo}.`,
+            process_code: sProcessCode,
+            type: 3,
+          };
+        })
+      );
     }
 
     this.updateExclusionSet({
@@ -3828,7 +3934,7 @@ Z38:{target:'CUST_COMMODITY_CODE2',vc:2},
       } else {
         aErrorLogs.push({
           record_ID: aRecordsForProcessing[i].ID,
-          message: HRCostObj ? HRCostObj.message : 'Unknown error',process_code: sProcessCode
+          message: HRCostObj ? HRCostObj.message : 'Unknown error', process_code: sProcessCode
         });
         aFailedRecordIDs.push(aRecordsForProcessing[i].ID);
         LOG.error(
@@ -3846,7 +3952,18 @@ Z38:{target:'CUST_COMMODITY_CODE2',vc:2},
 
     if (aPassedRecordIDs.length) {
       await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
-      await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3})));
+      await ProcessLogger.addLogs(
+        aPassedRecordIDs.map((sId) => {
+          const oRecord = this.records.find((r) => r.ID === sId);
+
+          return {
+            record_ID: sId,
+            message: `HR Cost Distribution Object was created successfully for Employee ${oRecord.personnelNoSAP}, Project ${oRecord.projectNumberSAP}, and Company Code ${oRecord.companyCode}.`,
+            process_code: sProcessCode,
+            type: 3,
+          };
+        })
+      );
     }
 
     this.updateExclusionSet({

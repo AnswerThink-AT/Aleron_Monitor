@@ -292,7 +292,7 @@ class CreditFG extends Processor {
                 oRecord: record
             });
             if (oFieldValidationRes.hasError) {
-                
+
                 aErrorLogs.push(...oFieldValidationRes.errors);
                 aErrorLogs = aErrorLogs.map(err => ({ ...err, process_code: sProcessCode }));
                 aFailedRecordIDs.push(record.ID);
@@ -1054,154 +1054,154 @@ class CreditFG extends Processor {
             }
         }
 
-        
-//   if (aFailedRecordIDs.length) {
-//     const processedRecordsMap = new Map(
-//         aRecordsForProcessing.map(record => [record.ID, record])
-//     );
-//             try {
-//                 await Promise.allSettled([
-//                     ProcessLogger.addLogs(aErrorLogs),
-//                     // this.markRecordsValid(sProcessCode, aFailedRecordIDs, false),
-//                     ...aFailedRecordIDs.filter(recordID => {
-//                         // const record = this.records.find(r => r.ID === recordID);
-//                         const record = processedRecordsMap.get(recordID);
-//                         let recordProcessLevelCode = sProcessCode;
-//                         if (record) {
-//                             if (record.processLevel_code === '0') {
-//                                 recordProcessLevelCode = '1';
-//                             } else if (record.processLevel_code === '1') {
-//                                 recordProcessLevelCode = '1';
-//                             } 
-//                             // else if (record.processLevel_code === '2' && !record.valid) {
-//                             //     recordProcessLevelCode = '1';
-//                             // } 
-//                             else {
-//                                 recordProcessLevelCode = record.processLevel_code;
-//                             }
-//                         }
-//                         return recordProcessLevelCode === '1';
-//                     }).map(recordID => {
-//                         // const record = this.records.find(r => r.ID === recordID);
-//                         const record = processedRecordsMap.get(recordID);
-//                         let recordProcessLevelCode = sProcessCode;
-//                         if (record) {
-//                             if (record.processLevel_code === '0') {
-//                                 recordProcessLevelCode = '1';
-//                             } else if (record.processLevel_code === '1') {
-//                                 recordProcessLevelCode = '1';
-//                             } 
-//                             // else if (record.processLevel_code === '2' && !record.valid) {
-//                             //     recordProcessLevelCode = '1';
-//                             // } 
-//                             else {
-//                                 recordProcessLevelCode = record.processLevel_code;
-//                             }
-//                         }
-//                         return UPDATE(Credit_Rebill)
-//                             .set({valid: false, processLevel_code: recordProcessLevelCode})
-//                             .where({ID: recordID});
-//                     }),
-//                 ]);
-//                 this.LOG._info &&
-//                     this.LOG.info(
-//                         cds.i18n.messages.at('INFO_RECORDS_UPDATED', [
-//                             sProcessCode,
-//                             aErrorLogs.map((log) => log.record_ID).join(','),
-//                         ]),
-//                     );
-//             } catch (err) {
-//                 this.LOG._error && this.LOG.error(err.message);
-//             }
-//         }
-//         if (aPassedRecordIDs.length) {
-//             const processedRecordsMap = new Map(
-//         aRecordsForProcessing.map(record => [record.ID, record])
-//     );
 
-//             await Promise.allSettled([
-//                 ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode),
-//                 // this.markRecordsValid(sProcessCode, aPassedRecordIDs, true),
-//                 ...aPassedRecordIDs.filter(recordID => {
-//                     //const record = this.records.find(r => r.ID === recordID);
-//                     const record = processedRecordsMap.get(recordID);
-//                     let recordProcessLevelCode = sProcessCode;
-//                     if (record) {
-//                         if (record.processLevel_code === '0') {
-//                             recordProcessLevelCode = '1';
-//                         } else if (record.processLevel_code === '1') {
-//                             recordProcessLevelCode = '1';
-//                         } 
-//                         // else if (record.processLevel_code === '2' && !record.valid) {
-//                         //     recordProcessLevelCode = '1';
-//                         // } 
-//                         else {
-//                             recordProcessLevelCode = record.processLevel_code;
-//                         }
-//                     }
-//                     return recordProcessLevelCode === '1';
-//                 }).map(recordID => {
-//                     //const record = this.records.find(r => r.ID === recordID);
-//                     const record = processedRecordsMap.get(recordID);
-//                     let recordProcessLevelCode = sProcessCode;
-//                     if (record) {
-//                         if (record.processLevel_code === '0') {
-//                             recordProcessLevelCode = '1';
-//                         } else if (record.processLevel_code === '1') {
-//                             recordProcessLevelCode = '1';
-//                         } 
-//                         // else if (record.processLevel_code === '2' && !record.valid) {
-//                         //     recordProcessLevelCode = '1';
-//                         // } 
-//                         else {
-//                             recordProcessLevelCode = record.processLevel_code;
-//                         }
-//                     }
-                    
-//                     // Build update payload with CreditRebill-specific fields
-//                     const updatePayload = {
-//                         valid: true,
-//                         processLevel_code: recordProcessLevelCode
-//                     };
+        //   if (aFailedRecordIDs.length) {
+        //     const processedRecordsMap = new Map(
+        //         aRecordsForProcessing.map(record => [record.ID, record])
+        //     );
+        //             try {
+        //                 await Promise.allSettled([
+        //                     ProcessLogger.addLogs(aErrorLogs),
+        //                     // this.markRecordsValid(sProcessCode, aFailedRecordIDs, false),
+        //                     ...aFailedRecordIDs.filter(recordID => {
+        //                         // const record = this.records.find(r => r.ID === recordID);
+        //                         const record = processedRecordsMap.get(recordID);
+        //                         let recordProcessLevelCode = sProcessCode;
+        //                         if (record) {
+        //                             if (record.processLevel_code === '0') {
+        //                                 recordProcessLevelCode = '1';
+        //                             } else if (record.processLevel_code === '1') {
+        //                                 recordProcessLevelCode = '1';
+        //                             } 
+        //                             // else if (record.processLevel_code === '2' && !record.valid) {
+        //                             //     recordProcessLevelCode = '1';
+        //                             // } 
+        //                             else {
+        //                                 recordProcessLevelCode = record.processLevel_code;
+        //                             }
+        //                         }
+        //                         return recordProcessLevelCode === '1';
+        //                     }).map(recordID => {
+        //                         // const record = this.records.find(r => r.ID === recordID);
+        //                         const record = processedRecordsMap.get(recordID);
+        //                         let recordProcessLevelCode = sProcessCode;
+        //                         if (record) {
+        //                             if (record.processLevel_code === '0') {
+        //                                 recordProcessLevelCode = '1';
+        //                             } else if (record.processLevel_code === '1') {
+        //                                 recordProcessLevelCode = '1';
+        //                             } 
+        //                             // else if (record.processLevel_code === '2' && !record.valid) {
+        //                             //     recordProcessLevelCode = '1';
+        //                             // } 
+        //                             else {
+        //                                 recordProcessLevelCode = record.processLevel_code;
+        //                             }
+        //                         }
+        //                         return UPDATE(Credit_Rebill)
+        //                             .set({valid: false, processLevel_code: recordProcessLevelCode})
+        //                             .where({ID: recordID});
+        //                     }),
+        //                 ]);
+        //                 this.LOG._info &&
+        //                     this.LOG.info(
+        //                         cds.i18n.messages.at('INFO_RECORDS_UPDATED', [
+        //                             sProcessCode,
+        //                             aErrorLogs.map((log) => log.record_ID).join(','),
+        //                         ]),
+        //                     );
+        //             } catch (err) {
+        //                 this.LOG._error && this.LOG.error(err.message);
+        //             }
+        //         }
+        //         if (aPassedRecordIDs.length) {
+        //             const processedRecordsMap = new Map(
+        //         aRecordsForProcessing.map(record => [record.ID, record])
+        //     );
 
-//                     if (record.isMS_SC_Processed) {
-//                         Object.assign(updatePayload, {
-//                             salesDocumentNoSAP: record.salesDocumentNoSAP,
-//                             salesItemNoSAP: record.salesItemNoSAP,
-//                             purchaseDocumentNoSAP: record.purchaseDocumentNoSAP,
-//                             purchaseDocumentItemSAP: record.purchaseDocumentItemSAP,
-//                             personnelNoSAP: record.personnelNoSAP,
-//                             creditSteps: record.creditSteps
-//                         });
-//                     }
+        //             await Promise.allSettled([
+        //                 ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode),
+        //                 // this.markRecordsValid(sProcessCode, aPassedRecordIDs, true),
+        //                 ...aPassedRecordIDs.filter(recordID => {
+        //                     //const record = this.records.find(r => r.ID === recordID);
+        //                     const record = processedRecordsMap.get(recordID);
+        //                     let recordProcessLevelCode = sProcessCode;
+        //                     if (record) {
+        //                         if (record.processLevel_code === '0') {
+        //                             recordProcessLevelCode = '1';
+        //                         } else if (record.processLevel_code === '1') {
+        //                             recordProcessLevelCode = '1';
+        //                         } 
+        //                         // else if (record.processLevel_code === '2' && !record.valid) {
+        //                         //     recordProcessLevelCode = '1';
+        //                         // } 
+        //                         else {
+        //                             recordProcessLevelCode = record.processLevel_code;
+        //                         }
+        //                     }
+        //                     return recordProcessLevelCode === '1';
+        //                 }).map(recordID => {
+        //                     //const record = this.records.find(r => r.ID === recordID);
+        //                     const record = processedRecordsMap.get(recordID);
+        //                     let recordProcessLevelCode = sProcessCode;
+        //                     if (record) {
+        //                         if (record.processLevel_code === '0') {
+        //                             recordProcessLevelCode = '1';
+        //                         } else if (record.processLevel_code === '1') {
+        //                             recordProcessLevelCode = '1';
+        //                         } 
+        //                         // else if (record.processLevel_code === '2' && !record.valid) {
+        //                         //     recordProcessLevelCode = '1';
+        //                         // } 
+        //                         else {
+        //                             recordProcessLevelCode = record.processLevel_code;
+        //                         }
+        //                     }
 
-//                     if (record.isCP_CR_Processed) {
-//                         Object.assign(updatePayload, {
-//                             email: record.email,
-//                             creditRebillSAP: record.creditRebillSAP,
-//                             personnelNoSAP: record.personnelNoSAP,
-//                             invoiceNoWNSAP: record.invoiceNoWNSAP,
-//                             salesDocumentNoSAP: record.salesDocumentNoSAP,
-//                             salesItemNoSAP: record.salesItemNoSAP,
-//                             salesDocumentRjcnReasonSAP: record.salesDocumentRjcnReasonSAP,
-//                             orderRelatedBillingStatusSAP: record.orderRelatedBillingStatusSAP,
-//                             materialSAP: record.materialSAP,
-//                             projectNumberSAP: record.projectNumberSAP,
-//                             materialGroup3SAP: record.materialGroup3SAP,
-//                             purchaseDocumentNoSAP: record.purchaseDocumentNoSAP
-//                         });
-//                     }
+        //                     // Build update payload with CreditRebill-specific fields
+        //                     const updatePayload = {
+        //                         valid: true,
+        //                         processLevel_code: recordProcessLevelCode
+        //                     };
 
-//                     return UPDATE(Credit_Rebill)
-//                         .set(updatePayload)
-//                         .where({ID: recordID});
-//                 }),
-//             ]);
-//             this.LOG._info &&
-//                 this.LOG.info(cds.i18n.messages.at('INFO_RECORDS_UPDATED', [sProcessCode, 'All']));
-//         }
+        //                     if (record.isMS_SC_Processed) {
+        //                         Object.assign(updatePayload, {
+        //                             salesDocumentNoSAP: record.salesDocumentNoSAP,
+        //                             salesItemNoSAP: record.salesItemNoSAP,
+        //                             purchaseDocumentNoSAP: record.purchaseDocumentNoSAP,
+        //                             purchaseDocumentItemSAP: record.purchaseDocumentItemSAP,
+        //                             personnelNoSAP: record.personnelNoSAP,
+        //                             creditSteps: record.creditSteps
+        //                         });
+        //                     }
 
- if (aFailedRecordIDs.length) {
+        //                     if (record.isCP_CR_Processed) {
+        //                         Object.assign(updatePayload, {
+        //                             email: record.email,
+        //                             creditRebillSAP: record.creditRebillSAP,
+        //                             personnelNoSAP: record.personnelNoSAP,
+        //                             invoiceNoWNSAP: record.invoiceNoWNSAP,
+        //                             salesDocumentNoSAP: record.salesDocumentNoSAP,
+        //                             salesItemNoSAP: record.salesItemNoSAP,
+        //                             salesDocumentRjcnReasonSAP: record.salesDocumentRjcnReasonSAP,
+        //                             orderRelatedBillingStatusSAP: record.orderRelatedBillingStatusSAP,
+        //                             materialSAP: record.materialSAP,
+        //                             projectNumberSAP: record.projectNumberSAP,
+        //                             materialGroup3SAP: record.materialGroup3SAP,
+        //                             purchaseDocumentNoSAP: record.purchaseDocumentNoSAP
+        //                         });
+        //                     }
+
+        //                     return UPDATE(Credit_Rebill)
+        //                         .set(updatePayload)
+        //                         .where({ID: recordID});
+        //                 }),
+        //             ]);
+        //             this.LOG._info &&
+        //                 this.LOG.info(cds.i18n.messages.at('INFO_RECORDS_UPDATED', [sProcessCode, 'All']));
+        //         }
+
+        if (aFailedRecordIDs.length) {
             try {
                 await Promise.allSettled([
                     ProcessLogger.addLogs(aErrorLogs),
@@ -1214,7 +1214,7 @@ class CreditFG extends Processor {
                                 recordProcessLevelCode = '1';
                             } else if (record.processLevel_code === '1') {
                                 recordProcessLevelCode = '1';
-                            } 
+                            }
                             // else if (record.processLevel_code === '2' && !record.valid) {
                             //     recordProcessLevelCode = '1';
                             // } 
@@ -1232,7 +1232,7 @@ class CreditFG extends Processor {
                                     recordProcessLevelCode = '1';
                                 } else if (record.processLevel_code === '1') {
                                     recordProcessLevelCode = '1';
-                                } 
+                                }
                                 // else if (record.processLevel_code === '2' && !record.valid) {
                                 //     recordProcessLevelCode = '1';
                                 // } 
@@ -1240,7 +1240,7 @@ class CreditFG extends Processor {
                                     recordProcessLevelCode = record.processLevel_code;
                                 }
                             }
-                            
+
                             const updateData = {
                                 valid: false,
                                 processLevel_code: recordProcessLevelCode
@@ -1272,9 +1272,9 @@ class CreditFG extends Processor {
         }
         if (aPassedRecordIDs.length) {
             const processedRecordsMap = new Map(
-        aRecordsForProcessing.map(record => [record.ID, record])
-    ); 
-          
+                aRecordsForProcessing.map(record => [record.ID, record])
+            );
+
             // Create a map of record IDs to indices in this.records for efficient updates
             const recordIdToIndexMap = new Map(
                 this.records.map((record, index) => [record.ID, index])
@@ -1282,7 +1282,19 @@ class CreditFG extends Processor {
 
             await Promise.allSettled([
                 ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode),
-                ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3}))),
+                ProcessLogger.addLogs(
+                    aPassedRecordIDs.map((sId) => {
+                        const oRecord = this.records.find((r) => r.ID === sId);
+
+                        return {
+                            record_ID: sId,
+                            message: `Credit/Rebill validation completed successfully for Sales Order ${oRecord.salesDocumentNoSAP}, Sales Order Item ${oRecord.salesItemNoSAP}, Purchase Order ${oRecord.purchaseDocumentNoSAP}, and Credit Steps ${oRecord.creditSteps}.`,
+                            process_code: sProcessCode,
+                            type: 3,
+                        };
+                    })
+                ),
+                //ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3}))),
                 // this.markRecordsValid(sProcessCode, aPassedRecordIDs, true),
                 ...aPassedRecordIDs.filter(recordID => {
                     //const record = this.records.find(r => r.ID === recordID);
@@ -1293,7 +1305,7 @@ class CreditFG extends Processor {
                             recordProcessLevelCode = '1';
                         } else if (record.processLevel_code === '1') {
                             recordProcessLevelCode = '1';
-                        } 
+                        }
                         // else if (record.processLevel_code === '2' && !record.valid) {
                         //     recordProcessLevelCode = '1';
                         // } 
@@ -1312,7 +1324,7 @@ class CreditFG extends Processor {
                                 recordProcessLevelCode = '1';
                             } else if (record.processLevel_code === '1') {
                                 recordProcessLevelCode = '1';
-                            } 
+                            }
                             // else if (record.processLevel_code === '2' && !record.valid) {
                             //     recordProcessLevelCode = '1';
                             // } 
@@ -1320,7 +1332,7 @@ class CreditFG extends Processor {
                                 recordProcessLevelCode = record.processLevel_code;
                             }
                         }
-                        
+
                         // Build update payload with CreditRebill-specific fields
                         const updatePayload = {
                             valid: true,
@@ -1369,7 +1381,7 @@ class CreditFG extends Processor {
                             Object.assign(this.records[recordIndex], updatePayload);
                             this.LOG._info && this.LOG.info(`Updated in-memory record ${recordID} with creditSteps: ${updatePayload.creditSteps}`);
                         }
-                        
+
                     } catch (updateError) {
                         this.LOG._error && this.LOG.error(`Failed to update passed record ${recordID}: ${updateError.message}`);
                         throw updateError;
@@ -1500,7 +1512,20 @@ class CreditFG extends Processor {
         // Update the status of passed records
         if (aPassedRecordIDs.length) {
             await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
-            await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3})));
+            await ProcessLogger.addLogs(
+                aPassedRecordIDs.map((sId) => {
+                    const oRecord = this.records.find((r) => r.ID === sId);
+
+                    return {
+                        record_ID: sId,
+                        message: oRecord?.creditSteps?.split(',').includes('H')
+                            ? `Sales Order ${oRecord.salesDocumentNoSAP}, Item ${oRecord.salesItemNoSAP} rejected successfully with rejection reason 60.`
+                            : `No Sales Order rejection required for Sales Order ${oRecord.salesDocumentNoSAP}.`,
+                        process_code: sProcessCode,
+                        type: 3,
+                    };
+                })
+            );
             await this.markRecordsValid(sProcessCode, aPassedRecordIDs, true);
             await UPDATE(Credit_Rebill)
                 .set({
@@ -1595,7 +1620,19 @@ class CreditFG extends Processor {
         // Update the status of passed records
         if (aPassedRecordIDs.length) {
             await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
-            await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3})));
+            await ProcessLogger.addLogs(
+                aPassedRecordIDs.map((sId) => {
+                    const oRecord = this.records.find((r) => r.ID === sId);
+                    return {
+                        record_ID: sId,
+                        message: oRecord?.creditSteps?.split(',').includes('I')
+                            ? `Intercompany Sales Order ${oRecord.salesDocumentNoSAP}, Item ${oRecord.salesItemNoSAP} rejected successfully with rejection reason 60.`
+                            : `No Intercompany Sales Order rejection required for Sales Order ${oRecord.salesDocumentNoSAP}.`,
+                        process_code: sProcessCode,
+                        type: 3,
+                    };
+                })
+            );
             await this.markRecordsValid(sProcessCode, aPassedRecordIDs, true);
             await UPDATE(Credit_Rebill)
                 .set({
@@ -1770,7 +1807,20 @@ class CreditFG extends Processor {
         // Update the status of passed records
         if (aPassedRecordIDs.length) {
             await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
-            await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3})));
+            await ProcessLogger.addLogs(
+                aPassedRecordIDs.map((sId) => {
+                    const oRecord = this.records.find((r) => r.ID === sId);
+
+                    return {
+                        record_ID: sId,
+                        message: oRecord?.creditSteps?.split(',').includes('J')
+                            ? `Supplier Invoice ${oRecord.supplierInvoiceSAP} was cancelled successfully for Purchase Order ${oRecord.purchaseDocumentNoSAP}, Item ${oRecord.purchaseDocumentItemSAP}.`
+                            : `No MIRO cancellation required for Purchase Order ${oRecord.purchaseDocumentNoSAP}.`,
+                        process_code: sProcessCode,
+                        type: 3,
+                    };
+                })
+            );
             await this.markRecordsValid(sProcessCode, aPassedRecordIDs, true);
             await UPDATE(Credit_Rebill)
                 .set({
@@ -1905,7 +1955,20 @@ class CreditFG extends Processor {
         // Update the status of passed records
         if (aPassedRecordIDs.length) {
             await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
-            await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3})));
+            await ProcessLogger.addLogs(
+                aPassedRecordIDs.map((sId) => {
+                    const oRecord = this.records.find((r) => r.ID === sId);
+
+                    return {
+                        record_ID: sId,
+                        message: oRecord?.creditSteps?.split(',').includes('K')
+                            ? `Purchase Order ${oRecord.purchaseDocumentNoSAP}, Item ${oRecord.purchaseDocumentItemSAP} was cancelled successfully.`
+                            : `No Purchase Order cancellation required for Purchase Order ${oRecord.purchaseDocumentNoSAP}.`,
+                        process_code: sProcessCode,
+                        type: 3,
+                    };
+                })
+            );
             await this.markRecordsValid(sProcessCode, aPassedRecordIDs, true);
             await UPDATE(Credit_Rebill)
                 .set({
@@ -2292,7 +2355,20 @@ class CreditFG extends Processor {
         if (aPassedRecordIDs.length) {
             await Promise.allSettled([
                 ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode),
-                ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3}))),
+                ProcessLogger.addLogs(
+                    aPassedRecordIDs.map((sId) => {
+                        const oRecord = this.records.find((r) => r.ID === sId);
+
+                        return {
+                            record_ID: sId,
+                            message: (oRecord?.creditSteps?.split(',').includes('L') || oRecord?.creditSteps?.split(',').includes('*'))
+                                ? `Credit Memo ${oRecord.creditMemoSAP} was created successfully for Sales Order ${oRecord.salesDocumentNoSAP} and Invoice ${oRecord.invoiceNoWNSAP || oRecord.wnInvoiceNo}.`
+                                : `No Credit Memo creation required for Sales Order ${oRecord.salesDocumentNoSAP}.`,
+                            process_code: sProcessCode,
+                            type: 3,
+                        };
+                    })
+                ),
                 this.markRecordsValid(sProcessCode, aPassedRecordIDs, true),
                 ...aRecordsForProcessing
                     .filter(record => aPassedRecordIDs.includes(record.ID))
@@ -2562,8 +2638,21 @@ class CreditFG extends Processor {
         }
         if (aPassedRecordIDs.length) {
             await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
-            await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3})));
-            await this.markRecordsValid(sProcessCode, aPassedRecordIDs, true),
+            await ProcessLogger.addLogs(
+                aPassedRecordIDs.map((sId) => {
+                    const oRecord = this.records.find((r) => r.ID === sId);
+
+                    return {
+                        record_ID: sId,
+                        message: oRecord?.creditSteps?.split(',').includes('M')
+                            ? `Intercompany Credit Memo ${oRecord.creditMemoSAP} was created successfully for Sales Order ${oRecord.salesDocumentNoSAP} and Invoice ${oRecord.invoiceNoWNSAP || oRecord.wnInvoiceNo}.`
+                            : `No Intercompany Credit Memo creation required for Sales Order ${oRecord.salesDocumentNoSAP}.`,
+                        process_code: sProcessCode,
+                        type: 3,
+                    };
+                })
+            ),
+                await this.markRecordsValid(sProcessCode, aPassedRecordIDs, true),
                 await Promise.allSettled(
                     aRecordsForProcessing
                         .filter(record => aPassedRecordIDs.includes(record.ID))
@@ -3105,7 +3194,22 @@ class CreditFG extends Processor {
         // Update the status of passed records
         if (aPassedRecordIDs.length) {
             await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
-            await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3})));
+            await ProcessLogger.addLogs(
+                aPassedRecordIDs.map((sId) => {
+                    const oRecord = this.records.find((r) => r.ID === sId);
+
+                    return {
+                        record_ID: sId,
+                        message: oRecord?.creditSteps?.split(',').includes('*')
+                            ? `Journal Entry created successfully for legacy invoice ${oRecord.wnInvoiceNo}.`
+                            : oRecord?.creditSteps?.split(',').includes('N')
+                                ? `Credit MIRO created successfully for Purchase Order ${oRecord.purchaseDocumentNoSAP} and Supplier Invoice ${oRecord.supplierInvoiceSAP}.`
+                                : `No Credit MIRO creation required.`,
+                        process_code: sProcessCode,
+                        type: 3,
+                    };
+                })
+            );
             await this.markRecordsValid(sProcessCode, aPassedRecordIDs, true);
         }
 
@@ -3247,7 +3351,23 @@ class CreditFG extends Processor {
         // Update the status of passed records
         if (aPassedRecordIDs.length) {
             await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
-            await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3})));
+            await ProcessLogger.addLogs(
+                aPassedRecordIDs.map((sId) => {
+                    const oRecord = this.records.find((r) => r.ID === sId);
+                    const aSteps = oRecord?.creditSteps?.split(',') || [];
+
+                    return {
+                        record_ID: sId,
+                        message: aSteps.includes('P')
+                            ? `Partner functions deleted successfully for Intercompany Credit Memo Request ${oRecord.creditMemoSAP}.`
+                            : aSteps.includes('O')
+                                ? `Partner functions deleted successfully for Credit Memo Request ${oRecord.creditMemoSAP}.`
+                                : `No partner function deletion required.`,
+                        process_code: sProcessCode,
+                        type: 3,
+                    };
+                })
+            );
             await UPDATE(Credit_Rebill)
                 .set({
                     valid: true,
