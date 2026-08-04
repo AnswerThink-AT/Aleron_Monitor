@@ -469,7 +469,7 @@ class SOWscWO extends Processor {
         }
         if (aPassedRecordIDs.length) {
             await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
-            await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3})));
+            await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({ record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3 })));
             await Promise.allSettled(
                 aPassedRecordIDs.map(id => {
                     const rec = this.records.find(r => r.ID === id);
@@ -699,7 +699,7 @@ class SOWscWO extends Processor {
         if (sProcessCode === '4') {
             let aPayloads = aRecordsForProcessing.map((record) => ({
                 // record.distributionChannelSAP === 'IC' ? 'Z4' : 
-                EnterpriseProjectType:'60',
+                EnterpriseProjectType: '60',
                 CompanyCode: record.companyCode,
                 ProfitCenter: record.salesOffice,
                 ProjectDescription: `${record.soldToParty}`,
@@ -815,7 +815,22 @@ class SOWscWO extends Processor {
 
         if (aPassedRecordIDs.length) {
             await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
-            await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3})));
+            await ProcessLogger.addLogs(
+                aPassedRecordIDs.map((sId) => {
+                    const oRecord = this.records.find((r) => r.ID === sId);
+
+                    return {
+                        record_ID: sId,
+                        message: sProcessCode === '4'
+                            ? `Enterprise Project ${oRecord.projectNumberSAP} created successfully.`
+                            : sProcessCode === 'C'
+                                ? `Enterprise Project ${oRecord.projectNumberSAP} updated and released successfully.`
+                                : cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]),
+                        process_code: sProcessCode,
+                        type: 3,
+                    };
+                })
+            );
         }
 
         this.updateExclusionSet({
@@ -1244,7 +1259,7 @@ class SOWscWO extends Processor {
 
             const oSalesContractItem = oSalesContract._Item.find(
                 (item) => item.Product === oRecord.materialNo && item.SalesContract === oRecord.contractNo,
-              );
+            );
             if (!oSalesContractItem) {
                 aErrors.push({
                     record_ID: oRecord.ID,
@@ -1433,7 +1448,18 @@ class SOWscWO extends Processor {
         // Update the status of passed records
         if (aPassedRecordIDs.length) {
             await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
-            await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3})));
+            await ProcessLogger.addLogs(
+                aPassedRecordIDs.map((sId) => {
+                    const oRecord = this.records.find((r) => r.ID === sId);
+
+                    return {
+                        record_ID: sId,
+                        message: `Sales Order ${oRecord?.salesDocumentNoSAP} (Item ${oRecord?.salesItemNoSAP}) created successfully. VC Data 1 UUID: ${oRecord?.vcData1UUID || 'N/A'}, VC Data 2 UUID: ${oRecord?.vcData2UUID || 'N/A'}, Partner Function: ${oRecord?.partnerFunctionSAP || 'N/A'}.`,
+                        process_code: sProcessCode,
+                        type: 3,
+                    };
+                })
+            );
             await this.markRecordsValid(sProcessCode, aPassedRecordIDs, true);
         }
 
@@ -1699,21 +1725,21 @@ class SOWscWO extends Processor {
                 sc.DistributionChannel,
                 sc.OrganizationDivision,
                 sc.CustomerGroup,
-                sc.SalesOffice,                
+                sc.SalesOffice,
                 sc._Item((scItem) => {
                     scItem.SalesContract,
-                        scItem.SalesContractItem,                        
+                        scItem.SalesContractItem,
                         scItem.Product
                 })
         })
             .where({ SalesContract: { in: [...new Set(aSalesContractWhere)] } })
     }
 
-       /**
-     * Determine SalesOrderDocType based on contract data
-     * @param {object} contractData - SalesContract record
-     * @returns {string} SalesOrderDocType
-     */
+    /**
+  * Determine SalesOrderDocType based on contract data
+  * @param {object} contractData - SalesContract record
+  * @returns {string} SalesOrderDocType
+  */
     _determineSalesOrderDocType(contractData) {
         let SalesOrderDocType = null;
 
@@ -1732,7 +1758,7 @@ class SOWscWO extends Processor {
 
         // If Distribution Channel didn't determine the type, check CustomerGroup
         // if (!SalesOrderDocType) 
-            {
+        {
             if (contractData.CustomerGroup === 'ZC') {
                 SalesOrderDocType = 'ZWCP';
             } else if (contractData.CustomerGroup === 'ZB') {
