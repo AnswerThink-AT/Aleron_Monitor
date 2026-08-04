@@ -1313,7 +1313,7 @@ class EmployeeContractor extends Processor {
       }
       this.updateProcessingState(sProcessCode);
       if (!aRecordsForProcessing.length) {
-        
+
         LOG.info(`No records to process at step ${sProcessCode}`);
         return { hasError: false, continue: true };
       }
@@ -1630,7 +1630,7 @@ class EmployeeContractor extends Processor {
     this.updateProcessingState(sProcessCode);
     if (!aRecordsForProcessing.length) {
       // If Step doesn't need to be processed, simply return to avoid costly calls
-      
+
       return {
         hasError: false,
         continue: true,
@@ -2041,7 +2041,18 @@ class EmployeeContractor extends Processor {
     // Update the status of passed records
     if (aPassedRecordIDs.length) {
       await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
-      await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({ record_ID: sId, message: `Sales Order ${oRecord.salesDocumentNoSAP} (Item ${oRecord.salesItemNoSAP}) was created successfully. VC Data 1 UUID: ${oRecord.vcData1UUID}, VC Data 2 UUID: ${oRecord.vcData2UUID}.`, process_code: sProcessCode, type: 3 })));
+      await ProcessLogger.addLogs(
+        aPassedRecordIDs.map((sId) => {
+          const oRecord = this.records.find((r) => r.ID === sId);
+
+          return {
+            record_ID: sId,
+            message: `Sales Order ${oRecord.salesDocumentNoSAP} (Item ${oRecord.salesItemNoSAP}) was created successfully. VC Data 1 UUID: ${oRecord.vcData1UUID}, VC Data 2 UUID: ${oRecord.vcData2UUID}.`,
+            process_code: sProcessCode,
+            type: 3,
+          };
+        })
+      );
       await UPDATE(EmployeeHires)
         .set({ valid: true, processLevel_code: sProcessCode })
         .where({ ID: { in: aPassedRecordIDs } });
@@ -2091,7 +2102,7 @@ class EmployeeContractor extends Processor {
     this.updateProcessingState(sProcessCode);
     if (!aRecordsForProcessing.length) {
       // If Step doesn't need to be processed, simply return to avoid costly calls
-      
+
       return {
         hasError: false,
         continue: true,
@@ -3636,7 +3647,7 @@ class EmployeeContractor extends Processor {
     this.updateProcessingState(sProcessCode);
     if (!aRecordsForProcessing.length) {
       // If Step doesn't need to be processed, simply return to avoid costly calls
-      
+
       return {
         hasError: false,
         continue: true,
@@ -3817,7 +3828,7 @@ class EmployeeContractor extends Processor {
     this.updateProcessingState(sProcessCode);
     if (!aRecordsForProcessing.length) {
       // If Step doesn't need to be processed, simply return to avoid costly calls
-      
+
       return {
         hasError: false,
         continue: true,
