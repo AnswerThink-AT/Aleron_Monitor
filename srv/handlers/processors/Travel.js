@@ -539,7 +539,7 @@ class Travel extends Processor {
             if (sProcessCode === '1') {
                 await UPDATE(this.recordsEntity)
                     .set({ valid: true, processLevel_code: '3' })
-                    .where({ ID: aPassedRecordIDs });
+                    .where({ ID: { in: aPassedRecordIDs } });
                 this.records.forEach(r => {
                     if (aPassedRecordIDs.includes(r.ID)) r.processLevel_code = '3';
                 });
@@ -1018,7 +1018,14 @@ class Travel extends Processor {
                 await UPDATE(this.recordsEntity)
                     .set({ salesItemNoSAP: nextItem, salesDocumentNoSAP: vbeln })
                     .where({ ID: group.map(r => r.ID) });
-
+                await ProcessLogger.addLogs(
+                    group.map((oRecord) => ({
+                        record_ID: oRecord.ID,
+                        message: `Sales Order Item ${nextItem} created  for Sales order No: ` + vbeln,
+                        process_code: sProcessCode,
+                        type: 3
+                    }))
+                );
                 // 3.15) VC1 insert
                 LOG.info(`[processSalesOrder] STEP 3.15: inserting VC1 for SO='${vbeln}', item='${nextItem}'`);
                 const vc1 = {
@@ -1042,7 +1049,6 @@ class Travel extends Processor {
                 } catch (err) {
                     LOG.error(`VC1 insert FAILED: ${err.message}`);
                     LOG.error(`VC1 payload was: ${JSON.stringify(vc1)}`);
-                    throw err;
                 }
 
                 const vc1Uuid = Array.isArray(vc1Res) ? vc1Res[0]?.SAP_UUID : vc1Res.SAP_UUID;
@@ -1120,7 +1126,7 @@ class Travel extends Processor {
                         LOG.info(`[processSalesOrder] STEP 3.17: Trip created → TripNumber=${response.data.TripNumber}`);
                         var tripNo = response.data.TripNumber;
                         const tripIds = group.map(r => r.ID);
-                        await UPDATE(this.recordsEntity).set({ tripNoSAP: tripNo }).where({ ID: {in: tripIds} });
+                        await UPDATE(this.recordsEntity).set({ tripNoSAP: tripNo }).where({ ID: { in: tripIds } });
                         await ProcessLogger.addLogs(
                             tripIds.map(sId => ({
                                 record_ID: sId,
@@ -1156,7 +1162,7 @@ class Travel extends Processor {
             //await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
             await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({ record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3 })));
             await this.markRecordsValid(sProcessCode, aPassedRecordIDs, true);
-            await UPDATE(this.recordsEntity).set({ processLevel_code: 'G' }).where({ ID: {in: aPassedRecordIDs} });
+            await UPDATE(this.recordsEntity).set({ processLevel_code: 'G' }).where({ ID: { in: aPassedRecordIDs } });
             this.records.forEach(r => { if (aPassedRecordIDs.includes(r.ID)) r.processLevel_code = 'G'; });
         }
 
@@ -1473,156 +1479,189 @@ class Travel extends Processor {
                 await ProcessLogger.addLogs(aErrorLogs);
                 await this.markRecordsValid(sProcessCode, aFailedRecordIDs, false);
                 continue;
-            }
+            } else {
 
-            // 3.9) update back UI with IC fields
-            group.forEach(r => aPassedRecordIDs.push(r.ID));
-            await UPDATE(this.recordsEntity)
-                .set({
-                    salesOrderICSAP: icSo,
-                    salesItemNoICSAP: nextItem,
-                    distributionChannelICSAP: icHdr.DistributionChannel,
-                    purchaseDocumentNoSAP: sapPoIC === '2' ? icRes.PurchaseOrder : '',
-                    salesOrderICUpdateRequired: false
-                })
-                .where({
-                    ID: group.map(r => r.ID)
-                });
-
-            // 3.10) VC1 insert
-            LOG.info(`Group ${key} → inserting VC1 for IC SO='${icSo}', item='${nextItem}'`);
-            const vc1 = {
-                SalesOrderNumber: icSo,
-                SalesOrderItemNum: nextItem,
-                YY8_WEEK_ENDING2: lead.weekEndDate,
-                TRAVEL_EXPENSE: lead.amount || 0,
-                ZSD_WN_INVOICE_VCSD: lead.wnInvoiceNo,
-                ZSD_WN_WORK_ORDER_VCSD: icSo
-            };
-            let vc1Res = await this.salesVCData1Api.executeQuery(
-                INSERT.into('YY1_SALESVCDATA_1').entries(vc1)
-            );
-            const vc1Uuid = Array.isArray(vc1Res) ? vc1Res[0]?.SAP_UUID : vc1Res.SAP_UUID;
-            if (vc1Uuid) {
+                // 3.9) update back UI with IC fields
+                group.forEach(r => aPassedRecordIDs.push(r.ID));
                 await UPDATE(this.recordsEntity)
                     .set({
-                        vcData1UUID: vc1Uuid
+                        salesOrderICSAP: icSo,
+                        salesItemNoICSAP: nextItem,
+                        distributionChannelICSAP: icHdr.DistributionChannel,
+                        purchaseDocumentNoSAP: sapPoIC === '2' ? icRes.PurchaseOrder : '',
+                        salesOrderICUpdateRequired: false
                     })
                     .where({
                         ID: group.map(r => r.ID)
                     });
-            }
-
-            // 3.11) VC2 insert
-            LOG.info(`Group ${key} → inserting VC2 for IC SO='${icSo}', item='${nextItem}'`);
-            const vc2 = {
-                Sales_Order_Number: icSo,
-                Sales_Order_Item_Num: nextItem,
-                WEEK_ENDING2: lead.weekEndDate,
-                TRAVEL_EXPENSE: lead.amount || 0,
-                ZSD_WN_INVOICE_VCSD: lead.wnInvoiceNo,
-                ZSD_WN_WORK_ORDER_VCSD: icSo
-            };
-            let vc2Res = await this.salesVCData2Api.executeQuery(
-                INSERT.into('YY1_SALESVCDATA_2').entries(vc2)
-            );
-            const vc2Uuid = Array.isArray(vc2Res) ? vc2Res[0]?.SAP_UUID : vc2Res.SAP_UUID;
-            if (vc2Uuid) {
-                await UPDATE(this.recordsEntity)
-                    .set({
-                        vcData2UUID: vc2Uuid
-                    })
-                    .where({
-                        ID: group.map(r => r.ID)
-                    });
-            }
-
-            // 3.12) Trip insert (one header + one aggregated item + cost)
-
-            // 3.17) TRIP inserts (Header, Item, Cost)
-            // Sequence helper factory
-            const { executeHttpRequest } = require('@sap-cloud-sdk/http-client');
-            if (!lead.skipTrip) {
+                await ProcessLogger.addLogs(
+                    group.map((oRecord) => ({
+                        record_ID: oRecord.ID,
+                        message: `Sales Order Item ${nextItem} created  for Sales order No: ` + icSo,
+                        process_code: sProcessCode,
+                        type: 3
+                    }))
+                );
+                // 3.10) VC1 insert
+                LOG.info(`Group ${key} → inserting VC1 for IC SO='${icSo}', item='${nextItem}'`);
+                const vc1 = {
+                    SalesOrderNumber: icSo,
+                    SalesOrderItemNum: nextItem,
+                    YY8_WEEK_ENDING2: lead.weekEndDate,
+                    TRAVEL_EXPENSE: lead.amount || 0,
+                    ZSD_WN_INVOICE_VCSD: lead.wnInvoiceNo,
+                    ZSD_WN_WORK_ORDER_VCSD: icSo
+                };
+                let vc1Res;
                 try {
-                    const totalAmount = group.reduce((sum, r) => sum + (Number(r.amount) || 0), 0);
-
-                    const sPers = lead.sapEmployeeNo;
-                    const sStart = moment(lead.beginDate, 'YYYYMMDD').format('YYYY-MM-DD');
-                    const sEnd = moment(lead.endDate, 'YYYYMMDD').format('YYYY-MM-DD');
-
-                    const oHeaderPayload = {
-                        ContractNo: lead.contractNo,
-                        WnInvoiceNo: lead.wnInvoiceNo,
-                        SapEmployeeNo: sPers,
-                        WnWorkOrder: lead.wnWorkOrder,
-                        WoType: lead.woType,
-                        WeekEndDate: lead.weekEndDate,
-                        TotalAmount: totalAmount,
-                        Currency: lead.currency,
-                        TripStatus_code: 0,
-                        Project: lead.internalOrder || '',
-                        Destination: "US",
-                    };
-
-                    const aItems = [
-                        {
-                            ExpenseReceiptNumber: '1',
-                            TripExpenseType: lead.tripExpenseType,
-                            Amount: totalAmount,
-                            Currency: lead.currency,
-                            From: lead.FromLocation || '',
-                            To: lead.ToLocation || '',
-                            ReceiptsDocumentNumber: '1',
-                            UrlLink: ''
-                        }
-                    ];
-
-                    const aCosts = undefined;
-
-                    const oPayload = {
-                        Personnel: sPers,
-                        StartOfTrip: sStart,
-                        EndOfTrip: sEnd,
-                        Header: oHeaderPayload,
-                        Items: aItems
-                    };
-
-                    LOG.info(`[processSalesOrder] STEP 3.17: sending Trip payload → ${JSON.stringify(oPayload)}`);
-
-                    const response = await executeHttpRequest(
-                        { destinationName: 'monitor_baseurl' },
-                        {
-                            method: 'POST',
-                            url: '/trip/Trip',
-                            data: oPayload,
-                            headers: { 'Content-Type': 'application/json' }
-                        }
+                    vc1Res = await this.salesVCData1Api.executeQuery(
+                        INSERT.into('YY1_SALESVCDATA_1').entries(vc1)
                     );
-
-                    LOG.info(`[processSalesOrder] STEP 3.17: Trip created → TripNumber=${response.data.TripNumber}`);
-
-                    const tripIds = group.map(r => r.ID);
-                    await ProcessLogger.addLogs(
-                        tripIds.map(sId => ({
-                            record_ID: sId,
-                            message: `${response.data.TripNumber} Trip created for Employee ${sPers}`,
-                            process_code: sProcessCode,
-                            type: 3
-                        }))
-                    );
-
-                } catch (error) {
-                    const errMsg = error.response?.data?.error?.message || error.message;
-                    LOG.warn(`Group ${key} → STEP 3.17 TRIP insert failed, skipping group: ${errMsg}`);
-                    group.forEach(r => aSkippedRecords.push(r));
-                    group.forEach(r => {
-                        aErrorLogs.push({
-                            record_ID: r.ID,
-                            message: `Failed to insert TRIP with error ${errMsg} for Employee ${r.sapEmployeeNo}`,
-                            process_code: sProcessCode
+                } catch (err) {
+                    LOG.error(`VC1 insert FAILED: ${err.message}`);
+                    LOG.error(`VC1 payload was: ${JSON.stringify(vc1)}`);
+                }
+                const vc1Uuid = Array.isArray(vc1Res) ? vc1Res[0]?.SAP_UUID : vc1Res.SAP_UUID;
+                if (vc1Uuid) {
+                    var Vcdata = [];
+                    group.forEach(r => Vcdata.push(r.ID));
+                    await UPDATE(this.recordsEntity)
+                        .set({
+                            vcData1UUID: vc1Uuid
+                        })
+                        .where({
+                            ID: group.map(r => r.ID)
                         });
-                    });
-                    //await ProcessLogger.addLogs(aErrorLogs);
+                    await ProcessLogger.addLogs(Vcdata.map((sId) => ({ record_ID: sId, message: `VC1 data successfully inserted with UUID: ${vc1Uuid} for record ${sId} and IC sales order ${icSo}`, process_code: sProcessCode, type: 3 })));
+                } else {
+                    group.forEach(r => { aErrorLogs.push({ record_ID: r.ID, message: `VC1 data inserted failed for record ${r.ID} and sales order ${icSo}`, process_code: sProcessCode }); });
+                    await ProcessLogger.addLogs(aErrorLogs);
+                }
+
+                // 3.11) VC2 insert
+                LOG.info(`Group ${key} → inserting VC2 for IC SO='${icSo}', item='${nextItem}'`);
+                const vc2 = {
+                    Sales_Order_Number: icSo,
+                    Sales_Order_Item_Num: nextItem,
+                    WEEK_ENDING2: lead.weekEndDate,
+                    TRAVEL_EXPENSE: lead.amount || 0,
+                    ZSD_WN_INVOICE_VCSD: lead.wnInvoiceNo,
+                    ZSD_WN_WORK_ORDER_VCSD: icSo
+                };
+                let vc2Res;
+                try {
+                    vc2Res = await this.salesVCData2Api.executeQuery(
+                        INSERT.into('YY1_SALESVCDATA_2').entries(vc2)
+                    );
+                } catch (err) {
+
+                }
+
+                const vc2Uuid = Array.isArray(vc2Res) ? vc2Res[0]?.SAP_UUID : vc2Res.SAP_UUID;
+                if (vc2Uuid) {
+                    var Vc2data = [];
+                    group.forEach(r => Vc2data.push(r.ID));
+                    await UPDATE(this.recordsEntity)
+                        .set({
+                            vcData2UUID: vc2Uuid
+                        })
+                        .where({
+                            ID: group.map(r => r.ID)
+                        });
+                    await ProcessLogger.addLogs(Vc2data.map((sId) => ({ record_ID: sId, message: `VC2 data successfully inserted with UUID: ${vc2Uuid} for record ${sId} and sales order ${icSo}`, process_code: sProcessCode, type: 3 })));
+                } else {
+                    group.forEach(r => { aErrorLogs.push({ record_ID: r.ID, message: `VC2 data inserted failed for record ${r.ID} and sales order ${icSo}`, process_code: sProcessCode }); });
+                    await ProcessLogger.addLogs(aErrorLogs);
+                }
+
+                // 3.12) Trip insert (one header + one aggregated item + cost)
+
+                // 3.17) TRIP inserts (Header, Item, Cost)
+                // Sequence helper factory
+                const { executeHttpRequest } = require('@sap-cloud-sdk/http-client');
+                if (!lead.skipTrip) {
+                    try {
+                        const totalAmount = group.reduce((sum, r) => sum + (Number(r.amount) || 0), 0);
+
+                        const sPers = lead.sapEmployeeNo;
+                        const sStart = moment(lead.beginDate, 'YYYYMMDD').format('YYYY-MM-DD');
+                        const sEnd = moment(lead.endDate, 'YYYYMMDD').format('YYYY-MM-DD');
+
+                        const oHeaderPayload = {
+                            ContractNo: lead.contractNo,
+                            WnInvoiceNo: lead.wnInvoiceNo,
+                            SapEmployeeNo: sPers,
+                            WnWorkOrder: lead.wnWorkOrder,
+                            WoType: lead.woType,
+                            WeekEndDate: lead.weekEndDate,
+                            TotalAmount: totalAmount,
+                            Currency: lead.currency,
+                            TripStatus_code: 0,
+                            Project: lead.internalOrder || '',
+                            Destination: "US",
+                        };
+
+                        const aItems = [
+                            {
+                                ExpenseReceiptNumber: '1',
+                                TripExpenseType: lead.tripExpenseType,
+                                Amount: totalAmount,
+                                Currency: lead.currency,
+                                From: lead.FromLocation || '',
+                                To: lead.ToLocation || '',
+                                ReceiptsDocumentNumber: '1',
+                                UrlLink: ''
+                            }
+                        ];
+
+                        const aCosts = undefined;
+
+                        const oPayload = {
+                            Personnel: sPers,
+                            StartOfTrip: sStart,
+                            EndOfTrip: sEnd,
+                            Header: oHeaderPayload,
+                            Items: aItems
+                        };
+
+                        LOG.info(`[processSalesOrder] STEP 3.17: sending Trip payload → ${JSON.stringify(oPayload)}`);
+
+                        const response = await executeHttpRequest(
+                            { destinationName: 'monitor_baseurl' },
+                            {
+                                method: 'POST',
+                                url: '/trip/Trip',
+                                data: oPayload,
+                                headers: { 'Content-Type': 'application/json' }
+                            }
+                        );
+
+                        LOG.info(`[processSalesOrder] STEP 3.17: Trip created → TripNumber=${response.data.TripNumber}`);
+                        var tripNo = response.data.TripNumber;
+                        const tripIds = group.map(r => r.ID);
+                        await UPDATE(this.recordsEntity).set({ tripNoSAP: tripNo }).where({ ID: { in: tripIds } });
+                        await ProcessLogger.addLogs(
+                            tripIds.map(sId => ({
+                                record_ID: sId,
+                                message: `${response.data.TripNumber} Trip created for Employee ${sPers}`,
+                                process_code: sProcessCode,
+                                type: 3
+                            }))
+                        );
+
+                    } catch (error) {
+                        const errMsg = error.response?.data?.error?.message || error.message;
+                        LOG.warn(`Group ${key} → STEP 3.17 TRIP insert failed, skipping group: ${errMsg}`);
+                        group.forEach(r => aSkippedRecords.push(r));
+                        group.forEach(r => {
+                            aErrorLogs.push({
+                                record_ID: r.ID,
+                                message: `Failed to insert TRIP with error ${errMsg} for Employee ${r.sapEmployeeNo}`,
+                                process_code: sProcessCode
+                            });
+                        });
+                        //await ProcessLogger.addLogs(aErrorLogs);
+                    }
                 }
             }
         }
@@ -1643,7 +1682,7 @@ class Travel extends Processor {
                     processLevel_code: '5'
                 })
                 .where({
-                    ID: {in: aPassedRecordIDs }
+                    ID: { in: aPassedRecordIDs }
                 });
             this.records.forEach(r => {
                 if (aPassedRecordIDs.includes(r.ID)) {
@@ -1687,7 +1726,7 @@ class Travel extends Processor {
         LOG.info('[Step 5.1] Re-fetching batch records');
         await this._fetchRecords(this.recordIDs);
         let recs = this.records.filter(r => r.processLevel_code === '5');
-        
+
         LOG.info(`[Step 5.1] Retrieved ${recs.length} records`);
         if (!recs.length) return {
             hasError: false,
@@ -1704,11 +1743,11 @@ class Travel extends Processor {
                 `[Step 5.1b] Skipping CP/CR orders (IDs=${cpcrIDs.join(',')}); ` +
                 `marking processLevel='9'`
             );
-            
+
             await UPDATE(this.recordsEntity)
                 .set({ valid: true, processLevel_code: '9' })
-                .where({ ID: cpcrIDs });
-            await ProcessLogger.addLogs(cpcrIDs.map((sId) => ({record_ID: sId, message: 'Creation/Change of Purchase Order and Other Steps skipped due to WOtype is CP/CR', process_code: sProcessCode, type: 3})));
+                .where({ ID: { in: cpcrIDs } });
+            await ProcessLogger.addLogs(cpcrIDs.map((sId) => ({ record_ID: sId, message: 'Creation/Change of Purchase Order and Other Steps skipped due to WOtype is CP/CR', process_code: sProcessCode, type: 3 })));
             recs = recs.filter(r => !cpcrIDs.includes(r.ID));
         }
         if (!recs.length) {
@@ -2118,6 +2157,14 @@ class Travel extends Processor {
                     // **3) back-link**
                     if (poNo) {
                         const soNum = vbeln;
+                        await ProcessLogger.addLogs(
+                            lines.map((oRecord) => ({
+                                record_ID: oRecord.ID,
+                                message: `Purchase Order ${poNo} created successfully with item no ${rec.salesItemNoSAP}`,
+                                process_code: sProcessCode,
+                                type: 3
+                            }))
+                        );
                         try {
                             LOG.info(`[Step 5.6] patch SO item 00010 → YY1_PurchasingDoc_SD_SDI=${poNo}`);
                             const resp1 = await this.salesOrderAPI.patchSalesOrderItemV2({
@@ -2136,6 +2183,14 @@ class Travel extends Processor {
                             LOG.info(`[Step 5.6] patch real item response:  ${JSON.stringify(resp2)}`);
 
                             LOG.info(`Back-linked SO=${soNum} ↔ PO=${poNo} on items 0010 & ${firstItem}`);
+                            await ProcessLogger.addLogs(
+                                lines.map((oRecord) => ({
+                                    record_ID: oRecord.ID,
+                                    message: `Successfully Back-linked SO=${soNum} ↔ PO=${poNo} on items 0010 & ${firstItem}`,
+                                    process_code: sProcessCode,
+                                    type: 3
+                                }))
+                            );
                         } catch (e) {
                             LOG.error(`[Step 5.6] back-linking SO→PO failed: ${e.message}`);
                             throw e;
@@ -2205,6 +2260,15 @@ class Travel extends Processor {
                     const lineRes = await poComm.createPurchaseOrderItem(poNo, updPayload);
                     if (lineRes.error) {
                         throw new Error(`Add PO line failed: ${JSON.stringify(lineRes.error)}`);
+                    } else {
+                        await ProcessLogger.addLogs(
+                            lines.map((oRecord) => ({
+                                record_ID: oRecord.ID,
+                                message: `Purchase Order ${poNo} created successfully with item no ${rec.salesItemNoSAP}`,
+                                process_code: sProcessCode,
+                                type: 3
+                            }))
+                        );
                     }
                     LOG.info(`Added PO line ${poItem} to ${poNo}`);
 
@@ -2234,6 +2298,14 @@ class Travel extends Processor {
                             LOG.info(`[Step 5.7] patch new-line response: ${JSON.stringify(resp2)}`);
 
                             LOG.info(`Back-linked SO=${soNum} ↔ PO=${poNo} on items 0010 & ${poItem}`);
+                            await ProcessLogger.addLogs(
+                                lines.map((oRecord) => ({
+                                    record_ID: oRecord.ID,
+                                    message: `Successfully Back-linked SO=${soNum} ↔ PO=${poNo} on items 0010 & ${firstItem}`,
+                                    process_code: sProcessCode,
+                                    type: 3
+                                }))
+                            );
                         } catch (e) {
                             // swallow error silently so flow continues
                         }
@@ -2336,6 +2408,7 @@ class Travel extends Processor {
 
         const errorLogs = [],
             passed = [],
+            logged = [],
             failed = [];
 
         // 4) process each group
@@ -2482,8 +2555,16 @@ class Travel extends Processor {
                         invoiceFiscalYearSAP: FiscalYear
                     })
                     .where({
-                        ID: ids
+                        ID: { in: ids }
                     });
+
+                recs.map(r => {
+                    logged.push({
+                        ID: r.ID,
+                        invoiceDocumentNoSAP: invNumber,
+                        invoiceFiscalYearSAP: FiscalYear
+                    });
+                });
 
                 passed.push(...ids);
             } catch (err) {
@@ -2518,6 +2599,14 @@ class Travel extends Processor {
         if (passed.length) {
             // move successes to '9' so they’re skipped next time
             // await this.markRecordsValid('9', passed, true);
+            await ProcessLogger.addLogs(
+                logged.map((log) => ({
+                    record_ID: log.ID,
+                    message: `Successfully MIRO created with Invoice Document No ${log.invoiceDocumentNoSAP} for Fiscal Year ${log.invoiceFiscalYearSAP}`,
+                    process_code: sProcessCode,
+                    type: 3
+                }))
+            );
             await this.markRecordsValid('9', passed, true);
             // and bump them to step 9 in the DB
             await UPDATE(this.recordsEntity)
