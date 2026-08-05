@@ -109,6 +109,7 @@
 								<!-- 2) Your CRUD buttons go first (left-aligned) -->
 								<Button id="_IDGenButton1" text="Create" icon="sap-icon://add" press=".onCreate"/>
 								<Button id="_IDGenButton2" text="Cancel" icon="sap-icon://decline" press=".onCancel"/>
+								<Button id="_IDGenApprove7" text="Approve" icon="sap-icon://approvals" press=".onApprove"/>
 								<Button id="_IDGenButton3" text="Settle" icon="sap-icon://accept" press=".onSettle"/>
 								<Button id="_IDGenButton4" text="Delete" icon="sap-icon://delete" press=".onDelete"/>
 								<!-- 4) Settings (column chooser) -->
