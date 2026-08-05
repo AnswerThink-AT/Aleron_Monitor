@@ -48,8 +48,8 @@ sap.ui.define([
             const oModel = this.getView().getModel("trip"),
                 aLines = oModel.getProperty("/ExpenseReceipts") || [],
                 fSum = aLines.reduce((acc, l) => acc + (parseFloat(l.Amount) || 0), 0);
-            oModel.setProperty("/TotalNetAmount", fSum.toFixed(2));
-            oModel.setProperty("/Header/TripSettlement", fSum.toFixed(2));
+            oModel.setProperty("/TotalNetAmount", fSum.toFixed(3));
+            oModel.setProperty("/Header/TripSettlement", fSum.toFixed(3));
         },
 
         _validationRules: {

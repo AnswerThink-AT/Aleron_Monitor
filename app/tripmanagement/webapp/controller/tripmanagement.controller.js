@@ -1010,7 +1010,8 @@ sap.ui.define([
     onApprove: function () {
       const oTable = this.byId("table");
       const aSelCtx = oTable.getSelectedContexts();
-
+      var approveTrips = [];
+      var notapproveTrips = [];
       if (!aSelCtx.length) {
         sap.m.MessageToast.show("Please select one or more trips to settle");
         return;
@@ -1018,8 +1019,58 @@ sap.ui.define([
 
       aSelCtx.forEach(ctx => {
         const o = ctx.getObject();
-        console.log(o);
+        console.log(o?.StatusText);
+        if (o?.StatusText == "Created") {
+          approveTrips.push({ TripNumber: o?.TripNumber });
+        } else {
+          notapproveTrips.push({ TripNumber: o?.TripNumber });
+        }
       });
+
+      if (notapproveTrips.length > 0) {
+        sap.m.MessageBox.information("Please select valid trip for Approval");
+        return;
+      }
+
+      if (approveTrips.length > 0) {
+        fetch(this.getBaseURL() + "/odata/v4/Trip/approveTrip", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            TripNumbers: approveTrips.map(t => String(t.TripNumber))
+          })
+        })
+          .then((res) => {
+            if (!res.ok) {
+              throw new Error("Trip approval failed.");
+            }
+            return res.json();
+          })
+          .then(() => {
+            MessageBox.success("Trip approved successfully.", {
+              actions: [MessageBox.Action.OK],
+              onClose: () => {
+                const oTable = this.byId("table");
+                if (oTable) {
+                  const oBinding = oTable.getBinding("items");
+                  if (oBinding) {
+                    oBinding.refresh();
+                    // Sort descending by TripNumber
+                    const oSorter = new sap.ui.model.Sorter("TripNumber", true);
+                    oBinding.sort(oSorter);
+                    this._oDefaultSorter = oSorter;
+                  }
+                }
+              }
+            });
+          })
+          .catch((err) => {
+            console.error("Approval error:", err);
+            MessageBox.error(err.message || "Trip approval failed.");
+          });
+      }
 
     },
 
