@@ -208,7 +208,7 @@ sap.ui.define([
       this.oFilterBar = null;
       this.oTable = null;
       if (this._oColDialog) {
-       // this._oColDialog.destroy();
+        // this._oColDialog.destroy();
         this._oColDialog = null;
       }
       if (this._pCreateDialog) {
@@ -1007,7 +1007,21 @@ sap.ui.define([
       });
     },
 
+    onApprove: function () {
+      const oTable = this.byId("table");
+      const aSelCtx = oTable.getSelectedContexts();
 
+      if (!aSelCtx.length) {
+        sap.m.MessageToast.show("Please select one or more trips to settle");
+        return;
+      }
+
+      aSelCtx.forEach(ctx => {
+        const o = ctx.getObject();
+        console.log(o);
+      });
+
+    },
 
     /**
      * Begins the progress dialog + processing sequence
