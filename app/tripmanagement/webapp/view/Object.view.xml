@@ -43,7 +43,7 @@
 						<!-- 2) Total Net Amount -->
 						<m:VBox id="_IDGenVBox2" class="sapUiTinyMarginEnd sapUiTinyMarginBottom" alignItems="Center">
 							<m:Title id="_IDGenTitle4" text="Total Net Amount" class="sapUiTinyMarginBottom"/>
-							<m:NumericContent id="_IDGenNumericContent" value="{= ${trip>/TotalNetAmount} ? ${trip>/TotalNetAmount} : '0.00'}" icon="sap-icon://money-bills" size="L"/>
+							<m:ObjectStatus class="sapMObjectStatusLarge" id="_IDGenNumericContent" text="{= ${trip>/TotalNetAmount} ? ${trip>/TotalNetAmount} : '0.00'}" icon="sap-icon://money-bills" />
 						</m:VBox>
 						<!-- 3) Destination with flight icon -->
 						<m:VBox id="_IDGenVBox4" class="sapUiTinyMarginEnd sapUiTinyMarginBottom" alignItems="Center">
