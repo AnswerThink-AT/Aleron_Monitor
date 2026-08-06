@@ -366,7 +366,7 @@ class SOWscInvoice extends Processor {
 
             await Promise.allSettled([
                 ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode),
-                ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3}))),
+                ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({ record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3 }))),
                 this.markRecordsValid(sProcessCode, aPassedRecordIDs, true),
             ]);
             this.LOG._info && this.LOG.info(cds.i18n.messages.at('INFO_RECORDS_UPDATED', [sProcessCode, 'All']));
@@ -1108,7 +1108,18 @@ class SOWscInvoice extends Processor {
         if (aPassedRecordIDs.length) {
             this.LOG._info && this.LOG.info(`[SO] Remove logs & mark valid for passed IDs count=${aPassedRecordIDs.length}`);
             await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
-            await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3})));
+            await ProcessLogger.addLogs(
+                aPassedRecordIDs.map((sId) => {
+                    const oRecord = this.records.find(r => r.ID === sId);
+
+                    return {
+                        record_ID: sId,
+                        message: `Sales Order ${oRecord?.salesDocumentNoSAP} Item ${oRecord?.salesItemNoSAP} created successfully.`,
+                        process_code: sProcessCode,
+                        type: 3
+                    };
+                })
+            );
             await this.markRecordsValid(sProcessCode, aPassedRecordIDs, true);
         }
 
@@ -1850,7 +1861,18 @@ class SOWscInvoice extends Processor {
         // Update the status of passed records
         if (aPassedRecordIDs.length) {
             await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
-            await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3})));
+            await ProcessLogger.addLogs(
+                aPassedRecordIDs.map((sId) => {
+                    const oRecord = this.records.find(r => r.ID === sId);
+
+                    return {
+                        record_ID: sId,
+                        message: `Purchase Order ${oRecord?.purchaseDocumentNoSAP} Item ${oRecord?.purchaseDocumentItemSAP} created successfully.`,
+                        process_code: sProcessCode,
+                        type: 3
+                    };
+                })
+            );
             await this.markRecordsValid(sProcessCode, aPassedRecordIDs, true);
         }
 
@@ -2197,7 +2219,18 @@ class SOWscInvoice extends Processor {
 
         if (aPassedRecordIDs.length) {
             await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
-            await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3})));
+            await ProcessLogger.addLogs(
+                aPassedRecordIDs.map((sId) => {
+                    const oRecord = this.records.find(r => r.ID === sId);
+
+                    return {
+                        record_ID: sId,
+                        message: `Supplier Invoice ${oRecord?.invoiceDocumentNoSAP} created successfully for Fiscal Year ${oRecord?.fiscalYearSAP}.`,
+                        process_code: sProcessCode,
+                        type: 3
+                    };
+                })
+            );
         }
 
         this.updateExclusionSet({

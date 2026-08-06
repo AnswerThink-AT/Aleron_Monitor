@@ -24,6 +24,7 @@ const SupplierLFA1Comm = require('../communicators/SupplierLFA1');
 const {
     determineConditionType
 } = require('../common/pricingHelper');
+const { process_params } = require('express/lib/router');
 
 class FgtimeInvoice extends Processor {
     constructor(options) {
@@ -266,7 +267,7 @@ class FgtimeInvoice extends Processor {
                 LOG.error(`STEP 0.1 FAILED → ${msg}`);
                 await ProcessLogger.addLogs([{
                     record_ID: this.file.ID,
-                    message: msg,process_code: sProcessCode
+                    message: msg, process_code: sProcessCode
                 }]);
                 return {
                     hasError: true,
@@ -438,7 +439,7 @@ class FgtimeInvoice extends Processor {
                     LOG.error(`Record ${rec.ID} → Step A FAILED: ${msg}`);
                     errorLogs.push({
                         record_ID: rec.ID,
-                        message: msg,process_code: sProcessCode
+                        message: msg, process_code: sProcessCode
                     });
                     failed.push(rec.ID);
                     hasErr = true;
@@ -496,7 +497,7 @@ class FgtimeInvoice extends Processor {
                     group.forEach(r => {
                         errorLogs.push({
                             record_ID: r.ID,
-                            message: msg,process_code: sProcessCode
+                            message: msg, process_code: sProcessCode
                         });
                         failed.push(r.ID);
                     });
@@ -700,7 +701,7 @@ class FgtimeInvoice extends Processor {
                     group.forEach(r => {
                         errorLogs.push({
                             record_ID: r.ID,
-                            message: msg,process_code: sProcessCode
+                            message: msg, process_code: sProcessCode
                         });
                         failed.push(r.ID);
                     });
@@ -729,7 +730,7 @@ class FgtimeInvoice extends Processor {
                     group.forEach(r => {
                         errorLogs.push({
                             record_ID: r.ID,
-                            message: msg,process_code: sProcessCode
+                            message: msg, process_code: sProcessCode
                         });
                         failed.push(r.ID);
                     });
@@ -781,7 +782,7 @@ class FgtimeInvoice extends Processor {
                     LOG.error(`Record ${r.ID} → D FAILED: ${msg}`);
                     errorLogs.push({
                         record_ID: r.ID,
-                        message: msg,process_code: sProcessCode
+                        message: msg, process_code: sProcessCode
                     });
                     failed.push(r.ID);
                     LOG.info(`Record ${r.ID} → EXIT Step D (FAIL)`);
@@ -827,7 +828,7 @@ class FgtimeInvoice extends Processor {
         if (passed.length) {
             LOG.info(`STEP 3: marking ${passed.length} record(s) valid → moving to 'T'`);
             await ProcessLogger.removeLogs(passed, null, sProcessCode);
-            await ProcessLogger.addLogs(passed.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', ['T']), process_code: 'T', type: 3})));
+            await ProcessLogger.addLogs(passed.map((sId) => ({ record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', sProcessCode), process_code: sProcessCode, type: 3 })));
             await this.markRecordsValid('T', passed, true);
         }
 
@@ -1033,7 +1034,7 @@ class FgtimeInvoice extends Processor {
         const errorLogs = [];
         const failed = [];
         const passed = [];
-
+        const mSuccessMessages = new Map();
         for (let i = 0; i < payloads.length; i++) {
             const rec = records[i];
             const entry = payloads[i];
@@ -1043,19 +1044,23 @@ class FgtimeInvoice extends Processor {
                 );
                 if (res.SAP_UUID) {
                     passed.push(rec.ID);
+                    mSuccessMessages.set(
+                        rec.ID,
+                        `Time entry created successfully for Employee ${rec.personnelNoSAP}. SAP UUID: ${res.SAP_UUID}.`
+                    );
                     LOG.info(`    ← ${rec.ID} → SAP_UUID=${res.SAP_UUID}`);
                 } else {
                     const msg = res.message || 'Unknown error';
                     errorLogs.push({
                         record_ID: rec.ID,
-                        message: msg,process_code: sProcessCode
+                        message: msg, process_code: sProcessCode
                     });
                     failed.push(rec.ID);
                 }
             } catch (e) {
                 errorLogs.push({
                     record_ID: rec.ID,
-                    message: e.message,process_code: sProcessCode
+                    message: e.message, process_code: sProcessCode
                 });
                 failed.push(rec.ID);
             }
@@ -1069,7 +1074,13 @@ class FgtimeInvoice extends Processor {
         }
         if (passed.length) {
             await ProcessLogger.removeLogs(passed, null, sProcessCode);
-            await ProcessLogger.addLogs(passed.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', ['G']), process_code: 'G', type: 3})));
+            await ProcessLogger.addLogs(passed.map((sId) => ({
+                record_ID: sId,
+                message: mSuccessMessages.get(sId),
+                process_code: sProcessCode,
+                type: 3
+            })));
+            //await ProcessLogger.addLogs(passed.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', ['G']), process_code: 'G', type: 3})));
             // promote passed to next step 'G'
             await this.markRecordsValid('G', passed, true);
             await UPDATE(this.recordsEntity)
@@ -1224,6 +1235,7 @@ class FgtimeInvoice extends Processor {
         const errorLogs = [],
             passed = [],
             failed = [];
+        const mSuccessMessages = new Map();
         let groupCounter = 1;
         for (const [key, lines] of groups.entries()) {
             const rec = lines[0],
@@ -1721,12 +1733,18 @@ class FgtimeInvoice extends Processor {
                 LOG.info(`[processSalesOrder][Group ${groupCounter}][4.7] Records updated`);
 
                 passed.push(...lines.map(l => l.ID));
+                for (const l of lines) {
+                    mSuccessMessages.set(
+                        l.ID,
+                        `Sales order item ${nextSO} created successfully for Sales Order ${vbeln}.`
+                    );
+                }
             } catch (e) {
                 LOG.error(`[processSalesOrder][Group ${groupCounter}][ERROR] Group ${key} failed: ${e.message}`);
                 for (const l of lines) {
                     errorLogs.push({
                         record_ID: l.ID,
-                        message: e.message,process_code: sProcessCode
+                        message: e.message, process_code: sProcessCode
                     });
                     failed.push(l.ID);
                 }
@@ -1744,7 +1762,13 @@ class FgtimeInvoice extends Processor {
         }
         if (passed.length) {
             await ProcessLogger.removeLogs(passed, null, sProcessCode);
-            await ProcessLogger.addLogs(passed.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', ['5']), process_code: '5', type: 3})));
+            await ProcessLogger.addLogs(passed.map((sId) => ({
+                record_ID: sId,
+                message: mSuccessMessages.get(sId),
+                process_code: sProcessCode,
+                type: 3
+            })));
+            //await ProcessLogger.addLogs(passed.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', ['5']), process_code: '5', type: 3})));
             // **successes move to 5**, so they're skipped next time:
             await this.markRecordsValid('5', passed, true);
         }
@@ -1860,6 +1884,7 @@ class FgtimeInvoice extends Processor {
         const errorLogs = [],
             passed = [],
             failed = [];
+        const mSuccessMessages = new Map();
         let groupCounter = 1;
         for (const [key, lines] of groups.entries()) {
             const rec = lines[0];
@@ -2272,13 +2297,19 @@ class FgtimeInvoice extends Processor {
                     });
 
                 passed.push(...ids);
+                for (const id of ids) {
+                    mSuccessMessages.set(
+                        id,
+                        `Intercompany sales order item ${nextItem} created successfully for Sales Order ${icVbeln}.`
+                    );
+                }
                 LOG.info(`[processIntercompanyso][${groupCounter}] Success, item ${nextSO}`);
             } catch (e) {
                 LOG.error(`[processIntercompanyso][Group ${groupCounter}] ERROR → ${e.message}`);
                 for (const l of lines) {
                     errorLogs.push({
                         record_ID: l.ID,
-                        message: e.message ,process_code: sProcessCode
+                        message: e.message, process_code: sProcessCode
                     });
                     failed.push(l.ID);
                 }
@@ -2297,7 +2328,15 @@ class FgtimeInvoice extends Processor {
         }
         if (passed.length) {
             await ProcessLogger.removeLogs(passed, null, sProcessCode);
-            await ProcessLogger.addLogs(passed.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', ['5']), process_code: '5', type: 3})));
+            await ProcessLogger.addLogs(
+                passed.map((sId) => ({
+                    record_ID: sId,
+                    message: mSuccessMessages.get(sId),
+                    process_code: sProcessCode,
+                    type: 3
+                }))
+            );
+            //await ProcessLogger.addLogs(passed.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', ['5']), process_code: '5', type: 3})));
             // successes move to '5' so they’re skipped next run
             await this.markRecordsValid('5', passed, true);
         }
@@ -2434,6 +2473,7 @@ class FgtimeInvoice extends Processor {
         const errorLogs = [],
             passed = [],
             failed = [];
+        const mSuccessMessages = new Map();
         const poComm = new PurchaseOrder();
 
         for (const [key, lines] of groups.entries()) {
@@ -3267,7 +3307,12 @@ class FgtimeInvoice extends Processor {
                         .where({ ID: lines.map(l => l.ID) });
 
                     passed.push(...lines.map(l => l.ID));
-
+                    for (const l of lines) {
+                        mSuccessMessages.set(
+                            l.ID,
+                            `Purchase Order ${newPo} created successfully with item ${poItem}.`
+                        );
+                    }
                     // ** back-link both the dummy header (00010) and the real line **
                     if (ebeln) {
                         const soNum = vbeln;
@@ -3312,13 +3357,19 @@ class FgtimeInvoice extends Processor {
                         ID: lines.map(l => l.ID)
                     });
                 passed.push(...lines.map(l => l.ID));
+                for (const l of lines) {
+                    mSuccessMessages.set(
+                        l.ID,
+                        `Purchase Order ${ebeln} updated successfully with item ${poItem}.`
+                    );
+                }
 
             } catch (e) {
                 LOG.error(`[Group ${key}] FAILED → ${e.message}`);
                 for (const l of lines) {
                     errorLogs.push({
                         record_ID: l.ID,
-                        message: e.message,process_code: sProcessCode
+                        message: e.message, process_code: sProcessCode
                     });
                     failed.push(l.ID);
                 }
@@ -3334,6 +3385,16 @@ class FgtimeInvoice extends Processor {
             await this.markRecordsValid('5', failed, false);
         }
         if (passed.length) {
+            await ProcessLogger.removeLogs(passed, null, 'B');
+            await ProcessLogger.addLogs(
+                passed.map((sId) => ({
+                    record_ID: sId,
+                    message: mSuccessMessages.get(sId),
+                    process_code: sProcessCode,
+                    type: 3
+                }))
+            );
+
             await this.markRecordsValid('B', passed, true);
         }
         this.updateExclusionSet({
@@ -3432,7 +3493,7 @@ class FgtimeInvoice extends Processor {
         LOG.info('[processSupplierInvoice] supplierInvoiceAPI initialized');
 
         const errorLogs = [], passed = [], failed = [];
-
+        const mSuccessMessages = new Map();
         // 4) process each group
         for (const [key, recs] of groups) {
             const rec = recs[0];
@@ -3449,7 +3510,7 @@ class FgtimeInvoice extends Processor {
             if (!poHdr) {
                 const msg = `PO ${poNumber} not found`;
                 LOG.error(msg);
-                recs.forEach(r => { errorLogs.push({ record_ID: r.ID, message: msg,process_code: sProcessCode }); failed.push(r.ID); });
+                recs.forEach(r => { errorLogs.push({ record_ID: r.ID, message: msg, process_code: sProcessCode }); failed.push(r.ID); });
                 continue;
             }
 
@@ -3480,7 +3541,7 @@ class FgtimeInvoice extends Processor {
             if (!poIt) {
                 const msg = `Item ${poItem} on PO ${poNumber} not found`;
                 LOG.error(msg);
-                recs.forEach(r => { errorLogs.push({ record_ID: r.ID, message: msg ,process_code: sProcessCode}); failed.push(r.ID); });
+                recs.forEach(r => { errorLogs.push({ record_ID: r.ID, message: msg, process_code: sProcessCode }); failed.push(r.ID); });
                 continue;
             }
 
@@ -3551,7 +3612,7 @@ class FgtimeInvoice extends Processor {
                 if (!SupplierInvoice || !FiscalYear) {
                     const msg = `Invalid MIRO response: ${JSON.stringify(resp)}`;
                     LOG.error(msg);
-                    recs.forEach(r => errorLogs.push({ record_ID: r.ID, message: msg ,process_code: sProcessCode}));
+                    recs.forEach(r => errorLogs.push({ record_ID: r.ID, message: msg, process_code: sProcessCode }));
                     failed.push(...recs.map(r => r.ID));
                     continue;
                 }
@@ -3565,6 +3626,12 @@ class FgtimeInvoice extends Processor {
                         invoiceFiscalYearSAP: FiscalYear
                     })
                     .where({ ID: ids });
+                for (const id of ids) {
+                    mSuccessMessages.set(
+                        id,
+                        `Supplier Invoice ${SupplierInvoice} created successfully for Purchase Order ${poNumber}.`
+                    );
+                }
                 passed.push(...ids);
 
             } catch (err) {
@@ -3573,7 +3640,7 @@ class FgtimeInvoice extends Processor {
                 LOG.error(`MIRO failed: ${raw}`);
                 recs.forEach(r => errorLogs.push({
                     record_ID: r.ID,
-                    message: `MIRO error: ${raw}`,process_code: sProcessCode
+                    message: `MIRO error: ${raw}`, process_code: sProcessCode
                 }));
                 failed.push(...recs.map(r => r.ID));
             }
@@ -3588,6 +3655,15 @@ class FgtimeInvoice extends Processor {
             await UPDATE(this.recordsEntity).set({ processLevel_code: 'B' }).where({ ID: failed });
         }
         if (passed.length) {
+            await ProcessLogger.removeLogs(passed, null, '9');
+            await ProcessLogger.addLogs(
+                passed.map((sId) => ({
+                    record_ID: sId,
+                    message: mSuccessMessages.get(sId),
+                    process_code: sProcessCode,
+                    type: 3
+                }))
+            );
             await this.markRecordsValid('9', passed, true);
             await UPDATE(this.recordsEntity).set({ processLevel_code: '9' }).where({ ID: passed });
         }

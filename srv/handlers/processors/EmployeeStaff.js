@@ -468,8 +468,8 @@ class EmployeeStaff extends Processor {
       }
     }
     if (aPassedRecordIDs.length) {
-      await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
-      await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({ record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3 })));
+      //await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
+      //await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({ record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3 })));
       // const targetEntity = String(entity).includes('StaffHires') ? StaffHires : EmployeeHires;
       await Promise.allSettled([
         ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode),
