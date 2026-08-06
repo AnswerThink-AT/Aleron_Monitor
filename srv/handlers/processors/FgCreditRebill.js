@@ -241,7 +241,7 @@ class FgCreditRebill extends Processor {
                     const errorMsg = 'Original FG Invoice ID is Missing';
                     aErrorLogs.push({
                         record_ID: record.ID,
-                        message: errorMsg,process_code: sProcessCode
+                        message: errorMsg, process_code: sProcessCode
                     });
                     aFailedRecordIDs.push(record.ID);
                     hasRecordFailed = true;
@@ -300,7 +300,7 @@ class FgCreditRebill extends Processor {
                                 if (existingCreditInvoiceResult && existingCreditInvoiceResult.length > 0) {
                                     aErrorLogs.push({
                                         record_ID: record.ID,
-                                        message: 'Credit Invoice already exist.',process_code: sProcessCode
+                                        message: 'Credit Invoice already exist.', process_code: sProcessCode
                                     });
                                     aFailedRecordIDs.push(record.ID);
                                     hasRecordFailed = true;
@@ -347,7 +347,7 @@ class FgCreditRebill extends Processor {
                                             const errorMsg = 'MBEWBE Expense. Please credit manually.';
                                             aErrorLogs.push({
                                                 record_ID: record.ID,
-                                                message: errorMsg,process_code: sProcessCode
+                                                message: errorMsg, process_code: sProcessCode
                                             });
                                             aFailedRecordIDs.push(record.ID);
                                             hasRecordFailed = true;
@@ -381,7 +381,7 @@ class FgCreditRebill extends Processor {
                                                 const errorMsg = `Invoice ID ${record.fgInvoiceOrgID} is already invalidated once.`;
                                                 aErrorLogs.push({
                                                     record_ID: record.ID,
-                                                    message: errorMsg,process_code: sProcessCode
+                                                    message: errorMsg, process_code: sProcessCode
                                                 });
                                                 aFailedRecordIDs.push(record.ID);
                                                 hasRecordFailed = true;
@@ -742,7 +742,7 @@ class FgCreditRebill extends Processor {
                 await Promise.all(updatePromises);
             }
         }
-       
+
         // if (aFailedRecordIDs.length > 0) {
         //     const failedRecordIDSet = new Set(aFailedRecordIDs);
         //     const allRecordIDsToUpdateAsFailed = new Set();
@@ -838,6 +838,17 @@ class FgCreditRebill extends Processor {
                 await Promise.all(updatePromises);
             }
         }
+        if (aPassedRecordIDs.length) {
+            await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
+            await ProcessLogger.addLogs(
+                aPassedRecordIDs.map((sId) => ({
+                    record_ID: sId,
+                    message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]),
+                    process_code: sProcessCode,
+                    type: 3
+                }))
+            );
+        }
 
         return {
             hasError: aFailedRecordIDs.length > 0,
@@ -874,7 +885,7 @@ class FgCreditRebill extends Processor {
         };
     }
 
-    
+
     //Step H (Reject SO)
     async RejectSO(sProcessCode, bBreakExecution) {
         const aRecordsForProcessing = [];
@@ -910,7 +921,7 @@ class FgCreditRebill extends Processor {
             groups[key].push(record);
             return groups;
         }, {});
-
+        const mSuccessMessages = new Map();
         for (const groupKey in groupedRecords) {
             const recordsInGroup = groupedRecords[groupKey];
 
@@ -947,6 +958,10 @@ class FgCreditRebill extends Processor {
                                 // await INSERT.into(InterfaceSteps).entries({ record_ID: record.ID, step: 'H', createdAt: new Date() });
                                 // await this._deletePreviousSteps(record.ID, 'H');
                                 aPassedRecordIDs.push(record.ID);
+                                mSuccessMessages.set(
+                                    record.ID,
+                                    `Sales Order ${representativeRecord.salesDocumentNoSAP} rejected successfully with reason ZA.`
+                                );
                             }
                         } else {
                             // Mark all records in the group as failed
@@ -964,7 +979,7 @@ class FgCreditRebill extends Processor {
                     for (const record of recordsInGroup) {
                         aErrorLogs.push({
                             record_ID: record.ID,
-                            message: `Error rejecting sales order: ${err.message}`,process_code: sProcessCode
+                            message: `Error rejecting sales order: ${err.message}`, process_code: sProcessCode
                         });
                         aFailedRecordIDs.push(record.ID);
                     }
@@ -980,7 +995,7 @@ class FgCreditRebill extends Processor {
         // Update the status of passed records
         // if (aPassedRecordIDs.length) {
         //     await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
-    
+
         //     try {
         //         await UPDATE(Fg_Credit_Rebill)
         //             .set({
@@ -988,7 +1003,7 @@ class FgCreditRebill extends Processor {
         //                 processLevel_code: sProcessCode
         //             })
         //             .where({ ID: { in: aPassedRecordIDs } });
-                
+
         //         LOG.info(`Successfully updated ${aPassedRecordIDs.length} records as passed for step ${sProcessCode}`);
         //     } catch (updateError) {
         //         LOG.error(`Error updating passed records: ${updateError.message}`);
@@ -1000,14 +1015,21 @@ class FgCreditRebill extends Processor {
         //                 message: `Database update failed: ${updateError.message}`
         //             });
         //         }
-                
+
         //     }
         // }
 
         if (aPassedRecordIDs.length) {
             await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
-            await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3})));
-    
+            //await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3})));
+            await ProcessLogger.addLogs(
+                aPassedRecordIDs.map((sId) => ({
+                    record_ID: sId,
+                    message: mSuccessMessages.get(sId),
+                    process_code: sProcessCode,
+                    type: 3
+                }))
+            );
             try {
                 const updateResult = await this.markRecordsValid(sProcessCode, aPassedRecordIDs, true);
                 if (updateResult) {
@@ -1082,7 +1104,7 @@ class FgCreditRebill extends Processor {
                 } catch (err) {
                     aErrorLogs.push({
                         record_ID: record.ID,
-                        message: `Error rejecting intercompany sales order: ${err.message}`,process_code: sProcessCode
+                        message: `Error rejecting intercompany sales order: ${err.message}`, process_code: sProcessCode
                     });
                     aFailedRecordIDs.push(record.ID);
                 }
@@ -1093,7 +1115,17 @@ class FgCreditRebill extends Processor {
         // Update the status of passed records
         if (aPassedRecordIDs.length) {
             await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
-            await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3})));
+            //await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3})));
+            await ProcessLogger.addLogs(
+                this.records
+                    .filter(record => aPassedRecordIDs.includes(record.ID))
+                    .map(record => ({
+                        record_ID: record.ID,
+                        message: `Intercompany Sales Order ${record.salesDocumentNoSAP} rejected successfully with reason ZA.`,
+                        process_code: sProcessCode,
+                        type: 3
+                    }))
+            );
             await UPDATE(Fg_Credit_Rebill)
                 .set({
                     valid: true,
@@ -1149,7 +1181,7 @@ class FgCreditRebill extends Processor {
             groups[key].push(record);
             return groups;
         }, {});
-
+        const mSuccessMessages = new Map();
         for (const groupKey in groupedRecords) {
             const recordsInGroup = groupedRecords[groupKey];
 
@@ -1215,9 +1247,9 @@ class FgCreditRebill extends Processor {
                     const supplierInvoiceResult = await this.supplierInvoiceAPI.executeQuery(
                         SELECT.from('A_SuplrInvcItemPurOrdRef')
                             .columns(['SupplierInvoice', 'SupplierInvoiceItem', 'FiscalYear'])
-                            .where({                                
-                                     PurchaseOrder: representativeRecord.purchaseDocumentNoSAP ,
-                                     PurchaseOrderItem: representativeRecord.purchaseDocumentItemSAP                                
+                            .where({
+                                PurchaseOrder: representativeRecord.purchaseDocumentNoSAP,
+                                PurchaseOrderItem: representativeRecord.purchaseDocumentItemSAP
                             })
                     );
 
@@ -1261,6 +1293,10 @@ class FgCreditRebill extends Processor {
                             // await INSERT.into(InterfaceSteps).entries({ record_ID: record.ID, step: 'J', createdAt: new Date() });
                             // await this._deletePreviousSteps(record.ID, 'J');
                             aPassedRecordIDs.push(record.ID);
+                            mSuccessMessages.set(
+                                record.ID,
+                                `Supplier Invoice ${supplierInvoice} cancelled successfully.`
+                            );
                         }
                     } else {
                         // Mark all records in the group as failed
@@ -1293,8 +1329,15 @@ class FgCreditRebill extends Processor {
         // Update the status of passed records
         if (aPassedRecordIDs.length) {
             await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
-            await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3})));
-
+            //await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3})));
+            await ProcessLogger.addLogs(
+                aPassedRecordIDs.map((sId) => ({
+                    record_ID: sId,
+                    message: mSuccessMessages.get(sId),
+                    process_code: sProcessCode,
+                    type: 3
+                }))
+            );
             // Get all record IDs that need to be updated as passed (including group members)
             const allRecordIDsToUpdateAsPassed = new Set();
 
@@ -1362,7 +1405,7 @@ class FgCreditRebill extends Processor {
         const aFailedRecordIDs = [];
         const aSkippedRecords = [];
         const aErrorLogs = [];
-
+        const mSuccessMessages = new Map();
         for (const record of this.records) {
             if (this.shouldRecordProcess(record, sProcessCode)) {
                 aRecordsForProcessing.push({ ...record });
@@ -1421,7 +1464,7 @@ class FgCreditRebill extends Processor {
                     // Call the communicator to mark the PO item for deletion using stored values
                     const updateResult = await this.purchaseOrderAPI.deletePurchaseOrderItems({
                         PurchaseOrder: representativeRecord.purchaseDocumentNoSAP,
-                        PurchaseOrderItem: representativeRecord.purchaseDocumentItemSAP                        
+                        PurchaseOrderItem: representativeRecord.purchaseDocumentItemSAP
                     });
 
                     if (updateResult.success) {
@@ -1430,13 +1473,17 @@ class FgCreditRebill extends Processor {
                             // await INSERT.into(InterfaceSteps).entries({ record_ID: record.ID, step: 'K', createdAt: new Date() });
                             // await this._deletePreviousSteps(record.ID, 'K');
                             aPassedRecordIDs.push(record.ID);
+                            mSuccessMessages.set(
+                                record.ID,
+                                `Purchase Order ${representativeRecord.purchaseDocumentNoSAP} item ${representativeRecord.purchaseDocumentItemSAP} marked for deletion successfully.`
+                            );
                         }
                     } else {
                         // Mark all records in the group as failed
                         for (const record of recordsInGroup) {
                             aErrorLogs.push({
                                 record_ID: record.ID,
-                                message: `Error marking purchase order item for deletion: ${updateResult.message}`,process_code: sProcessCode
+                                message: `Error marking purchase order item for deletion: ${updateResult.message}`, process_code: sProcessCode
                             });
                             aFailedRecordIDs.push(record.ID);
                         }
@@ -1462,8 +1509,15 @@ class FgCreditRebill extends Processor {
         // Update the status of passed records
         if (aPassedRecordIDs.length) {
             await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
-            await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3})));
-
+            //await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3})));
+            await ProcessLogger.addLogs(
+                aPassedRecordIDs.map((sId) => ({
+                    record_ID: sId,
+                    message: mSuccessMessages.get(sId),
+                    process_code: sProcessCode,
+                    type: 3
+                }))
+            );
             // Get all record IDs that need to be updated as passed (including group members)
             const allRecordIDsToUpdateAsPassed = new Set();
 
@@ -1530,7 +1584,7 @@ class FgCreditRebill extends Processor {
         const aFailedRecordIDs = [];
         const aSkippedRecords = [];
         const aErrorLogs = [];
-
+        const mSuccessMessages = new Map();
         for (const record of this.records) {
             if (this.shouldRecordProcess(record, sProcessCode)) {
                 aRecordsForProcessing.push({ ...record });
@@ -1578,7 +1632,7 @@ class FgCreditRebill extends Processor {
                         for (const record of recordsInGroup) {
                             aErrorLogs.push({
                                 record_ID: record.ID,
-                                message: 'SO missing.',process_code: sProcessCode
+                                message: 'SO missing.', process_code: sProcessCode
                             });
                             aFailedRecordIDs.push(record.ID);
                         }
@@ -1634,7 +1688,7 @@ class FgCreditRebill extends Processor {
                         for (const record of recordsInGroup) {
                             aErrorLogs.push({
                                 record_ID: record.ID,
-                                message: `No sales order found for ${VAR_VBELN}`,process_code: sProcessCode
+                                message: `No sales order found for ${VAR_VBELN}`, process_code: sProcessCode
                             });
                             aFailedRecordIDs.push(record.ID);
                         }
@@ -1671,6 +1725,10 @@ class FgCreditRebill extends Processor {
                     // Mark all records in the group as passed
                     for (const record of recordsInGroup) {
                         aPassedRecordIDs.push(record.ID);
+                        mSuccessMessages.set(
+                            record.ID,
+                            `Credit Memo validation completed successfully for Sales Order ${VAR_VBELN} and WN Invoice ${representativeRecord.wnInvoiceNo}.`
+                        );
                     }
                 } catch (err) {
                     // Mark all records in the group as failed
@@ -1693,8 +1751,13 @@ class FgCreditRebill extends Processor {
         // Update the status of passed records
         if (aPassedRecordIDs.length) {
             await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
-            await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3})));
-
+            //await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3})));
+            await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({
+                record_ID: sId,
+                message: mSuccessMessages.get(sId),
+                process_code: sProcessCode,
+                type: 3
+            })));
             // Get all record IDs that need to be updated as passed (including group members)
             const allRecordIDsToUpdateAsPassed = new Set();
 
@@ -1761,13 +1824,17 @@ class FgCreditRebill extends Processor {
         const aFailedRecordIDs = [];
         const aSkippedRecords = [];
         const aErrorLogs = [];
-
+        const mSuccessMessages = new Map();
         for (const record of this.records) {
             try {
                 if (record.varIC === 'X' && record.salesOrderICSAP && record.salesOrderICSAP.trim() !== '') {
                     // await INSERT.into(InterfaceSteps).entries({ record_ID: record.ID, step: 'M', createdAt: new Date() });
                     // await this._deletePreviousSteps(record.ID, 'M');
                     aPassedRecordIDs.push(record.ID);
+                    mSuccessMessages.set(
+                        record.ID,
+                        `Intercompany Credit Memo validation completed successfully for Intercompany Sales Order ${record.salesOrderICSAP}.`
+                    );
                 } else {
                     aSkippedRecords.push(record.ID);
                 }
@@ -1782,7 +1849,12 @@ class FgCreditRebill extends Processor {
         // Update the status of passed records
         if (aPassedRecordIDs.length) {
             await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
-            await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3})));
+            await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({
+                record_ID: sId,
+                message: mSuccessMessages.get(sId),
+                process_code: sProcessCode,
+                type: 3
+            })));
             await UPDATE(Fg_Credit_Rebill)
                 .set({
                     valid: true,
@@ -1810,7 +1882,7 @@ class FgCreditRebill extends Processor {
         const aFailedRecordIDs = [];
         const aSkippedRecords = [];
         const aErrorLogs = [];
-
+        const mSuccessMessages = new Map();
         // Group records by composite key (3-4 fields)
         const groupedRecords = this.records.reduce((groups, record) => {
             const key = `${record.fgInvoiceOrgID}|${record.fgWorkOrderID}|${record.fgInvoiceID}`;
@@ -1887,10 +1959,10 @@ class FgCreditRebill extends Processor {
                         SELECT.from('A_SuplrInvcItemPurOrdRef')
                             .columns(['SupplierInvoice', 'SupplierInvoiceItem'])
                             .where({
-                                
-                                     PurchaseOrder: representativeRecord.purchaseDocumentNoSAP ,
-                                     PurchaseOrderItem: representativeRecord.purchaseDocumentItemSAP 
-                                
+
+                                PurchaseOrder: representativeRecord.purchaseDocumentNoSAP,
+                                PurchaseOrderItem: representativeRecord.purchaseDocumentItemSAP
+
                             })
                     );
 
@@ -2003,6 +2075,10 @@ class FgCreditRebill extends Processor {
                             await INSERT.into(InterfaceSteps).entries({ record_ID: record.ID, step: 'N', createdAt: new Date() });
                             await this._deletePreviousSteps(record.ID, 'N');
                             aPassedRecordIDs.push(record.ID);
+                            mSuccessMessages.set(
+                                record.ID,
+                                `Credit MIRO ${createResult.SupplierInvoice} created successfully for Purchase Order ${representativeRecord.purchaseDocumentNoSAP}.`
+                            );
                         }
                     } else {
                         // Mark all records in the group as failed
@@ -2020,7 +2096,7 @@ class FgCreditRebill extends Processor {
                     for (const record of recordsInGroup) {
                         aErrorLogs.push({
                             record_ID: record.ID,
-                            message: `Error creating credit MIRO: ${err.message}`,process_code: sProcessCode
+                            message: `Error creating credit MIRO: ${err.message}`, process_code: sProcessCode
                         });
                         aFailedRecordIDs.push(record.ID);
                     }
@@ -2036,8 +2112,13 @@ class FgCreditRebill extends Processor {
         // Update the status of passed records
         if (aPassedRecordIDs.length) {
             await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
-            await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3})));
-
+            //await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3})));
+            await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({
+                record_ID: sId,
+                message: mSuccessMessages.get(sId),
+                process_code: sProcessCode,
+                type: 3
+            })));
             // Get all record IDs that need to be updated as passed (including group members)
             const allRecordIDsToUpdateAsPassed = new Set();
 
@@ -2104,7 +2185,7 @@ class FgCreditRebill extends Processor {
         const aFailedRecordIDs = [];
         const aSkippedRecords = [];
         const aErrorLogs = [];
-  
+        const mSuccessMessages = new Map();
         for (const record of this.records) {
             if (this.shouldRecordProcess(record, sProcessCode)) {
                 aRecordsForProcessing.push({ ...record });
@@ -2113,7 +2194,7 @@ class FgCreditRebill extends Processor {
                 continue;
             }
         }
-  
+
         this.updateProcessingState(sProcessCode);
         if (!aRecordsForProcessing.length) {
             // If Step doesn't need to be processed, simply return to avoid costly calls
@@ -2122,7 +2203,7 @@ class FgCreditRebill extends Processor {
                 continue: true,
             };
         }
-  
+
         // Group records by composite key (3-4 fields)
         const groupedRecords = this.records.reduce((groups, record) => {
             const key = `${record.fgInvoiceOrgID}|${record.fgWorkOrderID}|${record.fgInvoiceID}`;
@@ -2132,30 +2213,30 @@ class FgCreditRebill extends Processor {
             groups[key].push(record);
             return groups;
         }, {});
-  
+
         for (const groupKey in groupedRecords) {
             const recordsInGroup = groupedRecords[groupKey];
-            
+
             // Process each group - if any record in the group needs step O, process the group
-            const needsProcessing = recordsInGroup.some(record => 
+            const needsProcessing = recordsInGroup.some(record =>
                 record.creditSteps && record.creditSteps.split(',').includes('O')
             );
-  
+
             if (needsProcessing) {
-                
+
                 const representativeRecord = recordsInGroup[0];
-                
+
                 try {
                     const step = 'O';
                     const VAR_SO = representativeRecord.fgWorkOrderID;
-  
+
                     // 1. Get Customer Number from sales order header
                     const salesOrderResult = await this.salesOrderAPI.executeQuery(
                         SELECT.from('A_SalesOrder')
                             .columns(['SalesOrder', 'Customer'])
                             .where({ SalesOrder: VAR_SO })
                     );
-  
+
                     if (!salesOrderResult || !salesOrderResult.length) {
                         // Mark all records in the group as failed
                         for (const record of recordsInGroup) {
@@ -2167,16 +2248,16 @@ class FgCreditRebill extends Processor {
                         }
                         continue;
                     }
-  
+
                     const customerNumber = salesOrderResult[0].Customer;
-  
+
                     // 2. Get Group Invoice from Customer Master
                     const customerResult = await this.businesPartnerAPI.executeQuery(
                         SELECT.from('A_BusinessPartner')
                             .columns(['BusinessPartner'])
                             .where({ BusinessPartner: customerNumber })
                     );
-  
+
                     if (!customerResult || !customerResult.length) {
                         // Mark all records in the group as failed
                         for (const record of recordsInGroup) {
@@ -2188,10 +2269,10 @@ class FgCreditRebill extends Processor {
                         }
                         continue;
                     }
-  
-                   
+
+
                     const groupInvoice = true; // or check a specific field if available
-  
+
                     // 3. If Group Invoice exists, proceed with partner function removal
                     if (groupInvoice) {
                         // 3.1 Remove Employee Number from partner function
@@ -2205,7 +2286,7 @@ class FgCreditRebill extends Processor {
                                     ]
                                 })
                         );
-  
+
                         if (employeePartnerResult && employeePartnerResult.length > 0) {
                             try {
                                 const deleteEmployeeResult = await this.salesOrderAPI.deleteSalesOrderPartners([{
@@ -2213,7 +2294,7 @@ class FgCreditRebill extends Processor {
                                     PartnerFunction: 'Z3',
                                     Personnel: employeePartnerResult[0].Personnel
                                 }]);
-  
+
                                 if (!deleteEmployeeResult || deleteEmployeeResult.length === 0 || deleteEmployeeResult[0].hasError) {
                                     // Mark all records in the group as failed
                                     for (const record of recordsInGroup) {
@@ -2239,7 +2320,7 @@ class FgCreditRebill extends Processor {
                                 continue;
                             }
                         }
-  
+
                         // 3.2 Get Sales Order/Item/Partner Function/Vendor details
                         const partnerResult = await this.salesOrderAPI.executeQuery(
                             SELECT.from('A_SalesOrderHeaderPartner')
@@ -2251,7 +2332,7 @@ class FgCreditRebill extends Processor {
                                     ]
                                 })
                         );
-  
+
                         // 3.3 Remove specific vendor line
                         if (partnerResult && partnerResult.length > 0) {
                             for (const partner of partnerResult) {
@@ -2262,7 +2343,7 @@ class FgCreditRebill extends Processor {
                                             PartnerFunction: partner.PartnerFunction,
                                             Supplier: partner.Supplier
                                         }]);
-  
+
                                         if (!deletePartnerResult || deletePartnerResult.length === 0 || deletePartnerResult[0].hasError) {
                                             // Mark all records in the group as failed
                                             for (const record of recordsInGroup) {
@@ -2290,7 +2371,7 @@ class FgCreditRebill extends Processor {
                                 }
                             }
                         }
-  
+
                         // 3.4 Remove all entries from credit memo if any exist
                         const creditMemoResult = await this.salesOrderAPI.executeQuery(
                             SELECT.from('A_SalesOrderItem')
@@ -2302,11 +2383,11 @@ class FgCreditRebill extends Processor {
                                     ]
                                 })
                         );
-  
+
                         if (creditMemoResult && creditMemoResult.length > 0) {
-                            
+
                             LOG.info(`Found ${creditMemoResult.length} credit memo items for Sales Order ${VAR_SO}. These cannot be deleted via API.`);
-                            
+
                             // Optionally, you could update them to mark for deletion instead:
                             // for (const creditMemo of creditMemoResult) {
                             //     await this.salesOrderAPI.updateSalesOrderItem({
@@ -2317,15 +2398,19 @@ class FgCreditRebill extends Processor {
                             // }
                         }
                     }
-  
+
                     // If we reach here, all operations were successful
                     // Mark all records in the group as passed
                     for (const record of recordsInGroup) {
                         await INSERT.into(InterfaceSteps).entries({ record_ID: record.ID, step, createdAt: new Date() });
                         await this._deletePreviousSteps(record.ID, step);
                         aPassedRecordIDs.push(record.ID);
+                        mSuccessMessages.set(
+                            record.ID,
+                            `Partner functions removed successfully from Sales Order ${VAR_SO}.`
+                        );
                     }
-  
+
                 } catch (err) {
                     // Mark all records in the group as failed
                     for (const record of recordsInGroup) {
@@ -2344,18 +2429,23 @@ class FgCreditRebill extends Processor {
                 }
             }
         }
-  
+
         // Update the status of passed records
         if (aPassedRecordIDs.length) {
             await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
-            await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3})));
-            
+            //await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3})));
+            await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({
+                record_ID: sId,
+                message: mSuccessMessages.get(sId),
+                process_code: sProcessCode,
+                type: 3
+            })));
             // Get all record IDs that need to be updated as passed (including group members)
             const allRecordIDsToUpdateAsPassed = new Set();
-            
+
             for (const groupKey in groupedRecords) {
                 const recordsInGroup = groupedRecords[groupKey];
-                
+
                 // Check if AT LEAST ONE record in the group is in aPassedRecordIDs
                 if (recordsInGroup.some(record => aPassedRecordIDs.includes(record.ID))) {
                     // If yes, add ALL record IDs from that group to be updated as passed
@@ -2364,7 +2454,7 @@ class FgCreditRebill extends Processor {
                     });
                 }
             }
-            
+
             // Update all collected IDs at once
             if (allRecordIDsToUpdateAsPassed.size > 0) {
                 await UPDATE(Fg_Credit_Rebill)
@@ -2375,17 +2465,17 @@ class FgCreditRebill extends Processor {
                     .where({ ID: { in: Array.from(allRecordIDsToUpdateAsPassed) } });
             }
         }
-  
+
         // Update the status of failed records
         if (aFailedRecordIDs.length) {
             await ProcessLogger.addLogs(aErrorLogs);
-            
+
             // Get all record IDs that need to be updated as failed (including group members)
             const allRecordIDsToUpdateAsFailed = new Set();
-            
+
             for (const groupKey in groupedRecords) {
                 const recordsInGroup = groupedRecords[groupKey];
-                
+
                 // Check if AT LEAST ONE record in the group is in aFailedRecordIDs
                 if (recordsInGroup.some(record => aFailedRecordIDs.includes(record.ID))) {
                     // If yes, add ALL record IDs from that group to be updated as failed
@@ -2394,7 +2484,7 @@ class FgCreditRebill extends Processor {
                     });
                 }
             }
-            
+
             // Update all collected IDs at once
             if (allRecordIDsToUpdateAsFailed.size > 0) {
                 await UPDATE(Fg_Credit_Rebill)
@@ -2402,7 +2492,7 @@ class FgCreditRebill extends Processor {
                     .where({ ID: { in: Array.from(allRecordIDsToUpdateAsFailed) } });
             }
         }
-  
+
         return {
             hasError: aFailedRecordIDs.length > 0,
             continue: aFailedRecordIDs.length === 0,
