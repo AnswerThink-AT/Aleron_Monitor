@@ -195,7 +195,7 @@ class TimeContractor_3 extends Processor {
         if (!this.recordIDs || !this.recordIDs.size) return;
 
         // ensure we have fresh rows for the current selection
-        // await this._fetchRecords(this.recordIDs);
+        await this._fetchRecords(this.recordIDs);
 
         // pull the seed rows (those that are currently selected)
         const seeds = [];
@@ -510,9 +510,9 @@ class TimeContractor_3 extends Processor {
         // ——————————————————————————————————————————
         // STEP 1: FETCH & SELECT
         // ——————————————————————————————————————————
-        // await this._fetchRecords(this.recordIDs);
+        await this._fetchRecords(this.recordIDs);
 
-        //await this._expandSelectionToGroups();   // <<< keep group intact for “Process”
+        await this._expandSelectionToGroups();   // <<< keep group intact for “Process”
 
         const ALL_LEVELS = new Set(['0', '1', 'T', '3', '5', '9', 'G', 'B']);
         const PROCESS_ALL_FILTER = {
@@ -1323,9 +1323,9 @@ class TimeContractor_3 extends Processor {
 
         // ---------- STEP 2: Re-fetch latest batch ----------
         LOG.info(`STEP 2: Re-fetching records [${[...this.recordIDs].join(', ')}]`);
-        // await this._fetchRecords(this.recordIDs);
+        await this._fetchRecords(this.recordIDs);
 
-        //await this._expandSelectionToGroups();
+        await this._expandSelectionToGroups();
 
         LOG.info(`STEP 2: Retrieved ${this.records.length} records`);
 
@@ -1930,9 +1930,9 @@ class TimeContractor_3 extends Processor {
 
         // -------- Step 2: Fetch valid records for process level 3 --------
         LOG.info(`[processSalesOrder][Step 2] Fetching records at process level 3 and valid`);
-        // await this._fetchRecords(this.recordIDs);
+        await this._fetchRecords(this.recordIDs);
 
-        //await this._expandSelectionToGroups();
+        await this._expandSelectionToGroups();
 
 
         const recs = this.records.filter(r => r.processLevel_code === '3');
@@ -2543,9 +2543,9 @@ class TimeContractor_3 extends Processor {
 
         // -------- Step 2: Fetch IC records at level G (same gating as discussed) --------
         LOG.info(`[processIntercompanyso][Step 2] Re-fetching batch records`);
-        // await this._fetchRecords(this.recordIDs);
+         await this._fetchRecords(this.recordIDs);
 
-        //await this._expandSelectionToGroups();
+        await this._expandSelectionToGroups();
         const recs = this.records.filter(
             r => r.processLevel_code === 'G' && r.distributionChannelSAP === 'IC'
         );
@@ -3168,9 +3168,9 @@ class TimeContractor_3 extends Processor {
 
         // 5.1) Fetch batch records
         LOG.info('[Step 5.1] Re-fetching batch records');
-        // await this._fetchRecords(this.recordIDs);
+        await this._fetchRecords(this.recordIDs);
 
-        //await this._expandSelectionToGroups();
+        await this._expandSelectionToGroups();
         let recs = this.records.filter(r => r.processLevel_code === '5');
         LOG.info(`[Step 5.1] Retrieved ${recs.length} records`);
         if (!recs.length) return {
@@ -3805,9 +3805,9 @@ class TimeContractor_3 extends Processor {
 
 
         // 1) re-fetch batch records at B
-        // await this._fetchRecords(this.recordIDs);
+        await this._fetchRecords(this.recordIDs);
 
-        //await this._expandSelectionToGroups();
+        await this._expandSelectionToGroups();
 
         const toProcess = this.records.filter(r => r.processLevel_code === 'B');
         LOG.info(`[processSupplierInvoice] ${toProcess.length} records to invoice (step B)`);
