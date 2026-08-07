@@ -1254,7 +1254,8 @@ sap.ui.define([
                     From: r.From,
                     To: r.To,
                     ReceiptsDocumentNumber: r.ReceiptsDocumentNumber,
-                    UrlLink: r.UrlLink
+                    UrlLink: r.UrlLink,
+                    GLAccount: r.GLAccount || null
                 };
                 // only include a currency if it’s non-blank
                 if (r.Currency) {
