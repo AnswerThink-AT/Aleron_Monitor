@@ -111,7 +111,7 @@ entity TRIPItem : managed {
   key StartOfTrip          : Date;
   key EndOfTrip            : Date;
   key ExpenseReceiptNumber : String(12);
-
+  GLAccount: String(20);
   Header : Association to TRIPHeader on
     Header.TripNumber   = $self.TripNumber  and
     Header.Personnel    = $self.Personnel   and
