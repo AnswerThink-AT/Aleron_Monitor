@@ -250,7 +250,7 @@ class TimeContractor_3 extends Processor {
 
         if (extra.length) {
             for (const id of extra) this.recordIDs.add(id);
-            //await this._fetchRecords(this.recordIDs);
+            await this._fetchRecords(this.recordIDs);
             (this.LOG || console).info(`[group-expand] expanded to ${this.recordIDs.size} rows (added ${extra.length})`);
         }
     }
