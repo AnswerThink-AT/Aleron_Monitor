@@ -181,8 +181,12 @@
 												<!-- <m:Input id="_IDGenInput22" value="{trip>ReceiptsDocumentNumber}" editable="false" liveChange=".onLiveChange" valueState="{trip>/_validations/ReceiptsDocumentNumber/state}" valueStateText="{trip>/_validations/ReceiptsDocumentNumber/text}"/> -->
 												<!-- UrlLink -->
 												<!-- <m:Input id="_IDGenInput53" value="{trip>UrlLink}" editable="{= ${trip>/Mode} !== 'display'}" maxLength="120" liveChange=".onLiveChange" valueState="{trip>/_validations/UrlLink/state}" valueStateText="{trip>/_validations/UrlLink/text}"/> -->
-												<m:Input id="_IDGenInput2" value="{trip>GLAccount}" editable="{= ${trip>/Mode} !== 'display'}" maxLength="8"/>
-											</m:ColumnListItem>
+												<m:Input id="_IDGenInput2" required="true" value="{trip>GLAccount}"
+  editable="{= ${trip>/Mode} !== 'display'}" maxLength="8"
+  liveChange=".onLiveChange"
+  valueState="{trip>/_validations/GLAccount/state}"
+  valueStateText="{trip>/_validations/GLAccount/text}"/>
+												</m:ColumnListItem>
 										</m:items>
 									</m:Table>
 								</uxap:blocks>
