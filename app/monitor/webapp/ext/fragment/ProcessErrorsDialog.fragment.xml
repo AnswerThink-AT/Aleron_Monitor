@@ -5,7 +5,9 @@
 		title="Process Errors"
 		verticalScrolling="true"
 		contentHeight="150px"
-		contentWidth="1600px">
+		contentWidth="1600px"
+		draggable="true"
+		>
 		<content>
 		<Table
 			id="idProcessLogsTable"

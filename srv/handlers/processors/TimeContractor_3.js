@@ -3180,7 +3180,7 @@ class TimeContractor_3 extends Processor {
 
         // 5.1b) Skip CP/CR orders — mark complete (code '9') and remove them
         const cpcrIDs = recs
-            .filter(r => ['CP', 'CR'].includes(r.distributionChannelSAP))
+            .filter(r => ['CP', 'CR'].includes(r.woType))
             .map(r => r.ID);
         if (cpcrIDs.length) {
             LOG.info(
@@ -3218,7 +3218,7 @@ class TimeContractor_3 extends Processor {
 
         LOG.info(`[Step 5.2] Formed ${groups.size} groups`);
 
-        const errorLogs = [], passed = [], failed = [];
+        const errorLogs = [], passed = [], failed = [], ponos = [];
         const poComm = new PurchaseOrder();
 
         for (const [key, lines] of groups.entries()) {
@@ -3726,6 +3726,9 @@ class TimeContractor_3 extends Processor {
                     .where({ ID: lines.map(l => l.ID) });
 
                 passed.push(...lines.map(l => l.ID));
+                lines.map((line) => {
+                    ponos.push({ID:line.ID,pono:poNo})
+                })
             } catch (e) {
                 LOG.error(`[Group ${key}] FAILED → ${e.message}`);
                 for (const l of lines) {
@@ -3749,9 +3752,10 @@ class TimeContractor_3 extends Processor {
             await ProcessLogger.addLogs(
                 passed.map((sId) => {
                     const oRecord = this.records.find((r) => r.ID === sId);
+                    const oPo = ponos.find((p) => p.ID === sId );
                     return {
                         record_ID: sId,
-                        message: `Purchase Order ${oRecord.purchaseDocumentNoSAP} with Item ${oRecord.purchaseDocumentItemSAP} was processed successfully for Sales Order ${oRecord.salesDocumentNoSAP}. The record has been moved to the Supplier Invoice step.`,
+                        message: `Purchase Order ${oPo.pono} with Item ${oRecord.purchaseDocumentItemSAP} was processed successfully for Sales Order ${oRecord.salesDocumentNoSAP}. The record has been moved to the Supplier Invoice step.`,
                         process_code: sProcessCode,
                         type: 3,
                     };
