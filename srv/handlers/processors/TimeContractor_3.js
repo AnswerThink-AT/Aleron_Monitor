@@ -2508,7 +2508,7 @@ class TimeContractor_3 extends Processor {
                     return {
                         record_ID: sId,
                         message: `Sales Order Item ${oRecord.salesItemNoSAP} was created successfully for Sales Order ${oRecord.salesDocumentNoSAP}. ` + `VC Data 1 UUID: ${oRecord.vcData1UUID}, VC Data 2 UUID: ${oRecord.vcData2UUID}.`,
-                        process_code: '5',
+                        process_code: sProcessCode,
                         type: 3,
                     };
                 })
@@ -3128,7 +3128,7 @@ class TimeContractor_3 extends Processor {
                     return {
                         record_ID: sId,
                         message: `Intercompany Sales Order Item ${oRecord.salesItemNoSAP} was created successfully for Sales Order ${oRecord.salesDocumentNoSAP}. ` + `VC Data 1 UUID: ${oRecord.vcData1UUID}, VC Data 2 UUID: ${oRecord.vcData2UUID}.`,
-                        process_code: '5',
+                        process_code: sProcessCode,
                         type: 3,
                     };
                 })
