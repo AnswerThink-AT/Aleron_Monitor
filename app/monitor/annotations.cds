@@ -779,6 +779,14 @@ annotate service.Times with @(
         Visualizations: ['@UI.LineItem#Times'],
         SortOrder     : [{
             $Type     : 'Common.SortOrderType',
+            Property  : invoiceNoWN,//uploadSeq, // sort by your field
+            Descending: false // ascending
+        },{
+            $Type     : 'Common.SortOrderType',
+            Property  : beginDate,//uploadSeq, // sort by your field
+            Descending: false // ascending
+        },{
+            $Type     : 'Common.SortOrderType',
             Property  : uploadSeq, // sort by your field
             Descending: false // ascending
         }]

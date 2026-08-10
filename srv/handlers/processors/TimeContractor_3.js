@@ -1738,7 +1738,7 @@ class TimeContractor_3 extends Processor {
                     const oRecord = this.records.find((r) => r.ID === sId);
                     return {
                         record_ID: sId,
-                        message: `Employee Time was created successfully for Employee ${oRecord.employeeNo}, Week Ending ${moment(oRecord.weekEndDate).format('YYYY-MM-DD')}, and Sales Order ${oRecord.salesDocumentNoSAP}.`,
+                        message: `Employee Time was created successfully in YY1_TIME_INFO_PA2002 for Employee ${oRecord.employeeNo}, Week Ending ${moment(oRecord.weekEndDate).format('YYYY-MM-DD')}, and Sales Order ${oRecord.salesDocumentNoSAP}.`,
                         process_code: sProcessCode,
                         type: 3,
                     };
