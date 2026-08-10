@@ -932,7 +932,8 @@ sap.ui.define([
                         Costs: oTrip.Costs || [],
 
                         _validations: {
-                            Project: { state: "None", text: "" }
+                            Project: { state: "None", text: "" },
+                            GLAccount: { state: "None", text: "" }
                         }
                     };
 
@@ -1085,7 +1086,8 @@ sap.ui.define([
                     Project: {
                         state: "None",
                         text: ""
-                    }
+                    },
+                    GLAccount: { state: "None", text: "" }
                 }
             };
             this.getView().setModel(new JSONModel(oData), "trip");
@@ -1186,7 +1188,31 @@ sap.ui.define([
 
             // 3) Build the Header payload, only including non-blank codes
 
-
+            const aMissingGL = (oData.ExpenseReceipts || []).filter(
+                r => !r.GLAccount || String(r.GLAccount).trim() === ""
+            );
+            if (aMissingGL.length > 0) {
+                // mark each offending row with Error state
+                const aReceipts = oModel.getProperty("/ExpenseReceipts");
+                aReceipts.forEach((r, idx) => {
+                    const hasGL = r.GLAccount && String(r.GLAccount).trim() !== "";
+                    oModel.setProperty(
+                        `/ExpenseReceipts/${idx}/_validations/GLAccount/state`,
+                        hasGL ? "None" : "Error"
+                    );
+                    oModel.setProperty(
+                        `/ExpenseReceipts/${idx}/_validations/GLAccount/text`,
+                        hasGL ? "" : "GL Account is required"
+                    );
+                });
+                oModel.refresh(true);
+                MessageBox.error(
+                    `GL Account is required for expense receipt(s): ${aMissingGL.map(r => r.ExpenseReceiptNumber).join(", ")
+                    }.`
+                );
+                console.groupEnd();
+                return;
+            }
             const oHeaderPayload = {
                 TripType: h.TripType,
                 Destination: h.Destination,
@@ -1255,8 +1281,9 @@ sap.ui.define([
                     To: r.To,
                     ReceiptsDocumentNumber: r.ReceiptsDocumentNumber,
                     UrlLink: r.UrlLink,
-                    GLAccount: r.GLAccount || null
+                    GLAccount: r.GLAccount
                 };
+
                 // only include a currency if it’s non-blank
                 if (r.Currency) {
                     i.Currency_code = r.Currency;
@@ -1396,9 +1423,9 @@ sap.ui.define([
             const oView = this.getView();
             if (this.TripNumber && this.Personnel) {
                 var sUrl = this.getBaseURL() + "/odata/v4/trip/Trip";
-                    sUrl += "?$filter=" + encodeURIComponent(
-                        "TripNumber eq '" + this.TripNumber + "' and Personnel eq '" + this.Personnel + "'"
-                    ) + "&$expand=Header,Items,Costs";
+                sUrl += "?$filter=" + encodeURIComponent(
+                    "TripNumber eq '" + this.TripNumber + "' and Personnel eq '" + this.Personnel + "'"
+                ) + "&$expand=Header,Items,Costs";
 
                 var Data = await this._getTripData(sUrl);
                 const oTrip = Data.value && Data.value[0];
@@ -1472,7 +1499,8 @@ sap.ui.define([
                     Costs: oTrip.Costs || [],
 
                     _validations: {
-                        Project: { state: "None", text: "" }
+                        Project: { state: "None", text: "" },
+                        GLAccount: { state: "None", text: "" }
                     }
                 };
 
@@ -1518,7 +1546,29 @@ sap.ui.define([
             }
         },
 
+        onLiveChange: function (oEvent) {
+            const oSrc = oEvent.getSource();
+            const sVal = (oEvent.getParameter("value") || "").trim();
+            const oCtx = oSrc.getBindingContext("trip");
 
+
+            if (oCtx && oSrc.getBindingInfo("value") &&
+                oSrc.getBindingInfo("value").parts &&
+                oSrc.getBindingInfo("value").parts[0] &&
+                oSrc.getBindingInfo("value").parts[0].path === "GLAccount") {
+
+                const sPath = oCtx.getPath(); // e.g. "/ExpenseReceipts/0"
+                const oModel = this.getView().getModel("trip");
+
+                if (!sVal) {
+                    oModel.setProperty(sPath + "/_validations/GLAccount/state", "Error");
+                    oModel.setProperty(sPath + "/_validations/GLAccount/text", "GL Account is required");
+                } else {
+                    oModel.setProperty(sPath + "/_validations/GLAccount/state", "None");
+                    oModel.setProperty(sPath + "/_validations/GLAccount/text", "");
+                }
+            }
+        },
         onEdit: function () {
             const oModel = this.getView().getModel("trip");
             const sStatus = oModel.getProperty("/StatusText"); // “Draft”, “Created”, “Approved”, etc.
@@ -2016,7 +2066,7 @@ sap.ui.define([
             oModel.setProperty("/ExpenseReceipts", aItems);
         },
         _getTripData: async function (sUrl) {
-           return new Promise((resolve, reject) => {
+            return new Promise((resolve, reject) => {
                 $.ajax({
                     url: sUrl,
                     method: "GET",
