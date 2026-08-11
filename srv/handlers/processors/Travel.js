@@ -432,24 +432,35 @@ class Travel extends Processor {
             LOG.info(`Group ${key} → STEP 1.3 BEGIN`);
 
             // 1) direct VBELN header check
-            let soHdr2 = await this.salesOrderAPI.executeQuery(
-                SELECT.one.from('A_SalesOrderItem')
-                    .columns(['SalesOrder'])
-                    .where({
-                        SalesOrder: lead.wnWorkOrder,
-                        SalesOrderItem: '00010'
-                    })
-            );
-            // 2) fallback on custom header YY1_WNWorkOrder_SD_SDI
-            if (!soHdr2) {
+            let soHdr2;
+            try {
                 soHdr2 = await this.salesOrderAPI.executeQuery(
                     SELECT.one.from('A_SalesOrderItem')
                         .columns(['SalesOrder'])
                         .where({
-                            YY1_WNWorkOrder_SD_SDI: lead.wnWorkOrder,   // <-- corrected fallback
+                            SalesOrder: lead.wnWorkOrder,
                             SalesOrderItem: '00010'
                         })
                 );
+            } catch (e) {
+
+            }
+
+            // 2) fallback on custom header YY1_WNWorkOrder_SD_SDI
+            if (!soHdr2) {
+                try {
+                    soHdr2 = await this.salesOrderAPI.executeQuery(
+                        SELECT.one.from('A_SalesOrderItem')
+                            .columns(['SalesOrder'])
+                            .where({
+                                YY1_WNWorkOrder_SD_SDI: lead.wnWorkOrder,   // <-- corrected fallback
+                                SalesOrderItem: '00010'
+                            })
+                    );
+                } catch (error) {
+
+                }
+
             }
 
             if (!soHdr2) {
