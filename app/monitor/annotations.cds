@@ -3697,6 +3697,14 @@ annotate service.Travel with @(
         Visualizations: ['@UI.LineItem#Travel'],
         SortOrder     : [{
             $Type     : 'Common.SortOrderType',
+            Property  : wnInvoiceNo, // sort by your field
+            Descending: false // ascending
+        },{
+            $Type     : 'Common.SortOrderType',
+            Property  : beginDate, // sort by your field
+            Descending: false // ascending
+        },{
+            $Type     : 'Common.SortOrderType',
             Property  : uploadSeq, // sort by your field
             Descending: false // ascending
         }]
