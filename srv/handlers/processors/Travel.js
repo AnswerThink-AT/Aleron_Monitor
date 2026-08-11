@@ -432,24 +432,35 @@ class Travel extends Processor {
             LOG.info(`Group ${key} → STEP 1.3 BEGIN`);
 
             // 1) direct VBELN header check
-            let soHdr2 = await this.salesOrderAPI.executeQuery(
-                SELECT.one.from('A_SalesOrderItem')
-                    .columns(['SalesOrder'])
-                    .where({
-                        SalesOrder: lead.wnWorkOrder,
-                        SalesOrderItem: '00010'
-                    })
-            );
-            // 2) fallback on custom header YY1_WNWorkOrder_SD_SDI
-            if (!soHdr2) {
+            let soHdr2;
+            try {
                 soHdr2 = await this.salesOrderAPI.executeQuery(
                     SELECT.one.from('A_SalesOrderItem')
                         .columns(['SalesOrder'])
                         .where({
-                            YY1_WNWorkOrder_SD_SDI: lead.wnWorkOrder,   // <-- corrected fallback
+                            SalesOrder: lead.wnWorkOrder,
                             SalesOrderItem: '00010'
                         })
                 );
+            } catch (e) {
+
+            }
+
+            // 2) fallback on custom header YY1_WNWorkOrder_SD_SDI
+            if (!soHdr2) {
+                try {
+                    soHdr2 = await this.salesOrderAPI.executeQuery(
+                        SELECT.one.from('A_SalesOrderItem')
+                            .columns(['SalesOrder'])
+                            .where({
+                                YY1_WNWorkOrder_SD_SDI: lead.wnWorkOrder,   // <-- corrected fallback
+                                SalesOrderItem: '00010'
+                            })
+                    );
+                } catch (error) {
+
+                }
+
             }
 
             if (!soHdr2) {
@@ -967,12 +978,12 @@ class Travel extends Processor {
                 YY1_LegacyPurchase_SD_SDI: dummy.YY1_LegacyPurchase_SD_SDI || '',
                 YY1_WeekEnd_SD_SDI: toODataDate(lead.weekEndDate),
                 YY1_CustomURL_SDI: dummy.YY1_CustomURL_SDI || '',
-                YY1_ExtensionUUID1_SDI: dummy.YY1_ExtensionUUID1_SDI || '',
+                // YY1_ExtensionUUID1_SDI: dummy.YY1_ExtensionUUID1_SDI || '',
                 YY1_DuplicateWeek_SD_SDI: dummy.YY1_DuplicateWeek_SD_SDI || '',
                 YY1_ACA_HRS_SDI: dummy.YY1_ACA_HRS_SDI || '',
                 YY1_Royality_SD_SDI: dummy.YY1_Royality_SD_SDI || '',
                 YY1_CommodityCode_SD_SDI: dummy.YY1_CommodityCode_SD_SDI || '',
-                YY1_ExtensionUUID2_SDI: dummy.YY1_ExtensionUUID2_SDI || '',
+                //YY1_ExtensionUUID2_SDI: dummy.YY1_ExtensionUUID2_SDI || '',
                 YY1_SupplierInvoice_SD_SDI: dummy.YY1_SupplierInvoice_SD_SDI || '',
                 YY1_InvoiceVATtxt_SD_SDI: dummy.YY1_InvoiceVATtxt_SD_SDI || '',
                 YY1_CategoryCode_SD_SDI: dummy.YY1_CategoryCode_SD_SDI || '',
@@ -1065,10 +1076,45 @@ class Travel extends Processor {
                     await ProcessLogger.addLogs(aErrorLogs);
                 }
 
+                // 3.11) VC2 insert
+                LOG.info(`Group ${key} → inserting VC2 for IC SO='${vbeln}', item='${nextItem}'`);
+                const vc2 = {
+                    Sales_Order_Number: vbeln,
+                    Sales_Order_Item_Num: nextItem,
+                    TRAVEL_EXPENSE: lead.amount || 0,
+                    YY246_ZSD_WN_INVOICE_VCSD: lead.wnInvoiceNo,
+                    YY247_ZSD_WN_WORK_ORDER_VCSD: lead.wnWorkOrder
+                };
+                let vc2Res;
+                try {
+                    vc2Res = await this.salesVCData2Api.executeQuery(
+                        INSERT.into('YY1_SALESVCDATA_2').entries(vc2)
+                    );
+                } catch (err) {
+
+                }
+
+                const vc2Uuid = Array.isArray(vc2Res) ? vc2Res[0]?.SAP_UUID : vc2Res.SAP_UUID;
+                if (vc2Uuid) {
+                    var Vc2data = [];
+                    group.forEach(r => Vc2data.push(r.ID));
+                    await UPDATE(this.recordsEntity)
+                        .set({
+                            vcData2UUID: vc2Uuid
+                        })
+                        .where({
+                            ID: group.map(r => r.ID)
+                        });
+                    await ProcessLogger.addLogs(Vc2data.map((sId) => ({ record_ID: sId, message: `VC2 data successfully inserted with UUID: ${vc2Uuid} for record ${sId} and sales order ${vbeln}`, process_code: sProcessCode, type: 3 })));
+                } else {
+                    group.forEach(r => { aErrorLogs.push({ record_ID: r.ID, message: `VC2 data inserted failed for record ${r.ID} and sales order ${vbeln}`, process_code: sProcessCode }); });
+                    await ProcessLogger.addLogs(aErrorLogs);
+                }
+
                 // 3.17) TRIP inserts (Header, Item, Cost)
                 // Sequence helper factory
                 const { executeHttpRequest } = require('@sap-cloud-sdk/http-client');
-                if (!lead.skipTrip) {
+                if (!lead.skipTrip && !lead.woType === 'MS') {
                     try {
                         const totalAmount = group.reduce((sum, r) => sum + (Number(r.amount) || 0), 0);
 
@@ -1543,10 +1589,9 @@ class Travel extends Processor {
                 const vc2 = {
                     Sales_Order_Number: icSo,
                     Sales_Order_Item_Num: nextItem,
-                    WEEK_ENDING2: lead.weekEndDate,
                     TRAVEL_EXPENSE: lead.amount || 0,
-                    ZSD_WN_INVOICE_VCSD: lead.wnInvoiceNo,
-                    ZSD_WN_WORK_ORDER_VCSD: icSo
+                    YY246_ZSD_WN_INVOICE_VCSD: lead.wnInvoiceNo,
+                    YY247_ZSD_WN_WORK_ORDER_VCSD: icSo
                 };
                 let vc2Res;
                 try {
