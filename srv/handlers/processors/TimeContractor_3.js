@@ -3831,7 +3831,8 @@ class TimeContractor_3 extends Processor {
 
         const errorLogs = [],
             passed = [],
-            failed = [];
+            failed = [],
+            miro = [];
 
         // 4) process each group
         for (const [key, recs] of groups.entries()) {
@@ -3981,6 +3982,9 @@ class TimeContractor_3 extends Processor {
                     });
 
                 passed.push(...ids);
+                 recs.map((line) => {
+                    miro.push({ID:line.ID,miro_no:invNumber,fyear:FiscalYear})
+                })
             } catch (err) {
                 LOG.error(`Group ${key} MIRO failed → ${err.message}`);
                 for (const r of recs) {
@@ -4017,9 +4021,10 @@ class TimeContractor_3 extends Processor {
             await ProcessLogger.addLogs(
                 passed.map((sId) => {
                     const oRecord = this.records.find((r) => r.ID === sId);
+                    const oMiro = miro.find((m) => m.ID === sId);
                     return {
                         record_ID: sId,
-                        message: `Supplier Invoice ${oRecord.invoiceDocumentNoSAP} was created successfully for Purchase Order ${oRecord.purchaseDocumentNoSAP}, Item ${oRecord.purchaseDocumentItemSAP}. Fiscal Year: ${oRecord.invoiceFiscalYearSAP}. Processing completed successfully.`,
+                        message: `Supplier Invoice ${oMiro.miro_no} was created successfully for Purchase Order ${oRecord.purchaseDocumentNoSAP}, Item ${oRecord.purchaseDocumentItemSAP}. Fiscal Year: ${oMiro.fyear}. Processing completed successfully.`,
                         process_code: sProcessCode,
                         type: 3
                     };
