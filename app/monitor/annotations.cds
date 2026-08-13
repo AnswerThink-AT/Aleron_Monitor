@@ -371,7 +371,7 @@ annotate service.InterfaceTypes {
 
 annotate service.WorkOrders with @(
     UI.CreateHidden                   : true,
-    Capabilities.UpdateRestrictions.Updatable: (processLevel.code <> '9'),
+    Capabilities.UpdateRestrictions.Updatable: (processLevel.code not in ('9', '8', 'Z')),
     UI.LineItem #WorkOrders           : {$value: [
         {
             $Type                    : 'UI.DataField',
@@ -852,7 +852,7 @@ annotate service.Times with @(
 );
 
 annotate service.EmployeeHires with @(
-    Capabilities.UpdateRestrictions.Updatable: (processLevel.code <> '9'),
+    Capabilities.UpdateRestrictions.Updatable: (processLevel.code not in ('9', '8', 'Z')),
     UI.LineItem #EmployeeRecords           : [
         {
             $Type                    : 'UI.DataField',
@@ -1207,7 +1207,7 @@ annotate service.EmployeeHires with @(
 
 
 annotate service.StaffHires with @(
-    Capabilities.UpdateRestrictions.Updatable: (processLevel.code <> '9'),
+    Capabilities.UpdateRestrictions.Updatable: (processLevel.code not in ('9', '8', 'Z')),
     UI.LineItem #StaffRecords           : [
 
         {
@@ -1563,7 +1563,7 @@ annotate service.StaffHires with @(
 );
 
 annotate service.WorkOrders_WN with @(
-    Capabilities.UpdateRestrictions.Updatable: (processLevel.code <> '9'),
+    Capabilities.UpdateRestrictions.Updatable: (processLevel.code not in ('9', '8', 'Z')),
     UI.LineItem #WorkOrdersWN           : [
         {
             $Type                    : 'UI.DataField',
@@ -1945,7 +1945,7 @@ annotate service.WorkOrders_WN with @(
 );
 
 annotate service.WorkOrders_FG with @(
-    Capabilities.UpdateRestrictions.Updatable: (processLevel.code <> '9'),
+    Capabilities.UpdateRestrictions.Updatable: (processLevel.code not in ('9', '8', 'Z')),
     UI.LineItem #WorkOrdersFG           : [
         {
             $Type                    : 'UI.DataField',
@@ -2167,7 +2167,7 @@ annotate service.Terminations with @(
 
 // Credit_Rebill D interface
 annotate service.Credit_Rebill with @(
-    Capabilities.UpdateRestrictions.Updatable: (processLevel.code <> '9'),
+    Capabilities.UpdateRestrictions.Updatable: (processLevel.code not in ('9', '8', 'Z')),
     UI.LineItem #Credit_Rebill           : [
         {
             $Type                    : 'UI.DataField',
@@ -2211,7 +2211,7 @@ annotate service.Credit_Rebill with @(
 
 // Fg_Credit_Rebill Q interface
 annotate service.Fg_Credit_Rebill with @(
-    Capabilities.UpdateRestrictions.Updatable: (processLevel.code <> '9'),
+    Capabilities.UpdateRestrictions.Updatable: (processLevel.code not in ('9', '8', 'Z')),
     UI.LineItem #Fg_Credit_Rebill           : [
         {
             $Type                    : 'UI.DataField',
@@ -2801,7 +2801,7 @@ annotate service.Bonus with @(
 );
 
 annotate service.SowScWo with @(
-    Capabilities.UpdateRestrictions.Updatable: (processLevel.code <> '9'),
+    Capabilities.UpdateRestrictions.Updatable: (processLevel.code not in ('9', '8', 'Z')),
     UI.LineItem #SowScWo           : [
         {
             $Type                    : 'UI.DataField',
@@ -3047,7 +3047,7 @@ annotate service.SowScWo with @(
 );
 
 annotate service.SowScInvoice with @(
-    Capabilities.UpdateRestrictions.Updatable: (processLevel.code <> '9'),
+    Capabilities.UpdateRestrictions.Updatable: (processLevel.code not in ('9', '8', 'Z')),
     UI.LineItem #SowScInvoice           : [
         {
             $Type                    : 'UI.DataField',
@@ -3315,7 +3315,7 @@ annotate service.SowScInvoice with @(
 //Interface N FG Invoices
 
 annotate service.Fg_Invoices with @(
-    Capabilities.UpdateRestrictions.Updatable: (processLevel.code <> '9'),
+    Capabilities.UpdateRestrictions.Updatable: (processLevel.code not in ('9', '8', 'Z')),
     UI.LineItem #FgTimeInvoices           : [
         {
             $Type                    : 'UI.DataField',
@@ -3509,7 +3509,7 @@ annotate service.Fg_Invoices with @(
 );
 
 annotate service.Travel with @(
-    Capabilities.UpdateRestrictions.Updatable: (processLevel.code <> '9'),
+    Capabilities.UpdateRestrictions.Updatable: (processLevel.code not in ('9', '8', 'Z')),
     UI.LineItem #Travel           : [
         {
             $Type                    : 'UI.DataField',
