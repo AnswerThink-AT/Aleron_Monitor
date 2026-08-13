@@ -150,7 +150,7 @@ class Travel extends Processor {
         }
 
         // clean logs once at start
-        await ProcessLogger.removeLogs([...this.recordIDs], null, sProcessCode);
+        //await ProcessLogger.removeLogs([...this.recordIDs], null, sProcessCode);
 
         // STEP 1: Filter & prepare
         LOG.info(`[validateRecords] STEP 1 BEGIN: Filter by processCode='${sProcessCode}'`);
@@ -547,13 +547,17 @@ class Travel extends Processor {
             await ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode);
             await ProcessLogger.addLogs(aPassedRecordIDs.map((sId) => ({ record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3 })));
             await this.markRecordsValid(sProcessCode, aPassedRecordIDs, true);
-            if (sProcessCode === '1') {
+            if (sProcessCode === '1' && !bBreakExecution) {
                 await UPDATE(this.recordsEntity)
                     .set({ valid: true, processLevel_code: '3' })
                     .where({ ID: { in: aPassedRecordIDs } });
                 this.records.forEach(r => {
                     if (aPassedRecordIDs.includes(r.ID)) r.processLevel_code = '3';
                 });
+            } else if (sProcessCode === '1' && bBreakExecution) {
+                await UPDATE(this.recordsEntity)
+                    .set({ valid: true, processLevel_code: '1' })
+                    .where({ ID: { in: aPassedRecordIDs } });
             }
         }
 
@@ -590,7 +594,8 @@ class Travel extends Processor {
         const aRecordIDs = [];
         this.records.forEach(rec => {
             LOG.info(` → Record ${rec.ID}: processLevel='${rec.processLevel_code}', valid='${rec.valid}'`);
-            if (rec.processLevel_code === sProcessCode) {
+            //if (rec.processLevel_code === sProcessCode) {
+            if (this.shouldRecordProcess(rec, sProcessCode)) {
                 aRecordsForProcessing.push(rec);
                 aRecordIDs.push(rec.ID);
                 LOG.info(`    INCLUDED`);
@@ -637,19 +642,19 @@ class Travel extends Processor {
             }
 
             // 3.2) same process‐level check
-            LOG.info(`Group ${key} → STEP 3.2: verifying all processLevel_code === '${sProcessCode}'`);
-            group.forEach(r => LOG.debug(`  • Record ${r.ID} has processLevel_code='${r.processLevel_code}'`));
-            const bad = group.find(r => Number(r.processLevel_code) !== Number(sProcessCode));
-            if (bad) {
-                const msg = `Not all records at processLevel='${sProcessCode}'`;
-                LOG.error(`Group ${key} → STEP 3.2 FAILED: ${msg}`);
-                group.forEach(r => {
-                    aErrorLogs.push({ record_ID: r.ID, message: msg, process_code: sProcessCode });
-                    aFailedRecordIDs.push(r.ID);
-                });
-                continue;
-            }
-            LOG.info(`Group ${key} → STEP 3.2 PASSED`);
+            /* LOG.info(`Group ${key} → STEP 3.2: verifying all processLevel_code === '${sProcessCode}'`);
+             group.forEach(r => LOG.debug(`  • Record ${r.ID} has processLevel_code='${r.processLevel_code}'`));
+             const bad = group.find(r => Number(r.processLevel_code) !== Number(sProcessCode));
+             if (bad) {
+                 const msg = `Not all records at processLevel='${sProcessCode}'`;
+                 LOG.error(`Group ${key} → STEP 3.2 FAILED: ${msg}`);
+                 group.forEach(r => {
+                     aErrorLogs.push({ record_ID: r.ID, message: msg, process_code: sProcessCode });
+                     aFailedRecordIDs.push(r.ID);
+                 });
+                 continue;
+             }
+             LOG.info(`Group ${key} → STEP 3.2 PASSED`); */
 
             // 3.3) aggregate amounts
             LOG.info(`Group ${key} → STEP 3.3: amount aggregation`);
@@ -1081,7 +1086,7 @@ class Travel extends Processor {
                 const vc2 = {
                     Sales_Order_Number: vbeln,
                     Sales_Order_Item_Num: nextItem,
-                    TRAVEL_EXPENSE: lead.amount || 0,
+                    TRAVEL_EXPENSE: lead.amount.toFixed(2) || 0,
                     YY246_ZSD_WN_INVOICE_VCSD: lead.wnInvoiceNo,
                     YY247_ZSD_WN_WORK_ORDER_VCSD: lead.wnWorkOrder
                 };
@@ -1109,6 +1114,19 @@ class Travel extends Processor {
                 } else {
                     group.forEach(r => { aErrorLogs.push({ record_ID: r.ID, message: `VC2 data inserted failed for record ${r.ID} and sales order ${vbeln}`, process_code: sProcessCode }); });
                     await ProcessLogger.addLogs(aErrorLogs);
+                }
+
+                if (vc1Uuid || vc2Uuid) {
+                    try {
+                        const resp1 = await this.salesOrderAPI.patchSalesOrderItemV2({
+                            SalesOrder: soNum,
+                            SalesOrderItem: nextItem,
+                            YY1_ExtensionUUID1_SDI: vc1Uuid,
+                            YY1_ExtensionUUID2_SDI: vc2Uuid
+                        });
+                    } catch (error) {
+
+                    }
                 }
 
                 // 3.17) TRIP inserts (Header, Item, Cost)
@@ -1237,6 +1255,7 @@ class Travel extends Processor {
             // if (rec.processLevel_code === sProcessCode && rec.valid) {
             // if (this.shouldRecordProcess(rec, sProcessCode)) {
             if (rec.processLevel_code === sProcessCode) {
+            //if (this.shouldRecordProcess(rec, sProcessCode)) {
                 aRecordsForProcessing.push(rec);
                 aRecordIDs.push(rec.ID);
                 LOG.info(`    INCLUDED`);
@@ -1969,6 +1988,7 @@ class Travel extends Processor {
                 // === ADD CALCULATION HERE ===
                 let totalSale = 0;
                 let totalHours = 0;
+                let totalAmount = 0;
                 for (const l of lines) {
                     const hrs1 = Number(l.shiftRGFirst) || 0;
                     const ot1 = Number(l.shiftOTFirst) || 0;
@@ -2004,6 +2024,7 @@ class Travel extends Processor {
                         ot3 * rateOt3 +
                         dt3 * rateDt3;
                 }
+                totalAmount = lines.reduce((s, r) => s + (Number(r.amount) || 0), 0);
                 const poNetAmount = Number(totalSale.toFixed(2));
                 const safePoAmount = poNetAmount > 0 ? poNetAmount : 1;
                 LOG.info(`[processPurchaseOrder][Group ${key}] totalHours=${totalHours}, safePoAmount=${safePoAmount}`);
@@ -2151,7 +2172,7 @@ class Travel extends Processor {
                             PurchaseOrderItem: rec.salesItemNoSAP,
                             Material: material,
                             Plant: soHdr.SalesOrganization,
-                            NetPriceAmount: safePoAmount,
+                            NetPriceAmount: Number(totalAmount.toFixed(2)),//safePoAmount,
                             // PurchaseOrderQuantityUnit: soItem.OrderQuantityUnit || 'LAB',
                             PurchaseOrderQuantityUnit: 'EA',
                             // === FIX: quantity = hours, price = vendor rate ===
@@ -2166,8 +2187,9 @@ class Travel extends Processor {
                             TaxJurisdiction: taxJurValue,
                             AccountAssignmentCategory: 'Z',
                             YY1_SDDocumentPD_PDI: soHdr.SalesOrder,       // link back to SO
-                            YY1_WNInvoice_PDI: rec.invoiceNoWN || '',      // from your file
-                            YY1_WNWorkOrder_PDI: rec.tempusWorkOrder || '',// from your file
+                            YY1_SD_DOCUMENT_ITEM_PDI: rec.salesItemNoSAP.replace(/^0+/, ''),
+                            YY1_WNInvoice_PDI: rec.wnInvoiceNo || '',      // from your file
+                            YY1_WNWorkOrder_PDI: rec.wnWorkOrder || '',// from your file
                             YY1_WeekEnd_PDI: toODataDateOnly(rec.weekEndDate), // weekend date
                             _PurOrdAccountAssignment: [{
                                 AccountAssignmentNumber: '1',
@@ -2274,11 +2296,12 @@ class Travel extends Processor {
                         NetPriceQuantity: useQty,          // HOURS
                         OrderPriceUnit: unitFallback,
                         DocumentCurrency: currFallback,
-                        NetPriceAmount: unitRate,          // VENDOR RATE (per hour)
+                        NetPriceAmount: Number(totalAmount.toFixed(2)),//unitRate,          // VENDOR RATE (per hour)
                         TaxCode: tCodeFallback,
                         YY1_SDDocumentPD_PDI: vbeln,       // SO no.
-                        YY1_WNInvoice_PDI: rec.invoiceNoWN || '',
-                        YY1_WNWorkOrder_PDI: rec.tempusWorkOrder || '',
+                        YY1_SD_DOCUMENT_ITEM_PDI: posnr.replace(/^0+/, ''),
+                        YY1_WNInvoice_PDI: rec.wnInvoiceNo || '',
+                        YY1_WNWorkOrder_PDI: rec.wnWorkOrder || '',
                         YY1_WeekEnd_PDI: toODataDateOnly(rec.weekEndDate),
                         TaxJurisdiction: jurFallback,
                         AccountAssignmentCategory: 'Z',
