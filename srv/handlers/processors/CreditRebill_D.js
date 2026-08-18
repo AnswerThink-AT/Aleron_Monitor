@@ -322,31 +322,36 @@ class CreditFG extends Processor {
 
             // Add ZWOTYPE validation for MS and SC
             if (!hasRecordFailed && (record.woType === 'MS' || record.woType === 'SC')) {
+                try {
+                    record.isMS_SC_Processed = true;
+                    // 1. Get actual SalesOrder number from A_SalesOrderItem
+                    var salesOrderItemResult = await this.salesOrderAPI.executeQuery(
+                        SELECT.from('A_SalesOrderItem')
+                            .columns(['SalesOrder'])
+                            .where({ YY1_WNWorkOrder_SD_SDI: record.wnWorkOrderNo })
+                    );
+                    var actualSalesOrder = salesOrderItemResult[0]?.SalesOrder;
+                    // Get sales order header details
+                    var salesOrderHeaderResult = await this.salesOrderAPI.executeQuery(
+                        SELECT.from('A_SalesOrder')
+                            .columns([
+                                'SalesOrder',
+                                'SoldToParty',
+                                'SalesOrganization',
+                                'DistributionChannel',
+                                'CustomerGroup',
+                                'CustomerPriceGroup',
+                                'YY1_AlphanumericSalesO_SDH'
+                            ])
+                            .where({ SalesOrder: actualSalesOrder })
+                    );
+                } catch (error) {
 
-                record.isMS_SC_Processed = true;
-                // 1. Get actual SalesOrder number from A_SalesOrderItem
-                const salesOrderItemResult = await this.salesOrderAPI.executeQuery(
-                    SELECT.from('A_SalesOrderItem')
-                        .columns(['SalesOrder'])
-                        .where({ YY1_WNWorkOrder_SD_SDI: record.wnWorkOrderNo })
-                );
-                const actualSalesOrder = salesOrderItemResult[0].SalesOrder;
-                // Get sales order header details
-                const salesOrderHeaderResult = await this.salesOrderAPI.executeQuery(
-                    SELECT.from('A_SalesOrder')
-                        .columns([
-                            'SalesOrder',
-                            'SoldToParty',
-                            'SalesOrganization',
-                            'DistributionChannel',
-                            'CustomerGroup',
-                            'CustomerPriceGroup',
-                            'YY1_AlphanumericSalesO_SDH'
-                        ])
-                        .where({ SalesOrder: actualSalesOrder })
-                );
+                }
 
-                if (!salesOrderHeaderResult || !salesOrderHeaderResult.length) {
+
+
+                if (!salesOrderHeaderResult || !salesOrderHeaderResult?.length) {
                     aErrorLogs.push({
                         record_ID: record.ID,
                         message: 'Sales Order not found.', process_code: sProcessCode
@@ -365,22 +370,27 @@ class CreditFG extends Processor {
                         hasRecordFailed = true;
                     } else {
                         // Get sales order item details
-                        const salesOrderItemResult = await this.salesOrderAPI.executeQuery(
-                            SELECT.from('A_SalesOrderItem')
-                                .columns([
-                                    'SalesOrder',
-                                    'SalesOrderItem',
-                                    'SalesDocumentRjcnReason',
-                                    'OrderRelatedBillingStatus',
-                                    'YY1_WNInvoice_SD_SDI',
-                                    'Material',
-                                    'WBSElement',
-                                    'AdditionalMaterialGroup3',
-                                    'YY1_PurchasingDoc_SD_SDI',
-                                    'UnderlyingPurchaseOrderItem'
-                                ])
-                                .where({ SalesOrder: salesOrderHeader.SalesOrder })
-                        );
+                        try {
+                            var salesOrderItemResult = await this.salesOrderAPI.executeQuery(
+                                SELECT.from('A_SalesOrderItem')
+                                    .columns([
+                                        'SalesOrder',
+                                        'SalesOrderItem',
+                                        'SalesDocumentRjcnReason',
+                                        'OrderRelatedBillingStatus',
+                                        'YY1_WNInvoice_SD_SDI',
+                                        'Material',
+                                        'WBSElement',
+                                        'AdditionalMaterialGroup3',
+                                        'YY1_PurchasingDoc_SD_SDI',
+                                        'UnderlyingPurchaseOrderItem'
+                                    ])
+                                    .where({ SalesOrder: salesOrderHeader.SalesOrder })
+                            );
+                        } catch (error) {
+
+                        }
+
 
                         if (!salesOrderItemResult || !salesOrderItemResult.length) {
                             aErrorLogs.push({
@@ -2201,12 +2211,12 @@ class CreditFG extends Processor {
 
                         if (customerGroup === 'ZI') {
                             if (record.invalidInvoiceNoWNSAP && record.invalidInvoiceNoWNSAP !== record.wnInvoiceNo) {
-                                VAR_SAP_WN_INV = record.invalidInvoiceNoWNSAP + 'IC-C';
+                                VAR_SAP_WN_INV = record.invalidInvoiceNoWNSAP + '-C';
                             } else {
-                                VAR_SAP_WN_INV = record.wnInvoiceNo + 'IC-C';
+                                VAR_SAP_WN_INV = record.wnInvoiceNo + '-C';
                             }
                         } else {
-                            VAR_SAP_WN_INV = record.wnInvoiceNo + 'IC-C';
+                            VAR_SAP_WN_INV = record.wnInvoiceNo + '-C';
                         }
 
                         // Validate invoice number lengthh
@@ -2277,7 +2287,7 @@ class CreditFG extends Processor {
                             ReferenceSDDocumentCategory: 'M',
                             to_Item: {
                                 results: filteredSubsequentItems.map(item => ({
-                                    CreditMemoRequestItem: '10',
+                                    CreditMemoRequestItem: item.SubsequentDocumentItem,//'10',
                                     ReferenceSDDocument: item.SubsequentDocument,
                                     ReferenceSDDocumentItem: item.SubsequentDocumentItem,
                                     // AssignmentReference: record.wnInvoiceNo
@@ -2584,7 +2594,7 @@ class CreditFG extends Processor {
                         AssignmentReference: record.wnInvoiceNo,
                         to_Item: {
                             results: filteredSubsequentItems.map(item => ({
-                                CreditMemoRequestItem: '10',
+                                CreditMemoRequestItem: item.SubsequentDocumentItem,//'10',
                                 ReferenceSDDocument: item.SubsequentDocument,
                                 ReferenceSDDocumentItem: item.SubsequentDocumentItem
                             }))
