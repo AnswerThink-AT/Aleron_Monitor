@@ -1558,7 +1558,7 @@ class SOWscWO extends Processor {
             errors: [],
         };
 
-        if (record.remitToVendor && supplierAcc.SupplierAccountGroup === 'ZRMT' && supplierAcc.Industry === 'ZMBE') {
+        if (record?.remitToVendor && supplierAcc?.SupplierAccountGroup === 'ZRMT' && supplierAcc.Industry === 'ZMBE') {
             oReturnData.CustomerPriceGroup = 'ZM';
             createPO.PORequiredSAP = "";
         }
@@ -1648,7 +1648,7 @@ class SOWscWO extends Processor {
 
         if (record.remitToVendor) {
             aPartnerFunctions.push({
-                PartnerFunction: supplierAcc.SupplierAccountGroup === 'ZRMT' ? 'ZR' : 'ZV',
+                PartnerFunction: supplierAcc?.SupplierAccountGroup === 'ZRMT' ? 'ZR' : 'ZV',
                 Supplier: record.remitToVendor,
             });
         }
