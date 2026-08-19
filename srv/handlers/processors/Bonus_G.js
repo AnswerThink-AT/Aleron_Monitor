@@ -1544,9 +1544,9 @@ class Bonus_G extends Processor {
         const aSalesOrderFirstItems = soFirstItem.value || [];
         log(this.LOG, 'info', 'Phase1:SOFirstItem:ok', { count: aSalesOrderFirstItems.length });
         aSalesOrderFirstItems.forEach((it) => {
-          if (!mSalesOrderFirstItem.has(it.YY1_WNWorkOrder_SD_SDI)) mSalesOrderFirstItem.set(it.YY1_WNWorkOrder_SD_SDI, []);
-          mSalesOrderFirstItem.get(it.YY1_WNWorkOrder_SD_SDI).push(it);
-          aSalesOrderWhere.push(it.SalesOrder);
+          if (!mSalesOrderFirstItem.has(it[0].YY1_WNWorkOrder_SD_SDI)) mSalesOrderFirstItem.set(it[0].YY1_WNWorkOrder_SD_SDI, []);
+          mSalesOrderFirstItem.get(it[0].YY1_WNWorkOrder_SD_SDI).push(it[0]);
+          aSalesOrderWhere.push(it[0].SalesOrder);
         });
       }
 
