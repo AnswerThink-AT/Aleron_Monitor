@@ -1533,13 +1533,14 @@ class DrugBackgroundCheckProcessor extends Processor {
         const aPayloads = [];
         const mPayloadMap = new Map();
         var index = 0;
+        var aSalesOrderFirstItem= [];
         for (const oRecord of aRecordsForProcessing) {
             const aErrors = [];
 
             let oSalesOrder, oSalesOrderItem, oPartnerFunctionZV, oSalesOrderPartner,
                 oTravelPayTerm, oTravelPayTermFeed, vendor, firstSOItem, lastSOItem,
                 oConditionType, oBillingType, nextiteration;
-            let aSalesOrderFirstItem = mSalesOrderFirstItem.get(oRecord.workOrderWN);          // Fetching SO Items based on the workOrderWN from File
+            aSalesOrderFirstItem.push(mSalesOrderFirstItem.get(oRecord.workOrderWN));          // Fetching SO Items based on the workOrderWN from File
 
             if (oRecord.salesItemNoSAP) {
                 // SalesOrder already created, only VC Data needs to be checked further
@@ -1570,7 +1571,7 @@ class DrugBackgroundCheckProcessor extends Processor {
             if (['CP', 'CR'].includes(oRecord.salesDocumentType)) {
                 if (aSalesOrderFirstItem?.length === 1) {
                     oSalesOrder = mSalesOrder?.get(aSalesOrderFirstItem[0].SalesOrder);
-                    if (!['CP', 'CR'].includes(oSalesOrder.DistributionChannel)) {
+                    if (!['CP', 'CR'].includes(oSalesOrder?.DistributionChannel)) {
                         aErrors.push({
                             record_ID: oRecord.ID,
                             message: cds.i18n.messages.at('ERR_SALES_ORDER_PAYROLL'),
@@ -1584,10 +1585,10 @@ class DrugBackgroundCheckProcessor extends Processor {
                     if (aSalesOrderFirstItem?.length > 1) {
                         for (const item of aSalesOrderFirstItem) {
                             let oInternalSalesOrder = mSalesOrder?.get(item.SalesOrder);
-                            if (['CP', 'CR'].includes(oInternalSalesOrder.DistributionChannel)) {
+                            if (['CP', 'CR'].includes(oInternalSalesOrder?.DistributionChannel)) {
                                 oSalesOrder = oInternalSalesOrder;
                             } else {
-                                if (oInternalSalesOrder.DistributionChannel === 'IC' && oInternalSalesOrder.CustomerGroup === 'Z1') {
+                                if (oInternalSalesOrder?.DistributionChannel === 'IC' && oInternalSalesOrder.CustomerGroup === 'Z1') {
                                     oRecord.salesOrderICUpdateRequired = 'X';
                                     oRecord.p2SalesDocumentNoSAP = oInternalSalesOrder.SalesOrder;
                                 }
@@ -1597,10 +1598,10 @@ class DrugBackgroundCheckProcessor extends Processor {
                 }
             } else if (['MS'].includes(oRecord.salesDocumentType)) {
                 for (const item of aSalesOrderFirstItem) {
-                    let oInternalSalesOrder = mSalesOrder?.get(item.SalesOrder);
-                    if (['MS'].includes(oInternalSalesOrder.DistributionChannel)) {
+                    let oInternalSalesOrder = mSalesOrder?.get(item?.SalesOrder);
+                    if (['MS'].includes(oInternalSalesOrder?.DistributionChannel)) {
                         oSalesOrder = oInternalSalesOrder;
-                        let salesOrderPartner = mSalesOrderPartner?.get(oInternalSalesOrder.SalesOrder);
+                        let salesOrderPartner = mSalesOrderPartner?.get(oInternalSalesOrder?.SalesOrder);
                         if (salesOrderPartner) {
                             oPartnerFunctionZV = salesOrderPartner.find(item => item.PartnerFunction === 'ZV');
                             vendor = mVendor?.get(oPartnerFunctionZV?.Supplier);
@@ -1642,9 +1643,9 @@ class DrugBackgroundCheckProcessor extends Processor {
 
             oConditionType = await determineConditionType({
                 customer: oSalesOrder.SoldToParty,
-                salesOrganization: oSalesOrder.SalesOrganization,
-                distributionChannel: oSalesOrder.DistributionChannel,
-                division: oSalesOrder.OrganizationDivision
+                salesOrganization: oSalesOrder?.SalesOrganization,
+                distributionChannel: oSalesOrder?.DistributionChannel,
+                division: oSalesOrder?.OrganizationDivision
             });
 
             oBillingType = await this.billingTypeAPI.executeQuery(

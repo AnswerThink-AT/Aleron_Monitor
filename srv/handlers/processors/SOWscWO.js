@@ -152,7 +152,7 @@ class SOWscWO extends Processor {
         let aSalesContracts = [];
 
         // Clear the error logs for the selected records; so that new process can start
-        await ProcessLogger.removeLogs([...this.recordIDs], null, sProcessCode);
+        //await ProcessLogger.removeLogs([...this.recordIDs], null, sProcessCode);
 
         let aSalesContractIDs = [];
         let aZipCodesToCheck = [];
