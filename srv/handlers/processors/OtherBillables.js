@@ -611,7 +611,10 @@ class OtherBillables extends Processor {
                     //  step 1  -> after pass, move to 3 (so Sales Order step will not skip)
                     if (stepCodeStr === '0') {
                         recordProcessLevelCode = '1';
-                    } else if (stepCodeStr === '1') {
+                    } else if (stepCodeStr === '1' && bBreakExecution) {
+                        recordProcessLevelCode = '1';
+                    }
+                    else if (stepCodeStr === '1' && !bBreakExecution) {
                         recordProcessLevelCode = '3';
                     }
 
@@ -833,10 +836,19 @@ class OtherBillables extends Processor {
             LOG.info(`   Retrieved ${aSalesOrderFirstItems.length} first‐item(s)`);
             aSalesOrderFirstItems.forEach(o => {
                 LOG.info(`     WNWorkOrder=${o.YY1_WNWorkOrder_SD_SDI}, SalesOrder=${o.SalesOrder}, Item=${o.SalesOrderItem}`);
-                if (!mSalesOrderFirstItem.has(o.YY1_WNWorkOrder_SD_SDI)) {
-                    mSalesOrderFirstItem.set(o.YY1_WNWorkOrder_SD_SDI, []);
+                if (aNonZWNSalesOrders.length) {
+                    if (!mSalesOrderFirstItem.has(o.YY1_WNWorkOrder_SD_SDI)) {
+                        mSalesOrderFirstItem.set(o.YY1_WNWorkOrder_SD_SDI, []);
+                    }
+                    mSalesOrderFirstItem.get(o.YY1_WNWorkOrder_SD_SDI).push(o);
                 }
-                mSalesOrderFirstItem.get(o.YY1_WNWorkOrder_SD_SDI).push(o);
+                if (aZWNSalesOrders.length) {
+                    if (!mSalesOrderFirstItem.has(o.SalesOrder)) {
+                        mSalesOrderFirstItem.set(o.SalesOrder, []);
+                    }
+                    mSalesOrderFirstItem.get(o.SalesOrder).push(o);
+                }
+
                 aSalesOrderWhere.push(o.SalesOrder);
             });
 
@@ -1459,7 +1471,7 @@ class OtherBillables extends Processor {
         LOG.info(`Step 3.0: toProcess=${aRecordsForProcessing.length}, skipped=${aSkippedRecords.length}`);
         await ProcessLogger.removeLogs(aRecordsForProcessing.map(r => r.ID), null, sProcessCode);
         this.updateProcessingState(sProcessCode);
-        if (!aRecordsForProcessing.length && !icupdateexceptionarray.length) {
+        if (!aRecordsForProcessing.length && !icupdateexceptionarray.length && !aSkippedRecords.length) {
             LOG.info('Step 3.0: no IC records → exit');
             ProcessLogger.addLogs(aSkippedRecords.map(r => ({
                 record_ID: r.ID,
