@@ -2471,6 +2471,20 @@ class TimeContractor_3 extends Processor {
                     this.LOG.warn(`VC2 insert did not return a UUID`);
                 }
 
+                //Update Sales Order
+                 if (vc1Uuid || vc2Uuid) {
+                    try {
+                        const resp1 = await this.salesOrderAPI.patchSalesOrderItemV2({
+                            SalesOrder: vbeln,
+                            SalesOrderItem: nextSO,
+                            YY1_ExtensionUUID1_SDI: vc1Uuid,
+                            YY1_ExtensionUUID2_SDI: vc2Uuid
+                        });
+                    } catch (error) {
+
+                    }
+                }
+
                 // Step 4.7: Mark records as processed
                 LOG.info(`[processSalesOrder][Group ${groupCounter}][4.7] Update DB records as processed`);
                 await UPDATE(this.recordsEntity)
