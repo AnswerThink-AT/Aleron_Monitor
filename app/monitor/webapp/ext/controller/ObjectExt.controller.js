@@ -4,8 +4,8 @@ sap.ui.define(['sap/ui/core/mvc/ControllerExtension'], function (ControllerExten
 	return ControllerExtension.extend('monitor.ext.controller.ObjectExt', {
 		aPersistedFilters: [], // Store filters globally
 		_bDelegateAdded: false,
-		aFileId: null,
-		aInterfaceType: null,
+		//aFileId: null,
+		//aInterfaceType: null,
 		// this section allows to extend lifecycle hooks or hooks provided by Fiori elements
 		override: {
 			/**
@@ -14,10 +14,12 @@ sap.ui.define(['sap/ui/core/mvc/ControllerExtension'], function (ControllerExten
 			 * @memberOf monitor.ext.controller.ObjectExt
 			 */
 			onInit: function () {
+				this.aFileId = null;
+				this.aInterfaceType = null;
 				// you can access the Fiori elements extensionAPI via this.base.getExtensionAPI
 				this.getView().attachModelContextChange(function () {
 					var oContext = this.getView().getBindingContext();
-					if (oContext && !this.aFileId) {
+					if (oContext) {
 						oContext.requestObject().then(function (oData) {
 							this.aFileId = oData.ID;
 							this.aInterfaceType = oData.interfaceType.ID;
@@ -59,9 +61,12 @@ sap.ui.define(['sap/ui/core/mvc/ControllerExtension'], function (ControllerExten
 					// Get the current binding context of the Object Page
 					const oContext = oView.getBindingContext();
 
-					if (!oExtensionAPI.getModel() || !oContext) {
+					//if (!oExtensionAPI.getModel() || !oContext) {
+					if (this.aFileId && !oContext) {
 						await this._onDeleteDiscardedRecords(this.aFileId, this.aInterfaceType, oExtensionAPI.getModel());
 						console.log(this.aFileId);
+						this.aFileId = null;
+						this.aInterfaceType = null;
 						return;
 					}
 				}
