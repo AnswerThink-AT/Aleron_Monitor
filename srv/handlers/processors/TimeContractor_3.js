@@ -2246,7 +2246,7 @@ class TimeContractor_3 extends Processor {
                         RequestedDeliveryDate: toODataDate(new Date())
                     };
 
-                    LOG.info(`[${ID}] Sending update payload: ${JSON.stringify(updatePayload)}`);
+                    //LOG.info(`[${ID}] Sending update payload: ${JSON.stringify(updatePayload)}`);
                     const updateResult = await this.salesOrderAPI.updateSalesOrder(updatePayload);
                     if(updateResult.error)
                     {
@@ -2910,11 +2910,11 @@ class TimeContractor_3 extends Processor {
                         RequestedDeliveryDate: toODataDate(new Date())
                     };
 
-                    LOG.info(`[${ID}] Sending update payload: ${JSON.stringify(updatePayload)}`);
+                    //LOG.info(`[${ID}] Sending update payload: ${JSON.stringify(updatePayload)}`);
                     const updateResult = await this.salesOrderAPI.updateSalesOrder(updatePayload);
                     if(updateResult.error)
                     {
-                        LOG.error(`[processSalesOrder][Group ${groupCounter}][4.6] Update Error: ${JSON.stringify(updateResult, null, 2)}`);
+                        LOG.error(`[processIntercompanyso][Group ${groupCounter}][4.6] Update Error: ${JSON.stringify(updateResult, null, 2)}`);
                     throw new Error(`Update of request delivery date failed: ${updateResult.error}`);
                     }
                 }

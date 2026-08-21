@@ -1036,11 +1036,11 @@ class Travel extends Processor {
                     RequestedDeliveryDate: toODataDate(new Date())
                 };
 
-                LOG.info(`[${ID}] Sending update payload: ${JSON.stringify(updatePayload)}`);
+                //LOG.info(`[${ID}] Sending update payload: ${JSON.stringify(updatePayload)}`);
                 const updateResult = await this.salesOrderAPI.updateSalesOrder(updatePayload);
                 let delresult;
                 if (updateResult.error) {
-                    LOG.error(`[processSalesOrder][Group ${groupCounter}][4.6] Update Error: ${JSON.stringify(updateResult, null, 2)}`);
+                    LOG.error(`[processSalesOrder][4.6] Update Error: ${JSON.stringify(updateResult, null, 2)}`);
                     delresult = "Delivery Date didnot update";
                     //throw new Error(`Update of request delivery date failed: ${updateResult.error}`);
                 }
@@ -1569,11 +1569,11 @@ class Travel extends Processor {
                     RequestedDeliveryDate: toODataDate(new Date())
                 };
 
-                LOG.info(`[${ID}] Sending update payload: ${JSON.stringify(updatePayload)}`);
+                //LOG.info(`[${ID}] Sending update payload: ${JSON.stringify(updatePayload)}`);
                 const updateResult = await this.salesOrderAPI.updateSalesOrder(updatePayload);
                 let delresult;
                 if (updateResult.error) {
-                    LOG.error(`[processSalesOrder][Group ${groupCounter}][4.6] Update Error: ${JSON.stringify(updateResult, null, 2)}`);
+                    LOG.error(`[processIntercompanyso][4.6] Update Error: ${JSON.stringify(updateResult, null, 2)}`);
                     delresult = "Delivery Date didnot update";
                     //throw new Error(`Update of request delivery date failed: ${updateResult.error}`);
                 }
