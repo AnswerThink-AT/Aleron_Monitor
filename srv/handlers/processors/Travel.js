@@ -1030,6 +1030,24 @@ class Travel extends Processor {
                 await this.markRecordsValid(sProcessCode, aFailedRecordIDs, false);
                 continue;
             } else {
+
+                const updatePayload = {
+                    SalesOrder: vbeln,
+                    RequestedDeliveryDate: toODataDate(new Date())
+                };
+
+                LOG.info(`[${ID}] Sending update payload: ${JSON.stringify(updatePayload)}`);
+                const updateResult = await this.salesOrderAPI.updateSalesOrder(updatePayload);
+                let delresult;
+                if (updateResult.error) {
+                    LOG.error(`[processSalesOrder][Group ${groupCounter}][4.6] Update Error: ${JSON.stringify(updateResult, null, 2)}`);
+                    delresult = "Delivery Date didnot update";
+                    //throw new Error(`Update of request delivery date failed: ${updateResult.error}`);
+                }
+                else {
+                    delresult = `Delivery Date updated with ${updatePayload.RequestedDeliveryDate}`
+                }
+
                 group.forEach(r => aPassedRecordIDs.push(r.ID));
                 await UPDATE(this.recordsEntity)
                     .set({ salesItemNoSAP: nextItem, salesDocumentNoSAP: vbeln })
@@ -1037,7 +1055,7 @@ class Travel extends Processor {
                 await ProcessLogger.addLogs(
                     group.map((oRecord) => ({
                         record_ID: oRecord.ID,
-                        message: `Sales Order Item ${nextItem} created  for Sales order No: ` + vbeln,
+                        message: `Sales Order Item ${nextItem} created for Sales Order No: ${vbeln}. ${delresult}`,
                         process_code: sProcessCode,
                         type: 3
                     }))
@@ -1255,7 +1273,7 @@ class Travel extends Processor {
             // if (rec.processLevel_code === sProcessCode && rec.valid) {
             // if (this.shouldRecordProcess(rec, sProcessCode)) {
             if (rec.processLevel_code === sProcessCode) {
-            //if (this.shouldRecordProcess(rec, sProcessCode)) {
+                //if (this.shouldRecordProcess(rec, sProcessCode)) {
                 aRecordsForProcessing.push(rec);
                 aRecordIDs.push(rec.ID);
                 LOG.info(`    INCLUDED`);
@@ -1529,6 +1547,7 @@ class Travel extends Processor {
                 }]
             };
             const [icRes] = await this.salesOrderAPI.createSalesOrderItems([icPayload]);
+            let delresult;
             if (icRes.hasError) {
                 const msg = Array.isArray(icRes.reason) ?
                     icRes.reason.map(e => e.message || e).join(' • ') :
@@ -1545,7 +1564,22 @@ class Travel extends Processor {
                 await this.markRecordsValid(sProcessCode, aFailedRecordIDs, false);
                 continue;
             } else {
+                const updatePayload = {
+                    SalesOrder: icSo,
+                    RequestedDeliveryDate: toODataDate(new Date())
+                };
 
+                LOG.info(`[${ID}] Sending update payload: ${JSON.stringify(updatePayload)}`);
+                const updateResult = await this.salesOrderAPI.updateSalesOrder(updatePayload);
+                let delresult;
+                if (updateResult.error) {
+                    LOG.error(`[processSalesOrder][Group ${groupCounter}][4.6] Update Error: ${JSON.stringify(updateResult, null, 2)}`);
+                    delresult = "Delivery Date didnot update";
+                    //throw new Error(`Update of request delivery date failed: ${updateResult.error}`);
+                }
+                else {
+                    delresult = `Delivery Date updated with ${updatePayload.RequestedDeliveryDate}`
+                }
                 // 3.9) update back UI with IC fields
                 group.forEach(r => aPassedRecordIDs.push(r.ID));
                 await UPDATE(this.recordsEntity)
@@ -1562,7 +1596,7 @@ class Travel extends Processor {
                 await ProcessLogger.addLogs(
                     group.map((oRecord) => ({
                         record_ID: oRecord.ID,
-                        message: `Sales Order Item ${nextItem} created  for Sales order No: ` + icSo,
+                        message: `Sales Order Item ${nextItem} created for Sales Order No: ${icSo}. ${delresult}`,
                         process_code: sProcessCode,
                         type: 3
                     }))
