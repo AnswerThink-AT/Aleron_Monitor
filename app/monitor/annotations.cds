@@ -2673,6 +2673,10 @@ annotate service.Bonus with @(
         },
         {
             $Type: 'UI.DataField',
+            Value: customerFieldName1,
+        },
+        {
+            $Type: 'UI.DataField',
             Value: customerFieldValue1,
         },
         {
