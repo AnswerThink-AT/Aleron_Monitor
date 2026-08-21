@@ -2240,6 +2240,20 @@ class TimeContractor_3 extends Processor {
                     LOG.error(`[processSalesOrder][Group ${groupCounter}][4.6] Create Error: ${JSON.stringify(createRes, null, 2)}`);
                     throw new Error(`Create SO-item failed: ${createRes.error}`);
                 }
+                else {
+                    const updatePayload = {
+                        SalesOrder: vbeln,
+                        RequestedDeliveryDate: toODataDate(new Date())
+                    };
+
+                    LOG.info(`[${ID}] Sending update payload: ${JSON.stringify(updatePayload)}`);
+                    const updateResult = await this.salesOrderAPI.updateSalesOrder(updatePayload);
+                    if(updateResult.error)
+                    {
+                        LOG.error(`[processSalesOrder][Group ${groupCounter}][4.6] Update Error: ${JSON.stringify(updateResult, null, 2)}`);
+                    throw new Error(`Update of request delivery date failed: ${updateResult.error}`);
+                    }
+                }
                 LOG.info(`[processSalesOrder][Group ${groupCounter}][4.6] SO item created`);
 
                 // --- BEGIN: Customer-field helpers for VC payloads (business ask) ---
@@ -2472,7 +2486,7 @@ class TimeContractor_3 extends Processor {
                 }
 
                 //Update Sales Order
-                 if (vc1Uuid || vc2Uuid) {
+                if (vc1Uuid || vc2Uuid) {
                     try {
                         const resp1 = await this.salesOrderAPI.patchSalesOrderItemV2({
                             SalesOrder: vbeln,
@@ -2557,7 +2571,7 @@ class TimeContractor_3 extends Processor {
 
         // -------- Step 2: Fetch IC records at level G (same gating as discussed) --------
         LOG.info(`[processIntercompanyso][Step 2] Re-fetching batch records`);
-         await this._fetchRecords(this.recordIDs);
+        await this._fetchRecords(this.recordIDs);
 
         await this._expandSelectionToGroups();
         const recs = this.records.filter(
@@ -2889,6 +2903,20 @@ class TimeContractor_3 extends Processor {
                 if (createRes.error) {
                     LOG.error(`[processIntercompanyso][Group ${groupCounter}][4.7] Create Error: ${JSON.stringify(createRes, null, 2)}`);
                     throw new Error(`Create SO-item failed: ${createRes.error}`);
+                }
+                else {
+                    const updatePayload = {
+                        SalesOrder: vbeln,
+                        RequestedDeliveryDate: toODataDate(new Date())
+                    };
+
+                    LOG.info(`[${ID}] Sending update payload: ${JSON.stringify(updatePayload)}`);
+                    const updateResult = await this.salesOrderAPI.updateSalesOrder(updatePayload);
+                    if(updateResult.error)
+                    {
+                        LOG.error(`[processSalesOrder][Group ${groupCounter}][4.6] Update Error: ${JSON.stringify(updateResult, null, 2)}`);
+                    throw new Error(`Update of request delivery date failed: ${updateResult.error}`);
+                    }
                 }
                 LOG.info(`[processIntercompanyso][Group ${groupCounter}][4.7] SO item created`);
 
@@ -3741,7 +3769,7 @@ class TimeContractor_3 extends Processor {
 
                 passed.push(...lines.map(l => l.ID));
                 lines.map((line) => {
-                    ponos.push({ID:line.ID,pono:poNo})
+                    ponos.push({ ID: line.ID, pono: poNo })
                 })
             } catch (e) {
                 LOG.error(`[Group ${key}] FAILED → ${e.message}`);
@@ -3766,7 +3794,7 @@ class TimeContractor_3 extends Processor {
             await ProcessLogger.addLogs(
                 passed.map((sId) => {
                     const oRecord = this.records.find((r) => r.ID === sId);
-                    const oPo = ponos.find((p) => p.ID === sId );
+                    const oPo = ponos.find((p) => p.ID === sId);
                     return {
                         record_ID: sId,
                         message: `Purchase Order ${oPo.pono} with Item ${oRecord.purchaseDocumentItemSAP} was processed successfully for Sales Order ${oRecord.salesDocumentNoSAP}. The record has been moved to the Supplier Invoice step.`,
@@ -3996,8 +4024,8 @@ class TimeContractor_3 extends Processor {
                     });
 
                 passed.push(...ids);
-                 recs.map((line) => {
-                    miro.push({ID:line.ID,miro_no:invNumber,fyear:FiscalYear})
+                recs.map((line) => {
+                    miro.push({ ID: line.ID, miro_no: invNumber, fyear: FiscalYear })
                 })
             } catch (err) {
                 LOG.error(`Group ${key} MIRO failed → ${err.message}`);
