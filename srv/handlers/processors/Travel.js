@@ -1072,7 +1072,7 @@ class Travel extends Processor {
                     YY3_ACA_HRS_PRICE: lead.acaHrsPrice || 0,
                     YY4_ACA_TOTAL_HRS_PRICE: lead.acaTotalHrsPrice || 0,
                     YY5_LINE_ITEM_NUMBER: +nextItem,
-                    YY8_WEEK_ENDING2: lead.timeSheetEndDate,
+                    YY8_WEEK_ENDING2: toODataDate(lead.weekEndDate),
                 };
                 LOG.info(`VC1 payload → ${JSON.stringify(vc1)}`);
 
@@ -2348,7 +2348,7 @@ class Travel extends Processor {
                             Quantity: useQty,                // match qty
                             OrderQuantityUnit: unitFallback,
                             DocumentCurrency: currFallback,
-                            PurgDocNetAmount: safePoAmount   // TOTAL
+                            PurgDocNetAmount: Number(totalAmount.toFixed(2))   // TOTAL
                         }],
                         _DeliveryAddress: {
                             PurchaseOrder: poNo,
@@ -2403,7 +2403,7 @@ class Travel extends Processor {
                             await ProcessLogger.addLogs(
                                 lines.map((oRecord) => ({
                                     record_ID: oRecord.ID,
-                                    message: `Successfully Back-linked SO=${soNum} ↔ PO=${poNo} on items 0010 & ${firstItem}`,
+                                    message: `Successfully Back-linked SO=${soNum} ↔ PO=${poNo} on items 0010 & ${poItem}`,
                                     process_code: sProcessCode,
                                     type: 3
                                 }))
