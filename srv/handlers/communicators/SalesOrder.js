@@ -1,5 +1,6 @@
 const cds = require('@sap/cds');
 const LOG = cds.log('Monitor.Communicator-SalesOrder');
+const moment = require('moment');
 
 // Modules
 // const {ceSalesorder0001} = require('../../external/CE_SALESORDER_0001');
@@ -15,6 +16,7 @@ const {
 const {
     parseODataV2Error
 } = require('../common/sdk');
+const { error } = require('console');
 
 class SalesOrder {
     constructor(options) {
@@ -53,20 +55,20 @@ class SalesOrder {
         // Query can be array of queries or a single query
         try {
             if (!query) {
-            LOG._error && LOG.error('[executeQuery] Query parameter is undefined');
-            return [];
-          }
+                LOG._error && LOG.error('[executeQuery] Query parameter is undefined');
+                return [];
+            }
             const oAPI = await this.getConnection();
             const result = await oAPI.run(query);
             if (!result) {
                 LOG._error && LOG.error('[executeQuery] Query execution returned undefined result');
                 throw new Error('Query execution returned undefined result');
-            }else if (Array.isArray(result) && result.length === 0) {
+            } else if (Array.isArray(result) && result.length === 0) {
                 LOG._error && LOG.error('[executeQuery] Query execution returned empty array');
-               // throw new Error('Query execution returned empty array');
+                // throw new Error('Query execution returned empty array');
             }
             return result;
-     
+
         } catch (err) {
             LOG._error && LOG.error(cds.i18n.messages.at('ERR_SALESORDER_QUERY', [err.message]));
             throw err;
@@ -132,14 +134,14 @@ class SalesOrder {
                 reason: oResult.status === 'rejected' ? oResult.reason : null,
             }));
         } catch (err) {
-            LOG._error && LOG.error(cds.i18n.messages.at('ERR_SALESORDER_CREATE',[err?.cause?.cause?.response?.statusText || err.message]));
-             // Rethrow the error to be handled by the caller
+            LOG._error && LOG.error(cds.i18n.messages.at('ERR_SALESORDER_CREATE', [err?.cause?.cause?.response?.statusText || err.message]));
+            // Rethrow the error to be handled by the caller
             const sErrMsg = cds.i18n.messages.at('ERR_SALESORDER_CREATE', [err?.cause?.cause?.response?.statusText || err.message]);
             aFinalRes = aPayloads.map(() => ({
-            hasError: true,
-            value: null,
-            reason: sErrMsg
-        }));
+                hasError: true,
+                value: null,
+                reason: sErrMsg
+            }));
         }
 
         return aFinalRes;
@@ -282,15 +284,16 @@ class SalesOrder {
             return [];
         }
     }
-    async updateSalesOrder(payload) {
+    /*async updateSalesOrder(payload) {
         const {
             salesOrderApi
         } = apiSalesOrderSrv();
 
         // 1) guard
-        if (!payload?.salesOrder) {
+        if (!payload?.SalesOrder) {
             LOG._error && LOG.error('ERR_SALESORDER_UPDATE: SalesOrder key is missing in payload');
             return {
+                error: true,
                 message: 'SalesOrder key is missing in payload'
             };
         }
@@ -298,17 +301,23 @@ class SalesOrder {
         try {
             // 2) pull out the key and build an entity instance
             const {
-                salesOrder,
+                SalesOrder,
                 ...updateFields
             } = payload;
+
+            const entity = await salesOrderApi
+                .requestBuilder()
+                .getByKey(SalesOrder)
+                .execute(this.DESTINATION);
+
+
+            Object.assign(entity, updateFields);
+
             const oEntity = entityDeserializer(defaultDeSerializers)
-                .deserializeEntity({
-                    SalesOrder: salesOrder,
-                    ...updateFields
-                }, salesOrderApi);
+                .deserializeEntity(entity, salesOrderApi);
 
             // 3) wrap the single update into a changeset
-            const change = changeset(salesOrderApi.requestBuilder().update(oEntity).withSalesOrder(salesOrder));
+            const change = changeset(salesOrderApi.requestBuilder().update(oEntity).ignoreVersionIdentifier());
 
             // 4) fire it off as a batch
             const [response] = await batch(change)
@@ -320,6 +329,7 @@ class SalesOrder {
                 const [err] = parseODataV2Error(response.body);
                 LOG._error && LOG.error(`ERR_SALESORDER_UPDATE: ${err.message}`);
                 return {
+                    error: true,
                     message: err.message
                 };
             }
@@ -333,11 +343,43 @@ class SalesOrder {
         } catch (err) {
             LOG._error && LOG.error(`ERR_SALESORDER_UPDATE: ${err.message}`);
             return {
+                error: true,
                 message: err.message
             };
         }
-    }
+    }*/
+    async updateSalesOrder({ SalesOrder, RequestedDeliveryDate }) {
+        const { salesOrderApi } = apiSalesOrderSrv();
 
+        if (!SalesOrder) {
+            LOG.error('ERR_SALESORDER_UPDATE: SalesOrder key is missing');
+            return { message: 'SalesOrder key is missing' };
+        }
+
+        try {
+            // 1) fetch the live entity — SDK captures its ETag internally
+            const entity = await salesOrderApi
+                .requestBuilder()
+                .getByKey(SalesOrder)
+                .execute(this.DESTINATION);
+
+            // 2) set the date as a moment instance (required by Edm.DateTime deserializer)
+            entity.requestedDeliveryDate = moment(RequestedDeliveryDate);
+
+            // 3) update — SDK auto-attaches If-Match from the fetched entity's version identifier
+            const result = await salesOrderApi
+                .requestBuilder()
+                .update(entity)
+                .execute(this.DESTINATION);
+
+            LOG.info(`[updateSalesOrder] ✔ success for ${SalesOrder}`);
+            return { success: true, data: result };
+
+        } catch (err) {
+            LOG.error(`ERR_SALESORDER_UPDATE: ${err.message}`, { cause: err.cause });
+            return { error: true, message: err.cause?.message || err.message };
+        }
+    }
     async updateSalesOrderItem(payload) {
         const {
             salesOrderItemApi
@@ -364,9 +406,9 @@ class SalesOrder {
 
             const updateRequest = changeset(
                 salesOrderItemApi.requestBuilder()
-                .update(oUpdatePayload)
-                .withSalesOrder(SalesOrder)
-                .withSalesOrderItem(SalesOrderItem)
+                    .update(oUpdatePayload)
+                    .withSalesOrder(SalesOrder)
+                    .withSalesOrderItem(SalesOrderItem)
             );
 
             const response = await batch(updateRequest)
@@ -403,29 +445,61 @@ class SalesOrder {
      */
     async patchSalesOrderItemV2({ SalesOrder, SalesOrderItem, YY1_PurchasingDoc_SD_SDI }) {
         if (!SalesOrder || !SalesOrderItem) {
-          throw new Error('patchSalesOrderItemV2: SalesOrder or SalesOrderItem key is missing');
+            throw new Error('patchSalesOrderItemV2: SalesOrder or SalesOrderItem key is missing');
         }
-      
+
         // 1) get the CDS-connected OData V2 client
         const oAPI = await this.getConnection();
-      
+
         // 2) build the exact path you tested in Postman
         const path = `/A_SalesOrderItem(SalesOrder='${SalesOrder}',SalesOrderItem='${SalesOrderItem}')`;
-      
+
         // 3) PATCH only the custom field
         try {
-          const result = await oAPI.patch(path, {
-            YY1_PurchasingDoc_SD_SDI
-          });
-          LOG.info(`[patchSalesOrderItemV2] ✔ success for ${SalesOrder}/${SalesOrderItem}`);
-          return result;
+            const result = await oAPI.patch(path, {
+                YY1_PurchasingDoc_SD_SDI
+            });
+            LOG.info(`[patchSalesOrderItemV2] ✔ success for ${SalesOrder}/${SalesOrderItem}`);
+            return result;
         }
         catch (err) {
-          LOG.error(`[patchSalesOrderItemV2] ❌ failed to patch ${SalesOrder}/${SalesOrderItem}: ${err.message}`, err);
-          throw err;
+            LOG.error(`[patchSalesOrderItemV2] ❌ failed to patch ${SalesOrder}/${SalesOrderItem}: ${err.message}`, err);
+            throw err;
         }
-      }
-       
+    }
+
+    async patchSalesOrderV2({ SalesOrder, RequestedDeliveryDate }) {
+        if (!SalesOrder) {
+            throw new Error('patchSalesOrderV2: SalesOrder is missing');
+        }
+
+        // 1) get the CDS-connected OData V2 client
+        const oAPI = await this.getConnection();
+        // 2) build the exact path you tested in Postman
+        const path = `/A_SalesOrder(SalesOrder='${SalesOrder}')`;
+        const current = await oAPI.get(path);
+        console.log(path);
+        console.log(current);
+        const etag = current.__metadata?.etag;
+
+        // 3) PATCH only the custom field
+        try {
+            const result = await oAPI.patch(path, {
+                RequestedDeliveryDate
+            }, {
+                headers: {
+                    'If-Match': etag || '*'
+                }
+            });
+            LOG.info(`[patchSalesOrderItemV2] ✔ success for ${SalesOrder}`);
+            return result;
+        }
+        catch (err) {
+            LOG.error(`[patchSalesOrderItemV2] ❌ failed to patch ${SalesOrder}: ${err.message}`, err);
+            throw err;
+        }
+    }
+
 
 
     async createSalesOrderItems(aPayloads = []) {
