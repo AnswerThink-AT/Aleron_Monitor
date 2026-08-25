@@ -1037,7 +1037,10 @@ class Travel extends Processor {
                 };
 
                 //LOG.info(`[${ID}] Sending update payload: ${JSON.stringify(updatePayload)}`);
-                const updateResult = await this.salesOrderAPI.updateSalesOrder(updatePayload);
+                const updateResult = await this.salesOrderAPI.updateSalesOrder({
+                    SalesOrder: vbeln,
+                    RequestedDeliveryDate: toODataDate(new Date())
+                });
                 let delresult;
                 if (updateResult.error) {
                     LOG.error(`[processSalesOrder][4.6] Update Error: ${JSON.stringify(updateResult, null, 2)}`);
@@ -1060,6 +1063,11 @@ class Travel extends Processor {
                         type: 3
                     }))
                 );
+                const toODataDateOnly = d => {
+                    const m = require('moment')(d, ['YYYY-MM-DD', 'YYYYMMDD'], true);
+                    if (!m.isValid()) throw new Error(`Invalid date: ${d}`);
+                    return m.format('YYYY-MM-DD');
+                };
                 // 3.15) VC1 insert
                 LOG.info(`[processSalesOrder] STEP 3.15: inserting VC1 for SO='${vbeln}', item='${nextItem}'`);
                 const vc1 = {
@@ -1072,7 +1080,7 @@ class Travel extends Processor {
                     YY3_ACA_HRS_PRICE: lead.acaHrsPrice || 0,
                     YY4_ACA_TOTAL_HRS_PRICE: lead.acaTotalHrsPrice || 0,
                     YY5_LINE_ITEM_NUMBER: +nextItem,
-                    YY8_WEEK_ENDING2: toODataDate(lead.weekEndDate),
+                    YY8_WEEK_ENDING2: toODataDateOnly(lead.weekEndDate),
                 };
                 LOG.info(`VC1 payload → ${JSON.stringify(vc1)}`);
 
@@ -1861,23 +1869,27 @@ class Travel extends Processor {
 
         const hasAdw = v => v !== null && v !== undefined && String(v).trim() !== '';
 
-        const groups = new Map();
-        for (const r of recs) {
-            const parts = [r.contractNo, r.invoiceNoWN, r.employeeNo, r.tempusWorkOrder];
-            if (hasAdw(r.additionalDayOfWork)) {
-                parts.push(`ADW:${String(r.additionalDayOfWork).trim()}`);
-            }
-            const key = parts.join('|');
-            if (!groups.has(key)) groups.set(key, []);
-            groups.get(key).push(r);
-        }
+        const groups = {};
+        /* for (const r of recs) {
+             const parts = [r.contractNo, r.invoiceNoWN, r.employeeNo, r.tempusWorkOrder];
+             if (hasAdw(r.additionalDayOfWork)) {
+                 parts.push(`ADW:${String(r.additionalDayOfWork).trim()}`);
+             }
+             const key = parts.join('|');
+             if (!groups.has(key)) groups.set(key, []);
+             groups.get(key).push(r);
+         }*/
+        recs.forEach(rec => {
+            const key = [rec.sapEmployeeNo, rec.wnWorkOrder, rec.wnInvoiceNo, rec.endDate, rec.currency].join('||');
+            (groups[key] = groups[key] || []).push(rec);
+        });
 
         LOG.info(`[Step 5.2] Formed ${groups.size} groups`);
 
         const errorLogs = [], passed = [], failed = [];
         const poComm = new PurchaseOrder();
-
-        for (const [key, lines] of groups.entries()) {
+        for (const [key, lines] of Object.entries(groups)) {
+            // for (const [key, lines] of groups.entries()) {
             const rec = lines[0];
             const vbeln = rec.salesDocumentNoSAP; // Sales Order number
             const posnr = rec.salesItemNoSAP;     // Sales Order item number
