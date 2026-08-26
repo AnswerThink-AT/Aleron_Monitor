@@ -438,15 +438,15 @@ class CreditFG extends Processor {
                         } else {
                             // Store the sales order item details in the record
                             const salesOrderItem = salesOrderItemResult[0];
-                            // record.salesDocumentNoSAP = salesOrderItem.SalesOrder;
-                            // record.salesItemNoSAP = salesOrderItem.SalesOrderItem;
-                            // record.salesDocumentRjcnReasonSAP = salesOrderItem.SalesDocumentRjcnReason;
-                            // record.orderRelatedBillingStatusSAP = salesOrderItem.OrderRelatedBillingStatus;
-                            // record.invoiceNoWNSAP = salesOrderItem.YY1_WNInvoice_SD_SDI;
-                            // record.materialSAP = salesOrderItem.Material;
-                            // record.projectNumberSAP = salesOrderItem.WBSElement;
+                            record.salesDocumentNoSAP = salesOrderItem.SalesOrder;
+                            record.salesItemNoSAP = salesOrderItem.SalesOrderItem;
+                            record.salesDocumentRjcnReasonSAP = salesOrderItem.SalesDocumentRjcnReason;
+                            record.orderRelatedBillingStatusSAP = salesOrderItem.OrderRelatedBillingStatus;
+                            record.invoiceNoWNSAP = salesOrderItem.YY1_WNInvoice_SD_SDI;
+                            record.materialSAP = salesOrderItem.Material;
+                            record.projectNumberSAP = salesOrderItem.WBSElement;
                             record.materialGroup3SAP = salesOrderItem.AdditionalMaterialGroup3;
-                            // record.purchaseDocumentNoSAP = salesOrderItem.YY1_PurchasingDoc_SD_SDI;
+                            record.purchaseDocumentNoSAP = salesOrderItem.YY1_PurchasingDoc_SD_SDI;
 
                             // Handle invoice number validation and assignment wnInvalidationInvNo                            
                             if (record.invalidInvoiceNoWNSAP && record.invalidInvoiceNoWNSAP.trim() !== '') {
@@ -854,17 +854,17 @@ class CreditFG extends Processor {
                             ) || salesOrderItemDetails[0];
 
                             // Store the item details in the record
-                            // record.salesDocumentNoSAP = itemDetails.SalesOrder;
+                            record.salesDocumentNoSAP = itemDetails.SalesOrder;
                             record.salesItemNoSAP = itemDetails.SalesOrderItem;
                             record.purchaseDocumentItemSAP = itemDetails.SalesOrderItem;
-                            // record.salesDocumentRjcnReasonSAP = itemDetails.SalesDocumentRjcnReason;
+                            record.salesDocumentRjcnReasonSAP = itemDetails.SalesDocumentRjcnReason;
                             record.orderRelatedBillingStatusSAP = itemDetails.OrderRelatedBillingStatus;
-                            // record.invoiceNoWNSAP = itemDetails.YY1_WNInvoice_SD_SDI;
-                            // record.materialSAP = itemDetails.Material;
-                            // record.projectNumberSAP = itemDetails.WBSElement;
-                            // record.materialGroup3SAP = itemDetails.AdditionalMaterialGroup3;
-                            // record.purchaseDocumentNoSAP = itemDetails.YY1_PurchasingDoc_SD_SDI;
-                            // record.wnWorkOrderNo = itemDetails.YY1_WNWorkOrder_SD_SDI;
+                            record.invoiceNoWNSAP = itemDetails.YY1_WNInvoice_SD_SDI;
+                            record.materialSAP = itemDetails.Material;
+                            record.projectNumberSAP = itemDetails.WBSElement;
+                            record.materialGroup3SAP = itemDetails.AdditionalMaterialGroup3;
+                            record.purchaseDocumentNoSAP = itemDetails.YY1_PurchasingDoc_SD_SDI;
+                            record.wnWorkOrderNo = itemDetails.YY1_WNWorkOrder_SD_SDI;
 
                             // Step 4: Handle invoice number validation and assignment
                             if (record.invalidInvoiceNoWNSAP && record.invalidInvoiceNoWNSAP.trim() !== '') {
@@ -1573,7 +1573,7 @@ class CreditFG extends Processor {
                         } else {
                             aErrorLogs.push({
                                 record_ID: record.ID,
-                                message: `Error rejecting sales order item: ${patchResult.error}`, process_code: sProcessCode
+                                message: `Error rejecting sales order: ${record.salesDocumentNoSAP} for item: ${record.salesItemNoSAP}`, process_code: sProcessCode
                             });
                             aFailedRecordIDs.push(record.ID);
                         }
