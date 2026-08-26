@@ -778,14 +778,16 @@ class CreditFG extends Processor {
                             aFailedRecordIDs.push(record.ID);
                             hasRecordFailed = true;
                         } else {
-                            const itemDetails = salesOrderItemDetails[0];
+                            const itemDetails = salesOrderItemDetails.find(item =>
+                                item.YY1_WNInvoice_SD_SDI === record.wnInvoiceNo
+                            ) || salesOrderItemDetails[0];
 
                             // Store the item details in the record
                             // record.salesDocumentNoSAP = itemDetails.SalesOrder;
                             record.salesItemNoSAP = itemDetails.SalesOrderItem;
                             record.purchaseDocumentItemSAP = itemDetails.SalesOrderItem;
                             // record.salesDocumentRjcnReasonSAP = itemDetails.SalesDocumentRjcnReason;
-                            // record.orderRelatedBillingStatusSAP = itemDetails.OrderRelatedBillingStatus;
+                            record.orderRelatedBillingStatusSAP = itemDetails.OrderRelatedBillingStatus;
                             // record.invoiceNoWNSAP = itemDetails.YY1_WNInvoice_SD_SDI;
                             // record.materialSAP = itemDetails.Material;
                             // record.projectNumberSAP = itemDetails.WBSElement;
@@ -1033,7 +1035,7 @@ class CreditFG extends Processor {
                 ) {
                     steps.push('H');
                     if (record.salesOrderICSAP && record.salesOrderICSAP.trim() !== '') {
-                        steps.push('I/J/K');
+                        steps.push('I', 'J', 'K');
                     }
                 }
 
@@ -1043,15 +1045,15 @@ class CreditFG extends Processor {
                     record.orderRelatedBillingStatusICSAP === 'A' &&
                     (!record.salesOrderICSAP || record.salesOrderICSAP.trim() === '')
                 ) {
-                    steps.push('I/J/K');
+                    steps.push('I', 'J', 'K');
                 }
 
                 // Block 3
                 if (record.orderRelatedBillingStatusSAP === 'C') {
                     if (record.salesOrderICSAP && record.salesOrderICSAP.trim() !== '') {
-                        steps.push('L/O');
+                        steps.push('L', 'O');
                     } else if (!record.salesOrderICSAP || record.salesOrderICSAP.trim() === '') {
-                        steps.push('M/P/N');
+                        steps.push('M', 'P', 'N');
                     }
                 }
                 if (steps.includes('*')) {

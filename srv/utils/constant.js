@@ -761,6 +761,7 @@ const constants = {
           'vendorPayDate',
           'currency',
           'customerPoNoLabor',
+          'customerFieldName1',
           'customerFieldValue1',
           'customerFieldName2',
           'customerFieldValue2',
