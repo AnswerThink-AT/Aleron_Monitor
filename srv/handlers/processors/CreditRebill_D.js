@@ -325,11 +325,47 @@ class CreditFG extends Processor {
                 try {
                     record.isMS_SC_Processed = true;
                     // 1. Get actual SalesOrder number from A_SalesOrderItem
-                    var salesOrderItemResult = await this.salesOrderAPI.executeQuery(
-                        SELECT.from('A_SalesOrderItem')
-                            .columns(['SalesOrder'])
-                            .where({ YY1_WNWorkOrder_SD_SDI: record.wnWorkOrderNo })
+                    const prefetch = await this.salesOrderAPI.executeQuery(
+                        SELECT.from('A_SalesOrder')
+                            .columns(['SalesOrder', 'AdditionalCustomerGroup2'])
+                            .where({ SalesOrder: record.salesOrder })
                     );
+
+                    const aZWNSalesOrders = prefetch
+                        .filter(o => o.AdditionalCustomerGroup2 === 'ZWN')
+                        .map(o => o.SalesOrder);
+                    const aNonZWNSalesOrders = prefetch
+                        .filter(o => o.AdditionalCustomerGroup2 !== 'ZWN')
+                        .map(o => o.SalesOrder);
+
+                    const aSalesItemQueries = [];
+
+                    if (aZWNSalesOrders.length) {
+                        aSalesItemQueries.push(
+                            this.salesOrderAPI.executeQuery(
+                                SELECT.from('A_SalesOrderItem')
+                                    .columns(['SalesOrder'])
+                                    .where({
+                                        SalesOrder: { in: aZWNSalesOrders }
+                                    })
+                            )
+                        );
+                    }
+
+                    if (aNonZWNSalesOrders.length) {
+                        aSalesItemQueries.push(
+                            this.salesOrderAPI.executeQuery(
+                                SELECT.from('A_SalesOrderItem')
+                                    .columns(['SalesOrder'])
+                                    .where({
+                                        YY1_WNWorkOrder_SD_SDI: record.wnWorkOrderNo
+                                    })
+                            )
+                        );
+                    }
+
+                    var salesOrderItemResults = await Promise.all(aSalesItemQueries);
+                    var salesOrderItemResult = salesOrderItemResults.flat();
                     var actualSalesOrder = salesOrderItemResult[0]?.SalesOrder;
                     // Get sales order header details
                     var salesOrderHeaderResult = await this.salesOrderAPI.executeQuery(
@@ -678,12 +714,47 @@ class CreditFG extends Processor {
             if (!hasRecordFailed && (record.woType === 'CP' || record.woType === 'CR')) {
                 record.isCP_CR_Processed = true;
                 // Step 1: Get sales order number from sales order item table
-                const salesOrderItemResult = await this.salesOrderAPI.executeQuery(
-                    SELECT.from('A_SalesOrderItem')
-                        .columns(['SalesOrder'])
-                        .where({ YY1_WNWorkOrder_SD_SDI: record.wnWorkOrderNo })
+                const prefetch = await this.salesOrderAPI.executeQuery(
+                    SELECT.from('A_SalesOrder')
+                        .columns(['SalesOrder', 'AdditionalCustomerGroup2'])
+                        .where({ SalesOrder: record.salesOrder }) // adjust this filter to however you identify the relevant sales order
                 );
 
+                const aZWNSalesOrders = prefetch
+                    .filter(o => o.AdditionalCustomerGroup2 === 'ZWN')
+                    .map(o => o.SalesOrder);
+                const aNonZWNSalesOrders = prefetch
+                    .filter(o => o.AdditionalCustomerGroup2 !== 'ZWN')
+                    .map(o => o.SalesOrder);
+
+                const aSalesItemQueries = [];
+
+                if (aZWNSalesOrders.length) {
+                    aSalesItemQueries.push(
+                        this.salesOrderAPI.executeQuery(
+                            SELECT.from('A_SalesOrderItem')
+                                .columns(['SalesOrder'])
+                                .where({
+                                    SalesOrder: { in: aZWNSalesOrders }
+                                })
+                        )
+                    );
+                }
+
+                if (aNonZWNSalesOrders.length) {
+                    aSalesItemQueries.push(
+                        this.salesOrderAPI.executeQuery(
+                            SELECT.from('A_SalesOrderItem')
+                                .columns(['SalesOrder'])
+                                .where({
+                                    YY1_WNWorkOrder_SD_SDI: record.wnWorkOrderNo
+                                })
+                        )
+                    );
+                }
+
+                var salesOrderItemResults = await Promise.all(aSalesItemQueries);
+                var salesOrderItemResult = salesOrderItemResults.flat();
                 if (!salesOrderItemResult || !salesOrderItemResult.length) {
                     aErrorLogs.push({
                         record_ID: record.ID,
