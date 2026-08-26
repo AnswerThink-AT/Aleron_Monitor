@@ -1182,6 +1182,9 @@ class MonitorService extends cds.ApplicationService {
           if (interfaceID === "M" && colIndex === 24 && value) {
             value = value.toUpperCase();
           }
+          if (column === 'materialDesc' && value && value.length > 50) {
+            value = value.substring(0, 40);
+          }
           oRecord[column] = value;
         });
 
