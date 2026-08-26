@@ -325,11 +325,35 @@ class CreditFG extends Processor {
                 try {
                     record.isMS_SC_Processed = true;
                     // 1. Get actual SalesOrder number from A_SalesOrderItem
-                    const prefetch = await this.salesOrderAPI.executeQuery(
-                        SELECT.from('A_SalesOrder')
-                            .columns(['SalesOrder', 'AdditionalCustomerGroup2'])
-                            .where({ SalesOrder: record.salesOrder })
-                    );
+                    var prefetch = [];
+                    try {
+                        prefetch = await this.salesOrderAPI.executeQuery(
+                            SELECT.from('A_SalesOrder')
+                                .columns(['SalesOrder', 'AdditionalCustomerGroup2'])
+                                .where({ SalesOrder: record.wnWorkOrderNo })
+                        );
+                    } catch (error) {
+
+                    }
+                    if (!prefetch.length) {
+                        const asalesItem = await this.salesOrderAPI.executeQuery(
+                            SELECT.from('A_SalesOrderItem')
+                                .columns(['SalesOrder'])
+                                .where({
+                                    YY1_WNWorkOrder_SD_SDI: record.wnWorkOrderNo
+                                })
+                        );
+                        if (asalesItem) {
+                            const aSalesOrderdata = asalesItem[0].SalesOrder;
+                            prefetch = await this.salesOrderAPI.executeQuery(
+                                SELECT.from('A_SalesOrder')
+                                    .columns(['SalesOrder', 'AdditionalCustomerGroup2'])
+                                    .where({ SalesOrder: aSalesOrderdata })
+                            );
+                        }
+
+                    }
+
 
                     const aZWNSalesOrders = prefetch
                         .filter(o => o.AdditionalCustomerGroup2 === 'ZWN')
@@ -346,7 +370,7 @@ class CreditFG extends Processor {
                                 SELECT.from('A_SalesOrderItem')
                                     .columns(['SalesOrder'])
                                     .where({
-                                        SalesOrder: { in: aZWNSalesOrders }
+                                        SalesOrder: record.wnWorkOrderNo
                                     })
                             )
                         );
@@ -438,15 +462,15 @@ class CreditFG extends Processor {
                         } else {
                             // Store the sales order item details in the record
                             const salesOrderItem = salesOrderItemResult[0];
-                            // record.salesDocumentNoSAP = salesOrderItem.SalesOrder;
-                            // record.salesItemNoSAP = salesOrderItem.SalesOrderItem;
-                            // record.salesDocumentRjcnReasonSAP = salesOrderItem.SalesDocumentRjcnReason;
-                            // record.orderRelatedBillingStatusSAP = salesOrderItem.OrderRelatedBillingStatus;
-                            // record.invoiceNoWNSAP = salesOrderItem.YY1_WNInvoice_SD_SDI;
-                            // record.materialSAP = salesOrderItem.Material;
-                            // record.projectNumberSAP = salesOrderItem.WBSElement;
+                            record.salesDocumentNoSAP = salesOrderItem.SalesOrder;
+                            record.salesItemNoSAP = salesOrderItem.SalesOrderItem;
+                            record.salesDocumentRjcnReasonSAP = salesOrderItem.SalesDocumentRjcnReason;
+                            record.orderRelatedBillingStatusSAP = salesOrderItem.OrderRelatedBillingStatus;
+                            record.invoiceNoWNSAP = salesOrderItem.YY1_WNInvoice_SD_SDI;
+                            record.materialSAP = salesOrderItem.Material;
+                            record.projectNumberSAP = salesOrderItem.WBSElement;
                             record.materialGroup3SAP = salesOrderItem.AdditionalMaterialGroup3;
-                            // record.purchaseDocumentNoSAP = salesOrderItem.YY1_PurchasingDoc_SD_SDI;
+                            record.purchaseDocumentNoSAP = salesOrderItem.YY1_PurchasingDoc_SD_SDI;
 
                             // Handle invoice number validation and assignment wnInvalidationInvNo                            
                             if (record.invalidInvoiceNoWNSAP && record.invalidInvoiceNoWNSAP.trim() !== '') {
@@ -714,11 +738,35 @@ class CreditFG extends Processor {
             if (!hasRecordFailed && (record.woType === 'CP' || record.woType === 'CR')) {
                 record.isCP_CR_Processed = true;
                 // Step 1: Get sales order number from sales order item table
-                const prefetch = await this.salesOrderAPI.executeQuery(
-                    SELECT.from('A_SalesOrder')
-                        .columns(['SalesOrder', 'AdditionalCustomerGroup2'])
-                        .where({ SalesOrder: record.salesOrder }) // adjust this filter to however you identify the relevant sales order
-                );
+                var prefetch = [];
+                try {
+                    prefetch = await this.salesOrderAPI.executeQuery(
+                        SELECT.from('A_SalesOrder')
+                            .columns(['SalesOrder', 'AdditionalCustomerGroup2'])
+                            .where({ SalesOrder: record.wnWorkOrderNo })
+                    );
+                } catch (error) {
+
+                }
+                if (!prefetch.length) {
+                    const asalesItem = await this.salesOrderAPI.executeQuery(
+                        SELECT.from('A_SalesOrderItem')
+                            .columns(['SalesOrder'])
+                            .where({
+                                YY1_WNWorkOrder_SD_SDI: record.wnWorkOrderNo
+                            })
+                    );
+                    if (asalesItem) {
+                        const aSalesOrderdata = asalesItem[0].SalesOrder;
+                        prefetch = await this.salesOrderAPI.executeQuery(
+                            SELECT.from('A_SalesOrder')
+                                .columns(['SalesOrder', 'AdditionalCustomerGroup2'])
+                                .where({ SalesOrder: aSalesOrderdata })
+                        );
+                    }
+
+                }
+
 
                 const aZWNSalesOrders = prefetch
                     .filter(o => o.AdditionalCustomerGroup2 === 'ZWN')
@@ -735,7 +783,7 @@ class CreditFG extends Processor {
                             SELECT.from('A_SalesOrderItem')
                                 .columns(['SalesOrder'])
                                 .where({
-                                    SalesOrder: { in: aZWNSalesOrders }
+                                    SalesOrder: record.wnWorkOrderNo
                                 })
                         )
                     );
@@ -854,17 +902,17 @@ class CreditFG extends Processor {
                             ) || salesOrderItemDetails[0];
 
                             // Store the item details in the record
-                            // record.salesDocumentNoSAP = itemDetails.SalesOrder;
+                            record.salesDocumentNoSAP = itemDetails.SalesOrder;
                             record.salesItemNoSAP = itemDetails.SalesOrderItem;
                             record.purchaseDocumentItemSAP = itemDetails.SalesOrderItem;
-                            // record.salesDocumentRjcnReasonSAP = itemDetails.SalesDocumentRjcnReason;
+                            record.salesDocumentRjcnReasonSAP = itemDetails.SalesDocumentRjcnReason;
                             record.orderRelatedBillingStatusSAP = itemDetails.OrderRelatedBillingStatus;
-                            // record.invoiceNoWNSAP = itemDetails.YY1_WNInvoice_SD_SDI;
-                            // record.materialSAP = itemDetails.Material;
-                            // record.projectNumberSAP = itemDetails.WBSElement;
-                            // record.materialGroup3SAP = itemDetails.AdditionalMaterialGroup3;
-                            // record.purchaseDocumentNoSAP = itemDetails.YY1_PurchasingDoc_SD_SDI;
-                            // record.wnWorkOrderNo = itemDetails.YY1_WNWorkOrder_SD_SDI;
+                            record.invoiceNoWNSAP = itemDetails.YY1_WNInvoice_SD_SDI;
+                            record.materialSAP = itemDetails.Material;
+                            record.projectNumberSAP = itemDetails.WBSElement;
+                            record.materialGroup3SAP = itemDetails.AdditionalMaterialGroup3;
+                            record.purchaseDocumentNoSAP = itemDetails.YY1_PurchasingDoc_SD_SDI;
+                            record.wnWorkOrderNo = itemDetails.YY1_WNWorkOrder_SD_SDI;
 
                             // Step 4: Handle invoice number validation and assignment
                             if (record.invalidInvoiceNoWNSAP && record.invalidInvoiceNoWNSAP.trim() !== '') {
@@ -1573,7 +1621,7 @@ class CreditFG extends Processor {
                         } else {
                             aErrorLogs.push({
                                 record_ID: record.ID,
-                                message: `Error rejecting sales order item: ${patchResult.error}`, process_code: sProcessCode
+                                message: `Error rejecting sales order: ${record.salesDocumentNoSAP} for item: ${record.salesItemNoSAP}`, process_code: sProcessCode
                             });
                             aFailedRecordIDs.push(record.ID);
                         }
@@ -2083,6 +2131,7 @@ class CreditFG extends Processor {
         const aFailedRecordIDs = [];
         const aSkippedRecords = [];
         const aErrorLogs = [];
+        var askipped = false;
 
         for (const record of this.records) {
             if (this.shouldRecordProcess(record, sProcessCode)) {
@@ -2358,12 +2407,15 @@ class CreditFG extends Processor {
                             BillingDocumentDate: dateString, //curentdate
                             ReferenceSDDocument: filteredSubsequentItems[0].SubsequentDocument,
                             ReferenceSDDocumentCategory: 'M',
+                            AssignmentReference: record.invoiceNoWNSAP,
                             to_Item: {
                                 results: filteredSubsequentItems.map(item => ({
                                     CreditMemoRequestItem: item.SubsequentDocumentItem,//'10',
                                     ReferenceSDDocument: item.SubsequentDocument,
                                     ReferenceSDDocumentItem: item.SubsequentDocumentItem,
-                                    // AssignmentReference: record.wnInvoiceNo
+                                    //AssignmentReference: record.invoiceNoWNSAP,
+                                    YY1_WNInvoice_SD_SDI: record.invoiceNoWNSAP,
+                                    YY1_WNWorkOrder_SD_SDI: record.wnWorkOrderNo, // Work Order Number
                                 }))
                             }
                         };
@@ -2405,6 +2457,7 @@ class CreditFG extends Processor {
                     }
                 } else {
                     aPassedRecordIDs.push(record.ID);
+                    askipped = true;
                 }
             } catch (err) {
                 aErrorLogs.push({
@@ -2462,10 +2515,10 @@ class CreditFG extends Processor {
                         };
 
                         // Add conditional fields if they exist
-                        if (record.invoiceNoWNSAP) {
+                        if (record.invoiceNoWNSAP && !askipped) {
                             updatePayload.invoiceNoWNSAP = record.invoiceNoWNSAP;
                         }
-                        if (record.creditMemoSAP) {
+                        if (record.creditMemoSAP && !askipped) {
                             updatePayload.creditMemoSAP = record.creditMemoSAP;
                         }
 
@@ -2495,6 +2548,7 @@ class CreditFG extends Processor {
         const aFailedRecordIDs = [];
         const aSkippedRecords = [];
         const aErrorLogs = [];
+        var askipped = false;
 
         for (const record of this.records) {
             if (this.shouldRecordProcess(record, sProcessCode)) {
@@ -2700,7 +2754,7 @@ class CreditFG extends Processor {
                     console.log('Credit Memo Request Created:', result);
                     // Store the credit memo number in the record
                     if (result.CreditMemoRequest) {
-                        record.creditMemoSAP = result.CreditMemoRequest;
+                        record.creditMemoICSAP = result.CreditMemoRequest;
                     }
 
 
@@ -2710,6 +2764,7 @@ class CreditFG extends Processor {
                     aPassedRecordIDs.push(record.ID);
                 } else {
                     aPassedRecordIDs.push(record.ID);
+                    askipped = true;
                 }
             } catch (err) {
                 aErrorLogs.push({
@@ -2735,21 +2790,42 @@ class CreditFG extends Processor {
                     };
                 })
             ),
-                await this.markRecordsValid(sProcessCode, aPassedRecordIDs, true),
+                await this.markRecordsValid(sProcessCode, aPassedRecordIDs, true);
+            if (!askipped) {
                 await Promise.allSettled(
                     aRecordsForProcessing
                         .filter(record => aPassedRecordIDs.includes(record.ID))
                         .map(record =>
+
                             UPDATE(Credit_Rebill)
                                 .set({
                                     valid: true,
                                     processLevel_code: sProcessCode,
                                     invoiceNoWNSAP: record.invoiceNoWNSAP,
-                                    creditMemoSAP: record.creditMemoSAP
+                                    creditMemoICSAP: record.creditMemoSAP
                                 })
                                 .where({ ID: record.ID })
                         )
                 );
+            } else {
+                await Promise.allSettled(
+                    aRecordsForProcessing
+                        .filter(record => aPassedRecordIDs.includes(record.ID))
+                        .map(record =>
+
+                            UPDATE(Credit_Rebill)
+                                .set({
+                                    valid: true,
+                                    processLevel_code: sProcessCode
+                                })
+                                .where({ ID: record.ID })
+                        )
+                );
+            }
+
+
+
+
         }
         // Update the status of failed records
         if (aFailedRecordIDs.length) {
@@ -2772,6 +2848,7 @@ class CreditFG extends Processor {
         const aFailedRecordIDs = [];
         const aSkippedRecords = [];
         const aErrorLogs = [];
+        var askipped = false;
 
         for (const record of this.records) {
             if (this.shouldRecordProcess(record, sProcessCode)) {
@@ -3263,6 +3340,7 @@ class CreditFG extends Processor {
                     }
                 } else {
                     aPassedRecordIDs.push(record.ID);
+                    askipped = true;
                 }
             } catch (err) {
                 aErrorLogs.push({
