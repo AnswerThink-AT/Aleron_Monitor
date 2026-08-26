@@ -284,6 +284,7 @@ class SOWscInvoice extends Processor {
                 stMandatoryFields,
                 stBlankFields,
                 oRecord,
+                sProcessCode
             });
             if (oFieldValidationRes.hasError) {
                 oFieldValidationRes.errors.forEach((err) => {
@@ -420,7 +421,7 @@ class SOWscInvoice extends Processor {
             .where({ PurchaseOrderByCustomer: { in: [...new Set(aSalesContractWhere)] } })
     }
 
-    _validateFieldValidations({ stMandatoryFields, stBlankFields, oRecord }) {
+    _validateFieldValidations({ stMandatoryFields, stBlankFields, oRecord, sProcessCode }) {
         let hasError = false,
             aErrorLogs = [];
         for (const anyField in oRecord) {
