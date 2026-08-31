@@ -75,6 +75,33 @@ class SalesOrder {
         }
     }
 
+    async executeUpdateQuery(query) {
+        // Query can be array of queries or a single query
+        try {
+            if (!query) {
+                LOG._error && LOG.error('[executeQuery] Query parameter is undefined');
+                return [];
+            }
+            const oAPI = await this.getConnection();
+            const result = await oAPI.run(query);
+            if (!result) {
+               return {
+                error: null,
+                success: true,
+                message: 'Sales Order Changed Successfully'
+               }
+            } else if (Array.isArray(result) && result.length === 0) {
+                return result;
+                // throw new Error('Query execution returned empty array');
+            }
+            
+
+        } catch (err) {
+            LOG._error && LOG.error(cds.i18n.messages.at('ERR_SALESORDER_QUERY', [err.message]));
+            throw err;
+        }
+    }
+
     async getEntities(sNS) {
         const oAPI = await this.getConnection();
         return oAPI.entities(sNS);

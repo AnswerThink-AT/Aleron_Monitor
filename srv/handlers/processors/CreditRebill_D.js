@@ -142,7 +142,7 @@ class CreditFG extends Processor {
         // Get the database service instance
         const db = await cds.connect.to('db');
 
-        await ProcessLogger.removeLogs([...this.recordIDs], null, sProcessCode);
+        //await ProcessLogger.removeLogs([...this.recordIDs], null, sProcessCode);
 
         for (const record of this.records) {
             if (this.shouldRecordProcess(record, sProcessCode)) {
@@ -151,7 +151,7 @@ class CreditFG extends Processor {
                 aSkippedRecords.push({ ...record });
             }
         }
-
+        await ProcessLogger.removeLogs(aRecordsForProcessing.map(r => r.ID), null, sProcessCode);
         this.updateProcessingState(sProcessCode);
 
         if (!aRecordsForProcessing.length) {
@@ -1415,7 +1415,7 @@ class CreditFG extends Processor {
                 ProcessLogger.removeLogs(aPassedRecordIDs, null, sProcessCode),
                 ProcessLogger.addLogs(
                     aPassedRecordIDs.map((sId) => {
-                        const oRecord = this.records.find((r) => r.ID === sId);
+                        const oRecord = processedRecordsMap.get(sId);
 
                         return {
                             record_ID: sId,
@@ -1603,7 +1603,7 @@ class CreditFG extends Processor {
                         //     SalesOrderItem: record.salesItemNoSAP || '000010',
                         //     SalesDocumentRjcnReason: '60' // or your required reason code
                         // });
-                        const patchResult = await this.salesOrderAPI.executeQuery(
+                        const patchResult = await this.salesOrderAPI.executeUpdateQuery(
                             UPDATE('A_SalesOrderItem')
                                 .set({
                                     SalesDocumentRjcnReason: '60' // or your required reason code
@@ -1713,7 +1713,7 @@ class CreditFG extends Processor {
                     {
                         // await INSERT.into(InterfaceSteps).entries({ record_ID: record.ID, step: 'I', createdAt: new Date() });
                         // await this._deletePreviousSteps(record.ID, 'I');
-                        const patchResult = await this.salesOrderAPI.executeQuery(
+                        const patchResult = await this.salesOrderAPI.executeUpdateQuery(
                             UPDATE('A_SalesOrderItem')
                                 .set({
                                     SalesDocumentRjcnReason: '60' // or your required reason code
