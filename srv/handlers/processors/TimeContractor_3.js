@@ -2095,8 +2095,11 @@ class TimeContractor_3 extends Processor {
             return bags;
         }
         // ----------------------------------------------------------------------
-
+        var vc2Uuid;
+        var vc1Uuid;
         for (const [key, lines] of groups.entries()) {
+            vc1Uuid = '';
+            vc2Uuid = '';
             if (!lines.length) {
                 LOG.warn(`[processSalesOrder][Group ${groupCounter}] Empty lines array, skipping group ${key}`);
                 groupCounter++;
@@ -2104,7 +2107,6 @@ class TimeContractor_3 extends Processor {
             }
             const rec = lines[0];
             const isEightDayWeek = lines.some(l => hasAdw(l.additionalDayOfWork));
-
             try {
                 // 4.1: Fetch SO header
                 const vbeln = rec.salesDocumentNoSAP;
@@ -2248,10 +2250,9 @@ class TimeContractor_3 extends Processor {
 
                     //LOG.info(`[${ID}] Sending update payload: ${JSON.stringify(updatePayload)}`);
                     const updateResult = await this.salesOrderAPI.updateSalesOrder(updatePayload);
-                    if(updateResult.error)
-                    {
+                    if (updateResult.error) {
                         LOG.error(`[processSalesOrder][Group ${groupCounter}][4.6] Update Error: ${JSON.stringify(updateResult, null, 2)}`);
-                    throw new Error(`Update of request delivery date failed: ${updateResult.error}`);
+                        throw new Error(`Update of request delivery date failed: ${updateResult.error}`);
                     }
                 }
                 LOG.info(`[processSalesOrder][Group ${groupCounter}][4.6] SO item created`);
@@ -2453,36 +2454,45 @@ class TimeContractor_3 extends Processor {
                     }
                 }
 
-                // INSERT VC1
-                let vc1Res = await this.salesVCData_1Api.executeQuery(
-                    INSERT.into('YY1_SALESVCDATA_1').entries(vc1)
-                );
-                this.LOG.info(`VC1 raw response → ${JSON.stringify(vc1Res, null, 2)}`);
+                try {
+                    // INSERT VC1
+                    let vc1Res = await this.salesVCData_1Api.executeQuery(
+                        INSERT.into('YY1_SALESVCDATA_1').entries(vc1)
+                    );
+                    this.LOG.info(`VC1 raw response → ${JSON.stringify(vc1Res, null, 2)}`);
 
-                const vc1Uuid = Array.isArray(vc1Res) ? vc1Res[0]?.SAP_UUID : vc1Res.SAP_UUID;
-                if (vc1Uuid) {
-                    this.LOG.info(`VC1 returned UUID → ${vc1Uuid}`);
-                    await UPDATE(this.recordsEntity)
-                        .set({ vcData1UUID: vc1Uuid })
-                        .where({ ID: lines.map(l => l.ID) });
-                } else {
-                    this.LOG.warn(`VC1 insert did not return a UUID`);
+
+                    vc1Uuid = Array.isArray(vc1Res) ? vc1Res[0]?.SAP_UUID : vc1Res.SAP_UUID;
+                    if (vc1Uuid) {
+                        this.LOG.info(`VC1 returned UUID → ${vc1Uuid}`);
+                        await UPDATE(this.recordsEntity)
+                            .set({ vcData1UUID: vc1Uuid })
+                            .where({ ID: lines.map(l => l.ID) });
+                    } else {
+                        this.LOG.warn(`VC1 insert did not return a UUID`);
+                    }
+                } catch (error) {
+
                 }
 
-                // INSERT VC2
-                let vc2Res = await this.salesVCData_2Api.executeQuery(
-                    INSERT.into('YY1_SALESVCDATA_2').entries(vc2)
-                );
-                this.LOG.info(`VC2 raw response → ${JSON.stringify(vc2Res, null, 2)}`);
+                try {
+                    // INSERT VC2
+                    let vc2Res = await this.salesVCData_2Api.executeQuery(
+                        INSERT.into('YY1_SALESVCDATA_2').entries(vc2)
+                    );
+                    this.LOG.info(`VC2 raw response → ${JSON.stringify(vc2Res, null, 2)}`);
 
-                const vc2Uuid = Array.isArray(vc2Res) ? vc2Res[0]?.SAP_UUID : vc2Res.SAP_UUID;
-                if (vc2Uuid) {
-                    this.LOG.info(`VC2 returned UUID → ${vc2Uuid}`);
-                    await UPDATE(this.recordsEntity)
-                        .set({ vcData2UUID: vc2Uuid })
-                        .where({ ID: lines.map(l => l.ID) });
-                } else {
-                    this.LOG.warn(`VC2 insert did not return a UUID`);
+                    vc2Uuid = Array.isArray(vc2Res) ? vc2Res[0]?.SAP_UUID : vc2Res.SAP_UUID;
+                    if (vc2Uuid) {
+                        this.LOG.info(`VC2 returned UUID → ${vc2Uuid}`);
+                        await UPDATE(this.recordsEntity)
+                            .set({ vcData2UUID: vc2Uuid })
+                            .where({ ID: lines.map(l => l.ID) });
+                    } else {
+                        this.LOG.warn(`VC2 insert did not return a UUID`);
+                    }
+                } catch (error) {
+
                 }
 
                 //Update Sales Order
@@ -2535,7 +2545,7 @@ class TimeContractor_3 extends Processor {
                     const oRecord = this.records.find((r) => r.ID === sId);
                     return {
                         record_ID: sId,
-                        message: `Sales Order Item ${oRecord.salesItemNoSAP} was created successfully for Sales Order ${oRecord.salesDocumentNoSAP}. ` + `VC Data 1 UUID: ${oRecord.vcData1UUID}, VC Data 2 UUID: ${oRecord.vcData2UUID}.`,
+                        message: `Sales Order Item ${oRecord.salesItemNoSAP} was created successfully for Sales Order ${oRecord.salesDocumentNoSAP}. ` + `VC Data 1 UUID: ${vc1Uuid}, VC Data 2 UUID: ${vc2Uuid}.`,
                         process_code: sProcessCode,
                         type: 3,
                     };
@@ -2912,10 +2922,9 @@ class TimeContractor_3 extends Processor {
 
                     //LOG.info(`[${ID}] Sending update payload: ${JSON.stringify(updatePayload)}`);
                     const updateResult = await this.salesOrderAPI.updateSalesOrder(updatePayload);
-                    if(updateResult.error)
-                    {
+                    if (updateResult.error) {
                         LOG.error(`[processIntercompanyso][Group ${groupCounter}][4.6] Update Error: ${JSON.stringify(updateResult, null, 2)}`);
-                    throw new Error(`Update of request delivery date failed: ${updateResult.error}`);
+                        throw new Error(`Update of request delivery date failed: ${updateResult.error}`);
                     }
                 }
                 LOG.info(`[processIntercompanyso][Group ${groupCounter}][4.7] SO item created`);
