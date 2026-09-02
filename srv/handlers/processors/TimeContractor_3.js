@@ -1118,6 +1118,7 @@ class TimeContractor_3 extends Processor {
             }
 
             await ProcessLogger.addLogs(aErrorLogs);
+            await this.markRecordsValid(sProcessCode, aFailedRecordIDs, false);
 
             if (!bBreakExecution && step === '1') {
                 const failedSet = new Set(aFailedRecordIDs);
@@ -1149,7 +1150,7 @@ class TimeContractor_3 extends Processor {
         // ——————————————————————————————————————————
         // STEP 3.5: Process-All → promotions (only at step '1')
         // ——————————————————————————————————————————
-        if (!bBreakExecution && step === '1') {
+        if (!bBreakExecution && (step === '1' || step ==='0')) {
             LOG.info(`STEP 3.5: Process-All step '1' → promote clean groups to 'T'`);
 
             const byGroup = new Map();
@@ -1198,7 +1199,8 @@ class TimeContractor_3 extends Processor {
                 try {
                     LOG.info(`[STEP 3.6] Auto-chaining ${promotable.length} promoted row(s) into PROCESS-TIME`);
                     // Reuse your existing TIME handler; it will re-fetch and only touch 'T' rows in this.recordIDs
-                    await this.processTime('T', /* bBreakExecution */ false);
+                    //await this.processTime('T', /* bBreakExecution */ false);
+                    
                     LOG.info(`[STEP 3.6] PROCESS-TIME completed for promoted row(s)`);
                 } catch (e) {
                     LOG.error(`[STEP 3.6] PROCESS-TIME failed: ${e.message}`);
@@ -1210,6 +1212,52 @@ class TimeContractor_3 extends Processor {
         } else if (!bBreakExecution) {
             LOG.info(`STEP 3.5: Process-All step '${step}' → NO promotions here (skip earlier steps).`);
         }
+
+        else if(bBreakExecution && (step === '1' || step ==='0'))
+        {
+            const byGroup = new Map();
+            for (const r of aRecordsForProcessing) {
+                const k = [r.contractNo, r.invoiceNoWN, r.employeeNo, r.tempusWorkOrder, r.salesDocumentType, r.orderNo, r.weekEndDate].join('|');
+                if (!byGroup.has(k)) byGroup.set(k, []);
+                byGroup.get(k).push(r);
+            }
+
+            const failedSet = new Set(aFailedRecordIDs);
+            const promotable = [];
+            const toClearLogs = [];
+
+            for (const [key, grp] of byGroup.entries()) {
+                const hasFailure = grp.some(r => failedSet.has(r.ID));
+                const allAtZeroOne = grp.every(r => r.processLevel_code === '0' || r.processLevel_code === '1');
+
+                if (!hasFailure && allAtZeroOne) {
+                    const ids = grp.map(r => r.ID);
+                    promotable.push(...ids);
+                    toClearLogs.push(...ids);
+                    LOG.info(`STEP 3.5: Group '${key}' is CLEAN and all at 0/1 → promote ${ids.length} row(s) to 'T'`);
+                } else if (!allAtZeroOne) {
+                    LOG.warn(`STEP 3.5: Group '${key}' contains rows beyond 0/1 → NO PROMOTION`);
+                } else {
+                    LOG.warn(`STEP 3.5: Group '${key}' has errors → remain at current level`);
+                }
+            }
+
+            if (promotable.length) {
+                await ProcessLogger.removeLogs([...new Set(toClearLogs)], null, sProcessCode);
+                await UPDATE(this.recordsEntity)
+                    .set({
+                        processLevel_code: '1',
+                        valid: true
+                    })
+                    .where({
+                        ID: {
+                            in: promotable
+                        }
+                    });
+                await ProcessLogger.addLogs(promotable.map((sId) => ({ record_ID: sId, message: cds.i18n.messages.at('SUCCESS_RECORD_PROCESSED', [sProcessCode]), process_code: sProcessCode, type: 3 })));
+                LOG.info(`STEP 3.5 Changed ${promotable.length} record(s) to '1'`);
+        }
+    }
 
         // FINISH
         LOG.info(`[validateRecords] END: wrote ${aErrorLogs.length} error log(s); processLevel_code never changed in validate-mode; promotions/valid flips only at step '1' on Process-All`);
@@ -1784,12 +1832,12 @@ class TimeContractor_3 extends Processor {
             if (idsTo3.length) {
                 LOG.info(`[AUTO] Chaining ${idsTo3.length} row(s) to processSalesOrder('3')`);
                 this.recordIDs = new Set(idsTo3);
-                await this.processSalesOrder('3', false);
+               // await this.processSalesOrder('3', false);
             }
             if (idsToG.length) {
                 LOG.info(`[AUTO] Chaining ${idsToG.length} row(s) to processIntercompanyso('G')`);
                 this.recordIDs = new Set(idsToG);
-                await this.processIntercompanyso('G', false);
+               // await this.processIntercompanyso('G', false);
             }
         } catch (e) {
             LOG.error(`[AUTO] processTime chaining failed: ${e.message}`);
@@ -2097,6 +2145,7 @@ class TimeContractor_3 extends Processor {
         // ----------------------------------------------------------------------
         var vc2Uuid;
         var vc1Uuid;
+        var nextSO;
         for (const [key, lines] of groups.entries()) {
             vc1Uuid = '';
             vc2Uuid = '';
@@ -2153,7 +2202,7 @@ class TimeContractor_3 extends Processor {
                     : `[processSalesOrder][Group ${groupCounter}] No existing PO for SO='${vbeln}', will create new.`
                 );
 
-                const nextSO = await this.getNextLineItem(vbeln, poNo);
+                nextSO = await this.getNextLineItem(vbeln, poNo);
                 LOG.info(`[processSalesOrder][Group ${groupCounter}] Next SO/PO line → ${nextSO}`);
 
                 // 4.4: Calculate totals
@@ -2498,7 +2547,7 @@ class TimeContractor_3 extends Processor {
                 //Update Sales Order
                 if (vc1Uuid || vc2Uuid) {
                     try {
-                        const resp1 = await this.salesOrderAPI.patchSalesOrderItemV2({
+                        const resp1 = await this.salesOrderAPI.patchSalesOrderextItemV2({
                             SalesOrder: vbeln,
                             SalesOrderItem: nextSO,
                             YY1_ExtensionUUID1_SDI: vc1Uuid,
@@ -2545,7 +2594,7 @@ class TimeContractor_3 extends Processor {
                     const oRecord = this.records.find((r) => r.ID === sId);
                     return {
                         record_ID: sId,
-                        message: `Sales Order Item ${oRecord.salesItemNoSAP} was created successfully for Sales Order ${oRecord.salesDocumentNoSAP}. ` + `VC Data 1 UUID: ${vc1Uuid}, VC Data 2 UUID: ${vc2Uuid}.`,
+                        message: `Sales Order Item ${nextSO} was created successfully for Sales Order ${oRecord.salesDocumentNoSAP}. ` + `VC Data 1 UUID: ${vc1Uuid}, VC Data 2 UUID: ${vc2Uuid}.`,
                         process_code: sProcessCode,
                         type: 3,
                     };
@@ -2559,7 +2608,7 @@ class TimeContractor_3 extends Processor {
         try {
             if (passed.length) {
                 LOG.info(`[AUTO] Chaining ${passed.length} SO-passed row(s) to processPurchaseOrder('5')`);
-                await this.processPurchaseOrder('5', false);
+                //await this.processPurchaseOrder('5', false);
             }
         } catch (e) {
             LOG.error(`[AUTO] processSalesOrder chaining failed: ${e.message}`);
@@ -3192,7 +3241,7 @@ class TimeContractor_3 extends Processor {
         try {
             if (passed.length) {
                 LOG.info(`[AUTO] Chaining ${passed.length} IC SO-passed row(s) to processPurchaseOrder('5')`);
-                await this.processPurchaseOrder('5', false);
+                //await this.processPurchaseOrder('5', false);
             }
         } catch (e) {
             LOG.error(`[AUTO] processIntercompanyso chaining failed: ${e.message}`);
@@ -3231,7 +3280,7 @@ class TimeContractor_3 extends Processor {
 
         // 5.1b) Skip CP/CR orders — mark complete (code '9') and remove them
         const cpcrIDs = recs
-            .filter(r => ['CP', 'CR'].includes(r.woType))
+            .filter(r => ['CP', 'CR'].includes(r.salesDocumentType))
             .map(r => r.ID);
         if (cpcrIDs.length) {
             LOG.info(
@@ -3452,6 +3501,7 @@ class TimeContractor_3 extends Processor {
                         ot3 * rateOt3 +
                         dt3 * rateDt3;
                 }
+                
                 const poNetAmount = Number(totalSale.toFixed(2));
                 const safePoAmount = poNetAmount > 0 ? poNetAmount : 1;
                 LOG.info(`[processPurchaseOrder][Group ${key}] totalHours=${totalHours}, safePoAmount=${safePoAmount}`);
@@ -3820,7 +3870,7 @@ class TimeContractor_3 extends Processor {
         try {
             if (passed.length) {
                 LOG.info(`[AUTO] Chaining ${passed.length} PO-passed row(s) to processSupplierInvoice('B')`);
-                await this.processSupplierInvoice('B', false);
+                //await this.processSupplierInvoice('B', false);
             }
         } catch (e) {
             LOG.error(`[AUTO] processPurchaseOrder chaining to MIRO failed: ${e.message}`);

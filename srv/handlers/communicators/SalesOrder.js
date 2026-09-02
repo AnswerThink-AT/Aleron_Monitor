@@ -495,6 +495,32 @@ class SalesOrder {
         }
     }
 
+    async patchSalesOrderextItemV2({ SalesOrder, SalesOrderItem, YY1_ExtensionUUID1_SDI, YY1_ExtensionUUID2_SDI }){
+             if (!SalesOrder || !SalesOrderItem) {
+            throw new Error('patchSalesOrderItemV2: SalesOrder or SalesOrderItem key is missing');
+        }
+
+        // 1) get the CDS-connected OData V2 client
+        const oAPI = await this.getConnection();
+
+        // 2) build the exact path you tested in Postman
+        const path = `/A_SalesOrderItem(SalesOrder='${SalesOrder}',SalesOrderItem='${SalesOrderItem}')`;
+
+        // 3) PATCH only the custom field
+        try {
+            const result = await oAPI.patch(path, {
+                YY1_ExtensionUUID1_SDI,YY1_ExtensionUUID2_SDI
+            });
+            LOG.info(`[patchSalesOrderItemV2] ✔ success for ${SalesOrder}/${SalesOrderItem}`);
+            return result;
+        }
+        catch (err) {
+            LOG.error(`[patchSalesOrderItemV2] ❌ failed to patch ${SalesOrder}/${SalesOrderItem}: ${err.message}`, err);
+            throw err;
+        }
+
+    }
+
     async patchSalesOrderV2({ SalesOrder, RequestedDeliveryDate }) {
         if (!SalesOrder) {
             throw new Error('patchSalesOrderV2: SalesOrder is missing');
@@ -518,11 +544,11 @@ class SalesOrder {
                     'If-Match': etag || '*'
                 }
             });
-            LOG.info(`[patchSalesOrderItemV2] ✔ success for ${SalesOrder}`);
+            LOG.info(`[patchSalesOrderV2] ✔ success for ${SalesOrder}`);
             return result;
         }
         catch (err) {
-            LOG.error(`[patchSalesOrderItemV2] ❌ failed to patch ${SalesOrder}: ${err.message}`, err);
+            LOG.error(`[patchSalesOrderV2] ❌ failed to patch ${SalesOrder}: ${err.message}`, err);
             throw err;
         }
     }
