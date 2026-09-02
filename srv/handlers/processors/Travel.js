@@ -1144,7 +1144,7 @@ class Travel extends Processor {
 
                 if (vc1Uuid || vc2Uuid) {
                     try {
-                        const resp1 = await this.salesOrderAPI.patchSalesOrderItemV2({
+                        const resp1 = await this.salesOrderAPI.patchSalesOrderextItemV2({
                             SalesOrder: soNum,
                             SalesOrderItem: nextItem,
                             YY1_ExtensionUUID1_SDI: vc1Uuid,
