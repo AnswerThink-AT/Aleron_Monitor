@@ -778,19 +778,45 @@ class OtherBillables extends Processor {
         // ─── Step 3.2: fetch first items & custom‐fields → VC mapping ───────────
         LOG.info('--- Starting Step 3.2: fetch first items & CustomFieldsToVC');
         try {
-            const prefetch = await this.salesOrderAPI.executeQuery(
-                SELECT.from('A_SalesOrder')
-                    .columns(['SalesOrder', 'AdditionalCustomerGroup2'])
-                    .where({ SalesOrder: { in: [...new Set(aWNWorkOrderWhere)] } })
+            
+
+            const aWNItemLookup = await this.salesOrderAPI.executeQuery(
+                SELECT.from('A_SalesOrderItem')
+                    .columns(['SalesOrder', 'YY1_WNWorkOrder_SD_SDI'])
+                    .where({
+                        YY1_WNWorkOrder_SD_SDI: { in: aWNWorkOrderWhere },
+                        SalesOrderItem: '10'
+                    })
             );
 
-            const aZWNSalesOrders = prefetch
-                .filter(o => o.AdditionalCustomerGroup2 === 'ZWN')
-                .map(o => o.SalesOrder);
+            // Build a map: VMS workOrderWN → resolved SAP SalesOrder number
+            const mWNtoSAP = new Map(); // key = workOrderWN from file, value = SAP SO number
+            (aWNItemLookup ?? []).forEach(o => {
+                if (!mWNtoSAP.has(o.YY1_WNWorkOrder_SD_SDI)) {
+                    mWNtoSAP.set(o.YY1_WNWorkOrder_SD_SDI, o.SalesOrder);
+                }
+            });
 
-            const aNonZWNSalesOrders = prefetch
-                .filter(o => o.AdditionalCustomerGroup2 !== 'ZWN')
-                .map(o => o.SalesOrder);
+            // Work orders not resolved via YY1_WNWorkOrder_SD_SDI are treated as direct SAP SO numbers
+            const aDirectSAPSoNumbers = aWNWorkOrderWhere
+                .filter(wo => !mWNtoSAP.has(wo));
+
+            let aZWNSalesOrders = [];
+            let aNonZWNSalesOrders = [];
+
+            if (aDirectSAPSoNumbers.length) {
+                const prefetch = await this.salesOrderAPI.executeQuery(
+                    SELECT.from('A_SalesOrder')
+                        .columns(['SalesOrder', 'AdditionalCustomerGroup2'])
+                        .where({ SalesOrder: { in: aDirectSAPSoNumbers } })
+                );
+                aZWNSalesOrders = prefetch
+                    .filter(o => o.AdditionalCustomerGroup2 === 'ZWN')
+                    .map(o => o.SalesOrder);
+                aNonZWNSalesOrders = prefetch
+                    .filter(o => o.AdditionalCustomerGroup2 !== 'ZWN')
+                    .map(o => o.SalesOrder);
+            }
 
             const aSalesItemQueries = [];
 
@@ -798,10 +824,12 @@ class OtherBillables extends Processor {
                 aSalesItemQueries.push(
                     this.salesOrderAPI.executeQuery(
                         SELECT.from('A_SalesOrderItem')
-                            .columns(['SalesOrder', 'SalesOrderItem', 'YY1_PurchasingDoc_SD_SDI',
-                                'SalesOrderItemCategory', 'YY1_WNWorkOrder_SD_SDI',
-                                'Material', 'WBSElement', 'ProductionPlant'])
-                            .where({ SalesOrder: { in: aZWNSalesOrders }, SalesOrderItem: '10' })
+                            .columns(['SalesOrder', 'SalesOrderItem', 'YY1_PurchasingDoc_SD_SDI', 'SalesOrderItemCategory',
+                                'YY1_WNWorkOrder_SD_SDI', 'Material', 'WBSElement', 'ProductionPlant'])
+                            .where({
+                                SalesOrder: { in: aZWNSalesOrders },
+                                SalesOrderItem: '10'
+                            })
                     )
                 );
             }
@@ -810,9 +838,8 @@ class OtherBillables extends Processor {
                 aSalesItemQueries.push(
                     this.salesOrderAPI.executeQuery(
                         SELECT.from('A_SalesOrderItem')
-                            .columns(['SalesOrder', 'SalesOrderItem', 'YY1_PurchasingDoc_SD_SDI',
-                                'SalesOrderItemCategory', 'YY1_WNWorkOrder_SD_SDI',
-                                'Material', 'WBSElement', 'ProductionPlant'])
+                            .columns(['SalesOrder', 'SalesOrderItem', 'YY1_PurchasingDoc_SD_SDI', 'SalesOrderItemCategory',
+                                'YY1_WNWorkOrder_SD_SDI', 'Material', 'WBSElement', 'ProductionPlant'])
                             .where({
                                 YY1_WNWorkOrder_SD_SDI: { in: [...new Set(aNonZWNSalesOrders)] },
                                 SalesOrderItem: '10'
@@ -821,46 +848,69 @@ class OtherBillables extends Processor {
                 );
             }
 
+            // Also fetch items for work orders already resolved via the VMS→SAP lookup above
+            const aResolvedSAPSoNumbers = [...new Set([...mWNtoSAP.values()])];
+            if (aResolvedSAPSoNumbers.length) {
+                aSalesItemQueries.push(
+                    this.salesOrderAPI.executeQuery(
+                        SELECT.from('A_SalesOrderItem')
+                            .columns(['SalesOrder', 'SalesOrderItem', 'YY1_PurchasingDoc_SD_SDI', 'SalesOrderItemCategory',
+                                'YY1_WNWorkOrder_SD_SDI', 'Material', 'WBSElement', 'ProductionPlant'])
+                            .where({
+                                SalesOrder: { in: aResolvedSAPSoNumbers },
+                                SalesOrderItem: '10'
+                            })
+                    )
+                );
+            }
+
             const [
-                salesOrderFirstItemResults,
-                aCustomFieldsTOVC
-            ] = await Promise.all([
+                salesOrderResults,
+                { reason: anyCustomFieldsTOVCErr, value: aCustomFieldsTOVC },
+            ] = await Promise.allSettled([
                 Promise.all(aSalesItemQueries),
                 SELECT.from('com.aleron.monitor.CustomFieldsToVC')
                     .columns(['customValue', 'fieldName'])
-                    .where({ customValue: { in: [...new Set(aCustomerFieldNamesWhere)] } })
+                    .where({ customValue: { in: [...new Set(aCustomerFieldNamesWhere)] } }),
             ]);
 
-            const aSalesOrderFirstItems = salesOrderFirstItemResults?.flat() ?? [];
+            const anySalesOrderFirstItemErr = salesOrderResults.reason;
+            const aSalesOrderFirstItems = salesOrderResults.value?.flat() ?? [];
 
             LOG.info(`   Retrieved ${aSalesOrderFirstItems.length} first‐item(s)`);
-            aSalesOrderFirstItems.forEach(o => {
-                LOG.info(`     WNWorkOrder=${o.YY1_WNWorkOrder_SD_SDI}, SalesOrder=${o.SalesOrder}, Item=${o.SalesOrderItem}`);
-                if (aNonZWNSalesOrders.length) {
-                    if (!mSalesOrderFirstItem.has(o.YY1_WNWorkOrder_SD_SDI)) {
-                        mSalesOrderFirstItem.set(o.YY1_WNWorkOrder_SD_SDI, []);
-                    }
-                    mSalesOrderFirstItem.get(o.YY1_WNWorkOrder_SD_SDI).push(o);
-                }
-                if (aZWNSalesOrders.length) {
-                    if (!mSalesOrderFirstItem.has(o.SalesOrder)) {
-                        mSalesOrderFirstItem.set(o.SalesOrder, []);
-                    }
-                    mSalesOrderFirstItem.get(o.SalesOrder).push(o);
-                }
 
-                aSalesOrderWhere.push(o.SalesOrder);
-            });
+            if (!anySalesOrderFirstItemErr?.message && aSalesOrderFirstItems?.length) {
+                aSalesOrderFirstItems.forEach((oSalesOrderItem) => {
+                    LOG.info(`     WNWorkOrder=${oSalesOrderItem.YY1_WNWorkOrder_SD_SDI}, SalesOrder=${oSalesOrderItem.SalesOrder}, Item=${oSalesOrderItem.SalesOrderItem}`);
 
-            LOG.info(`   Retrieved ${aCustomFieldsTOVC.length} CustomFieldsToVC entries`);
-            aCustomFieldsTOVC.forEach(x =>
+                    const sKey = oSalesOrderItem.YY1_WNWorkOrder_SD_SDI || oSalesOrderItem.SalesOrder;
+                    if (!mSalesOrderFirstItem.has(sKey)) {
+                        mSalesOrderFirstItem.set(sKey, []);
+                    }
+                    mSalesOrderFirstItem.get(sKey).push(oSalesOrderItem);
+
+                    // Also index by SalesOrder for ZWN records where workOrderWN === SalesOrder
+                    if (oSalesOrderItem.SalesOrder !== sKey && !mSalesOrderFirstItem.has(oSalesOrderItem.SalesOrder)) {
+                        mSalesOrderFirstItem.set(oSalesOrderItem.SalesOrder, []);
+                    }
+                    if (oSalesOrderItem.SalesOrder !== sKey) {
+                        mSalesOrderFirstItem.get(oSalesOrderItem.SalesOrder).push(oSalesOrderItem);
+                    }
+
+                    aSalesOrderWhere.push(oSalesOrderItem.SalesOrder);
+                });
+            }
+
+            const aCustomFieldsTOVCResolved = anyCustomFieldsTOVCErr ? [] : (aCustomFieldsTOVC ?? []);
+            LOG.info(`   Retrieved ${aCustomFieldsTOVCResolved.length} CustomFieldsToVC entries`);
+            aCustomFieldsTOVCResolved.forEach(x =>
                 LOG.info(`     customValue='${x.customValue}' → fieldName='${x.fieldName}'`)
             );
 
-            // annotate customerFieldNameValue
+            // Annotate customerFieldNameValue entries with their VC fieldName
             for (const [recordID, entries] of mCustomerFieldNameValue.entries()) {
                 entries.forEach(entry => {
-                    const match = aCustomFieldsTOVC.find(x => x.customValue === entry.customerFieldName);
+                    const match = aCustomFieldsTOVCResolved.find(x => x.customValue === entry.customerFieldName);
                     if (match) {
                         entry.fieldName = match.fieldName;
                         LOG.info(`   Mapped record ${recordID} field '${entry.customerFieldName}' → '${match.fieldName}'`);
