@@ -1313,20 +1313,43 @@ class DrugBackgroundCheckProcessor extends Processor {
         }
 
         try {
-            const prefetch = await this.salesOrderAPI.executeQuery(
-                SELECT.from('A_SalesOrder')
-                    .columns(['SalesOrder', 'AdditionalCustomerGroup2'])
-                    .where({ SalesOrder: { in: [...new Set(aworkOrderWNWhere)] } })
+            const aWNItemLookup = await this.salesOrderAPI.executeQuery(
+                SELECT.from('A_SalesOrderItem')
+                    .columns(['SalesOrder', 'YY1_WNWorkOrder_SD_SDI'])
+                    .where({
+                        YY1_WNWorkOrder_SD_SDI: { in: [...new Set(aworkOrderWNWhere)] },
+                        SalesOrderItem: '10'
+                    })
             );
 
-            const aZWNSalesOrders = prefetch
-                .filter(o => o.AdditionalCustomerGroup2 === 'ZWN')
-                .map(o => o.SalesOrder);
+            // Build a map: VMS workOrderWN → resolved SAP SalesOrder number
+            const mWNtoSAP = new Map(); // key = workOrderWN from file, value = SAP SO number
+            (aWNItemLookup ?? []).forEach(o => {
+                if (!mWNtoSAP.has(o.YY1_WNWorkOrder_SD_SDI)) {
+                    mWNtoSAP.set(o.YY1_WNWorkOrder_SD_SDI, o.SalesOrder);
+                }
+            });
 
-            const aNonZWNSalesOrders = prefetch
-                .filter(o => o.AdditionalCustomerGroup2 !== 'ZWN')
-                .map(o => o.SalesOrder);
-                
+            const aDirectSAPSoNumbers = [...new Set(aworkOrderWNWhere)]
+                .filter(wo => !mWNtoSAP.has(wo));
+
+            let aZWNSalesOrders = [];
+            let aNonZWNSalesOrders = [];
+
+            if (aDirectSAPSoNumbers.length) {
+                const prefetch = await this.salesOrderAPI.executeQuery(
+                    SELECT.from('A_SalesOrder')
+                        .columns(['SalesOrder', 'AdditionalCustomerGroup2'])
+                        .where({ SalesOrder: { in: aDirectSAPSoNumbers } })
+                );
+                aZWNSalesOrders = prefetch
+                    .filter(o => o.AdditionalCustomerGroup2 === 'ZWN')
+                    .map(o => o.SalesOrder);
+                aNonZWNSalesOrders = prefetch
+                    .filter(o => o.AdditionalCustomerGroup2 !== 'ZWN')
+                    .map(o => o.SalesOrder);
+            }
+
             const aSalesItemQueries = [];
 
             if (aZWNSalesOrders.length) {
@@ -1357,6 +1380,22 @@ class DrugBackgroundCheckProcessor extends Processor {
                 );
             }
 
+            // Also add items already resolved via the VMS→SAP lookup above
+            const aResolvedSAPSoNumbers = [...new Set([...mWNtoSAP.values()])];
+            if (aResolvedSAPSoNumbers.length) {
+                aSalesItemQueries.push(
+                    this.salesOrderAPI.executeQuery(
+                        SELECT.from('A_SalesOrderItem')
+                            .columns(['SalesOrder', 'SalesOrderItem', 'YY1_PurchasingDoc_SD_SDI', 'SalesOrderItemCategory',
+                                'YY1_WNWorkOrder_SD_SDI', 'Material', 'WBSElement', 'ProductionPlant'])
+                            .where({
+                                SalesOrder: { in: aResolvedSAPSoNumbers },
+                                SalesOrderItem: '10'
+                            })
+                    )
+                );
+            }
+
             const [
                 salesOrderResults,
                 { reason: anyCustomFieldsTOVCErr, value: aCustomFieldsTOVC },
@@ -1372,10 +1411,18 @@ class DrugBackgroundCheckProcessor extends Processor {
 
             if (!anySalesOrderFirstItemErr?.message && aSalesOrderFirstItems?.length) {
                 aSalesOrderFirstItems.forEach((oSalesOrderItem) => {
-                    if (!mSalesOrderFirstItem.has(oSalesOrderItem.YY1_WNWorkOrder_SD_SDI)) {
-                        mSalesOrderFirstItem.set(oSalesOrderItem.YY1_WNWorkOrder_SD_SDI, []);
+                    const sKey = oSalesOrderItem.YY1_WNWorkOrder_SD_SDI || oSalesOrderItem.SalesOrder;
+                    if (!mSalesOrderFirstItem.has(sKey)) {
+                        mSalesOrderFirstItem.set(sKey, []);
                     }
-                    mSalesOrderFirstItem.get(oSalesOrderItem.YY1_WNWorkOrder_SD_SDI).push(oSalesOrderItem);
+                    mSalesOrderFirstItem.get(sKey).push(oSalesOrderItem);
+                    // Also index by SalesOrder for ZWN records where workOrderWN === SalesOrder
+                    if (oSalesOrderItem.SalesOrder !== sKey && !mSalesOrderFirstItem.has(oSalesOrderItem.SalesOrder)) {
+                        mSalesOrderFirstItem.set(oSalesOrderItem.SalesOrder, []);
+                    }
+                    if (oSalesOrderItem.SalesOrder !== sKey) {
+                        mSalesOrderFirstItem.get(oSalesOrderItem.SalesOrder).push(oSalesOrderItem);
+                    }
                     aSalesOrderWhere.push(oSalesOrderItem.SalesOrder);
                 });
             }
@@ -1533,14 +1580,18 @@ class DrugBackgroundCheckProcessor extends Processor {
         const aPayloads = [];
         const mPayloadMap = new Map();
         var index = 0;
-        var aSalesOrderFirstItem= [];
         for (const oRecord of aRecordsForProcessing) {
             const aErrors = [];
+
+            // Reset per record — declared outside the loop before, causing items to bleed across records
+            var aSalesOrderFirstItem = [];
 
             let oSalesOrder, oSalesOrderItem, oPartnerFunctionZV, oSalesOrderPartner,
                 oTravelPayTerm, oTravelPayTermFeed, vendor, firstSOItem, lastSOItem,
                 oConditionType, oBillingType, nextiteration;
-            aSalesOrderFirstItem.push(mSalesOrderFirstItem.get(oRecord.workOrderWN));          // Fetching SO Items based on the workOrderWN from File
+            // mSalesOrderFirstItem stores arrays as values, so spread to flatten into aSalesOrderFirstItem
+            const aMatchedItems = mSalesOrderFirstItem.get(oRecord.workOrderWN) ?? [];
+            aSalesOrderFirstItem.push(...aMatchedItems);          // Fetching SO Items based on the workOrderWN from File
 
             if (oRecord.salesItemNoSAP) {
                 // SalesOrder already created, only VC Data needs to be checked further
@@ -5341,4 +5392,4 @@ class DrugBackgroundCheckProcessor extends Processor {
 
 }
 
-module.exports = DrugBackgroundCheckProcessor; 
+module.exports = DrugBackgroundCheckProcessor;

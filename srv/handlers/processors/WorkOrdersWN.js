@@ -2670,9 +2670,10 @@ class WorkOrdersWN extends Processor {
             (addr) =>
               addr.zipcode === record.postalCode
           );
-          record.county = laddr?.county.toUpperCase();
+          record.county = laddr?.county?.toUpperCase();
           oTaxCode = aTaxCodeByCounty.find(
             (oTaxCode) =>
+              
               oTaxCode.region === record.region &&
               oTaxCode.country_code === record.country_code,
           ); // CHECK: Does record.county exists yet ?
