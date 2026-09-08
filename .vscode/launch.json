@@ -6,8 +6,9 @@
       "request": "launch",
       "type": "node",
       "cwd": "${workspaceFolder}",
-      "runtimeExecutable": "cds",
+      "runtimeExecutable": "npx",
       "args": [
+        "cds",
         "watch",
         "--profile",
         "hybrid"
