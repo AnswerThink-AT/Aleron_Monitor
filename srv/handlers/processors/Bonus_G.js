@@ -1440,6 +1440,7 @@ class Bonus_G extends Processor {
 
     let aRecordIDs = [],
       aWNWorkOrderWhere = [],
+      aworkOrderWNWhere = [],
       aSalesOrderWhere = [],
       aSalesOrderPartnerWhere = [],
       aPurchaseOrderItemWhere = [],
@@ -1470,7 +1471,10 @@ class Bonus_G extends Processor {
       } else {
         aSkippedRecords.push({ ...record });
       }
-      if (record.wnWorkOrder) aWNWorkOrderWhere.push(record.wnWorkOrder);
+      if (record.wnWorkOrder){
+        aWNWorkOrderWhere.push(record.wnWorkOrder);
+        aworkOrderWNWhere.push(record.wnWorkOrder);
+      } 
       ({ mCustomerFieldNameValue, aCustomerFieldNamesWhere } =
         this.customerFieldNameValues(record, mCustomerFieldNameValue, aCustomerFieldNamesWhere));
     }
@@ -1493,39 +1497,85 @@ class Bonus_G extends Processor {
     // -------- Phase 1: SO first item + CustomFieldsToVC
     const t1 = Date.now();
     try {
-      const prefetch = await this.salesOrderAPI.executeQuery(
-        SELECT.from('A_SalesOrder')
-          .columns(['SalesOrder', 'AdditionalCustomerGroup2'])
-          .where({ SalesOrder: { in: [...new Set(aWNWorkOrderWhere)] } }));
+      const aWNItemLookup = await this.salesOrderAPI.executeQuery(
+        SELECT.from('A_SalesOrderItem')
+          .columns(['SalesOrder', 'YY1_WNWorkOrder_SD_SDI'])
+          .where({
+            YY1_WNWorkOrder_SD_SDI: { in: [...new Set(aworkOrderWNWhere)] },
+            SalesOrderItem: '10'
+          })
+      );
 
-      const aZWNSalesOrders = prefetch
-        .filter(o => o.AdditionalCustomerGroup2 === 'ZWN')
-        .map(o => o.SalesOrder);
+      // Build a map: VMS workOrderWN → resolved SAP SalesOrder number
+      const mWNtoSAP = new Map(); // key = workOrderWN from file, value = SAP SO number
+      (aWNItemLookup ?? []).forEach(o => {
+        if (!mWNtoSAP.has(o.YY1_WNWorkOrder_SD_SDI)) {
+          mWNtoSAP.set(o.YY1_WNWorkOrder_SD_SDI, o.SalesOrder);
+        }
+      });
 
-      const aNonZWNSalesOrders = prefetch
-        .filter(o => o.AdditionalCustomerGroup2 !== 'ZWN')
-        .map(o => o.SalesOrder);
+      const aDirectSAPSoNumbers = [...new Set(aworkOrderWNWhere)]
+        .filter(wo => !mWNtoSAP.has(wo));
+
+      let aZWNSalesOrders = [];
+      let aNonZWNSalesOrders = [];
+
+      if (aDirectSAPSoNumbers.length) {
+        const prefetch = await this.salesOrderAPI.executeQuery(
+          SELECT.from('A_SalesOrder')
+            .columns(['SalesOrder', 'AdditionalCustomerGroup2'])
+            .where({ SalesOrder: { in: aDirectSAPSoNumbers } })
+        );
+        aZWNSalesOrders = prefetch
+          .filter(o => o.AdditionalCustomerGroup2 === 'ZWN')
+          .map(o => o.SalesOrder);
+        aNonZWNSalesOrders = prefetch
+          .filter(o => o.AdditionalCustomerGroup2 !== 'ZWN')
+          .map(o => o.SalesOrder);
+      }
 
       const aSalesItemQueries = [];
 
       if (aZWNSalesOrders.length) {
         aSalesItemQueries.push(
-          this.salesOrderAPI?.executeQuery(
+          this.salesOrderAPI.executeQuery(
             SELECT.from('A_SalesOrderItem')
               .columns(['SalesOrder', 'SalesOrderItem', 'YY1_PurchasingDoc_SD_SDI', 'SalesOrderItemCategory',
                 'YY1_WNWorkOrder_SD_SDI', 'Material', 'WBSElement', 'ProductionPlant'])
-              .where({ SalesOrder: { in: aZWNSalesOrders }, SalesOrderItem: '10' })
+              .where({
+                SalesOrder: { in: aZWNSalesOrders },
+                SalesOrderItem: '10'
+              })
           )
         );
       }
 
       if (aNonZWNSalesOrders.length) {
         aSalesItemQueries.push(
-          this.salesOrderAPI?.executeQuery(
+          this.salesOrderAPI.executeQuery(
             SELECT.from('A_SalesOrderItem')
               .columns(['SalesOrder', 'SalesOrderItem', 'YY1_PurchasingDoc_SD_SDI', 'SalesOrderItemCategory',
                 'YY1_WNWorkOrder_SD_SDI', 'Material', 'WBSElement', 'ProductionPlant'])
-              .where({ YY1_WNWorkOrder_SD_SDI: { in: [...new Set(aNonZWNSalesOrders)] }, SalesOrderItem: '10' })
+              .where({
+                YY1_WNWorkOrder_SD_SDI: { in: [...new Set(aNonZWNSalesOrders)] },
+                SalesOrderItem: '10'
+              })
+          )
+        );
+      }
+
+      // Also add items already resolved via the VMS→SAP lookup above
+      const aResolvedSAPSoNumbers = [...new Set([...mWNtoSAP.values()])];
+      if (aResolvedSAPSoNumbers.length) {
+        aSalesItemQueries.push(
+          this.salesOrderAPI.executeQuery(
+            SELECT.from('A_SalesOrderItem')
+              .columns(['SalesOrder', 'SalesOrderItem', 'YY1_PurchasingDoc_SD_SDI', 'SalesOrderItemCategory',
+                'YY1_WNWorkOrder_SD_SDI', 'Material', 'WBSElement', 'ProductionPlant'])
+              .where({
+                SalesOrder: { in: aResolvedSAPSoNumbers },
+                SalesOrderItem: '10'
+              })
           )
         );
       }
