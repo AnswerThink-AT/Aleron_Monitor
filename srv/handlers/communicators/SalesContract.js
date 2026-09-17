@@ -38,7 +38,7 @@ class SalesContract {
 
   async getEntities(sNS) {
     const oAPI = await this.getConnection();
-    return oAPI.entities(sNS);
+    return oAPI.entities;
   }
 }
 
