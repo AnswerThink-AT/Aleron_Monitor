@@ -2489,8 +2489,9 @@ class Travel extends Processor {
 
         // helper to format JS Date/ISO → OData “/Date(…)/” wrapper
         const toODataDate = d => {
-            const ms = (d instanceof Date) ? d.getTime() : new Date(d).getTime();
-            return `/Date(${ms})/`;
+            const m = moment(d, ['YYYYMMDD', 'YYYY-MM-DD', moment.ISO_8601]);
+            if (!m.isValid()) throw new Error(`Invalid date passed to toODataDate: ${d}`);
+            return m.startOf('day').format('YYYY-MM-DD[T]HH:mm:ss');   // e.g. 2026-09-18T00:00:00
         };
 
         // ==== item-number helpers (add once, near your requires) ====
@@ -2582,7 +2583,7 @@ class Travel extends Processor {
                 }
 
                 // c) build today in OData format
-                const todayOData = toODataDate(new Date());
+                const todayOData = toODataDate(moment());
 
                 // d) full MIRO payload
                 const payload = {
